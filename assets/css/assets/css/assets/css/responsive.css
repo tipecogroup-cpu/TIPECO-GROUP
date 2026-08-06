@@ -1,0 +1,48 @@
+/* =====================================================
+   TIPECO GROUP - Responsive Styles
+   Version: 1.0
+===================================================== */
+
+/* Large Devices (Laptops) */
+@media (max-width: 1200px) {
+
+    .container {
+        width: 92%;
+    }
+
+}
+
+/* Tablets */
+@media (max-width: 992px) {
+
+    .container {
+        width: 94%;
+    }
+
+}
+
+/* Small Tablets */
+@media (max-width: 768px) {
+
+    body {
+        font-size: 15px;
+    }
+
+    .container {
+        width: 95%;
+    }
+
+}
+
+/* Mobile Phones */
+@media (max-width: 576px) {
+
+    body {
+        font-size: 14px;
+    }
+
+    .container {
+        width: 96%;
+    }
+
+}
