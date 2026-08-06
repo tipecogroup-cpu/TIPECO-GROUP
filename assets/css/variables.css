@@ -1,0 +1,54 @@
+/* =====================================================
+   TIPECO GROUP - CSS Variables
+   Version: 1.0
+===================================================== */
+
+:root {
+
+    /* Primary Colors */
+    --primary-color: #0D47A1;
+    --secondary-color: #1976D2;
+    --accent-color: #FFC107;
+
+    /* Neutral Colors */
+    --white: #FFFFFF;
+    --black: #000000;
+    --light-gray: #F5F5F5;
+    --gray: #757575;
+    --dark-gray: #333333;
+
+    /* Success, Warning & Error */
+    --success: #28A745;
+    --warning: #FF9800;
+    --danger: #DC3545;
+
+    /* Font Family */
+    --font-family: "Segoe UI", Arial, sans-serif;
+
+    /* Font Sizes */
+    --font-small: 14px;
+    --font-normal: 16px;
+    --font-medium: 20px;
+    --font-large: 28px;
+    --font-title: 40px;
+
+    /* Spacing */
+    --spacing-xs: 5px;
+    --spacing-sm: 10px;
+    --spacing-md: 20px;
+    --spacing-lg: 40px;
+    --spacing-xl: 80px;
+
+    /* Border Radius */
+    --radius-small: 5px;
+    --radius-medium: 10px;
+    --radius-large: 20px;
+
+    /* Shadows */
+    --shadow-light: 0 2px 5px rgba(0,0,0,0.10);
+    --shadow-medium: 0 5px 15px rgba(0,0,0,0.15);
+
+    /* Transition */
+    --transition: all 0.3s ease;
+
+}
