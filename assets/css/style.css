@@ -320,3 +320,233 @@ button {
 .hero-btn span {
     font-size: 20px;
 }
+/* =====================================================
+   BUSINESSES SECTION
+   TIPECO GROUP HOMEPAGE
+===================================================== */
+
+.businesses {
+    padding: var(--spacing-xl) 0;
+    background-color: var(--light-gray);
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.section-label {
+    color: var(--secondary-color);
+    font-size: var(--font-small);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: var(--spacing-sm);
+}
+
+.section-header h2 {
+    color: var(--primary-color);
+    font-size: var(--font-large);
+    margin-bottom: var(--spacing-sm);
+}
+
+.section-description {
+    color: var(--gray);
+    font-size: var(--font-normal);
+}
+
+
+/* Business Cards Grid */
+
+.business-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--spacing-md);
+}
+
+
+/* Business Card */
+
+.business-card {
+    background-color: #111F33;
+    padding: 30px 20px;
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-medium);
+    text-align: center;
+    min-height: 390px;
+
+    display: flex;
+    flex-direction: column;
+
+    transition: var(--transition);
+}
+
+.business-card:hover {
+    transform: translateY(-8px);
+}
+
+
+/* Business Icon */
+
+.business-icon {
+    font-size: 42px;
+    margin-bottom: var(--spacing-md);
+}
+
+
+/* Card Title */
+
+.business-card h3 {
+    color: var(--white);
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+
+/* Card Tagline */
+
+.business-tagline {
+    font-size: var(--font-small);
+    margin-bottom: var(--spacing-md);
+}
+
+
+/* Card List */
+
+.business-card ul {
+    text-align: left;
+    margin-bottom: var(--spacing-md);
+}
+
+.business-card li {
+    color: var(--white);
+    font-size: var(--font-small);
+    margin-bottom: 8px;
+}
+
+
+/* Card Button */
+
+.business-btn {
+    display: inline-block;
+    margin-top: auto;
+    padding: 10px 20px;
+
+    border: 1px solid currentColor;
+    border-radius: var(--radius-small);
+
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.business-btn:hover {
+    background-color: currentColor;
+    color: var(--white);
+}
+
+
+/* =====================================================
+   CARD COLORS
+===================================================== */
+
+/* TIPECO PAINT */
+
+.paint-card {
+    border-top: 3px solid #FF9800;
+}
+
+.paint-card .business-icon,
+.paint-card .business-tagline,
+.paint-card .business-btn {
+    color: #FF9800;
+}
+
+
+/* TIPECO CRYPTO */
+
+.crypto-card {
+    border-top: 3px solid #2196F3;
+}
+
+.crypto-card .business-icon,
+.crypto-card .business-tagline,
+.crypto-card .business-btn {
+    color: #2196F3;
+}
+
+
+/* TIPECO MARKETPLACE */
+
+.marketplace-card {
+    border-top: 3px solid #76C442;
+}
+
+.marketplace-card .business-icon,
+.marketplace-card .business-tagline,
+.marketplace-card .business-btn {
+    color: #76C442;
+}
+
+
+/* TIPECO MEDIA */
+
+.media-card {
+    border-top: 3px solid #8B5CF6;
+}
+
+.media-card .business-icon,
+.media-card .business-tagline,
+.media-card .business-btn {
+    color: #8B5CF6;
+}
+
+
+/* TIPECO SERVICES */
+
+.services-card {
+    border-top: 3px solid #16C7C7;
+}
+
+.services-card .business-icon,
+.services-card .business-tagline,
+.services-card .business-btn {
+    color: #16C7C7;
+}
+
+
+/* =====================================================
+   MOBILE RESPONSIVE
+===================================================== */
+
+@media (max-width: 1000px) {
+
+    .business-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .businesses {
+        padding: var(--spacing-lg) 0;
+    }
+
+    .section-header h2 {
+        font-size: var(--font-medium);
+    }
+
+    .section-description {
+        font-size: var(--font-small);
+    }
+
+    .business-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .business-card {
+        min-height: auto;
+    }
+
+}
