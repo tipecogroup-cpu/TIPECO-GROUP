@@ -46,3 +46,66 @@
     }
 
 }
+/* =========================
+   STATS SECTION - RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+    }
+
+    .stat-card {
+        padding: var(--spacing-md);
+    }
+
+    .stat-number {
+        font-size: 32px;
+    }
+
+    .stat-card h3 {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .stats-section {
+        padding: 50px 0;
+    }
+
+    .stats-header {
+        margin-bottom: 30px;
+    }
+
+    .stats-header h2 {
+        font-size: 26px;
+    }
+
+    .stats-header p {
+        font-size: 14px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .stat-card {
+        padding: 25px 15px;
+    }
+
+    .stat-number {
+        font-size: 30px;
+    }
+
+    .stat-card h3 {
+        font-size: 17px;
+    }
+
+    .stat-card p {
+        font-size: 13px;
+    }
+}
