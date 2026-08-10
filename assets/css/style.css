@@ -616,3 +616,67 @@ button {
     line-height: 1.6;
     margin: 0;
 }
+/* =========================
+   CTA SECTION
+========================= */
+
+.cta-section {
+    padding: var(--spacing-xl) 0;
+    background-color: var(--primary-color);
+}
+
+.cta-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cta-content h2 {
+    color: var(--white);
+    font-size: var(--font-title);
+    margin-bottom: var(--spacing-md);
+}
+
+.cta-content p {
+    color: var(--white);
+    font-size: var(--font-normal);
+    line-height: 1.7;
+    margin-bottom: var(--spacing-lg);
+}
+
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.cta-buttons .btn {
+    display: inline-block;
+    padding: 14px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.cta-buttons .btn-primary {
+    background-color: var(--accent-color);
+    color: var(--black);
+}
+
+.cta-buttons .btn-primary:hover {
+    transform: translateY(-2px);
+}
+
+.cta-buttons .btn-outline {
+    background-color: transparent;
+    color: var(--white);
+    border: 2px solid var(--white);
+}
+
+.cta-buttons .btn-outline:hover {
+    background-color: var(--white);
+    color: var(--primary-color);
+}
