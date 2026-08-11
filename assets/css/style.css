@@ -739,7 +739,14 @@ button {
 .footer-contact {
     margin-bottom: var(--spacing-md) !important;
 }
+.footer-contact li a {
+    color: #dddddd;
+    text-decoration: none;
+}
 
+.footer-contact li a:hover {
+    color: var(--accent-color);
+}
 .footer-social {
     display: flex;
     flex-wrap: wrap;
