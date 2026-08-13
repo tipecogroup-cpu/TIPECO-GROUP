@@ -19,12 +19,21 @@ html {
 }
 
 /* Body */
+html,
+body {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: var(--font-family);
     font-size: var(--font-normal);
     color: var(--dark-gray);
     background-color: var(--white);
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
 /* Images */
