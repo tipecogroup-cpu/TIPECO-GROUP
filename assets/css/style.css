@@ -786,3 +786,23 @@ button {
     color: #bbbbbb;
     font-size: var(--font-small);
 }
+/* =====================================================
+   MOBILE WIDTH TEST
+===================================================== */
+
+html,
+body {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 100vw !important;
+}
+
+.header,
+.hero,
+.stats-section,
+.cta-section,
+.businesses,
+.footer {
+    width: 100vw !important;
+    max-width: 100vw !important;
+}
