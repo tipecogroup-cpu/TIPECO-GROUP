@@ -41,11 +41,18 @@
         font-size: 14px;
     }
 
-    .container {
-        width: 96%;
+  @media (max-width: 576px) {
+
+    body {
+        font-size: 14px;
     }
 
-}
+    .container {
+        width: 96%;
+        max-width: 100%;
+    }
+
+}  
 /* =========================
    STATS SECTION - RESPONSIVE
 ========================= */
