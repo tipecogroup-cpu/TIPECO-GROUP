@@ -1,0 +1,393 @@
+/* =====================================================
+   TIPECO GROUP - AUTHENTICATION STYLES
+   Login & Register Pages
+   Version: 1.0
+===================================================== */
+
+/* =========================
+   AUTH PAGE
+========================= */
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 40px 20px;
+
+    background:
+        radial-gradient(
+            circle at 80% 20%,
+            rgba(25, 118, 210, 0.20),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #020b18 0%,
+            #061a33 50%,
+            #020b18 100%
+        );
+}
+
+
+/* =========================
+   AUTH CONTAINER
+========================= */
+
+.auth-container {
+    width: 100%;
+    max-width: 450px;
+}
+
+
+/* =========================
+   AUTH HEADER
+========================= */
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.auth-logo {
+    display: inline-block;
+
+    color: var(--accent-color);
+
+    font-size: 22px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    margin-bottom: 20px;
+}
+
+.auth-header h1 {
+    color: var(--white);
+
+    font-size: 32px;
+    font-weight: 700;
+
+    margin-bottom: 8px;
+}
+
+.auth-header p {
+    color: #dddddd;
+
+    font-size: 14px;
+}
+
+
+/* =========================
+   AUTH CARD
+========================= */
+
+.auth-card {
+    background-color: var(--white);
+
+    padding: 35px;
+
+    border-radius: var(--radius-medium);
+
+    box-shadow:
+        0 10px 35px rgba(0, 0, 0, 0.25);
+}
+
+
+/* =========================
+   FORM GROUP
+========================= */
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--dark-gray);
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+
+    padding: 13px 14px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: var(--radius-small);
+
+    background-color: #ffffff;
+
+    color: var(--dark-gray);
+
+    font-family: inherit;
+    font-size: 15px;
+
+    outline: none;
+
+    transition: var(--transition);
+}
+
+.form-group input:focus {
+    border-color: var(--secondary-color);
+
+    box-shadow:
+        0 0 0 3px rgba(25, 118, 210, 0.10);
+}
+
+.form-group input::placeholder {
+    color: #999999;
+}
+
+
+/* =========================
+   AUTH OPTIONS
+========================= */
+
+.auth-options {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 22px;
+
+    font-size: 13px;
+}
+
+.remember-me {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    color: var(--dark-gray);
+
+    cursor: pointer;
+}
+
+.remember-me input {
+    cursor: pointer;
+}
+
+.auth-options a {
+    color: var(--primary-color);
+
+    font-weight: 600;
+}
+
+.auth-options a:hover {
+    color: var(--secondary-color);
+}
+
+
+/* =========================
+   LOGIN BUTTON
+========================= */
+
+.auth-btn {
+    width: 100%;
+
+    padding: 13px 20px;
+
+    background-color: var(--primary-color);
+
+    color: var(--white);
+
+    border: 1px solid var(--primary-color);
+
+    border-radius: var(--radius-small);
+
+    font-family: inherit;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: var(--transition);
+}
+
+.auth-btn:hover {
+    background-color: var(--secondary-color);
+
+    border-color: var(--secondary-color);
+
+    transform: translateY(-2px);
+}
+
+
+/* =========================
+   DIVIDER
+========================= */
+
+.auth-divider {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin: 25px 0;
+
+    color: #999999;
+
+    font-size: 12px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+
+    flex: 1;
+
+    height: 1px;
+
+    background-color: #e0e0e0;
+}
+
+
+/* =========================
+   GOOGLE BUTTON
+========================= */
+
+.google-btn {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    padding: 12px 20px;
+
+    background-color: var(--white);
+
+    color: var(--dark-gray);
+
+    border: 1px solid #dddddd;
+
+    border-radius: var(--radius-small);
+
+    font-family: inherit;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: var(--transition);
+}
+
+.google-btn:hover {
+    background-color: #f7f7f7;
+
+    border-color: #bbbbbb;
+}
+
+.google-icon {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 24px;
+    height: 24px;
+
+    color: #4285F4;
+
+    font-size: 18px;
+    font-weight: 800;
+}
+
+
+/* =========================
+   REGISTER LINK
+========================= */
+
+.auth-register {
+    text-align: center;
+
+    margin-top: 25px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #eeeeee;
+}
+
+.auth-register p {
+    color: var(--gray);
+
+    font-size: 14px;
+}
+
+.auth-register a {
+    color: var(--primary-color);
+
+    font-weight: 700;
+}
+
+.auth-register a:hover {
+    color: var(--secondary-color);
+}
+
+
+/* =========================
+   BACK HOME
+========================= */
+
+.back-home {
+    text-align: center;
+
+    margin-top: 20px;
+}
+
+.back-home a {
+    color: #dddddd;
+
+    font-size: 13px;
+
+    transition: var(--transition);
+}
+
+.back-home a:hover {
+    color: var(--accent-color);
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 480px) {
+
+    .auth-page {
+        padding: 25px 15px;
+    }
+
+    .auth-card {
+        padding: 25px 20px;
+    }
+
+    .auth-header h1 {
+        font-size: 27px;
+    }
+
+    .auth-options {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+}
