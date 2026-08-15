@@ -1,160 +1,250 @@
 /* =====================================================
    TIPECO GROUP - AUTHENTICATION STYLES
    Login & Register Pages
-   Version: 1.0
+   Version: 2.0
 ===================================================== */
 
-/* =========================
+
+/* =====================================================
+   GLOBAL
+===================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+
+/* =====================================================
    AUTH PAGE
-========================= */
+===================================================== */
 
 .auth-page {
+
     min-height: 100vh;
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
-    padding: 40px 20px;
+    padding: 50px 20px;
 
     background:
+
         radial-gradient(
             circle at 80% 20%,
-            rgba(25, 118, 210, 0.20),
+            rgba(25, 118, 210, 0.25),
             transparent 35%
         ),
+
+        radial-gradient(
+            circle at 20% 80%,
+            rgba(255, 193, 7, 0.08),
+            transparent 30%
+        ),
+
         linear-gradient(
             135deg,
             #020b18 0%,
             #061a33 50%,
             #020b18 100%
         );
+
 }
 
 
-/* =========================
+/* =====================================================
    AUTH CONTAINER
-========================= */
+===================================================== */
 
 .auth-container {
+
     width: 100%;
+
     max-width: 450px;
+
+    margin: auto;
+
 }
 
 
-/* =========================
+/* =====================================================
    AUTH HEADER
-========================= */
+===================================================== */
 
 .auth-header {
+
     text-align: center;
+
     margin-bottom: 25px;
+
 }
 
+
 .auth-logo {
+
     display: inline-block;
 
-    color: var(--accent-color);
+    margin-bottom: 18px;
 
-    font-size: 22px;
+    color: #FFC107;
+
+    text-decoration: none;
+
+    font-size: 23px;
+
     font-weight: 800;
 
     letter-spacing: 1px;
 
-    margin-bottom: 20px;
 }
+
+
+.auth-logo:hover {
+
+    color: #FFD54F;
+
+}
+
 
 .auth-header h1 {
-    color: var(--white);
+
+    margin: 0 0 8px 0;
+
+    color: #FFFFFF;
 
     font-size: 32px;
+
     font-weight: 700;
 
-    margin-bottom: 8px;
 }
+
 
 .auth-header p {
-    color: #dddddd;
+
+    margin: 0;
+
+    color: #D6DCE5;
 
     font-size: 14px;
+
 }
 
 
-/* =========================
+/* =====================================================
    AUTH CARD
-========================= */
+===================================================== */
 
 .auth-card {
-    background-color: var(--white);
+
+    width: 100%;
+
+    background: #FFFFFF;
 
     padding: 35px;
 
-    border-radius: var(--radius-medium);
+    border-radius: 12px;
 
     box-shadow:
-        0 10px 35px rgba(0, 0, 0, 0.25);
+        0 15px 40px rgba(0, 0, 0, 0.30);
+
 }
 
 
-/* =========================
+/* =====================================================
    FORM GROUP
-========================= */
+===================================================== */
 
 .form-group {
+
     margin-bottom: 20px;
+
 }
 
+
 .form-group label {
+
     display: block;
 
     margin-bottom: 8px;
 
-    color: var(--dark-gray);
+    color: #333333;
 
     font-size: 14px;
+
     font-weight: 600;
+
 }
 
+
 .form-group input {
+
+    display: block;
+
     width: 100%;
 
-    padding: 13px 14px;
+    height: 46px;
 
-    border: 1px solid #dddddd;
+    padding: 0 14px;
 
-    border-radius: var(--radius-small);
+    border: 1px solid #D9DDE3;
 
-    background-color: #ffffff;
+    border-radius: 6px;
 
-    color: var(--dark-gray);
+    background: #FFFFFF;
 
-    font-family: inherit;
-    font-size: 15px;
+    color: #333333;
+
+    font-family: "Segoe UI", Arial, sans-serif;
+
+    font-size: 14px;
 
     outline: none;
 
-    transition: var(--transition);
+    transition: all 0.3s ease;
+
 }
 
-.form-group input:focus {
-    border-color: var(--secondary-color);
-
-    box-shadow:
-        0 0 0 3px rgba(25, 118, 210, 0.10);
-}
 
 .form-group input::placeholder {
-    color: #999999;
+
+    color: #9A9A9A;
+
 }
 
 
-/* =========================
+.form-group input:focus {
+
+    border-color: #1976D2;
+
+    box-shadow:
+        0 0 0 3px rgba(25, 118, 210, 0.12);
+
+}
+
+
+/* =====================================================
    AUTH OPTIONS
-========================= */
+===================================================== */
 
 .auth-options {
+
     display: flex;
 
     align-items: center;
+
     justify-content: space-between;
 
     gap: 10px;
@@ -162,76 +252,105 @@
     margin-bottom: 22px;
 
     font-size: 13px;
+
 }
 
+
 .remember-me {
+
     display: flex;
 
     align-items: center;
 
     gap: 7px;
 
-    color: var(--dark-gray);
+    color: #555555;
 
     cursor: pointer;
+
 }
+
 
 .remember-me input {
+
+    width: 15px;
+
+    height: 15px;
+
     cursor: pointer;
+
 }
+
 
 .auth-options a {
-    color: var(--primary-color);
+
+    color: #0D47A1;
+
+    text-decoration: none;
 
     font-weight: 600;
+
 }
+
 
 .auth-options a:hover {
-    color: var(--secondary-color);
+
+    color: #1976D2;
+
+    text-decoration: underline;
+
 }
 
 
-/* =========================
+/* =====================================================
    LOGIN BUTTON
-========================= */
+===================================================== */
 
 .auth-btn {
+
     width: 100%;
 
-    padding: 13px 20px;
+    height: 46px;
 
-    background-color: var(--primary-color);
+    border: none;
 
-    color: var(--white);
+    border-radius: 6px;
 
-    border: 1px solid var(--primary-color);
+    background: #0D47A1;
 
-    border-radius: var(--radius-small);
+    color: #FFFFFF;
 
-    font-family: inherit;
+    font-family: "Segoe UI", Arial, sans-serif;
 
     font-size: 15px;
+
     font-weight: 700;
 
     cursor: pointer;
 
-    transition: var(--transition);
+    transition: all 0.3s ease;
+
 }
+
 
 .auth-btn:hover {
-    background-color: var(--secondary-color);
 
-    border-color: var(--secondary-color);
+    background: #1976D2;
 
-    transform: translateY(-2px);
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 5px 15px rgba(13, 71, 161, 0.25);
+
 }
 
 
-/* =========================
+/* =====================================================
    DIVIDER
-========================= */
+===================================================== */
 
 .auth-divider {
+
     display: flex;
 
     align-items: center;
@@ -243,151 +362,297 @@
     color: #999999;
 
     font-size: 12px;
+
 }
+
 
 .auth-divider::before,
 .auth-divider::after {
+
     content: "";
 
     flex: 1;
 
     height: 1px;
 
-    background-color: #e0e0e0;
+    background: #E2E2E2;
+
 }
 
 
-/* =========================
+.auth-divider span {
+
+    color: #999999;
+
+}
+
+
+/* =====================================================
    GOOGLE BUTTON
-========================= */
+===================================================== */
 
 .google-btn {
+
     width: 100%;
+
+    height: 46px;
 
     display: flex;
 
     align-items: center;
+
     justify-content: center;
 
     gap: 10px;
 
-    padding: 12px 20px;
+    border: 1px solid #D9DDE3;
 
-    background-color: var(--white);
+    border-radius: 6px;
 
-    color: var(--dark-gray);
+    background: #FFFFFF;
 
-    border: 1px solid #dddddd;
+    color: #333333;
 
-    border-radius: var(--radius-small);
-
-    font-family: inherit;
+    font-family: "Segoe UI", Arial, sans-serif;
 
     font-size: 14px;
+
     font-weight: 600;
 
     cursor: pointer;
 
-    transition: var(--transition);
+    transition: all 0.3s ease;
+
 }
+
 
 .google-btn:hover {
-    background-color: #f7f7f7;
 
-    border-color: #bbbbbb;
+    background: #F7F8FA;
+
+    border-color: #BFC5CC;
+
 }
 
+
 .google-icon {
+
     display: flex;
 
     align-items: center;
+
     justify-content: center;
 
     width: 24px;
+
     height: 24px;
 
     color: #4285F4;
 
     font-size: 18px;
+
     font-weight: 800;
+
 }
 
 
-/* =========================
-   REGISTER LINK
-========================= */
+/* =====================================================
+   REGISTER
+===================================================== */
 
 .auth-register {
+
     text-align: center;
 
     margin-top: 25px;
 
     padding-top: 20px;
 
-    border-top: 1px solid #eeeeee;
+    border-top: 1px solid #EEEEEE;
+
 }
+
 
 .auth-register p {
-    color: var(--gray);
+
+    margin: 0;
+
+    color: #757575;
 
     font-size: 14px;
+
 }
+
 
 .auth-register a {
-    color: var(--primary-color);
+
+    color: #0D47A1;
+
+    text-decoration: none;
 
     font-weight: 700;
+
 }
+
 
 .auth-register a:hover {
-    color: var(--secondary-color);
+
+    color: #1976D2;
+
+    text-decoration: underline;
+
 }
 
 
-/* =========================
+/* =====================================================
    BACK HOME
-========================= */
+===================================================== */
 
 .back-home {
+
     text-align: center;
 
     margin-top: 20px;
+
 }
 
+
 .back-home a {
-    color: #dddddd;
+
+    color: #D6DCE5;
+
+    text-decoration: none;
 
     font-size: 13px;
 
-    transition: var(--transition);
+    transition: all 0.3s ease;
+
 }
+
 
 .back-home a:hover {
-    color: var(--accent-color);
+
+    color: #FFC107;
+
 }
 
 
-/* =========================
-   MOBILE
-========================= */
+/* =====================================================
+   MOBILE RESPONSIVE
+===================================================== */
 
 @media (max-width: 480px) {
 
     .auth-page {
-        padding: 25px 15px;
+
+        min-height: 100vh;
+
+        padding: 35px 15px;
+
     }
 
-    .auth-card {
-        padding: 25px 20px;
+
+    .auth-container {
+
+        max-width: 100%;
+
     }
+
+
+    .auth-header {
+
+        margin-bottom: 20px;
+
+    }
+
+
+    .auth-logo {
+
+        font-size: 21px;
+
+    }
+
 
     .auth-header h1 {
+
         font-size: 27px;
+
     }
 
+
+    .auth-header p {
+
+        font-size: 13px;
+
+    }
+
+
+    .auth-card {
+
+        padding: 25px 20px;
+
+        border-radius: 10px;
+
+    }
+
+
     .auth-options {
+
+        font-size: 12px;
+
+    }
+
+
+    .form-group input {
+
+        height: 45px;
+
+    }
+
+
+    .auth-btn,
+    .google-btn {
+
+        height: 45px;
+
+    }
+
+}
+
+
+/* =====================================================
+   VERY SMALL PHONES
+===================================================== */
+
+@media (max-width: 360px) {
+
+    .auth-page {
+
+        padding: 25px 12px;
+
+    }
+
+
+    .auth-card {
+
+        padding: 22px 16px;
+
+    }
+
+
+    .auth-header h1 {
+
+        font-size: 24px;
+
+    }
+
+
+    .auth-options {
+
         flex-direction: column;
+
         align-items: flex-start;
+
     }
 
 }
