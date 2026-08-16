@@ -1,0 +1,598 @@
+/* =====================================================
+   TIPECO GROUP - SERVICES PAGE
+   Services Page Styles
+   Version: 1.0
+===================================================== */
+
+
+/* =====================================================
+   SERVICES HERO
+===================================================== */
+
+.services-hero {
+    padding: 110px 0;
+    background:
+        radial-gradient(
+            circle at 80% 30%,
+            rgba(25, 118, 210, 0.25),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #020b18 0%,
+            #061a33 50%,
+            #020b18 100%
+        );
+
+    color: var(--white);
+    text-align: center;
+}
+
+.services-hero-content {
+    max-width: 850px;
+    margin: 0 auto;
+}
+
+.services-label {
+    color: var(--accent-color);
+    font-size: var(--font-small);
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: var(--spacing-md);
+}
+
+.services-hero h1 {
+    color: var(--white);
+    font-size: clamp(38px, 6vw, 64px);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: var(--spacing-md);
+}
+
+.services-hero h1 span {
+    color: var(--accent-color);
+}
+
+.services-hero-content > p:last-child {
+    color: #dddddd;
+    font-size: var(--font-normal);
+    line-height: 1.8;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+
+/* =====================================================
+   SERVICES INTRO
+===================================================== */
+
+.services-intro {
+    padding: var(--spacing-xl) 0 var(--spacing-lg);
+    background-color: var(--white);
+}
+
+.services-intro .section-header {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.services-intro .section-header h2 {
+    color: var(--primary-color);
+}
+
+.services-intro .section-header > p:last-child {
+    color: var(--gray);
+    line-height: 1.8;
+}
+
+
+/* =====================================================
+   MAIN SERVICES
+===================================================== */
+
+.main-services {
+    padding: var(--spacing-lg) 0 var(--spacing-xl);
+    background-color: var(--light-gray);
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+}
+
+
+/* =====================================================
+   SERVICE CARD
+===================================================== */
+
+.service-card {
+    background-color: var(--white);
+    padding: 35px 25px;
+
+    border-radius: var(--radius-medium);
+
+    box-shadow: var(--shadow-medium);
+
+    text-align: center;
+
+    min-height: 430px;
+
+    display: flex;
+    flex-direction: column;
+
+    transition: var(--transition);
+
+    border-top: 4px solid var(--secondary-color);
+}
+
+.service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+
+/* Service Icon */
+
+.service-icon {
+    width: 70px;
+    height: 70px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto var(--spacing-md);
+
+    border-radius: 50%;
+
+    background-color: #eef5fc;
+
+    font-size: 36px;
+}
+
+
+/* Service Title */
+
+.service-card h3 {
+    color: var(--primary-color);
+    font-size: 22px;
+    margin-bottom: var(--spacing-sm);
+}
+
+
+/* Service Description */
+
+.service-card > p {
+    color: var(--gray);
+    font-size: var(--font-small);
+    line-height: 1.7;
+
+    margin-bottom: var(--spacing-md);
+}
+
+
+/* Service List */
+
+.service-card ul {
+    text-align: left;
+    margin-bottom: var(--spacing-md);
+}
+
+.service-card ul li {
+    color: var(--dark-gray);
+    font-size: var(--font-small);
+    margin-bottom: 9px;
+}
+
+
+/* Service Button */
+
+.service-btn {
+    display: inline-block;
+
+    margin-top: auto;
+
+    padding: 11px 18px;
+
+    color: var(--primary-color);
+
+    border: 1px solid var(--primary-color);
+
+    border-radius: var(--radius-small);
+
+    font-size: var(--font-small);
+    font-weight: 700;
+
+    transition: var(--transition);
+}
+
+.service-btn:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
+
+    transform: translateY(-2px);
+}
+
+
+/* =====================================================
+   SERVICE CARD COLORS
+===================================================== */
+
+
+/* Consulting */
+
+.consulting-card {
+    border-top-color: #FF9800;
+}
+
+.consulting-card .service-icon,
+.consulting-card .service-btn {
+    color: #FF9800;
+}
+
+.consulting-card .service-icon {
+    background-color: rgba(255, 152, 0, 0.10);
+}
+
+.consulting-card .service-btn {
+    border-color: #FF9800;
+}
+
+
+/* Training */
+
+.training-card {
+    border-top-color: #8B5CF6;
+}
+
+.training-card .service-icon,
+.training-card .service-btn {
+    color: #8B5CF6;
+}
+
+.training-card .service-icon {
+    background-color: rgba(139, 92, 246, 0.10);
+}
+
+.training-card .service-btn {
+    border-color: #8B5CF6;
+}
+
+
+/* Digital Solutions */
+
+.digital-card {
+    border-top-color: #2196F3;
+}
+
+.digital-card .service-icon,
+.digital-card .service-btn {
+    color: #2196F3;
+}
+
+.digital-card .service-icon {
+    background-color: rgba(33, 150, 243, 0.10);
+}
+
+.digital-card .service-btn {
+    border-color: #2196F3;
+}
+
+
+/* Business Support */
+
+.support-card {
+    border-top-color: #16C7C7;
+}
+
+.support-card .service-icon,
+.support-card .service-btn {
+    color: #16C7C7;
+}
+
+.support-card .service-icon {
+    background-color: rgba(22, 199, 199, 0.10);
+}
+
+.support-card .service-btn {
+    border-color: #16C7C7;
+}
+
+
+/* =====================================================
+   HOW WE HELP
+===================================================== */
+
+.help-section {
+    padding: var(--spacing-xl) 0;
+    background-color: var(--white);
+}
+
+.help-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 70px;
+    align-items: center;
+}
+
+.help-text h2 {
+    color: var(--primary-color);
+    font-size: var(--font-title);
+    line-height: 1.25;
+    margin-bottom: var(--spacing-md);
+}
+
+.help-text > p:last-child {
+    color: var(--gray);
+    font-size: var(--font-normal);
+    line-height: 1.8;
+}
+
+
+/* Help Points */
+
+.help-points {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.help-point {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+
+    padding: var(--spacing-md);
+
+    background-color: var(--light-gray);
+
+    border-radius: var(--radius-medium);
+
+    border-left: 4px solid var(--secondary-color);
+
+    transition: var(--transition);
+}
+
+.help-point:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow-light);
+}
+
+.help-point > span {
+    min-width: 45px;
+
+    color: var(--secondary-color);
+
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.help-point h3 {
+    color: var(--dark-gray);
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+.help-point p {
+    color: var(--gray);
+    font-size: var(--font-small);
+    line-height: 1.6;
+}
+
+
+/* =====================================================
+   SERVICES CTA
+===================================================== */
+
+.services-cta {
+    padding: var(--spacing-xl) 0;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary-color),
+            var(--secondary-color)
+        );
+
+    color: var(--white);
+}
+
+.services-cta-content {
+    max-width: 800px;
+    margin: 0 auto;
+
+    text-align: center;
+}
+
+.services-cta .section-label {
+    color: var(--accent-color);
+}
+
+.services-cta h2 {
+    color: var(--white);
+    font-size: var(--font-title);
+    margin-bottom: var(--spacing-md);
+}
+
+.services-cta-content > p:not(.section-label) {
+    color: #eeeeee;
+    font-size: var(--font-normal);
+    line-height: 1.8;
+
+    margin-bottom: var(--spacing-lg);
+}
+
+
+/* CTA Buttons */
+
+.services-cta-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: var(--spacing-md);
+
+    flex-wrap: wrap;
+}
+
+.services-btn {
+    display: inline-block;
+
+    padding: 13px 25px;
+
+    border-radius: var(--radius-small);
+
+    font-weight: 700;
+
+    transition: var(--transition);
+}
+
+
+/* Primary */
+
+.services-btn.primary {
+    background-color: var(--accent-color);
+    color: var(--black);
+
+    border: 1px solid var(--accent-color);
+}
+
+.services-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+}
+
+
+/* Secondary */
+
+.services-btn.secondary {
+    background-color: transparent;
+    color: var(--white);
+
+    border: 1px solid var(--white);
+}
+
+.services-btn.secondary:hover {
+    background-color: var(--white);
+    color: var(--primary-color);
+
+    transform: translateY(-3px);
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 1000px) {
+
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .help-content {
+        grid-template-columns: 1fr;
+        gap: 45px;
+    }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+    .services-hero {
+        padding: 80px 0;
+    }
+
+    .services-hero h1 {
+        font-size: 38px;
+    }
+
+    .services-hero-content > p:last-child {
+        font-size: 14px;
+    }
+
+
+    .services-intro {
+        padding: 60px 0 35px;
+    }
+
+
+    .main-services {
+        padding: 35px 0 60px;
+    }
+
+    .services-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .service-card {
+        min-height: auto;
+        padding: 30px 22px;
+    }
+
+
+    .help-section {
+        padding: 60px 0;
+    }
+
+    .help-text h2 {
+        font-size: 30px;
+    }
+
+    .help-point {
+        padding: 15px;
+    }
+
+
+    .services-cta {
+        padding: 65px 0;
+    }
+
+    .services-cta h2 {
+        font-size: 30px;
+    }
+
+    .services-cta-buttons {
+        flex-direction: column;
+    }
+
+    .services-btn {
+        width: 100%;
+        max-width: 280px;
+        text-align: center;
+    }
+
+}
+
+
+/* =====================================================
+   EXTRA SMALL PHONES
+===================================================== */
+
+@media (max-width: 400px) {
+
+    .services-hero h1 {
+        font-size: 32px;
+    }
+
+    .service-card h3 {
+        font-size: 20px;
+    }
+
+    .help-text h2 {
+        font-size: 27px;
+    }
+
+    .services-cta h2 {
+        font-size: 27px;
+    }
+
+}
