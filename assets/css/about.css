@@ -1,0 +1,450 @@
+/* =====================================================
+   TIPECO GROUP - ABOUT PAGE STYLES
+   Version: 1.0
+===================================================== */
+
+
+/* =====================================================
+   ABOUT HERO
+===================================================== */
+
+.about-hero {
+    position: relative;
+    padding: 100px 0;
+    background:
+        radial-gradient(
+            circle at 80% 30%,
+            rgba(25, 118, 210, 0.25),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #020b18 0%,
+            #061a33 50%,
+            #020b18 100%
+        );
+    color: var(--white);
+    overflow: hidden;
+}
+
+.about-hero-content {
+    max-width: 850px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.about-label {
+    color: var(--accent-color);
+    font-size: var(--font-small);
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: var(--spacing-md);
+}
+
+.about-hero h1 {
+    color: var(--white);
+    font-size: clamp(38px, 6vw, 64px);
+    line-height: 1.15;
+    font-weight: 800;
+    margin-bottom: var(--spacing-md);
+}
+
+.about-hero h1 span {
+    color: var(--accent-color);
+}
+
+.about-hero-content > p:last-child {
+    color: #dddddd;
+    font-size: var(--font-medium);
+    line-height: 1.7;
+}
+
+
+/* =====================================================
+   GENERAL ABOUT SECTIONS
+===================================================== */
+
+.about-section {
+    padding: var(--spacing-xl) 0;
+    background-color: var(--white);
+}
+
+.about-content-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: var(--spacing-xl);
+    align-items: center;
+}
+
+.about-text h2 {
+    color: var(--primary-color);
+    font-size: var(--font-title);
+    line-height: 1.2;
+    margin-bottom: var(--spacing-md);
+}
+
+.about-text p:not(.section-label) {
+    color: var(--gray);
+    font-size: var(--font-normal);
+    line-height: 1.8;
+    margin-bottom: var(--spacing-md);
+}
+
+
+/* =====================================================
+   VISION HIGHLIGHT
+===================================================== */
+
+.about-highlight {
+    padding: 40px 30px;
+    background:
+        linear-gradient(
+            145deg,
+            #061a33,
+            #0D47A1
+        );
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow-medium);
+    text-align: center;
+}
+
+.highlight-icon {
+    font-size: 50px;
+    margin-bottom: var(--spacing-md);
+}
+
+.about-highlight h3 {
+    color: var(--white);
+    font-size: var(--font-large);
+    margin-bottom: var(--spacing-sm);
+}
+
+.about-highlight p {
+    color: #dddddd;
+    font-size: var(--font-normal);
+    line-height: 1.7;
+}
+
+
+/* =====================================================
+   MISSION SECTION
+===================================================== */
+
+.mission-section {
+    padding: var(--spacing-xl) 0;
+    background-color: var(--light-gray);
+}
+
+.mission-content {
+    max-width: 850px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.mission-content h2 {
+    color: var(--primary-color);
+    font-size: var(--font-title);
+    margin-bottom: var(--spacing-md);
+}
+
+.mission-content > p:last-child {
+    color: var(--gray);
+    font-size: var(--font-normal);
+    line-height: 1.8;
+}
+
+
+/* =====================================================
+   VALUES SECTION
+===================================================== */
+
+.values-section {
+    padding: var(--spacing-xl) 0;
+    background-color: var(--white);
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+}
+
+.value-card {
+    padding: 30px 20px;
+    background-color: var(--white);
+    border: 1px solid #e0e0e0;
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-light);
+    text-align: center;
+    transition: var(--transition);
+}
+
+.value-card:hover {
+    transform: translateY(-7px);
+    box-shadow: var(--shadow-medium);
+}
+
+.value-icon {
+    font-size: 42px;
+    margin-bottom: var(--spacing-md);
+}
+
+.value-card h3 {
+    color: var(--primary-color);
+    font-size: var(--font-medium);
+    margin-bottom: var(--spacing-sm);
+}
+
+.value-card p {
+    color: var(--gray);
+    font-size: var(--font-small);
+    line-height: 1.7;
+}
+
+
+/* =====================================================
+   BUSINESS DIVISIONS
+===================================================== */
+
+.divisions-section {
+    padding: var(--spacing-xl) 0;
+    background-color: var(--light-gray);
+}
+
+.divisions-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--spacing-md);
+}
+
+.division-card {
+    padding: 30px 20px;
+    background-color: #111F33;
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-medium);
+    text-align: center;
+    transition: var(--transition);
+}
+
+.division-card:hover {
+    transform: translateY(-7px);
+}
+
+.division-icon {
+    font-size: 42px;
+    margin-bottom: var(--spacing-md);
+}
+
+.division-card h3 {
+    color: var(--white);
+    font-size: 18px;
+    margin-bottom: var(--spacing-sm);
+}
+
+.division-card p {
+    color: #dddddd;
+    font-size: var(--font-small);
+    line-height: 1.7;
+}
+
+
+/* =====================================================
+   ABOUT CTA
+===================================================== */
+
+.about-cta {
+    padding: var(--spacing-xl) 0;
+    background-color: var(--primary-color);
+}
+
+.about-cta-content {
+    max-width: 850px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.about-cta .section-label {
+    color: var(--accent-color);
+}
+
+.about-cta h2 {
+    color: var(--white);
+    font-size: var(--font-title);
+    margin-bottom: var(--spacing-md);
+}
+
+.about-cta-content > p:not(.section-label) {
+    color: var(--white);
+    font-size: var(--font-normal);
+    line-height: 1.7;
+    margin-bottom: var(--spacing-lg);
+}
+
+
+/* =====================================================
+   CTA BUTTONS
+===================================================== */
+
+.about-cta-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.about-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 14px 25px;
+
+    border-radius: var(--radius-small);
+
+    font-weight: 700;
+
+    transition: var(--transition);
+}
+
+.about-btn.primary {
+    background-color: var(--accent-color);
+    color: var(--black);
+    border: 2px solid var(--accent-color);
+}
+
+.about-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+}
+
+.about-btn.secondary {
+    background-color: transparent;
+    color: var(--white);
+    border: 2px solid var(--white);
+}
+
+.about-btn.secondary:hover {
+    background-color: var(--white);
+    color: var(--primary-color);
+}
+
+
+/* =====================================================
+   ACTIVE NAVIGATION
+===================================================== */
+
+.nav-links a.active {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   TABLETS
+===================================================== */
+
+@media (max-width: 1000px) {
+
+    .about-content-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+
+    .about-highlight {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .values-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .divisions-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+    .about-hero {
+        padding: 70px 0;
+    }
+
+    .about-hero h1 {
+        font-size: 38px;
+    }
+
+    .about-hero-content > p:last-child {
+        font-size: 16px;
+    }
+
+    .about-section,
+    .mission-section,
+    .values-section,
+    .divisions-section,
+    .about-cta {
+        padding: 60px 0;
+    }
+
+    .about-text h2,
+    .mission-content h2,
+    .about-cta h2 {
+        font-size: 30px;
+    }
+
+    .values-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .divisions-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .value-card {
+        padding: 25px 20px;
+    }
+
+    .division-card {
+        padding: 25px 20px;
+    }
+
+    .about-cta-buttons {
+        flex-direction: column;
+    }
+
+    .about-btn {
+        width: 100%;
+        max-width: 320px;
+    }
+
+}
+
+
+/* =====================================================
+   SMALL MOBILE PHONES
+===================================================== */
+
+@media (max-width: 400px) {
+
+    .about-hero h1 {
+        font-size: 32px;
+    }
+
+    .about-text h2,
+    .mission-content h2,
+    .about-cta h2 {
+        font-size: 27px;
+    }
+
+    .about-hero-content > p:last-child {
+        font-size: 15px;
+    }
+
+}
