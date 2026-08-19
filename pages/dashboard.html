@@ -5,6 +5,7 @@
 
     <!-- =====================================================
          TIPECO GROUP - USER DASHBOARD
+         Version: 2.0
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -25,7 +26,7 @@
 
 
     <!-- =====================================================
-         CSS FILES
+         CSS
     ====================================================== -->
 
     <link rel="stylesheet"
@@ -73,7 +74,7 @@
             <div class="dashboard-header-actions">
 
 
-                <!-- USER PROFILE -->
+                <!-- USER -->
 
                 <div class="dashboard-user">
 
@@ -84,14 +85,21 @@
 
                     <div class="dashboard-user-info">
 
-                        <span class="dashboard-user-name"
-                              data-user-name>
+                        <span
+                            class="dashboard-user-name"
+                            data-user-name>
+
                             User
+
                         </span>
 
-                        <span class="dashboard-user-role"
-                              data-user-role>
-                            Buyer / Customer
+
+                        <span
+                            class="dashboard-user-role"
+                            data-user-role>
+
+                            TIPECO User
+
                         </span>
 
                     </div>
@@ -101,13 +109,13 @@
 
                 <!-- LOGOUT -->
 
-                <button type="button"
-                        class="dashboard-logout"
-                        data-action="logout">
+                <a href="#"
+                   class="dashboard-logout"
+                   data-action="logout">
 
                     Logout
 
-                </button>
+                </a>
 
             </div>
 
@@ -118,10 +126,11 @@
 
 
     <!-- =====================================================
-         DASHBOARD PAGE
+         DASHBOARD LAYOUT
     ====================================================== -->
 
     <main class="dashboard-page">
+
 
         <div class="dashboard-layout">
 
@@ -134,14 +143,14 @@
 
 
                 <div class="sidebar-title">
-                    My Dashboard
+
+                    MY DASHBOARD
+
                 </div>
 
 
                 <ul class="dashboard-nav">
 
-
-                    <!-- DASHBOARD -->
 
                     <li>
 
@@ -159,43 +168,26 @@
                     </li>
 
 
-                    <!-- BUY & SELL -->
+                    <!-- BUYER -->
 
-                    <li>
+                    <li
+                        class="buyer-only">
 
                         <a href="marketplace.html">
 
                             <span class="dashboard-nav-icon">
-                                🛒
+                                🔎
                             </span>
 
-                            Buy &amp; Sell
+                            Browse Buy &amp; Sell
 
                         </a>
 
                     </li>
 
 
-                    <!-- SERVICES -->
-
-                    <li>
-
-                        <a href="services.html">
-
-                            <span class="dashboard-nav-icon">
-                                🛠️
-                            </span>
-
-                            Services
-
-                        </a>
-
-                    </li>
-
-
-                    <!-- SAVED ITEMS -->
-
-                    <li>
+                    <li
+                        class="buyer-only">
 
                         <a href="#">
 
@@ -210,7 +202,105 @@
                     </li>
 
 
-                    <!-- MESSAGES -->
+                    <li
+                        class="buyer-only">
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                📩
+                            </span>
+
+                            My Requests
+
+                        </a>
+
+                    </li>
+
+
+                    <li
+                        class="buyer-only">
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                👁️
+                            </span>
+
+                            Viewing Requests
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- SELLER -->
+
+                    <li
+                        class="seller-only">
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                ➕
+                            </span>
+
+                            Add Listing
+
+                        </a>
+
+                    </li>
+
+
+                    <li
+                        class="seller-only">
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                📋
+                            </span>
+
+                            My Listings
+
+                        </a>
+
+                    </li>
+
+
+                    <li
+                        class="seller-only">
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                📩
+                            </span>
+
+                            Customer Requests
+
+                        </a>
+
+                    </li>
+
+
+                    <li
+                        class="seller-only">
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                👁️
+                            </span>
+
+                            Viewing Requests
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- BOTH -->
 
                     <li>
 
@@ -227,8 +317,6 @@
                     </li>
 
 
-                    <!-- NOTIFICATIONS -->
-
                     <li>
 
                         <a href="#">
@@ -238,6 +326,21 @@
                             </span>
 
                             Notifications
+
+                        </a>
+
+                    </li>
+
+
+                    <li>
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                ⚙️
+                            </span>
+
+                            Account Settings
 
                         </a>
 
@@ -254,132 +357,38 @@
                  MAIN CONTENT
             ================================================== -->
 
-            <div class="dashboard-main">
+            <section class="dashboard-main">
 
 
                 <!-- =================================================
-                     WELCOME SECTION
+                     WELCOME
                 ================================================== -->
 
                 <section class="dashboard-welcome">
 
                     <p class="dashboard-welcome-label">
+
                         TIPECO GROUP DASHBOARD
+
                     </p>
 
 
                     <h1>
-                        Welcome Back 👋
+
+                        Welcome Back,
+                        <span data-user-name>
+                            User
+                        </span> 👋
+
                     </h1>
 
 
                     <p>
-                        Manage your account, listings and
-                        activities from your dashboard.
+
+                        Manage your TIPECO GROUP account
+                        and activities from one place.
+
                     </p>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     STATISTICS
-                ================================================== -->
-
-                <section class="dashboard-stats">
-
-
-                    <!-- MY LISTINGS -->
-
-                    <div class="dashboard-stat-card">
-
-                        <div class="stat-icon">
-                            📋
-                        </div>
-
-                        <div>
-
-                            <div class="stat-number">
-                                0
-                            </div>
-
-                            <div class="stat-title">
-                                My Listings
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- SAVED ITEMS -->
-
-                    <div class="dashboard-stat-card">
-
-                        <div class="stat-icon">
-                            ❤️
-                        </div>
-
-                        <div>
-
-                            <div class="stat-number">
-                                0
-                            </div>
-
-                            <div class="stat-title">
-                                Saved Items
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- MESSAGES -->
-
-                    <div class="dashboard-stat-card">
-
-                        <div class="stat-icon">
-                            💬
-                        </div>
-
-                        <div>
-
-                            <div class="stat-number">
-                                0
-                            </div>
-
-                            <div class="stat-title">
-                                Messages
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- NOTIFICATIONS -->
-
-                    <div class="dashboard-stat-card">
-
-                        <div class="stat-icon">
-                            🔔
-                        </div>
-
-                        <div>
-
-                            <div class="stat-number">
-                                3
-                            </div>
-
-                            <div class="stat-title">
-                                Notifications
-                            </div>
-
-                        </div>
-
-                    </div>
-
 
                 </section>
 
@@ -389,65 +398,165 @@
                      PROFILE SUMMARY
                 ================================================== -->
 
-                <section class="dashboard-section">
-
-                    <div class="dashboard-section-header">
-
-                        <h2>
-                            My Profile
-                        </h2>
+                <section class="profile-card">
 
 
-                        <a href="#"
-                           class="dashboard-section-link">
+                    <div class="profile-card-top">
 
-                            Edit Profile
 
-                        </a>
+                        <div class="dashboard-avatar">
+
+                            👤
+
+                        </div>
+
+
+                        <div>
+
+                            <h3
+                                data-user-name>
+
+                                User
+
+                            </h3>
+
+
+                            <p
+                                data-user-email>
+
+                                user@example.com
+
+                            </p>
+
+
+                            <p
+                                data-user-role>
+
+                                TIPECO User
+
+                            </p>
+
+                        </div>
 
                     </div>
 
 
-                    <div class="profile-card">
+                    <a href="#"
+                       class="profile-card-link">
+
+                        Edit Profile
+
+                    </a>
+
+                </section>
 
 
-                        <div class="profile-card-top">
+
+                <!-- =================================================
+                     STATISTICS
+                ================================================== -->
+
+                <section class="dashboard-section">
 
 
-                            <div class="dashboard-avatar">
-                                👤
+                    <div class="dashboard-stats">
+
+
+                        <!-- MY LISTINGS -->
+
+                        <div
+                            class="dashboard-stat-card seller-only">
+
+                            <div class="stat-icon">
+                                📋
                             </div>
-
 
                             <div>
 
-                                <h3 data-user-name>
-                                    User
-                                </h3>
+                                <strong class="stat-number">
+                                    0
+                                </strong>
 
-                                <p>
-                                    <span data-user-email>
-                                        user@example.com
-                                    </span>
-                                </p>
-
-                                <p>
-                                    <span data-user-role>
-                                        Buyer / Customer
-                                    </span>
-                                </p>
+                                <div class="stat-title">
+                                    My Listings
+                                </div>
 
                             </div>
 
                         </div>
 
 
-                        <a href="#"
-                           class="profile-card-link">
+                        <!-- SAVED -->
 
-                            Edit Profile
+                        <div
+                            class="dashboard-stat-card buyer-only">
 
-                        </a>
+                            <div class="stat-icon">
+                                ❤️
+                            </div>
+
+                            <div>
+
+                                <strong class="stat-number">
+                                    0
+                                </strong>
+
+                                <div class="stat-title">
+                                    Saved Items
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- REQUESTS -->
+
+                        <div
+                            class="dashboard-stat-card">
+
+                            <div class="stat-icon">
+                                📩
+                            </div>
+
+                            <div>
+
+                                <strong class="stat-number">
+                                    0
+                                </strong>
+
+                                <div class="stat-title">
+                                    Requests
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- MESSAGES -->
+
+                        <div
+                            class="dashboard-stat-card">
+
+                            <div class="stat-icon">
+                                💬
+                            </div>
+
+                            <div>
+
+                                <strong class="stat-number">
+                                    0
+                                </strong>
+
+                                <div class="stat-title">
+                                    Messages
+                                </div>
+
+                            </div>
+
+                        </div>
+
 
                     </div>
 
@@ -456,16 +565,17 @@
 
 
                 <!-- =================================================
-                     QUICK ACTIONS
+                     BUYER QUICK ACTIONS
                 ================================================== -->
 
-                <section class="dashboard-section">
+                <section
+                    class="dashboard-section buyer-only">
 
 
                     <div class="dashboard-section-header">
 
                         <h2>
-                            Quick Actions
+                            What Would You Like To Do?
                         </h2>
 
                     </div>
@@ -474,85 +584,58 @@
                     <div class="quick-actions">
 
 
-                        <!-- BROWSE LISTINGS -->
-
                         <a href="marketplace.html"
                            class="quick-action">
 
-                            <span class="quick-action-icon">
+                            <div class="quick-action-icon">
                                 🔎
-                            </span>
+                            </div>
 
                             <h3>
-                                Browse Listings
+                                Browse Buy &amp; Sell
                             </h3>
 
                             <p>
-                                Explore products, vehicles,
-                                properties and other listings.
+                                Explore verified products,
+                                vehicles and properties.
                             </p>
 
                         </a>
 
-
-                        <!-- FIND SERVICE -->
-
-                        <a href="services.html"
-                           class="quick-action">
-
-                            <span class="quick-action-icon">
-                                🛠️
-                            </span>
-
-                            <h3>
-                                Find a Service
-                            </h3>
-
-                            <p>
-                                Discover services and
-                                professional support.
-                            </p>
-
-                        </a>
-
-
-                        <!-- SAVED ITEMS -->
 
                         <a href="#"
                            class="quick-action">
 
-                            <span class="quick-action-icon">
+                            <div class="quick-action-icon">
                                 ❤️
-                            </span>
+                            </div>
 
                             <h3>
                                 Saved Items
                             </h3>
 
                             <p>
-                                View products and listings
-                                you have saved.
+                                View products and properties
+                                you saved.
                             </p>
 
                         </a>
 
 
-                        <!-- MESSAGES -->
-
                         <a href="#"
                            class="quick-action">
 
-                            <span class="quick-action-icon">
-                                💬
-                            </span>
+                            <div class="quick-action-icon">
+                                👁️
+                            </div>
 
                             <h3>
-                                My Messages
+                                Request a Viewing
                             </h3>
 
                             <p>
-                                Communicate with
-                                service providers.
+                                Ask TIPECO GROUP to arrange
+                                a product viewing.
                             </p>
 
                         </a>
@@ -565,47 +648,143 @@
 
 
                 <!-- =================================================
-                     MY LISTINGS
+                     SELLER QUICK ACTIONS
                 ================================================== -->
 
-                <section class="dashboard-section">
+                <section
+                    class="dashboard-section seller-only">
 
 
                     <div class="dashboard-section-header">
 
                         <h2>
-                            My Listings
+                            Manage Your Business
                         </h2>
-
-
-                        <a href="#"
-                           class="dashboard-section-link">
-
-                            View All
-
-                        </a>
 
                     </div>
 
 
-                    <div class="dashboard-empty">
+                    <div class="quick-actions">
 
 
-                        <div class="dashboard-empty-icon">
-                            📋
+                        <a href="#"
+                           class="quick-action">
+
+                            <div class="quick-action-icon">
+                                ➕
+                            </div>
+
+                            <h3>
+                                Add Listing
+                            </h3>
+
+                            <p>
+                                Submit a product or service
+                                for TIPECO GROUP review.
+                            </p>
+
+                        </a>
+
+
+                        <a href="#"
+                           class="quick-action">
+
+                            <div class="quick-action-icon">
+                                📋
+                            </div>
+
+                            <h3>
+                                My Listings
+                            </h3>
+
+                            <p>
+                                Manage the products and services
+                                you have submitted.
+                            </p>
+
+                        </a>
+
+
+                        <a href="#"
+                           class="quick-action">
+
+                            <div class="quick-action-icon">
+                                📩
+                            </div>
+
+                            <h3>
+                                Customer Requests
+                            </h3>
+
+                            <p>
+                                View requests received through
+                                TIPECO GROUP.
+                            </p>
+
+                        </a>
+
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     TIPECO GROUP VERIFICATION
+                ================================================== -->
+
+                <section class="dashboard-section">
+
+
+                    <div class="profile-card">
+
+
+                        <div class="profile-card-top">
+
+                            <div class="dashboard-avatar">
+                                ✓
+                            </div>
+
+
+                            <div>
+
+                                <h3>
+                                    TIPECO GROUP Verification
+                                </h3>
+
+                                <p>
+                                    We help connect customers
+                                    with trusted sellers and
+                                    service providers.
+                                </p>
+
+                            </div>
+
                         </div>
 
 
-                        <h3>
-                            No Listings Yet
-                        </h3>
+                        <p
+                            style="
+                                margin: 0 0 18px;
+                                color: rgba(255,255,255,0.85);
+                                font-size: 13px;
+                                line-height: 1.6;
+                            ">
 
+                            Product information, viewing requests
+                            and customer communication can be
+                            managed through the TIPECO GROUP platform.
 
-                        <p>
-                            Your listings will appear here
-                            when you start posting.
                         </p>
 
+
+                        <a href="contact.html"
+                           class="profile-card-link">
+
+                            Contact TIPECO GROUP
+
+                        </a>
 
                     </div>
 
@@ -626,15 +805,21 @@
                             Recent Activity
                         </h2>
 
+                        <a href="#"
+                           class="dashboard-section-link">
+
+                            View All
+
+                        </a>
+
                     </div>
 
 
                     <div class="activity-card">
 
 
-                        <!-- ACTIVITY 1 -->
-
                         <div class="activity-item">
+
 
                             <span class="activity-icon">
                                 👋
@@ -648,8 +833,7 @@
                                 </h4>
 
                                 <p>
-                                    Your account dashboard
-                                    is ready.
+                                    Your dashboard is ready.
                                 </p>
 
                             </div>
@@ -662,9 +846,8 @@
                         </div>
 
 
-                        <!-- ACTIVITY 2 -->
-
                         <div class="activity-item">
+
 
                             <span class="activity-icon">
                                 🔐
@@ -678,8 +861,8 @@
                                 </h4>
 
                                 <p>
-                                    Your TIPECO GROUP account
-                                    was created successfully.
+                                    Your account was created
+                                    successfully.
                                 </p>
 
                             </div>
@@ -699,56 +882,39 @@
 
 
                 <!-- =================================================
-                     GROW WITH TIPECO
+                     EMPTY STATE
                 ================================================== -->
 
-                <section class="dashboard-section">
+                <section
+                    class="dashboard-section">
 
 
-                    <div class="profile-card">
+                    <div class="dashboard-empty">
 
 
-                        <div class="profile-card-top">
-
-
-                            <div>
-
-                                <p>
-                                    TIPECO GROUP
-                                </p>
-
-
-                                <h3>
-                                    Grow With Us
-                                </h3>
-
-
-                                <p>
-                                    Whether you are looking for
-                                    a service, offering a service
-                                    or managing your business,
-                                    TIPECO GROUP is built to
-                                    connect opportunities.
-                                </p>
-
-                            </div>
-
+                        <div class="dashboard-empty-icon">
+                            🚀
                         </div>
 
 
-                        <a href="services.html"
-                           class="profile-card-link">
+                        <h3>
+                            More Features Coming Soon
+                        </h3>
 
-                            Explore Services →
 
-                        </a>
+                        <p>
+                            TIPECO GROUP is continuously building
+                            new tools to make buying, selling and
+                            discovering services easier.
+                        </p>
+
 
                     </div>
 
                 </section>
 
 
-            </div>
+            </section>
 
         </div>
 
@@ -757,7 +923,7 @@
 
 
     <!-- =====================================================
-         DASHBOARD FOOTER
+         FOOTER
     ====================================================== -->
 
     <footer class="dashboard-footer">
@@ -771,8 +937,7 @@
         </p>
 
         <p>
-            © 2026 TIPECO GROUP.
-            All Rights Reserved.
+            © 2026 TIPECO GROUP. All Rights Reserved.
         </p>
 
     </footer>
@@ -780,10 +945,131 @@
 
 
     <!-- =====================================================
-         AUTHENTICATION JAVASCRIPT
+         AUTH JAVASCRIPT
     ====================================================== -->
 
     <script src="../assets/js/auth.js"></script>
+
+
+    <!-- =====================================================
+         ROLE-BASED DASHBOARD
+    ====================================================== -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+
+                const storedUser =
+                    localStorage.getItem(
+                        "tipecoUser"
+                    );
+
+
+                if (!storedUser) {
+                    return;
+                }
+
+
+                let user;
+
+
+                try {
+
+                    user =
+                        JSON.parse(
+                            storedUser
+                        );
+
+                } catch (error) {
+
+                    console.error(
+                        "Unable to read user role."
+                    );
+
+                    return;
+                }
+
+
+                const role =
+                    user.accountType;
+
+
+                const buyerElements =
+                    document.querySelectorAll(
+                        ".buyer-only"
+                    );
+
+
+                const sellerElements =
+                    document.querySelectorAll(
+                        ".seller-only"
+                    );
+
+
+                /* =================================================
+                   BUYER
+                ================================================== */
+
+                if (role === "buyer") {
+
+                    buyerElements.forEach(
+                        function (element) {
+
+                            element.style.display = "";
+
+                        }
+                    );
+
+
+                    sellerElements.forEach(
+                        function (element) {
+
+                            element.style.display =
+                                "none";
+
+                        }
+                    );
+
+                }
+
+
+                /* =================================================
+                   SELLER
+                ================================================== */
+
+                else if (
+                    role === "seller"
+                ) {
+
+                    sellerElements.forEach(
+                        function (element) {
+
+                            element.style.display = "";
+
+                        }
+                    );
+
+
+                    buyerElements.forEach(
+                        function (element) {
+
+                            element.style.display =
+                                "none";
+
+                        }
+                    );
+
+                }
+
+
+            }
+        );
+
+    </script>
+
 
 </body>
 
