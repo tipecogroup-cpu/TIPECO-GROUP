@@ -4,17 +4,11 @@
    Frontend Authentication Prototype
 ===================================================== */
 
-
-/* =====================================================
-   PAGE READY
-===================================================== */
-
 document.addEventListener("DOMContentLoaded", function () {
 
-
-    /* =================================================
-       LOGIN FORM
-    ================================================= */
+    /* =====================================================
+       LOGIN
+    ===================================================== */
 
     const loginForm = document.getElementById("loginForm");
 
@@ -24,13 +18,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             event.preventDefault();
 
-
-            /* -----------------------------------------
-               GET LOGIN INPUTS
-            ----------------------------------------- */
-
-            const loginInput =
-                loginForm.querySelector('[name="login"]');
+            const identifierInput =
+                loginForm.querySelector('[name="login"], [name="identifier"]');
 
             const passwordInput =
                 loginForm.querySelector('[name="password"]');
@@ -38,116 +27,59 @@ document.addEventListener("DOMContentLoaded", function () {
             const rememberInput =
                 loginForm.querySelector('[name="remember"]');
 
-
-            if (!loginInput || !passwordInput) {
-
-                console.error(
-                    "Login form fields were not found."
-                );
-
+            if (!identifierInput || !passwordInput) {
+                alert("Login form configuration error.");
                 return;
             }
 
-
-            const login =
-                loginInput.value.trim();
+            const identifier =
+                identifierInput.value.trim();
 
             const password =
                 passwordInput.value;
 
-
-            /* -----------------------------------------
-               BASIC VALIDATION
-            ----------------------------------------- */
-
-            if (!login || !password) {
-
-                alert(
-                    "Please enter your email/phone and password."
-                );
-
+            if (!identifier || !password) {
+                alert("Please enter your email/phone and password.");
                 return;
             }
-
-
-            /* -----------------------------------------
-               GET REGISTERED USER
-            ----------------------------------------- */
 
             const registeredUser =
                 localStorage.getItem("tipecoUser");
 
-
             if (!registeredUser) {
-
-                alert(
-                    "No account found. Please create an account first."
-                );
-
+                alert("No account found. Please create an account first.");
                 return;
             }
-
 
             let user;
 
             try {
-
                 user = JSON.parse(registeredUser);
-
             } catch (error) {
-
-                console.error(
-                    "Invalid user data:",
-                    error
-                );
-
-                alert(
-                    "There is a problem with your account data. Please register again."
-                );
-
-                localStorage.removeItem("tipecoUser");
-
+                alert("Account data is corrupted. Please register again.");
                 return;
             }
 
-
-            /* -----------------------------------------
-               CHECK LOGIN DETAILS
-            ----------------------------------------- */
-
             const identifierMatches =
-
-                login.toLowerCase() ===
+                identifier.toLowerCase() ===
                     String(user.email).toLowerCase()
-
                 ||
-
-                login ===
-                    String(user.phone);
-
+                identifier === String(user.phone);
 
             const passwordMatches =
                 password === user.password;
 
-
             if (!identifierMatches || !passwordMatches) {
-
-                alert(
-                    "Invalid email/phone or password."
-                );
-
+                alert("Invalid email/phone or password.");
                 return;
             }
 
+            /* SAVE LOGIN STATE */
 
-            /* -----------------------------------------
-               SAVE LOGIN STATE
-            ----------------------------------------- */
+            localStorage.removeItem("tipecoLoggedIn");
+            sessionStorage.removeItem("tipecoLoggedIn");
 
-            if (
-                rememberInput &&
-                rememberInput.checked
-            ) {
+            if (rememberInput && rememberInput.checked) {
 
                 localStorage.setItem(
                     "tipecoLoggedIn",
@@ -160,417 +92,278 @@ document.addEventListener("DOMContentLoaded", function () {
                     "tipecoLoggedIn",
                     "true"
                 );
-
             }
-
-
-            /* -----------------------------------------
-               LOGIN SUCCESS
-            ----------------------------------------- */
 
             alert(
                 "Login successful! Welcome to TIPECO GROUP."
             );
 
-
-            /*
-             * Dashboard is inside /pages/
-             * Login is also inside /pages/
-             */
-
-            window.location.href =
-                "dashboard.html";
+            window.location.href = "dashboard.html";
 
         });
-
     }
 
 
-
-    /* =================================================
-       REGISTER FORM
-    ================================================= */
+    /* =====================================================
+       REGISTER / CREATE ACCOUNT
+    ===================================================== */
 
     const registerForm =
         document.getElementById("registerForm");
 
-
     if (registerForm) {
 
-        registerForm.addEventListener(
-            "submit",
-            function (event) {
+        registerForm.addEventListener("submit", function (event) {
 
-                event.preventDefault();
+            event.preventDefault();
 
+            /* GET FORM INPUTS */
 
-                /* -------------------------------------
-                   GET FORM INPUTS
-                ------------------------------------- */
+            const fullNameInput =
+                document.getElementById("fullName");
 
-                const fullNameInput =
-                    registerForm.querySelector(
-                        '[name="fullName"]'
-                    );
+            const emailInput =
+                document.getElementById("email");
 
+            const phoneInput =
+                document.getElementById("phone");
 
-                const emailInput =
-                    registerForm.querySelector(
-                        '[name="email"]'
-                    );
+            const passwordInput =
+                document.getElementById("password");
 
+            const confirmPasswordInput =
+                document.getElementById("confirmPassword");
 
-                const phoneInput =
-                    registerForm.querySelector(
-                        '[name="phone"]'
-                    );
+            const accountTypeInput =
+                document.getElementById("accountType");
 
+            const termsInput =
+                document.getElementById("terms");
 
-                const passwordInput =
-                    registerForm.querySelector(
-                        '[name="password"]'
-                    );
 
+            /* CHECK FORM ELEMENTS */
 
-                const confirmPasswordInput =
-                    registerForm.querySelector(
-                        '[name="confirmPassword"]'
-                    );
-
-
-                const accountTypeInput =
-                    registerForm.querySelector(
-                        '[name="accountType"]'
-                    );
-
-
-                const termsInput =
-                    registerForm.querySelector(
-                        '[name="terms"]'
-                    );
-
-
-                /* -------------------------------------
-                   SAFETY CHECK
-                ------------------------------------- */
-
-                if (
-                    !fullNameInput ||
-                    !emailInput ||
-                    !phoneInput ||
-                    !passwordInput ||
-                    !confirmPasswordInput ||
-                    !accountTypeInput ||
-                    !termsInput
-                ) {
-
-                    console.error(
-                        "One or more registration fields are missing."
-                    );
-
-                    return;
-                }
-
-
-                /* -------------------------------------
-                   GET VALUES
-                ------------------------------------- */
-
-                const fullName =
-                    fullNameInput.value.trim();
-
-
-                const email =
-                    emailInput.value.trim();
-
-
-                const phone =
-                    phoneInput.value.trim();
-
-
-                const password =
-                    passwordInput.value;
-
-
-                const confirmPassword =
-                    confirmPasswordInput.value;
-
-
-                const accountType =
-                    accountTypeInput.value;
-
-
-                /* -------------------------------------
-                   REQUIRED FIELDS
-                ------------------------------------- */
-
-                if (
-                    !fullName ||
-                    !email ||
-                    !phone ||
-                    !password ||
-                    !confirmPassword ||
-                    !accountType
-                ) {
-
-                    alert(
-                        "Please complete all required fields."
-                    );
-
-                    return;
-                }
-
-
-                /* -------------------------------------
-                   TERMS & CONDITIONS
-                ------------------------------------- */
-
-                if (!termsInput.checked) {
-
-                    alert(
-                        "Please agree to the Terms & Conditions."
-                    );
-
-                    return;
-                }
-
-
-                /* -------------------------------------
-                   PASSWORD LENGTH
-                ------------------------------------- */
-
-                if (password.length < 6) {
-
-                    alert(
-                        "Password must contain at least 6 characters."
-                    );
-
-                    return;
-                }
-
-
-                /* -------------------------------------
-                   PASSWORD MATCH
-                ------------------------------------- */
-
-                if (password !== confirmPassword) {
-
-                    alert(
-                        "Passwords do not match."
-                    );
-
-                    return;
-                }
-
-
-                /* -------------------------------------
-                   CHECK EXISTING ACCOUNT
-                ------------------------------------- */
-
-                const existingUser =
-                    localStorage.getItem(
-                        "tipecoUser"
-                    );
-
-
-                if (existingUser) {
-
-                    try {
-
-                        const oldUser =
-                            JSON.parse(existingUser);
-
-
-                        if (
-                            oldUser.email &&
-                            oldUser.email.toLowerCase() ===
-                                email.toLowerCase()
-                        ) {
-
-                            alert(
-                                "An account with this email already exists."
-                            );
-
-                            return;
-                        }
-
-
-                        if (
-                            oldUser.phone &&
-                            oldUser.phone === phone
-                        ) {
-
-                            alert(
-                                "An account with this phone number already exists."
-                            );
-
-                            return;
-                        }
-
-                    } catch (error) {
-
-                        console.warn(
-                            "Old user data could not be read."
-                        );
-
-                    }
-
-                }
-
-
-                /* -------------------------------------
-                   CREATE USER
-                ------------------------------------- */
-
-                const user = {
-
-                    fullName: fullName,
-
-                    email: email,
-
-                    phone: phone,
-
-                    password: password,
-
-                    accountType: accountType
-
-                };
-
-
-                /* -------------------------------------
-                   SAVE USER
-                ------------------------------------- */
-
-                try {
-
-                    localStorage.setItem(
-                        "tipecoUser",
-                        JSON.stringify(user)
-                    );
-
-                } catch (error) {
-
-                    console.error(
-                        "Could not save user:",
-                        error
-                    );
-
-                    alert(
-                        "Unable to create the account. Please try again."
-                    );
-
-                    return;
-                }
-
-
-                /* -------------------------------------
-                   CLEAR LOGIN STATES
-                ------------------------------------- */
-
-                localStorage.removeItem(
-                    "tipecoLoggedIn"
-                );
-
-
-                sessionStorage.removeItem(
-                    "tipecoLoggedIn"
-                );
-
-
-                /* -------------------------------------
-                   REGISTER SUCCESS
-                ------------------------------------- */
+            if (
+                !fullNameInput ||
+                !emailInput ||
+                !phoneInput ||
+                !passwordInput ||
+                !confirmPasswordInput ||
+                !accountTypeInput ||
+                !termsInput
+            ) {
 
                 alert(
-                    "Account created successfully! You can now login."
+                    "Registration form configuration error."
                 );
 
-
-                window.location.href =
-                    "login.html";
-
+                return;
             }
-        );
 
+
+            /* GET VALUES */
+
+            const fullName =
+                fullNameInput.value.trim();
+
+            const email =
+                emailInput.value.trim();
+
+            const phone =
+                phoneInput.value.trim();
+
+            const password =
+                passwordInput.value;
+
+            const confirmPassword =
+                confirmPasswordInput.value;
+
+            const accountType =
+                accountTypeInput.value;
+
+
+            /* REQUIRED FIELDS */
+
+            if (
+                !fullName ||
+                !email ||
+                !phone ||
+                !password ||
+                !confirmPassword ||
+                !accountType
+            ) {
+
+                alert(
+                    "Please complete all required fields."
+                );
+
+                return;
+            }
+
+
+            /* TERMS */
+
+            if (!termsInput.checked) {
+
+                alert(
+                    "Please agree to the Terms & Conditions."
+                );
+
+                return;
+            }
+
+
+            /* PASSWORD LENGTH */
+
+            if (password.length < 6) {
+
+                alert(
+                    "Password must contain at least 6 characters."
+                );
+
+                return;
+            }
+
+
+            /* PASSWORD MATCH */
+
+            if (password !== confirmPassword) {
+
+                alert(
+                    "Passwords do not match."
+                );
+
+                return;
+            }
+
+
+            /* EMAIL CHECK */
+
+            const emailPattern =
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!emailPattern.test(email)) {
+
+                alert(
+                    "Please enter a valid email address."
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               CREATE USER
+            ================================================= */
+
+            const user = {
+
+                fullName: fullName,
+
+                email: email,
+
+                phone: phone,
+
+                password: password,
+
+                accountType: accountType
+
+            };
+
+
+            /* SAVE USER */
+
+            try {
+
+                localStorage.setItem(
+                    "tipecoUser",
+                    JSON.stringify(user)
+                );
+
+            } catch (error) {
+
+                alert(
+                    "Unable to save account information."
+                );
+
+                return;
+            }
+
+
+            /* REMOVE OLD LOGIN STATE */
+
+            localStorage.removeItem(
+                "tipecoLoggedIn"
+            );
+
+            sessionStorage.removeItem(
+                "tipecoLoggedIn"
+            );
+
+
+            /* SUCCESS */
+
+            alert(
+                "Account created successfully! You can now login."
+            );
+
+
+            /* GO TO LOGIN */
+
+            window.location.href =
+                "login.html";
+
+        });
     }
 
 
-
-    /* =================================================
+    /* =====================================================
        LOGOUT
-    ================================================= */
+    ===================================================== */
 
     const logoutButtons =
         document.querySelectorAll(
             '[data-action="logout"]'
         );
 
-
     logoutButtons.forEach(function (button) {
 
-        button.addEventListener(
-            "click",
-            function (event) {
+        button.addEventListener("click", function (event) {
 
-                event.preventDefault();
+            event.preventDefault();
 
+            localStorage.removeItem(
+                "tipecoLoggedIn"
+            );
 
-                /* -------------------------------------
-                   REMOVE LOGIN STATES
-                ------------------------------------- */
+            sessionStorage.removeItem(
+                "tipecoLoggedIn"
+            );
 
-                localStorage.removeItem(
-                    "tipecoLoggedIn"
-                );
+            window.location.href =
+                "login.html";
 
-
-                sessionStorage.removeItem(
-                    "tipecoLoggedIn"
-                );
-
-
-                /* -------------------------------------
-                   GO TO LOGIN
-                ------------------------------------- */
-
-                window.location.href =
-                    "login.html";
-
-            }
-        );
+        });
 
     });
 
 
-
-    /* =================================================
+    /* =====================================================
        PROTECTED DASHBOARD
-    ================================================= */
+    ===================================================== */
 
     const currentPage =
         window.location.pathname;
 
-
     const isDashboard =
-        currentPage.includes(
-            "dashboard.html"
-        );
-
+        currentPage.includes("dashboard.html");
 
     if (isDashboard) {
 
         const loggedIn =
-
-            localStorage.getItem(
-                "tipecoLoggedIn"
-            )
-
+            localStorage.getItem("tipecoLoggedIn")
             ||
-
-            sessionStorage.getItem(
-                "tipecoLoggedIn"
-            );
-
+            sessionStorage.getItem("tipecoLoggedIn");
 
         if (loggedIn !== "true") {
 
@@ -578,33 +371,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 "Please login to access your dashboard."
             );
 
-
             window.location.href =
                 "login.html";
 
+            return;
         }
-
     }
 
 
-
-    /* =================================================
+    /* =====================================================
        DISPLAY USER NAME
-    ================================================= */
+    ===================================================== */
 
     const userNameElements =
         document.querySelectorAll(
             "[data-user-name]"
         );
 
-
     if (userNameElements.length > 0) {
 
         const storedUser =
-            localStorage.getItem(
-                "tipecoUser"
-            );
-
+            localStorage.getItem("tipecoUser");
 
         if (storedUser) {
 
@@ -612,7 +399,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const user =
                     JSON.parse(storedUser);
-
 
                 userNameElements.forEach(
                     function (element) {
@@ -626,41 +412,12 @@ document.addEventListener("DOMContentLoaded", function () {
             } catch (error) {
 
                 console.error(
-                    "Could not load user information:",
+                    "Unable to read user data.",
                     error
                 );
 
             }
-
         }
-
     }
-
-
-
-    /* =================================================
-       GOOGLE BUTTON - FRONTEND PLACEHOLDER
-    ================================================= */
-
-    const googleButtons =
-        document.querySelectorAll(
-            ".google-btn"
-        );
-
-
-    googleButtons.forEach(function (button) {
-
-        button.addEventListener(
-            "click",
-            function () {
-
-                alert(
-                    "Google Sign-In will be connected when the backend authentication system is added."
-                );
-
-            }
-        );
-
-    });
 
 });
