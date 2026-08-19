@@ -1,6 +1,6 @@
 /* =====================================================
    TIPECO GROUP - AUTHENTICATION JAVASCRIPT
-   Version: 1.0
+   Version: 1.1
    Frontend Authentication Prototype
 ===================================================== */
 
@@ -10,6 +10,7 @@
 ===================================================== */
 
 document.addEventListener("DOMContentLoaded", function () {
+
 
     /* =================================================
        LOGIN FORM
@@ -24,8 +25,12 @@ document.addEventListener("DOMContentLoaded", function () {
             event.preventDefault();
 
 
-            const identifierInput =
-                loginForm.querySelector('[name="identifier"]');
+            /* -----------------------------------------
+               GET LOGIN INPUTS
+            ----------------------------------------- */
+
+            const loginInput =
+                loginForm.querySelector('[name="login"]');
 
             const passwordInput =
                 loginForm.querySelector('[name="password"]');
@@ -34,18 +39,28 @@ document.addEventListener("DOMContentLoaded", function () {
                 loginForm.querySelector('[name="remember"]');
 
 
-            const identifier =
-                identifierInput.value.trim();
+            if (!loginInput || !passwordInput) {
+
+                console.error(
+                    "Login form fields were not found."
+                );
+
+                return;
+            }
+
+
+            const login =
+                loginInput.value.trim();
 
             const password =
                 passwordInput.value;
 
 
-            /* =========================================
+            /* -----------------------------------------
                BASIC VALIDATION
-            ========================================= */
+            ----------------------------------------- */
 
-            if (!identifier || !password) {
+            if (!login || !password) {
 
                 alert(
                     "Please enter your email/phone and password."
@@ -55,9 +70,9 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
 
-            /* =========================================
+            /* -----------------------------------------
                GET REGISTERED USER
-            ========================================= */
+            ----------------------------------------- */
 
             const registeredUser =
                 localStorage.getItem("tipecoUser");
@@ -73,19 +88,42 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
 
-            const user =
-                JSON.parse(registeredUser);
+            let user;
+
+            try {
+
+                user = JSON.parse(registeredUser);
+
+            } catch (error) {
+
+                console.error(
+                    "Invalid user data:",
+                    error
+                );
+
+                alert(
+                    "There is a problem with your account data. Please register again."
+                );
+
+                localStorage.removeItem("tipecoUser");
+
+                return;
+            }
 
 
-            /* =========================================
+            /* -----------------------------------------
                CHECK LOGIN DETAILS
-            ========================================= */
+            ----------------------------------------- */
 
             const identifierMatches =
-                identifier.toLowerCase() ===
-                    user.email.toLowerCase()
+
+                login.toLowerCase() ===
+                    String(user.email).toLowerCase()
+
                 ||
-                identifier === user.phone;
+
+                login ===
+                    String(user.phone);
 
 
             const passwordMatches =
@@ -102,11 +140,14 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
 
-            /* =========================================
+            /* -----------------------------------------
                SAVE LOGIN STATE
-            ========================================= */
+            ----------------------------------------- */
 
-            if (rememberInput && rememberInput.checked) {
+            if (
+                rememberInput &&
+                rememberInput.checked
+            ) {
 
                 localStorage.setItem(
                     "tipecoLoggedIn",
@@ -123,14 +164,19 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
 
-            /* =========================================
-               SUCCESS
-            ========================================= */
+            /* -----------------------------------------
+               LOGIN SUCCESS
+            ----------------------------------------- */
 
             alert(
                 "Login successful! Welcome to TIPECO GROUP."
             );
 
+
+            /*
+             * Dashboard is inside /pages/
+             * Login is also inside /pages/
+             */
 
             window.location.href =
                 "dashboard.html";
@@ -157,6 +203,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 event.preventDefault();
 
+
+                /* -------------------------------------
+                   GET FORM INPUTS
+                ------------------------------------- */
 
                 const fullNameInput =
                     registerForm.querySelector(
@@ -200,6 +250,32 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
 
+                /* -------------------------------------
+                   SAFETY CHECK
+                ------------------------------------- */
+
+                if (
+                    !fullNameInput ||
+                    !emailInput ||
+                    !phoneInput ||
+                    !passwordInput ||
+                    !confirmPasswordInput ||
+                    !accountTypeInput ||
+                    !termsInput
+                ) {
+
+                    console.error(
+                        "One or more registration fields are missing."
+                    );
+
+                    return;
+                }
+
+
+                /* -------------------------------------
+                   GET VALUES
+                ------------------------------------- */
+
                 const fullName =
                     fullNameInput.value.trim();
 
@@ -224,9 +300,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     accountTypeInput.value;
 
 
-                /* =====================================
+                /* -------------------------------------
                    REQUIRED FIELDS
-                ===================================== */
+                ------------------------------------- */
 
                 if (
                     !fullName ||
@@ -245,9 +321,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* =====================================
-                   TERMS
-                ===================================== */
+                /* -------------------------------------
+                   TERMS & CONDITIONS
+                ------------------------------------- */
 
                 if (!termsInput.checked) {
 
@@ -259,9 +335,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* =====================================
+                /* -------------------------------------
                    PASSWORD LENGTH
-                ===================================== */
+                ------------------------------------- */
 
                 if (password.length < 6) {
 
@@ -273,9 +349,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* =====================================
+                /* -------------------------------------
                    PASSWORD MATCH
-                ===================================== */
+                ------------------------------------- */
 
                 if (password !== confirmPassword) {
 
@@ -287,9 +363,64 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* =====================================
-                   CREATE USER OBJECT
-                ===================================== */
+                /* -------------------------------------
+                   CHECK EXISTING ACCOUNT
+                ------------------------------------- */
+
+                const existingUser =
+                    localStorage.getItem(
+                        "tipecoUser"
+                    );
+
+
+                if (existingUser) {
+
+                    try {
+
+                        const oldUser =
+                            JSON.parse(existingUser);
+
+
+                        if (
+                            oldUser.email &&
+                            oldUser.email.toLowerCase() ===
+                                email.toLowerCase()
+                        ) {
+
+                            alert(
+                                "An account with this email already exists."
+                            );
+
+                            return;
+                        }
+
+
+                        if (
+                            oldUser.phone &&
+                            oldUser.phone === phone
+                        ) {
+
+                            alert(
+                                "An account with this phone number already exists."
+                            );
+
+                            return;
+                        }
+
+                    } catch (error) {
+
+                        console.warn(
+                            "Old user data could not be read."
+                        );
+
+                    }
+
+                }
+
+
+                /* -------------------------------------
+                   CREATE USER
+                ------------------------------------- */
 
                 const user = {
 
@@ -306,19 +437,49 @@ document.addEventListener("DOMContentLoaded", function () {
                 };
 
 
-                /* =====================================
+                /* -------------------------------------
                    SAVE USER
-                ===================================== */
+                ------------------------------------- */
 
-                localStorage.setItem(
-                    "tipecoUser",
-                    JSON.stringify(user)
+                try {
+
+                    localStorage.setItem(
+                        "tipecoUser",
+                        JSON.stringify(user)
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Could not save user:",
+                        error
+                    );
+
+                    alert(
+                        "Unable to create the account. Please try again."
+                    );
+
+                    return;
+                }
+
+
+                /* -------------------------------------
+                   CLEAR LOGIN STATES
+                ------------------------------------- */
+
+                localStorage.removeItem(
+                    "tipecoLoggedIn"
                 );
 
 
-                /* =====================================
-                   SUCCESS
-                ===================================== */
+                sessionStorage.removeItem(
+                    "tipecoLoggedIn"
+                );
+
+
+                /* -------------------------------------
+                   REGISTER SUCCESS
+                ------------------------------------- */
 
                 alert(
                     "Account created successfully! You can now login."
@@ -354,6 +515,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 event.preventDefault();
 
 
+                /* -------------------------------------
+                   REMOVE LOGIN STATES
+                ------------------------------------- */
+
                 localStorage.removeItem(
                     "tipecoLoggedIn"
                 );
@@ -363,6 +528,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     "tipecoLoggedIn"
                 );
 
+
+                /* -------------------------------------
+                   GO TO LOGIN
+                ------------------------------------- */
 
                 window.location.href =
                     "login.html";
@@ -391,10 +560,13 @@ document.addEventListener("DOMContentLoaded", function () {
     if (isDashboard) {
 
         const loggedIn =
+
             localStorage.getItem(
                 "tipecoLoggedIn"
             )
+
             ||
+
             sessionStorage.getItem(
                 "tipecoLoggedIn"
             );
@@ -436,21 +608,59 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (storedUser) {
 
-            const user =
-                JSON.parse(storedUser);
+            try {
+
+                const user =
+                    JSON.parse(storedUser);
 
 
-            userNameElements.forEach(
-                function (element) {
+                userNameElements.forEach(
+                    function (element) {
 
-                    element.textContent =
-                        user.fullName;
+                        element.textContent =
+                            user.fullName;
 
-                }
-            );
+                    }
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Could not load user information:",
+                    error
+                );
+
+            }
 
         }
 
     }
+
+
+
+    /* =================================================
+       GOOGLE BUTTON - FRONTEND PLACEHOLDER
+    ================================================= */
+
+    const googleButtons =
+        document.querySelectorAll(
+            ".google-btn"
+        );
+
+
+    googleButtons.forEach(function (button) {
+
+        button.addEventListener(
+            "click",
+            function () {
+
+                alert(
+                    "Google Sign-In will be connected when the backend authentication system is added."
+                );
+
+            }
+        );
+
+    });
 
 });
