@@ -4,7 +4,8 @@
 <head>
 
     <!-- =====================================================
-         TIPECO GROUP - MARKETPLACE PAGE
+         TIPECO GROUP - BUY & SELL
+         Marketplace Version 1.0
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -13,10 +14,7 @@
           content="width=device-width, initial-scale=1.0">
 
     <meta name="description"
-          content="TIPECO Marketplace - Buy, Sell and Rent Vehicles, Real Estate, Electronics, Home & Furniture and More">
-
-    <meta name="keywords"
-          content="TIPECO Marketplace, Buy Sell Rent, Vehicles, Real Estate, Electronics, Furniture">
+          content="TIPECO GROUP Buy & Sell - Discover verified products, vehicles, properties and more.">
 
     <meta name="author"
           content="TIPECO GROUP">
@@ -24,7 +22,7 @@
     <meta name="theme-color"
           content="#0D47A1">
 
-    <title>Marketplace | TIPECO GROUP</title>
+    <title>Buy & Sell | TIPECO GROUP</title>
 
 
     <!-- =====================================================
@@ -53,90 +51,58 @@
 
 
     <!-- =====================================================
-         HEADER
+         MARKETPLACE HEADER
     ====================================================== -->
 
-    <header class="header">
+    <header class="marketplace-header">
 
-        <div class="container">
+        <div class="marketplace-header-inner">
 
-            <!-- Logo -->
+
+            <!-- LOGO -->
 
             <a href="../index.html"
-               class="logo">
+               class="marketplace-logo">
 
-                <h1>TIPECO GROUP</h1>
+                TIPECO GROUP
 
             </a>
 
 
-            <!-- Navigation -->
+            <!-- NAVIGATION -->
 
-            <nav class="navbar">
+            <nav class="marketplace-nav">
 
-                <ul class="nav-links">
+                <a href="../index.html">
+                    Home
+                </a>
 
-                    <li>
-                        <a href="../index.html">
-                            Home
-                        </a>
-                    </li>
+                <a href="dashboard.html">
+                    Dashboard
+                </a>
 
-                    <li>
-                        <a href="about.html">
-                            About
-                        </a>
-                    </li>
+                <a href="marketplace.html"
+                   class="active">
 
-                    <li>
-                        <a href="services.html">
-                            Services
-                        </a>
-                    </li>
+                    Buy &amp; Sell
 
-                    <li>
-                        <a href="marketplace.html"
-                           class="active">
-                            Buy &amp; Sell
-                        </a>
-                    </li>
+                </a>
 
-                    <li>
-                        <a href="contact.html">
-                            Contact
-                        </a>
-                    </li>
-
-                </ul>
+                <a href="services.html">
+                    Services
+                </a>
 
             </nav>
 
 
-            <!-- Header Actions -->
+            <!-- HEADER ACTION -->
 
-            <div class="header-actions">
+            <div class="marketplace-header-action">
 
-                <select class="language-selector">
+                <a href="dashboard.html"
+                   class="marketplace-account-btn">
 
-                    <option>English</option>
-                    <option>Kinyarwanda</option>
-                    <option>Français</option>
-
-                </select>
-
-
-                <a href="login.html"
-                   class="login-btn">
-
-                    Login
-
-                </a>
-
-
-                <a href="register.html"
-                   class="signup-btn">
-
-                    Sign Up
+                    My Account
 
                 </a>
 
@@ -149,685 +115,670 @@
 
 
     <!-- =====================================================
-         MARKETPLACE HERO
+         HERO / SEARCH SECTION
     ====================================================== -->
 
-    <section class="marketplace-hero">
-
-        <div class="container">
-
-            <div class="marketplace-hero-content">
-
-                <p class="marketplace-label">
-                    TIPECO MARKETPLACE
-                </p>
-
-                <h1>
-                    Buy. Sell. <span>Rent.</span>
-                </h1>
-
-                <p>
-                    Discover products, properties, vehicles and
-                    services from people and businesses in one place.
-                </p>
+    <main>
 
 
-                <!-- Search -->
+        <section class="marketplace-hero">
 
-                <form class="marketplace-search">
 
-                    <input
-                        type="search"
-                        placeholder="What are you looking for?"
-                        aria-label="Search marketplace">
+            <div class="marketplace-container">
 
-                    <select
-                        aria-label="Select category">
 
-                        <option value="">
-                            All Categories
-                        </option>
+                <div class="marketplace-hero-content">
 
-                        <option value="vehicles">
+
+                    <p class="marketplace-label">
+
+                        TIPECO GROUP BUY &amp; SELL
+
+                    </p>
+
+
+                    <h1>
+
+                        Discover What You Need.
+                        <span>Buy With Confidence.</span>
+
+                    </h1>
+
+
+                    <p>
+
+                        Explore products, vehicles, properties
+                        and more through TIPECO GROUP.
+
+                    </p>
+
+
+                    <!-- SEARCH -->
+
+                    <form
+                        class="marketplace-search"
+                        id="marketplaceSearchForm">
+
+
+                        <div class="search-input-wrapper">
+
+                            <span class="search-icon">
+                                🔎
+                            </span>
+
+
+                            <input
+                                type="search"
+                                id="marketplaceSearch"
+                                placeholder="Search products, vehicles, properties..."
+                                autocomplete="off">
+
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="marketplace-search-btn">
+
+                            Search
+
+                        </button>
+
+
+                    </form>
+
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             CATEGORIES
+        ====================================================== -->
+
+        <section class="marketplace-categories">
+
+
+            <div class="marketplace-container">
+
+
+                <div class="marketplace-section-header">
+
+                    <p class="marketplace-section-label">
+                        EXPLORE
+                    </p>
+
+                    <h2>
+                        Browse Categories
+                    </h2>
+
+                    <p>
+                        Find what you are looking for quickly.
+                    </p>
+
+                </div>
+
+
+                <div class="category-grid">
+
+
+                    <!-- VEHICLES -->
+
+                    <button
+                        type="button"
+                        class="category-card"
+                        data-category="vehicles">
+
+                        <span class="category-icon">
+                            🚗
+                        </span>
+
+                        <strong>
                             Vehicles
-                        </option>
+                        </strong>
 
-                        <option value="real-estate">
-                            Real Estate
-                        </option>
+                        <small>
+                            Cars, motorcycles &amp; more
+                        </small>
 
-                        <option value="electronics">
-                            Electronics
-                        </option>
-
-                        <option value="home-furniture">
-                            Home &amp; Furniture
-                        </option>
-
-                        <option value="other">
-                            Other Products
-                        </option>
-
-                    </select>
-
-                    <button type="submit">
-                        Search
                     </button>
 
-                </form>
 
-            </div>
+                    <!-- REAL ESTATE -->
 
-        </div>
+                    <button
+                        type="button"
+                        class="category-card"
+                        data-category="real-estate">
 
-    </section>
-
-
-
-    <!-- =====================================================
-         MARKETPLACE INTRO
-    ====================================================== -->
-
-    <section class="marketplace-intro">
-
-        <div class="container">
-
-            <div class="section-header">
-
-                <p class="section-label">
-                    EXPLORE MARKETPLACE
-                </p>
-
-                <h2>
-                    Find What You Need
-                </h2>
-
-                <p>
-                    Explore different categories and discover
-                    opportunities available on TIPECO Marketplace.
-                </p>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         MARKETPLACE CATEGORIES
-    ====================================================== -->
-
-    <section class="marketplace-categories">
-
-        <div class="container">
-
-            <div class="category-grid">
-
-
-                <!-- VEHICLES -->
-
-                <a href="#"
-                   class="category-card vehicles-category">
-
-                    <div class="category-icon">
-                        🚗
-                    </div>
-
-                    <h3>
-                        Vehicles
-                    </h3>
-
-                    <p>
-                        Cars, motorcycles, trucks and more.
-                    </p>
-
-                    <span>
-                        Explore →
-                    </span>
-
-                </a>
-
-
-
-                <!-- REAL ESTATE -->
-
-                <a href="#"
-                   class="category-card real-estate-category">
-
-                    <div class="category-icon">
-                        🏠
-                    </div>
-
-                    <h3>
-                        Real Estate
-                    </h3>
-
-                    <p>
-                        Houses, apartments, land and properties.
-                    </p>
-
-                    <span>
-                        Explore →
-                    </span>
-
-                </a>
-
-
-
-                <!-- ELECTRONICS -->
-
-                <a href="#"
-                   class="category-card electronics-category">
-
-                    <div class="category-icon">
-                        📱
-                    </div>
-
-                    <h3>
-                        Electronics
-                    </h3>
-
-                    <p>
-                        Phones, computers, TVs and electronics.
-                    </p>
-
-                    <span>
-                        Explore →
-                    </span>
-
-                </a>
-
-
-
-                <!-- HOME & FURNITURE -->
-
-                <a href="#"
-                   class="category-card furniture-category">
-
-                    <div class="category-icon">
-                        🛋️
-                    </div>
-
-                    <h3>
-                        Home &amp; Furniture
-                    </h3>
-
-                    <p>
-                        Furniture, appliances and home products.
-                    </p>
-
-                    <span>
-                        Explore →
-                    </span>
-
-                </a>
-
-
-
-                <!-- OTHER PRODUCTS -->
-
-                <a href="#"
-                   class="category-card other-category">
-
-                    <div class="category-icon">
-                        📦
-                    </div>
-
-                    <h3>
-                        Other Products
-                    </h3>
-
-                    <p>
-                        Discover more products and opportunities.
-                    </p>
-
-                    <span>
-                        Explore →
-                    </span>
-
-                </a>
-
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         FEATURED LISTINGS
-    ====================================================== -->
-
-    <section class="featured-listings">
-
-        <div class="container">
-
-            <div class="section-header">
-
-                <p class="section-label">
-                    FEATURED LISTINGS
-                </p>
-
-                <h2>
-                    Discover Opportunities
-                </h2>
-
-                <p>
-                    Featured products and properties from our marketplace.
-                </p>
-
-            </div>
-
-
-            <div class="listing-grid">
-
-
-                <!-- LISTING 1 -->
-
-                <article class="listing-card">
-
-                    <div class="listing-image">
-
-                        <span class="listing-badge">
-                            FEATURED
+                        <span class="category-icon">
+                            🏠
                         </span>
 
-                        🚗
+                        <strong>
+                            Real Estate
+                        </strong>
 
-                    </div>
+                        <small>
+                            Houses, land &amp; properties
+                        </small>
 
-                    <div class="listing-content">
-
-                        <p class="listing-category">
-                            VEHICLES
-                        </p>
-
-                        <h3>
-                            Vehicle Listing
-                        </h3>
-
-                        <p class="listing-location">
-                            📍 Rwanda
-                        </p>
-
-                        <div class="listing-bottom">
-
-                            <strong>
-                                Price Available
-                            </strong>
-
-                            <a href="#">
-                                View →
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </article>
+                    </button>
 
 
+                    <!-- ELECTRONICS -->
 
-                <!-- LISTING 2 -->
+                    <button
+                        type="button"
+                        class="category-card"
+                        data-category="electronics">
 
-                <article class="listing-card">
-
-                    <div class="listing-image">
-
-                        <span class="listing-badge">
-                            FEATURED
+                        <span class="category-icon">
+                            📱
                         </span>
 
-                        🏠
+                        <strong>
+                            Electronics
+                        </strong>
 
-                    </div>
+                        <small>
+                            Phones, computers &amp; devices
+                        </small>
 
-                    <div class="listing-content">
-
-                        <p class="listing-category">
-                            REAL ESTATE
-                        </p>
-
-                        <h3>
-                            Property Listing
-                        </h3>
-
-                        <p class="listing-location">
-                            📍 Rwanda
-                        </p>
-
-                        <div class="listing-bottom">
-
-                            <strong>
-                                Price Available
-                            </strong>
-
-                            <a href="#">
-                                View →
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </article>
+                    </button>
 
 
+                    <!-- HOME -->
 
-                <!-- LISTING 3 -->
+                    <button
+                        type="button"
+                        class="category-card"
+                        data-category="home-furniture">
 
-                <article class="listing-card">
-
-                    <div class="listing-image">
-
-                        <span class="listing-badge">
-                            FEATURED
+                        <span class="category-icon">
+                            🛋️
                         </span>
 
-                        📱
+                        <strong>
+                            Home &amp; Furniture
+                        </strong>
 
-                    </div>
+                        <small>
+                            Furniture &amp; home products
+                        </small>
 
-                    <div class="listing-content">
-
-                        <p class="listing-category">
-                            ELECTRONICS
-                        </p>
-
-                        <h3>
-                            Electronics Listing
-                        </h3>
-
-                        <p class="listing-location">
-                            📍 Rwanda
-                        </p>
-
-                        <div class="listing-bottom">
-
-                            <strong>
-                                Price Available
-                            </strong>
-
-                            <a href="#">
-                                View →
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </article>
+                    </button>
 
 
+                    <!-- OTHER -->
 
-                <!-- LISTING 4 -->
+                    <button
+                        type="button"
+                        class="category-card"
+                        data-category="other">
 
-                <article class="listing-card">
-
-                    <div class="listing-image">
-
-                        <span class="listing-badge">
-                            FEATURED
+                        <span class="category-icon">
+                            📦
                         </span>
 
-                        🛋️
+                        <strong>
+                            Other Products
+                        </strong>
 
-                    </div>
+                        <small>
+                            Discover more products
+                        </small>
 
-                    <div class="listing-content">
+                    </button>
 
-                        <p class="listing-category">
-                            HOME &amp; FURNITURE
-                        </p>
 
-                        <h3>
-                            Home Product Listing
-                        </h3>
-
-                        <p class="listing-location">
-                            📍 Rwanda
-                        </p>
-
-                        <div class="listing-bottom">
-
-                            <strong>
-                                Price Available
-                            </strong>
-
-                            <a href="#">
-                                View →
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </article>
-
+                </div>
 
             </div>
 
-        </div>
-
-    </section>
+        </section>
 
 
 
-    <!-- =====================================================
-         BUY SELL RENT
-    ====================================================== -->
+        <!-- =====================================================
+             VERIFIED LISTINGS
+        ====================================================== -->
 
-    <section class="marketplace-options">
-
-        <div class="container">
-
-            <div class="options-grid">
+        <section class="marketplace-listings">
 
 
-                <!-- BUY -->
+            <div class="marketplace-container">
 
-                <div class="option-card buy-option">
 
-                    <div class="option-icon">
-                        🛒
+                <div class="marketplace-section-header listings-header">
+
+
+                    <div>
+
+                        <p class="marketplace-section-label">
+                            TRUSTED MARKETPLACE
+                        </p>
+
+                        <h2>
+                            Verified Listings
+                        </h2>
+
+                        <p>
+                            Products displayed here will be reviewed
+                            through TIPECO GROUP's verification process.
+                        </p>
+
                     </div>
 
-                    <h3>
-                        Buy
-                    </h3>
 
-                    <p>
-                        Find products, vehicles, properties and
-                        other opportunities that match your needs.
-                    </p>
+                    <div class="listing-sort">
 
-                    <a href="#"
-                       class="option-btn">
-                        Start Exploring →
-                    </a>
+                        <label for="listingSort">
+                            Sort:
+                        </label>
+
+                        <select id="listingSort">
+
+                            <option value="latest">
+                                Latest
+                            </option>
+
+                            <option value="price-low">
+                                Price: Low to High
+                            </option>
+
+                            <option value="price-high">
+                                Price: High to Low
+                            </option>
+
+                        </select>
+
+                    </div>
+
 
                 </div>
 
 
 
-                <!-- SELL -->
+                <!-- LISTING GRID -->
 
-                <div class="option-card sell-option">
+                <div
+                    class="listing-grid"
+                    id="listingGrid">
 
-                    <div class="option-icon">
-                        💰
-                    </div>
 
-                    <h3>
-                        Sell
-                    </h3>
+                    <!-- =================================================
+                         SAMPLE LISTING 1
+                    ================================================== -->
 
-                    <p>
-                        List your products or services and connect
-                        with potential buyers.
-                    </p>
+                    <article
+                        class="listing-card"
+                        data-category="vehicles"
+                        data-title="Toyota RAV4"
+                        data-price="18500000">
 
-                    <a href="register.html"
-                       class="option-btn">
-                        Create Listing →
-                    </a>
+
+                        <div class="listing-image">
+
+                            <div class="listing-placeholder">
+                                🚗
+                            </div>
+
+
+                            <span class="verified-badge">
+
+                                ✓ Verified
+
+                            </span>
+
+
+                            <button
+                                type="button"
+                                class="save-listing"
+                                aria-label="Save listing">
+
+                                ♡
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="listing-content">
+
+
+                            <span class="listing-category">
+
+                                Vehicles
+
+                            </span>
+
+
+                            <h3>
+                                Toyota RAV4
+                            </h3>
+
+
+                            <p class="listing-location">
+                                📍 Kigali, Rwanda
+                            </p>
+
+
+                            <div class="listing-price">
+
+                                18,500,000 RWF
+
+                            </div>
+
+
+                            <div class="listing-footer">
+
+                                <span>
+                                    TIPECO Verified
+                                </span>
+
+
+                                <button
+                                    type="button"
+                                    class="view-listing-btn">
+
+                                    View Details →
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+
+                    <!-- =================================================
+                         SAMPLE LISTING 2
+                    ================================================== -->
+
+                    <article
+                        class="listing-card"
+                        data-category="real-estate"
+                        data-title="Modern House"
+                        data-price="85000000">
+
+
+                        <div class="listing-image">
+
+                            <div class="listing-placeholder">
+                                🏠
+                            </div>
+
+
+                            <span class="verified-badge">
+
+                                ✓ Verified
+
+                            </span>
+
+
+                            <button
+                                type="button"
+                                class="save-listing"
+                                aria-label="Save listing">
+
+                                ♡
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="listing-content">
+
+
+                            <span class="listing-category">
+
+                                Real Estate
+
+                            </span>
+
+
+                            <h3>
+                                Modern Family House
+                            </h3>
+
+
+                            <p class="listing-location">
+                                📍 Kigali, Rwanda
+                            </p>
+
+
+                            <div class="listing-price">
+
+                                85,000,000 RWF
+
+                            </div>
+
+
+                            <div class="listing-footer">
+
+                                <span>
+                                    TIPECO Verified
+                                </span>
+
+
+                                <button
+                                    type="button"
+                                    class="view-listing-btn">
+
+                                    View Details →
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+
+                    <!-- =================================================
+                         SAMPLE LISTING 3
+                    ================================================== -->
+
+                    <article
+                        class="listing-card"
+                        data-category="electronics"
+                        data-title="Smartphone"
+                        data-price="650000">
+
+
+                        <div class="listing-image">
+
+                            <div class="listing-placeholder">
+                                📱
+                            </div>
+
+
+                            <span class="verified-badge">
+
+                                ✓ Verified
+
+                            </span>
+
+
+                            <button
+                                type="button"
+                                class="save-listing"
+                                aria-label="Save listing">
+
+                                ♡
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="listing-content">
+
+
+                            <span class="listing-category">
+
+                                Electronics
+
+                            </span>
+
+
+                            <h3>
+                                Premium Smartphone
+                            </h3>
+
+
+                            <p class="listing-location">
+                                📍 Kigali, Rwanda
+                            </p>
+
+
+                            <div class="listing-price">
+
+                                650,000 RWF
+
+                            </div>
+
+
+                            <div class="listing-footer">
+
+                                <span>
+                                    TIPECO Verified
+                                </span>
+
+
+                                <button
+                                    type="button"
+                                    class="view-listing-btn">
+
+                                    View Details →
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+
+                    <!-- =================================================
+                         SAMPLE LISTING 4
+                    ================================================== -->
+
+                    <article
+                        class="listing-card"
+                        data-category="home-furniture"
+                        data-title="Modern Sofa"
+                        data-price="850000">
+
+
+                        <div class="listing-image">
+
+                            <div class="listing-placeholder">
+                                🛋️
+                            </div>
+
+
+                            <span class="verified-badge">
+
+                                ✓ Verified
+
+                            </span>
+
+
+                            <button
+                                type="button"
+                                class="save-listing"
+                                aria-label="Save listing">
+
+                                ♡
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="listing-content">
+
+
+                            <span class="listing-category">
+
+                                Home &amp; Furniture
+
+                            </span>
+
+
+                            <h3>
+                                Modern Sofa Set
+                            </h3>
+
+
+                            <p class="listing-location">
+                                📍 Kigali, Rwanda
+                            </p>
+
+
+                            <div class="listing-price">
+
+                                850,000 RWF
+
+                            </div>
+
+
+                            <div class="listing-footer">
+
+                                <span>
+                                    TIPECO Verified
+                                </span>
+
+
+                                <button
+                                    type="button"
+                                    class="view-listing-btn">
+
+                                    View Details →
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
 
                 </div>
 
 
 
-                <!-- RENT -->
+                <!-- EMPTY SEARCH RESULT -->
 
-                <div class="option-card rent-option">
+                <div
+                    class="listing-empty"
+                    id="listingEmpty">
 
-                    <div class="option-icon">
-                        🔑
-                    </div>
-
-                    <h3>
-                        Rent
-                    </h3>
-
-                    <p>
-                        Discover properties, vehicles and other
-                        items available for rent.
-                    </p>
-
-                    <a href="#"
-                       class="option-btn">
-                        Find Rentals →
-                    </a>
-
-                </div>
-
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- =====================================================
-         HOW IT WORKS
-    ====================================================== -->
-
-    <section class="how-marketplace-works">
-
-        <div class="container">
-
-            <div class="section-header">
-
-                <p class="section-label">
-                    HOW IT WORKS
-                </p>
-
-                <h2>
-                    Simple. Easy. Connected.
-                </h2>
-
-                <p>
-                    A simple way to discover opportunities
-                    and connect with sellers.
-                </p>
-
-            </div>
-
-
-            <div class="steps-grid">
-
-
-                <div class="step-card">
-
-                    <span class="step-number">
-                        01
-                    </span>
-
-                    <div class="step-icon">
+                    <div class="listing-empty-icon">
                         🔎
                     </div>
 
                     <h3>
-                        Discover
+                        No listings found
                     </h3>
 
                     <p>
-                        Search and explore products, properties
-                        and other listings.
-                    </p>
-
-                </div>
-
-
-
-                <div class="step-card">
-
-                    <span class="step-number">
-                        02
-                    </span>
-
-                    <div class="step-icon">
-                        👤
-                    </div>
-
-                    <h3>
-                        Connect
-                    </h3>
-
-                    <p>
-                        Connect with sellers, agents and service
-                        providers.
-                    </p>
-
-                </div>
-
-
-
-                <div class="step-card">
-
-                    <span class="step-number">
-                        03
-                    </span>
-
-                    <div class="step-icon">
-                        🤝
-                    </div>
-
-                    <h3>
-                        Decide
-                    </h3>
-
-                    <p>
-                        Discuss the details and make the decision
-                        that works for you.
-                    </p>
-
-                </div>
-
-
-
-                <div class="step-card">
-
-                    <span class="step-number">
-                        04
-                    </span>
-
-                    <div class="step-icon">
-                        🚀
-                    </div>
-
-                    <h3>
-                        Move Forward
-                    </h3>
-
-                    <p>
-                        Complete your transaction and move
-                        forward with confidence.
+                        Try another search or category.
                     </p>
 
                 </div>
@@ -835,53 +786,100 @@
 
             </div>
 
-        </div>
-
-    </section>
+        </section>
 
 
 
-    <!-- =====================================================
-         MARKETPLACE CTA
-    ====================================================== -->
+        <!-- =====================================================
+             TIPECO VERIFICATION SECTION
+        ====================================================== -->
 
-    <section class="marketplace-cta">
-
-        <div class="container">
-
-            <div class="marketplace-cta-content">
-
-                <p class="section-label">
-                    SELL OR PROMOTE
-                </p>
-
-                <h2>
-                    Have Something to Sell or Rent?
-                </h2>
-
-                <p>
-                    Create your account and get ready to publish
-                    your listing on TIPECO Marketplace.
-                </p>
-
-                <p class="marketplace-model">
-                    Free to Discover • Affordable to Promote
-                </p>
+        <section class="verification-section">
 
 
-                <div class="marketplace-cta-buttons">
+            <div class="marketplace-container">
 
-                    <a href="register.html"
-                       class="marketplace-btn primary">
 
-                        Create an Account
+                <div class="verification-content">
 
-                    </a>
 
-                    <a href="contact.html"
-                       class="marketplace-btn secondary">
+                    <div class="verification-icon">
+                        ✓
+                    </div>
 
-                        Contact Us
+
+                    <div>
+
+                        <p class="marketplace-section-label">
+                            OUR COMMITMENT
+                        </p>
+
+
+                        <h2>
+                            Buy With More Confidence
+                        </h2>
+
+
+                        <p>
+
+                            TIPECO GROUP is designed to help buyers
+                            access reliable product information.
+                            Listings can go through a verification
+                            process before being presented as
+                            TIPECO verified.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             SELL WITH TIPECO
+        ====================================================== -->
+
+        <section class="sell-section">
+
+
+            <div class="marketplace-container">
+
+
+                <div class="sell-content">
+
+
+                    <div>
+
+                        <p class="marketplace-section-label">
+                            SELL WITH TIPECO GROUP
+                        </p>
+
+
+                        <h2>
+                            Have Something to Sell?
+                        </h2>
+
+
+                        <p>
+
+                            Submit your product or property to
+                            TIPECO GROUP. Our platform is designed
+                            to connect sellers with serious buyers.
+
+                        </p>
+
+                    </div>
+
+
+                    <a href="dashboard.html"
+                       class="marketplace-primary-btn">
+
+                        Start Selling →
 
                     </a>
 
@@ -889,9 +887,10 @@
 
             </div>
 
-        </div>
+        </section>
 
-    </section>
+
+    </main>
 
 
 
@@ -899,207 +898,459 @@
          FOOTER
     ====================================================== -->
 
-    <footer class="footer">
-
-        <div class="container">
-
-            <div class="footer-grid">
+    <footer class="marketplace-footer">
 
 
-                <!-- TIPECO GROUP -->
+        <div class="marketplace-container">
 
-                <div class="footer-column footer-about">
 
-                    <h3>
+            <div class="marketplace-footer-content">
+
+
+                <div>
+
+                    <strong>
                         TIPECO GROUP
-                    </h3>
-
-                    <p class="footer-tagline">
-                        INNOVATION • BUSINESS • TECHNOLOGY
-                    </p>
+                    </strong>
 
                     <p>
-                        Building solutions for today and tomorrow
-                        through innovation, business and technology.
+                        Innovation • Business • Technology
                     </p>
 
                 </div>
 
 
-                <!-- QUICK LINKS -->
+                <div class="marketplace-footer-links">
 
-                <div class="footer-column">
+                    <a href="../index.html">
+                        Home
+                    </a>
 
-                    <h3>
-                        QUICK LINKS
-                    </h3>
+                    <a href="dashboard.html">
+                        Dashboard
+                    </a>
 
-                    <ul>
-
-                        <li>
-                            <a href="../index.html">
-                                Home
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="about.html">
-                                About Us
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="services.html">
-                                Services
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="marketplace.html">
-                                Buy &amp; Sell
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="contact.html">
-                                Contact
-                            </a>
-                        </li>
-
-                    </ul>
+                    <a href="contact.html">
+                        Contact
+                    </a>
 
                 </div>
 
-
-                <!-- OUR BUSINESSES -->
-
-                <div class="footer-column">
-
-                    <h3>
-                        OUR BUSINESSES
-                    </h3>
-
-                    <ul>
-
-                        <li>
-                            <a href="#">
-                                TIPECO PAINT
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="#">
-                                TIPECO CRYPTO
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="marketplace.html">
-                                TIPECO MARKETPLACE
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="#">
-                                TIPECO MEDIA
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="services.html">
-                                TIPECO SERVICES
-                            </a>
-                        </li>
-
-                    </ul>
-
-                </div>
-
-
-                <!-- CONTACT -->
-
-                <div class="footer-column">
-
-                    <h3>
-                        CONTACT &amp; SOCIAL
-                    </h3>
-
-                    <ul class="footer-contact">
-
-                        <li>
-                            Email:
-                            <a href="mailto:tipecogroup@gmail.com">
-                                tipecogroup@gmail.com
-                            </a>
-                        </li>
-
-                        <li>
-                            Rwanda
-                        </li>
-
-                        <li>
-                            WhatsApp:
-                            <a href="https://chat.whatsapp.com/DWGQPaKm6KwJxnTZZcfe34?s=cl&p=a&ilr=4"
-                               target="_blank"
-                               rel="noopener noreferrer">
-                                Join Support Group
-                            </a>
-                        </li>
-
-                        <li>
-                            Telegram:
-                            <a href="https://t.me/Tipeco1"
-                               target="_blank"
-                               rel="noopener noreferrer">
-                                @Tipeco1
-                            </a>
-                        </li>
-
-                    </ul>
-
-
-                    <div class="footer-social">
-
-                        <a href="#"
-                           aria-label="Facebook">
-                            Facebook
-                        </a>
-
-                        <a href="#"
-                           aria-label="YouTube">
-                            YouTube
-                        </a>
-
-                        <a href="#"
-                           aria-label="Instagram">
-                            Instagram
-                        </a>
-
-                        <a href="#"
-                           aria-label="LinkedIn">
-                            LinkedIn
-                        </a>
-
-                    </div>
-
-                </div>
 
             </div>
 
 
-            <!-- Footer Bottom -->
+            <div class="marketplace-footer-bottom">
 
-            <div class="footer-bottom">
-
-                <p>
-                    © 2026 TIPECO GROUP. All Rights Reserved.
-                </p>
+                © 2026 TIPECO GROUP.
+                All Rights Reserved.
 
             </div>
+
 
         </div>
 
     </footer>
+
+
+
+    <!-- =====================================================
+         MARKETPLACE JAVASCRIPT
+    ====================================================== -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+
+                const searchForm =
+                    document.getElementById(
+                        "marketplaceSearchForm"
+                    );
+
+
+                const searchInput =
+                    document.getElementById(
+                        "marketplaceSearch"
+                    );
+
+
+                const listingGrid =
+                    document.getElementById(
+                        "listingGrid"
+                    );
+
+
+                const listingEmpty =
+                    document.getElementById(
+                        "listingEmpty"
+                    );
+
+
+                const categoryButtons =
+                    document.querySelectorAll(
+                        ".category-card"
+                    );
+
+
+                const listingSort =
+                    document.getElementById(
+                        "listingSort"
+                    );
+
+
+                const listingCards =
+                    Array.from(
+                        document.querySelectorAll(
+                            ".listing-card"
+                        )
+                    );
+
+
+                let activeCategory =
+                    "all";
+
+
+                /* =================================================
+                   FILTER LISTINGS
+                ================================================== */
+
+                function filterListings() {
+
+
+                    const searchTerm =
+                        searchInput.value
+                            .trim()
+                            .toLowerCase();
+
+
+                    let visibleCount = 0;
+
+
+                    listingCards.forEach(
+                        function (card) {
+
+
+                            const title =
+                                (
+                                    card.dataset.title || ""
+                                ).toLowerCase();
+
+
+                            const category =
+                                (
+                                    card.dataset.category || ""
+                                ).toLowerCase();
+
+
+                            const matchesSearch =
+
+                                !searchTerm ||
+
+                                title.includes(
+                                    searchTerm
+                                ) ||
+
+                                category.includes(
+                                    searchTerm
+                                );
+
+
+                            const matchesCategory =
+
+                                activeCategory === "all" ||
+
+                                category ===
+                                activeCategory;
+
+
+                            if (
+                                matchesSearch &&
+                                matchesCategory
+                            ) {
+
+                                card.style.display =
+                                    "";
+
+                                visibleCount++;
+
+                            } else {
+
+                                card.style.display =
+                                    "none";
+
+                            }
+
+                        }
+                    );
+
+
+                    if (
+                        visibleCount === 0
+                    ) {
+
+                        listingEmpty.style.display =
+                            "block";
+
+                    } else {
+
+                        listingEmpty.style.display =
+                            "none";
+
+                    }
+
+                }
+
+
+                /* =================================================
+                   SEARCH
+                ================================================== */
+
+                searchForm.addEventListener(
+                    "submit",
+                    function (event) {
+
+                        event.preventDefault();
+
+                        filterListings();
+
+                    }
+                );
+
+
+                searchInput.addEventListener(
+                    "input",
+                    function () {
+
+                        filterListings();
+
+                    }
+                );
+
+
+                /* =================================================
+                   CATEGORIES
+                ================================================== */
+
+                categoryButtons.forEach(
+                    function (button) {
+
+
+                        button.addEventListener(
+                            "click",
+                            function () {
+
+
+                                categoryButtons.forEach(
+                                    function (item) {
+
+                                        item.classList.remove(
+                                            "active"
+                                        );
+
+                                    }
+                                );
+
+
+                                button.classList.add(
+                                    "active"
+                                );
+
+
+                                activeCategory =
+                                    button.dataset.category ||
+                                    "all";
+
+
+                                filterListings();
+
+                            }
+                        );
+
+                    }
+                );
+
+
+                /* =================================================
+                   SORT
+                ================================================== */
+
+                listingSort.addEventListener(
+                    "change",
+                    function () {
+
+
+                        const sortValue =
+                            listingSort.value;
+
+
+                        const sortedCards =
+                            [...listingCards];
+
+
+                        if (
+                            sortValue ===
+                            "price-low"
+                        ) {
+
+                            sortedCards.sort(
+                                function (a, b) {
+
+                                    return Number(
+                                        a.dataset.price
+                                    ) -
+                                    Number(
+                                        b.dataset.price
+                                    );
+
+                                }
+                            );
+
+                        }
+
+
+                        if (
+                            sortValue ===
+                            "price-high"
+                        ) {
+
+                            sortedCards.sort(
+                                function (a, b) {
+
+                                    return Number(
+                                        b.dataset.price
+                                    ) -
+                                    Number(
+                                        a.dataset.price
+                                    );
+
+                                }
+                            );
+
+                        }
+
+
+                        if (
+                            sortValue ===
+                            "latest"
+                        ) {
+
+                            sortedCards.sort(
+                                function () {
+
+                                    return 0;
+
+                                }
+                            );
+
+                        }
+
+
+                        sortedCards.forEach(
+                            function (card) {
+
+                                listingGrid.appendChild(
+                                    card
+                                );
+
+                            }
+                        );
+
+
+                        filterListings();
+
+                    }
+                );
+
+
+                /* =================================================
+                   SAVE LISTING
+                ================================================== */
+
+                const saveButtons =
+                    document.querySelectorAll(
+                        ".save-listing"
+                    );
+
+
+                saveButtons.forEach(
+                    function (button) {
+
+
+                        button.addEventListener(
+                            "click",
+                            function () {
+
+
+                                button.classList.toggle(
+                                    "saved"
+                                );
+
+
+                                if (
+                                    button.classList.contains(
+                                        "saved"
+                                    )
+                                ) {
+
+                                    button.textContent =
+                                        "♥";
+
+                                } else {
+
+                                    button.textContent =
+                                        "♡";
+
+                                }
+
+                            }
+                        );
+
+                    }
+                );
+
+
+                /* =================================================
+                   VIEW DETAILS
+                ================================================== */
+
+                const viewButtons =
+                    document.querySelectorAll(
+                        ".view-listing-btn"
+                    );
+
+
+                viewButtons.forEach(
+                    function (button) {
+
+
+                        button.addEventListener(
+                            "click",
+                            function () {
+
+
+                                alert(
+                                    "Listing details will be available in the next TIPECO GROUP marketplace update."
+                                );
+
+                            }
+                        );
+
+                    }
+                );
+
+
+                /* INITIAL FILTER */
+
+                filterListings();
+
+
+            }
+        );
+
+    </script>
 
 
 </body>
