@@ -15,26 +15,15 @@
     <meta name="description"
           content="Create your TIPECO GROUP account">
 
-    <meta name="author"
-          content="TIPECO GROUP">
-
     <meta name="theme-color"
           content="#0D47A1">
 
     <title>Sign Up | TIPECO GROUP</title>
 
-    <!-- CSS -->
-    <link rel="stylesheet"
-          href="../assets/css/variables.css">
 
-    <link rel="stylesheet"
-          href="../assets/css/style.css">
-
-    <link rel="stylesheet"
-          href="../assets/css/responsive.css">
-
-    <link rel="stylesheet"
-          href="../assets/css/animations.css">
+    <!-- =====================================================
+         TIPECO GROUP AUTH CSS
+    ====================================================== -->
 
     <link rel="stylesheet"
           href="../assets/css/auth.css">
@@ -44,47 +33,63 @@
 
 <body>
 
+
     <!-- =====================================================
-         REGISTER PAGE
+         TIPECO GROUP - REGISTER PAGE
     ====================================================== -->
 
     <main class="auth-page">
 
         <div class="auth-container">
 
-            <!-- Brand Header -->
+
+            <!-- =================================================
+                 BRAND / HEADER
+            ================================================== -->
+
             <div class="auth-header">
 
                 <a href="../index.html"
                    class="auth-logo">
+
                     TIPECO GROUP
+
                 </a>
 
-                <h1>Create Account</h1>
+                <h1>
+                    Create Your Account
+                </h1>
 
                 <p>
-                    Join TIPECO GROUP and explore our services
+                    Join TIPECO GROUP and explore new opportunities
                 </p>
 
             </div>
 
 
-            <!-- Register Card -->
+            <!-- =================================================
+                 REGISTER CARD
+            ================================================== -->
+
             <div class="auth-card">
 
-                <form action="#" method="post">
+                <form id="registerForm"
+                      action="#"
+                      method="post">
 
-                    <!-- Full Name -->
+
+                    <!-- FULL NAME -->
+
                     <div class="form-group">
 
-                        <label for="fullname">
+                        <label for="fullName">
                             Full Name
                         </label>
 
                         <input
                             type="text"
-                            id="fullname"
-                            name="fullname"
+                            id="fullName"
+                            name="fullName"
                             placeholder="Enter your full name"
                             autocomplete="name"
                             required
@@ -93,7 +98,8 @@
                     </div>
 
 
-                    <!-- Email -->
+                    <!-- EMAIL -->
+
                     <div class="form-group">
 
                         <label for="email">
@@ -112,7 +118,8 @@
                     </div>
 
 
-                    <!-- Phone -->
+                    <!-- PHONE -->
+
                     <div class="form-group">
 
                         <label for="phone">
@@ -131,7 +138,8 @@
                     </div>
 
 
-                    <!-- Password -->
+                    <!-- PASSWORD -->
+
                     <div class="form-group">
 
                         <label for="password">
@@ -150,17 +158,18 @@
                     </div>
 
 
-                    <!-- Confirm Password -->
+                    <!-- CONFIRM PASSWORD -->
+
                     <div class="form-group">
 
-                        <label for="confirm-password">
+                        <label for="confirmPassword">
                             Confirm Password
                         </label>
 
                         <input
                             type="password"
-                            id="confirm-password"
-                            name="confirm-password"
+                            id="confirmPassword"
+                            name="confirmPassword"
                             placeholder="Confirm your password"
                             autocomplete="new-password"
                             required
@@ -169,19 +178,52 @@
                     </div>
 
 
-                    <!-- Terms -->
+                    <!-- ACCOUNT TYPE -->
+
+                    <div class="form-group">
+
+                        <label for="accountType">
+                            Account Type
+                        </label>
+
+                        <select
+                            id="accountType"
+                            name="accountType"
+                            required
+                        >
+
+                            <option value="">
+                                Select account type
+                            </option>
+
+                            <option value="service-seeker">
+                                Service Seeker
+                            </option>
+
+                            <option value="service-provider">
+                                Service Provider
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- TERMS -->
+
                     <div class="auth-options">
 
                         <label class="remember-me">
 
                             <input
                                 type="checkbox"
+                                id="terms"
                                 name="terms"
                                 required
                             >
 
                             <span>
-                                I agree to the Terms & Privacy Policy
+                                I agree to the Terms &amp; Conditions
                             </span>
 
                         </label>
@@ -189,23 +231,30 @@
                     </div>
 
 
-                    <!-- Register Button -->
+                    <!-- REGISTER BUTTON -->
+
                     <button
                         type="submit"
                         class="auth-btn">
+
                         Create Account
+
                     </button>
 
 
-                    <!-- Divider -->
+                    <!-- DIVIDER -->
+
                     <div class="auth-divider">
 
-                        <span>OR</span>
+                        <span>
+                            OR
+                        </span>
 
                     </div>
 
 
-                    <!-- Google Sign Up -->
+                    <!-- GOOGLE SIGN UP -->
+
                     <button
                         type="button"
                         class="google-btn">
@@ -214,21 +263,28 @@
                             G
                         </span>
 
-                        Continue with Google
+                        <span>
+                            Continue with Google
+                        </span>
 
                     </button>
+
 
                 </form>
 
 
-                <!-- Login Link -->
+                <!-- LOGIN LINK -->
+
                 <div class="auth-register">
 
                     <p>
+
                         Already have an account?
+
                         <a href="login.html">
                             Login
                         </a>
+
                     </p>
 
                 </div>
@@ -236,7 +292,8 @@
             </div>
 
 
-            <!-- Back Home -->
+            <!-- BACK HOME -->
+
             <div class="back-home">
 
                 <a href="../index.html">
@@ -245,10 +302,17 @@
 
             </div>
 
+
         </div>
 
     </main>
-<script src="../js/auth.js"></script>
+
+
+    <!-- =====================================================
+         TIPECO GROUP AUTH JAVASCRIPT
+    ====================================================== -->
+
+    <script src="../js/auth.js"></script>
 
 </body>
 
