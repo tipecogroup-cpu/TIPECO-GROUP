@@ -3,6 +3,10 @@
 
 <head>
 
+    <!-- =====================================================
+         TIPECO GROUP - LOGIN PAGE
+    ====================================================== -->
+
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -16,13 +20,17 @@
 
     <title>Login | TIPECO GROUP</title>
 
+
     <!-- TIPECO GROUP AUTH CSS -->
-    <link rel="stylesheet" href="../assets/css/auth.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/auth.css">
 
 </head>
 
 
 <body>
+
 
     <!-- =====================================================
          TIPECO GROUP - LOGIN PAGE
@@ -32,7 +40,10 @@
 
         <div class="auth-container">
 
-            <!-- BRAND -->
+
+            <!-- =================================================
+                 BRAND
+            ================================================== -->
 
             <div class="auth-header">
 
@@ -43,9 +54,11 @@
 
                 </a>
 
+
                 <h1>
                     Welcome Back
                 </h1>
+
 
                 <p>
                     Login to your TIPECO GROUP account
@@ -54,11 +67,17 @@
             </div>
 
 
-            <!-- LOGIN CARD -->
+
+            <!-- =================================================
+                 LOGIN CARD
+            ================================================== -->
 
             <div class="auth-card">
 
-                <form id="loginForm" action="#" method="post">
+                <form
+                    id="loginForm"
+                    action="#"
+                    method="post">
 
 
                     <!-- EMAIL / PHONE -->
@@ -66,19 +85,22 @@
                     <div class="form-group">
 
                         <label for="login">
+
                             Email or Phone Number
+
                         </label>
+
 
                         <input
                             type="text"
                             id="login"
-                            name="login"
+                            name="identifier"
                             placeholder="Enter your email or phone"
                             autocomplete="username"
-                            required
-                        >
+                            required>
 
                     </div>
+
 
 
                     <!-- PASSWORD -->
@@ -86,8 +108,11 @@
                     <div class="form-group">
 
                         <label for="password">
+
                             Password
+
                         </label>
+
 
                         <input
                             type="password"
@@ -95,22 +120,22 @@
                             name="password"
                             placeholder="Enter your password"
                             autocomplete="current-password"
-                            required
-                        >
+                            required>
 
                     </div>
+
 
 
                     <!-- REMEMBER / FORGOT -->
 
                     <div class="auth-options">
 
+
                         <label class="remember-me">
 
                             <input
                                 type="checkbox"
-                                name="remember"
-                            >
+                                name="remember">
 
                             <span>
                                 Remember me
@@ -119,11 +144,16 @@
                         </label>
 
 
+
                         <a href="forgot-password.html">
+
                             Forgot Password?
+
                         </a>
 
+
                     </div>
+
 
 
                     <!-- LOGIN BUTTON -->
@@ -137,6 +167,7 @@
                     </button>
 
 
+
                     <!-- DIVIDER -->
 
                     <div class="auth-divider">
@@ -148,19 +179,27 @@
                     </div>
 
 
+
                     <!-- GOOGLE LOGIN -->
 
                     <button
                         type="button"
                         class="google-btn">
 
+
                         <span class="google-icon">
+
                             G
+
                         </span>
 
+
                         <span>
+
                             Continue with Google
+
                         </span>
+
 
                     </button>
 
@@ -168,7 +207,10 @@
                 </form>
 
 
-                <!-- SIGN UP -->
+
+                <!-- =================================================
+                     SIGN UP
+                ================================================== -->
 
                 <div class="auth-register">
 
@@ -177,31 +219,48 @@
                         Don't have an account?
 
                         <a href="register.html">
+
                             Sign Up
+
                         </a>
 
                     </p>
 
                 </div>
 
+
             </div>
 
 
-            <!-- BACK HOME -->
+
+            <!-- =================================================
+                 BACK HOME
+            ================================================== -->
 
             <div class="back-home">
 
                 <a href="../index.html">
+
                     ← Back to TIPECO GROUP
+
                 </a>
 
             </div>
+
 
         </div>
 
     </main>
 
+
+
+    <!-- =====================================================
+         TIPECO GROUP AUTH JAVASCRIPT
+    ====================================================== -->
+
     <script src="../js/auth.js"></script>
 
+
 </body>
+
 </html>
