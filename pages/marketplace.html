@@ -5,7 +5,7 @@
 
     <!-- =====================================================
          TIPECO GROUP - BUY & SELL
-         Marketplace Version 1.0
+         Marketplace Version 2.0
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -26,7 +26,7 @@
 
 
     <!-- =====================================================
-         CSS FILES
+         CSS
     ====================================================== -->
 
     <link rel="stylesheet"
@@ -95,9 +95,17 @@
             </nav>
 
 
-            <!-- HEADER ACTION -->
+            <!-- ACCOUNT -->
 
             <div class="marketplace-header-action">
+
+                <span class="marketplace-user-name"
+                      data-user-name>
+
+                    User
+
+                </span>
+
 
                 <a href="dashboard.html"
                    class="marketplace-account-btn">
@@ -105,6 +113,15 @@
                     My Account
 
                 </a>
+
+
+                <button type="button"
+                        class="marketplace-logout"
+                        data-action="logout">
+
+                    Logout
+
+                </button>
 
             </div>
 
@@ -115,17 +132,19 @@
 
 
     <!-- =====================================================
-         HERO / SEARCH SECTION
+         MAIN
     ====================================================== -->
 
     <main>
 
 
+        <!-- =================================================
+             HERO
+        ================================================== -->
+
         <section class="marketplace-hero">
 
-
             <div class="marketplace-container">
-
 
                 <div class="marketplace-hero-content">
 
@@ -155,9 +174,8 @@
 
                     <!-- SEARCH -->
 
-                    <form
-                        class="marketplace-search"
-                        id="marketplaceSearchForm">
+                    <form class="marketplace-search"
+                          id="marketplaceSearchForm">
 
 
                         <div class="search-input-wrapper">
@@ -197,12 +215,11 @@
 
 
 
-        <!-- =====================================================
+        <!-- =================================================
              CATEGORIES
-        ====================================================== -->
+        ================================================== -->
 
         <section class="marketplace-categories">
-
 
             <div class="marketplace-container">
 
@@ -227,7 +244,25 @@
                 <div class="category-grid">
 
 
-                    <!-- VEHICLES -->
+                    <button
+                        type="button"
+                        class="category-card active"
+                        data-category="all">
+
+                        <span class="category-icon">
+                            🛍️
+                        </span>
+
+                        <strong>
+                            All
+                        </strong>
+
+                        <small>
+                            View all listings
+                        </small>
+
+                    </button>
+
 
                     <button
                         type="button"
@@ -249,8 +284,6 @@
                     </button>
 
 
-                    <!-- REAL ESTATE -->
-
                     <button
                         type="button"
                         class="category-card"
@@ -270,8 +303,6 @@
 
                     </button>
 
-
-                    <!-- ELECTRONICS -->
 
                     <button
                         type="button"
@@ -293,8 +324,6 @@
                     </button>
 
 
-                    <!-- HOME -->
-
                     <button
                         type="button"
                         class="category-card"
@@ -314,8 +343,6 @@
 
                     </button>
 
-
-                    <!-- OTHER -->
 
                     <button
                         type="button"
@@ -345,12 +372,11 @@
 
 
 
-        <!-- =====================================================
-             VERIFIED LISTINGS
-        ====================================================== -->
+        <!-- =================================================
+             LISTINGS
+        ================================================== -->
 
         <section class="marketplace-listings">
-
 
             <div class="marketplace-container">
 
@@ -369,12 +395,14 @@
                         </h2>
 
                         <p>
-                            Products displayed here will be reviewed
-                            through TIPECO GROUP's verification process.
+                            Discover products and services from
+                            TIPECO GROUP users.
                         </p>
 
                     </div>
 
+
+                    <!-- SORT -->
 
                     <div class="listing-sort">
 
@@ -405,22 +433,22 @@
 
 
 
-                <!-- LISTING GRID -->
+                <!-- =================================================
+                     LISTING GRID
+                ================================================== -->
 
-                <div
-                    class="listing-grid"
-                    id="listingGrid">
+                <div class="listing-grid"
+                     id="listingGrid">
 
 
-                    <!-- =================================================
-                         SAMPLE LISTING 1
-                    ================================================== -->
+                    <!-- LISTING 1 -->
 
                     <article
                         class="listing-card"
                         data-category="vehicles"
                         data-title="Toyota RAV4"
-                        data-price="18500000">
+                        data-price="18500000"
+                        data-date="4">
 
 
                         <div class="listing-image">
@@ -431,15 +459,14 @@
 
 
                             <span class="verified-badge">
-
                                 ✓ Verified
-
                             </span>
 
 
                             <button
                                 type="button"
                                 class="save-listing"
+                                data-listing-id="rav4"
                                 aria-label="Save listing">
 
                                 ♡
@@ -451,11 +478,8 @@
 
                         <div class="listing-content">
 
-
                             <span class="listing-category">
-
                                 Vehicles
-
                             </span>
 
 
@@ -470,9 +494,7 @@
 
 
                             <div class="listing-price">
-
                                 18,500,000 RWF
-
                             </div>
 
 
@@ -485,7 +507,8 @@
 
                                 <button
                                     type="button"
-                                    class="view-listing-btn">
+                                    class="view-listing-btn"
+                                    data-title="Toyota RAV4">
 
                                     View Details →
 
@@ -499,15 +522,14 @@
 
 
 
-                    <!-- =================================================
-                         SAMPLE LISTING 2
-                    ================================================== -->
+                    <!-- LISTING 2 -->
 
                     <article
                         class="listing-card"
                         data-category="real-estate"
-                        data-title="Modern House"
-                        data-price="85000000">
+                        data-title="Modern Family House"
+                        data-price="85000000"
+                        data-date="3">
 
 
                         <div class="listing-image">
@@ -518,15 +540,14 @@
 
 
                             <span class="verified-badge">
-
                                 ✓ Verified
-
                             </span>
 
 
                             <button
                                 type="button"
                                 class="save-listing"
+                                data-listing-id="modern-house"
                                 aria-label="Save listing">
 
                                 ♡
@@ -538,11 +559,8 @@
 
                         <div class="listing-content">
 
-
                             <span class="listing-category">
-
                                 Real Estate
-
                             </span>
 
 
@@ -557,9 +575,7 @@
 
 
                             <div class="listing-price">
-
                                 85,000,000 RWF
-
                             </div>
 
 
@@ -572,7 +588,8 @@
 
                                 <button
                                     type="button"
-                                    class="view-listing-btn">
+                                    class="view-listing-btn"
+                                    data-title="Modern Family House">
 
                                     View Details →
 
@@ -586,15 +603,14 @@
 
 
 
-                    <!-- =================================================
-                         SAMPLE LISTING 3
-                    ================================================== -->
+                    <!-- LISTING 3 -->
 
                     <article
                         class="listing-card"
                         data-category="electronics"
-                        data-title="Smartphone"
-                        data-price="650000">
+                        data-title="Premium Smartphone"
+                        data-price="650000"
+                        data-date="2">
 
 
                         <div class="listing-image">
@@ -605,15 +621,14 @@
 
 
                             <span class="verified-badge">
-
                                 ✓ Verified
-
                             </span>
 
 
                             <button
                                 type="button"
                                 class="save-listing"
+                                data-listing-id="smartphone"
                                 aria-label="Save listing">
 
                                 ♡
@@ -625,11 +640,8 @@
 
                         <div class="listing-content">
 
-
                             <span class="listing-category">
-
                                 Electronics
-
                             </span>
 
 
@@ -644,9 +656,7 @@
 
 
                             <div class="listing-price">
-
                                 650,000 RWF
-
                             </div>
 
 
@@ -659,7 +669,8 @@
 
                                 <button
                                     type="button"
-                                    class="view-listing-btn">
+                                    class="view-listing-btn"
+                                    data-title="Premium Smartphone">
 
                                     View Details →
 
@@ -673,15 +684,14 @@
 
 
 
-                    <!-- =================================================
-                         SAMPLE LISTING 4
-                    ================================================== -->
+                    <!-- LISTING 4 -->
 
                     <article
                         class="listing-card"
                         data-category="home-furniture"
-                        data-title="Modern Sofa"
-                        data-price="850000">
+                        data-title="Modern Sofa Set"
+                        data-price="850000"
+                        data-date="1">
 
 
                         <div class="listing-image">
@@ -692,15 +702,14 @@
 
 
                             <span class="verified-badge">
-
                                 ✓ Verified
-
                             </span>
 
 
                             <button
                                 type="button"
                                 class="save-listing"
+                                data-listing-id="modern-sofa"
                                 aria-label="Save listing">
 
                                 ♡
@@ -712,11 +721,8 @@
 
                         <div class="listing-content">
 
-
                             <span class="listing-category">
-
                                 Home &amp; Furniture
-
                             </span>
 
 
@@ -731,9 +737,7 @@
 
 
                             <div class="listing-price">
-
                                 850,000 RWF
-
                             </div>
 
 
@@ -746,7 +750,89 @@
 
                                 <button
                                     type="button"
-                                    class="view-listing-btn">
+                                    class="view-listing-btn"
+                                    data-title="Modern Sofa Set">
+
+                                    View Details →
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+
+
+                    <!-- LISTING 5 -->
+
+                    <article
+                        class="listing-card"
+                        data-category="other"
+                        data-title="Office Equipment"
+                        data-price="350000"
+                        data-date="0">
+
+
+                        <div class="listing-image">
+
+                            <div class="listing-placeholder">
+                                📦
+                            </div>
+
+
+                            <span class="verified-badge">
+                                ✓ Verified
+                            </span>
+
+
+                            <button
+                                type="button"
+                                class="save-listing"
+                                data-listing-id="office-equipment"
+                                aria-label="Save listing">
+
+                                ♡
+
+                            </button>
+
+                        </div>
+
+
+                        <div class="listing-content">
+
+                            <span class="listing-category">
+                                Other Products
+                            </span>
+
+
+                            <h3>
+                                Office Equipment
+                            </h3>
+
+
+                            <p class="listing-location">
+                                📍 Kigali, Rwanda
+                            </p>
+
+
+                            <div class="listing-price">
+                                350,000 RWF
+                            </div>
+
+
+                            <div class="listing-footer">
+
+                                <span>
+                                    TIPECO Verified
+                                </span>
+
+
+                                <button
+                                    type="button"
+                                    class="view-listing-btn"
+                                    data-title="Office Equipment">
 
                                     View Details →
 
@@ -763,11 +849,11 @@
 
 
 
-                <!-- EMPTY SEARCH RESULT -->
+                <!-- EMPTY RESULT -->
 
-                <div
-                    class="listing-empty"
-                    id="listingEmpty">
+                <div class="listing-empty"
+                     id="listingEmpty"
+                     style="display:none;">
 
                     <div class="listing-empty-icon">
                         🔎
@@ -790,65 +876,13 @@
 
 
 
-        <!-- =====================================================
-             TIPECO VERIFICATION SECTION
-        ====================================================== -->
-
-        <section class="verification-section">
-
-
-            <div class="marketplace-container">
-
-
-                <div class="verification-content">
-
-
-                    <div class="verification-icon">
-                        ✓
-                    </div>
-
-
-                    <div>
-
-                        <p class="marketplace-section-label">
-                            OUR COMMITMENT
-                        </p>
-
-
-                        <h2>
-                            Buy With More Confidence
-                        </h2>
-
-
-                        <p>
-
-                            TIPECO GROUP is designed to help buyers
-                            access reliable product information.
-                            Listings can go through a verification
-                            process before being presented as
-                            TIPECO verified.
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =====================================================
-             SELL WITH TIPECO
-        ====================================================== -->
+        <!-- =================================================
+             SELL SECTION
+        ================================================== -->
 
         <section class="sell-section">
 
-
             <div class="marketplace-container">
-
 
                 <div class="sell-content">
 
@@ -867,9 +901,9 @@
 
                         <p>
 
-                            Submit your product or property to
-                            TIPECO GROUP. Our platform is designed
-                            to connect sellers with serious buyers.
+                            Create your listing and connect
+                            with potential buyers through
+                            TIPECO GROUP.
 
                         </p>
 
@@ -882,6 +916,56 @@
                         Start Selling →
 
                     </a>
+
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             VERIFICATION
+        ================================================== -->
+
+        <section class="verification-section">
+
+            <div class="marketplace-container">
+
+                <div class="verification-content">
+
+
+                    <div class="verification-icon">
+                        ✓
+                    </div>
+
+
+                    <div>
+
+                        <p class="marketplace-section-label">
+                            TIPECO GROUP
+                        </p>
+
+
+                        <h2>
+                            Buy With More Confidence
+                        </h2>
+
+
+                        <p>
+
+                            TIPECO GROUP is designed to help
+                            buyers discover reliable listings.
+                            Verified listings may go through
+                            a review process before receiving
+                            the TIPECO Verified status.
+
+                        </p>
+
+                    </div>
+
 
                 </div>
 
@@ -899,7 +983,6 @@
     ====================================================== -->
 
     <footer class="marketplace-footer">
-
 
         <div class="marketplace-container">
 
@@ -930,6 +1013,10 @@
                         Dashboard
                     </a>
 
+                    <a href="services.html">
+                        Services
+                    </a>
+
                     <a href="contact.html">
                         Contact
                     </a>
@@ -955,400 +1042,619 @@
 
 
     <!-- =====================================================
+         AUTH JAVASCRIPT
+    ====================================================== -->
+
+    <script src="../assets/js/auth.js"></script>
+
+
+
+    <!-- =====================================================
          MARKETPLACE JAVASCRIPT
     ====================================================== -->
 
     <script>
 
-        document.addEventListener(
-            "DOMContentLoaded",
-            function () {
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
 
 
-                const searchForm =
-                    document.getElementById(
-                        "marketplaceSearchForm"
-                    );
+            /* =================================================
+               LOGIN CHECK
+            ================================================== */
+
+            const loggedIn =
+                localStorage.getItem("tipecoLoggedIn") ||
+                sessionStorage.getItem("tipecoLoggedIn");
 
 
-                const searchInput =
-                    document.getElementById(
-                        "marketplaceSearch"
-                    );
+            if (loggedIn !== "true") {
+
+                alert(
+                    "Please login to access TIPECO GROUP Buy & Sell."
+                );
+
+                window.location.href =
+                    "login.html";
+
+                return;
+
+            }
 
 
-                const listingGrid =
-                    document.getElementById(
-                        "listingGrid"
-                    );
+
+            /* =================================================
+               USER DATA
+            ================================================== */
+
+            const storedUser =
+                localStorage.getItem("tipecoUser");
 
 
-                const listingEmpty =
-                    document.getElementById(
-                        "listingEmpty"
-                    );
+            if (storedUser) {
+
+                try {
+
+                    const user =
+                        JSON.parse(storedUser);
 
 
-                const categoryButtons =
-                    document.querySelectorAll(
-                        ".category-card"
-                    );
-
-
-                const listingSort =
-                    document.getElementById(
-                        "listingSort"
-                    );
-
-
-                const listingCards =
-                    Array.from(
+                    const userNameElements =
                         document.querySelectorAll(
-                            ".listing-card"
-                        )
+                            "[data-user-name]"
+                        );
+
+
+                    userNameElements.forEach(
+                        function (element) {
+
+                            element.textContent =
+                                user.fullName || "User";
+
+                        }
                     );
 
 
-                let activeCategory =
-                    "all";
+                } catch (error) {
+
+                    console.error(
+                        "Unable to read user data.",
+                        error
+                    );
+
+                }
+
+            }
 
 
-                /* =================================================
-                   FILTER LISTINGS
-                ================================================== */
 
-                function filterListings() {
+            /* =================================================
+               SEARCH ELEMENTS
+            ================================================== */
 
-
-                    const searchTerm =
-                        searchInput.value
-                            .trim()
-                            .toLowerCase();
+            const searchForm =
+                document.getElementById(
+                    "marketplaceSearchForm"
+                );
 
 
-                    let visibleCount = 0;
+            const searchInput =
+                document.getElementById(
+                    "marketplaceSearch"
+                );
+
+
+            const listingGrid =
+                document.getElementById(
+                    "listingGrid"
+                );
+
+
+            const listingEmpty =
+                document.getElementById(
+                    "listingEmpty"
+                );
+
+
+            const categoryButtons =
+                document.querySelectorAll(
+                    ".category-card"
+                );
+
+
+            const listingSort =
+                document.getElementById(
+                    "listingSort"
+                );
+
+
+            const listingCards =
+                Array.from(
+                    document.querySelectorAll(
+                        ".listing-card"
+                    )
+                );
+
+
+            let activeCategory = "all";
+
+
+
+            /* =================================================
+               FILTER LISTINGS
+            ================================================== */
+
+            function filterListings() {
+
+
+                const searchTerm =
+                    searchInput.value
+                        .trim()
+                        .toLowerCase();
+
+
+                let visibleCount = 0;
+
+
+                listingCards.forEach(
+                    function (card) {
+
+
+                        const title =
+                            (
+                                card.dataset.title || ""
+                            ).toLowerCase();
+
+
+                        const category =
+                            (
+                                card.dataset.category || ""
+                            ).toLowerCase();
+
+
+                        const location =
+                            (
+                                card.querySelector(
+                                    ".listing-location"
+                                )?.textContent || ""
+                            ).toLowerCase();
+
+
+                        const matchesSearch =
+
+                            !searchTerm ||
+
+                            title.includes(
+                                searchTerm
+                            ) ||
+
+                            category.includes(
+                                searchTerm
+                            ) ||
+
+                            location.includes(
+                                searchTerm
+                            );
+
+
+                        const matchesCategory =
+
+                            activeCategory === "all" ||
+
+                            category ===
+                            activeCategory;
+
+
+                        if (
+                            matchesSearch &&
+                            matchesCategory
+                        ) {
+
+                            card.style.display = "";
+
+                            visibleCount++;
+
+                        } else {
+
+                            card.style.display =
+                                "none";
+
+                        }
+
+                    }
+                );
+
+
+                if (visibleCount === 0) {
+
+                    listingEmpty.style.display =
+                        "block";
+
+                } else {
+
+                    listingEmpty.style.display =
+                        "none";
+
+                }
+
+            }
+
+
+
+            /* =================================================
+               SEARCH SUBMIT
+            ================================================== */
+
+            searchForm.addEventListener(
+                "submit",
+                function (event) {
+
+                    event.preventDefault();
+
+                    filterListings();
+
+                }
+            );
+
+
+
+            /* =================================================
+               LIVE SEARCH
+            ================================================== */
+
+            searchInput.addEventListener(
+                "input",
+                function () {
+
+                    filterListings();
+
+                }
+            );
+
+
+
+            /* =================================================
+               CATEGORY FILTER
+            ================================================== */
+
+            categoryButtons.forEach(
+                function (button) {
+
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+
+                            categoryButtons.forEach(
+                                function (item) {
+
+                                    item.classList.remove(
+                                        "active"
+                                    );
+
+                                }
+                            );
+
+
+                            button.classList.add(
+                                "active"
+                            );
+
+
+                            activeCategory =
+                                button.dataset.category ||
+                                "all";
+
+
+                            filterListings();
+
+                        }
+                    );
+
+                }
+            );
+
+
+
+            /* =================================================
+               SORT
+            ================================================== */
+
+            listingSort.addEventListener(
+                "change",
+                function () {
+
+
+                    const sortValue =
+                        listingSort.value;
+
+
+                    if (
+                        sortValue === "price-low"
+                    ) {
+
+                        listingCards.sort(
+                            function (a, b) {
+
+                                return Number(
+                                    a.dataset.price
+                                ) -
+                                Number(
+                                    b.dataset.price
+                                );
+
+                            }
+                        );
+
+                    }
+
+
+                    else if (
+                        sortValue === "price-high"
+                    ) {
+
+                        listingCards.sort(
+                            function (a, b) {
+
+                                return Number(
+                                    b.dataset.price
+                                ) -
+                                Number(
+                                    a.dataset.price
+                                );
+
+                            }
+                        );
+
+                    }
+
+
+                    else {
+
+                        listingCards.sort(
+                            function (a, b) {
+
+                                return Number(
+                                    a.dataset.date
+                                ) -
+                                Number(
+                                    b.dataset.date
+                                );
+
+                            }
+                        );
+
+                    }
 
 
                     listingCards.forEach(
                         function (card) {
 
-
-                            const title =
-                                (
-                                    card.dataset.title || ""
-                                ).toLowerCase();
-
-
-                            const category =
-                                (
-                                    card.dataset.category || ""
-                                ).toLowerCase();
-
-
-                            const matchesSearch =
-
-                                !searchTerm ||
-
-                                title.includes(
-                                    searchTerm
-                                ) ||
-
-                                category.includes(
-                                    searchTerm
-                                );
-
-
-                            const matchesCategory =
-
-                                activeCategory === "all" ||
-
-                                category ===
-                                activeCategory;
-
-
-                            if (
-                                matchesSearch &&
-                                matchesCategory
-                            ) {
-
-                                card.style.display =
-                                    "";
-
-                                visibleCount++;
-
-                            } else {
-
-                                card.style.display =
-                                    "none";
-
-                            }
+                            listingGrid.appendChild(
+                                card
+                            );
 
                         }
                     );
+
+
+                    filterListings();
+
+                }
+            );
+
+
+
+            /* =================================================
+               SAVED LISTINGS
+            ================================================== */
+
+            let savedListings = [];
+
+
+            try {
+
+                savedListings =
+                    JSON.parse(
+                        localStorage.getItem(
+                            "tipecoSavedListings"
+                        )
+                    ) || [];
+
+            } catch (error) {
+
+                savedListings = [];
+
+            }
+
+
+
+            const saveButtons =
+                document.querySelectorAll(
+                    ".save-listing"
+                );
+
+
+            saveButtons.forEach(
+                function (button) {
+
+
+                    const listingId =
+                        button.dataset.listingId;
 
 
                     if (
-                        visibleCount === 0
+                        savedListings.includes(
+                            listingId
+                        )
                     ) {
 
-                        listingEmpty.style.display =
-                            "block";
+                        button.classList.add(
+                            "saved"
+                        );
 
-                    } else {
-
-                        listingEmpty.style.display =
-                            "none";
-
-                    }
-
-                }
-
-
-                /* =================================================
-                   SEARCH
-                ================================================== */
-
-                searchForm.addEventListener(
-                    "submit",
-                    function (event) {
-
-                        event.preventDefault();
-
-                        filterListings();
+                        button.textContent =
+                            "♥";
 
                     }
-                );
 
 
-                searchInput.addEventListener(
-                    "input",
-                    function () {
-
-                        filterListings();
-
-                    }
-                );
+                    button.addEventListener(
+                        "click",
+                        function () {
 
 
-                /* =================================================
-                   CATEGORIES
-                ================================================== */
-
-                categoryButtons.forEach(
-                    function (button) {
-
-
-                        button.addEventListener(
-                            "click",
-                            function () {
-
-
-                                categoryButtons.forEach(
-                                    function (item) {
-
-                                        item.classList.remove(
-                                            "active"
-                                        );
-
-                                    }
+                            const index =
+                                savedListings.indexOf(
+                                    listingId
                                 );
 
+
+                            if (index === -1) {
+
+                                savedListings.push(
+                                    listingId
+                                );
 
                                 button.classList.add(
-                                    "active"
-                                );
-
-
-                                activeCategory =
-                                    button.dataset.category ||
-                                    "all";
-
-
-                                filterListings();
-
-                            }
-                        );
-
-                    }
-                );
-
-
-                /* =================================================
-                   SORT
-                ================================================== */
-
-                listingSort.addEventListener(
-                    "change",
-                    function () {
-
-
-                        const sortValue =
-                            listingSort.value;
-
-
-                        const sortedCards =
-                            [...listingCards];
-
-
-                        if (
-                            sortValue ===
-                            "price-low"
-                        ) {
-
-                            sortedCards.sort(
-                                function (a, b) {
-
-                                    return Number(
-                                        a.dataset.price
-                                    ) -
-                                    Number(
-                                        b.dataset.price
-                                    );
-
-                                }
-                            );
-
-                        }
-
-
-                        if (
-                            sortValue ===
-                            "price-high"
-                        ) {
-
-                            sortedCards.sort(
-                                function (a, b) {
-
-                                    return Number(
-                                        b.dataset.price
-                                    ) -
-                                    Number(
-                                        a.dataset.price
-                                    );
-
-                                }
-                            );
-
-                        }
-
-
-                        if (
-                            sortValue ===
-                            "latest"
-                        ) {
-
-                            sortedCards.sort(
-                                function () {
-
-                                    return 0;
-
-                                }
-                            );
-
-                        }
-
-
-                        sortedCards.forEach(
-                            function (card) {
-
-                                listingGrid.appendChild(
-                                    card
-                                );
-
-                            }
-                        );
-
-
-                        filterListings();
-
-                    }
-                );
-
-
-                /* =================================================
-                   SAVE LISTING
-                ================================================== */
-
-                const saveButtons =
-                    document.querySelectorAll(
-                        ".save-listing"
-                    );
-
-
-                saveButtons.forEach(
-                    function (button) {
-
-
-                        button.addEventListener(
-                            "click",
-                            function () {
-
-
-                                button.classList.toggle(
                                     "saved"
                                 );
 
-
-                                if (
-                                    button.classList.contains(
-                                        "saved"
-                                    )
-                                ) {
-
-                                    button.textContent =
-                                        "♥";
-
-                                } else {
-
-                                    button.textContent =
-                                        "♡";
-
-                                }
-
-                            }
-                        );
-
-                    }
-                );
-
-
-                /* =================================================
-                   VIEW DETAILS
-                ================================================== */
-
-                const viewButtons =
-                    document.querySelectorAll(
-                        ".view-listing-btn"
-                    );
-
-
-                viewButtons.forEach(
-                    function (button) {
-
-
-                        button.addEventListener(
-                            "click",
-                            function () {
+                                button.textContent =
+                                    "♥";
 
 
                                 alert(
-                                    "Listing details will be available in the next TIPECO GROUP marketplace update."
+                                    "Listing saved successfully."
+                                );
+
+                            } else {
+
+                                savedListings.splice(
+                                    index,
+                                    1
+                                );
+
+                                button.classList.remove(
+                                    "saved"
+                                );
+
+                                button.textContent =
+                                    "♡";
+
+
+                                alert(
+                                    "Listing removed from saved items."
                                 );
 
                             }
-                        );
 
-                    }
+
+                            localStorage.setItem(
+                                "tipecoSavedListings",
+                                JSON.stringify(
+                                    savedListings
+                                )
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+
+
+            /* =================================================
+               VIEW DETAILS
+            ================================================== */
+
+            const viewButtons =
+                document.querySelectorAll(
+                    ".view-listing-btn"
                 );
 
 
-                /* INITIAL FILTER */
+            viewButtons.forEach(
+                function (button) {
 
-                filterListings();
+
+                    button.addEventListener(
+                        "click",
+                        function () {
 
 
-            }
-        );
+                            const title =
+                                button.dataset.title ||
+                                "this listing";
+
+
+                            alert(
+                                title +
+                                " details page will be available in the next marketplace update."
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+
+
+            /* =================================================
+               LOGOUT
+            ================================================== */
+
+            const logoutButtons =
+                document.querySelectorAll(
+                    '[data-action="logout"]'
+                );
+
+
+            logoutButtons.forEach(
+                function (button) {
+
+
+                    button.addEventListener(
+                        "click",
+                        function (event) {
+
+                            event.preventDefault();
+
+
+                            localStorage.removeItem(
+                                "tipecoLoggedIn"
+                            );
+
+
+                            sessionStorage.removeItem(
+                                "tipecoLoggedIn"
+                            );
+
+
+                            window.location.href =
+                                "login.html";
+
+                        }
+                    );
+
+                }
+            );
+
+
+
+            /* =================================================
+               INITIAL DISPLAY
+            ================================================== */
+
+            filterListings();
+
+
+        }
+    );
 
     </script>
 
