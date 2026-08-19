@@ -5,6 +5,7 @@
 
     <!-- =====================================================
          TIPECO GROUP - REGISTER PAGE
+         Version: 2.0
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -15,13 +16,18 @@
     <meta name="description"
           content="Create your TIPECO GROUP account">
 
+    <meta name="author"
+          content="TIPECO GROUP">
+
     <meta name="theme-color"
           content="#0D47A1">
 
     <title>Sign Up | TIPECO GROUP</title>
 
 
-    <!-- TIPECO GROUP AUTH CSS -->
+    <!-- =====================================================
+         TIPECO GROUP AUTH CSS
+    ====================================================== -->
 
     <link rel="stylesheet"
           href="../assets/css/auth.css">
@@ -41,7 +47,9 @@
         <div class="auth-container">
 
 
-            <!-- BRAND -->
+            <!-- =================================================
+                 BRAND / HEADER
+            ================================================== -->
 
             <div class="auth-header">
 
@@ -66,7 +74,9 @@
 
 
 
-            <!-- REGISTER CARD -->
+            <!-- =================================================
+                 REGISTER CARD
+            ================================================== -->
 
             <div class="auth-card">
 
@@ -76,13 +86,18 @@
                     method="post">
 
 
-                    <!-- FULL NAME -->
+                    <!-- =================================================
+                         FULL NAME
+                    ================================================== -->
 
                     <div class="form-group">
 
                         <label for="fullName">
+
                             Full Name
+
                         </label>
+
 
                         <input
                             type="text"
@@ -96,13 +111,18 @@
 
 
 
-                    <!-- EMAIL -->
+                    <!-- =================================================
+                         EMAIL
+                    ================================================== -->
 
                     <div class="form-group">
 
                         <label for="email">
+
                             Email Address
+
                         </label>
+
 
                         <input
                             type="email"
@@ -116,13 +136,18 @@
 
 
 
-                    <!-- PHONE -->
+                    <!-- =================================================
+                         PHONE
+                    ================================================== -->
 
                     <div class="form-group">
 
                         <label for="phone">
+
                             Phone Number
+
                         </label>
+
 
                         <input
                             type="tel"
@@ -136,13 +161,18 @@
 
 
 
-                    <!-- PASSWORD -->
+                    <!-- =================================================
+                         PASSWORD
+                    ================================================== -->
 
                     <div class="form-group">
 
                         <label for="password">
+
                             Password
+
                         </label>
+
 
                         <input
                             type="password"
@@ -150,19 +180,25 @@
                             name="password"
                             placeholder="Create a password"
                             autocomplete="new-password"
+                            minlength="6"
                             required>
 
                     </div>
 
 
 
-                    <!-- CONFIRM PASSWORD -->
+                    <!-- =================================================
+                         CONFIRM PASSWORD
+                    ================================================== -->
 
                     <div class="form-group">
 
                         <label for="confirmPassword">
+
                             Confirm Password
+
                         </label>
+
 
                         <input
                             type="password"
@@ -170,44 +206,99 @@
                             name="confirmPassword"
                             placeholder="Confirm your password"
                             autocomplete="new-password"
+                            minlength="6"
                             required>
 
                     </div>
 
 
 
-                    <!-- ACCOUNT TYPE -->
+                    <!-- =================================================
+                         ACCOUNT TYPE
+                    ================================================== -->
 
-<div class="form-group">
+                    <div class="form-group">
 
-    <label for="accountType">
-        How will you use TIPECO GROUP?
-    </label>
+                        <label for="accountType">
 
-    <select
-        id="accountType"
-        name="accountType"
-        required>
+                            Account Type
 
-        <option value="">
-            Select your role
-        </option>
-
-        <option value="buyer">
-            Buyer / Customer
-        </option>
-
-        <option value="seller">
-            Seller / Agent / Service Provider
-        </option>
-
-    </select>
-
-</div>
+                        </label>
 
 
+                        <select
+                            id="accountType"
+                            name="accountType"
+                            required>
 
-                    <!-- TERMS -->
+
+                            <option value="">
+
+                                Select account type
+
+                            </option>
+
+
+                            <!-- BUYER -->
+
+                            <option value="buyer">
+
+                                Buyer / Customer
+
+                            </option>
+
+
+                            <!-- SELLER -->
+
+                            <option value="seller">
+
+                                Seller / Agent / Service Provider
+
+                            </option>
+
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         ACCOUNT TYPE INFORMATION
+                    ================================================== -->
+
+                    <div class="account-type-info">
+
+                        <p>
+
+                            <strong>
+                                Buyer / Customer:
+                            </strong>
+
+                            Browse products, request information,
+                            save listings and request viewings.
+
+                        </p>
+
+
+                        <p>
+
+                            <strong>
+                                Seller / Agent / Service Provider:
+                            </strong>
+
+                            Submit products or services and
+                            manage customer requests.
+
+                        </p>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         TERMS & CONDITIONS
+                    ================================================== -->
 
                     <div class="auth-options">
 
@@ -219,8 +310,14 @@
                                 name="terms"
                                 required>
 
+
                             <span>
-                                I agree to the Terms &amp; Conditions
+
+                                I agree to the
+                                <a href="#">
+                                    Terms &amp; Conditions
+                                </a>
+
                             </span>
 
                         </label>
@@ -229,7 +326,9 @@
 
 
 
-                    <!-- REGISTER BUTTON -->
+                    <!-- =================================================
+                         CREATE ACCOUNT BUTTON
+                    ================================================== -->
 
                     <button
                         type="submit"
@@ -241,31 +340,44 @@
 
 
 
-                    <!-- DIVIDER -->
+                    <!-- =================================================
+                         DIVIDER
+                    ================================================== -->
 
                     <div class="auth-divider">
 
                         <span>
+
                             OR
+
                         </span>
 
                     </div>
 
 
 
-                    <!-- GOOGLE SIGN UP -->
+                    <!-- =================================================
+                         GOOGLE SIGN UP
+                    ================================================== -->
 
                     <button
                         type="button"
                         class="google-btn">
 
+
                         <span class="google-icon">
+
                             G
+
                         </span>
 
+
                         <span>
+
                             Continue with Google
+
                         </span>
+
 
                     </button>
 
@@ -274,7 +386,9 @@
 
 
 
-                <!-- LOGIN LINK -->
+                <!-- =================================================
+                     LOGIN LINK
+                ================================================== -->
 
                 <div class="auth-register">
 
@@ -283,23 +397,30 @@
                         Already have an account?
 
                         <a href="login.html">
+
                             Login
+
                         </a>
 
                     </p>
 
                 </div>
 
+
             </div>
 
 
 
-            <!-- BACK HOME -->
+            <!-- =================================================
+                 BACK HOME
+            ================================================== -->
 
             <div class="back-home">
 
                 <a href="../index.html">
+
                     ← Back to TIPECO GROUP
+
                 </a>
 
             </div>
@@ -311,7 +432,9 @@
 
 
 
-    <!-- TIPECO GROUP AUTH JAVASCRIPT -->
+    <!-- =====================================================
+         TIPECO GROUP AUTH JAVASCRIPT
+    ====================================================== -->
 
     <script src="../assets/js/auth.js"></script>
 
