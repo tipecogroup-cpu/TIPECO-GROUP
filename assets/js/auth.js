@@ -1,597 +1,456 @@
-/* =========================================================
+/* =====================================================
    TIPECO GROUP - AUTHENTICATION JAVASCRIPT
-   Handles:
-   - Login
-   - Register
-   - Forgot Password
-   - Logout
-   - Basic session handling
-========================================================= */
-
-"use strict";
-
-/* =========================================================
-   STORAGE KEYS
-========================================================= */
-
-const TIPECO_USERS_KEY = "tipeco_users";
-const TIPECO_CURRENT_USER_KEY = "tipeco_current_user";
+   Version: 1.0
+   Frontend Authentication Prototype
+===================================================== */
 
 
-/* =========================================================
-   HELPER FUNCTIONS
-========================================================= */
+/* =====================================================
+   PAGE READY
+===================================================== */
 
-/* Get registered users */
+document.addEventListener("DOMContentLoaded", function () {
 
-function getUsers() {
+    /* =================================================
+       LOGIN FORM
+    ================================================= */
 
-    try {
+    const loginForm = document.getElementById("loginForm");
 
-        return JSON.parse(
-            localStorage.getItem(TIPECO_USERS_KEY)
-        ) || [];
+    if (loginForm) {
 
-    } catch (error) {
+        loginForm.addEventListener("submit", function (event) {
 
-        console.error("Unable to read users:", error);
+            event.preventDefault();
 
-        return [];
+
+            const identifierInput =
+                loginForm.querySelector('[name="identifier"]');
+
+            const passwordInput =
+                loginForm.querySelector('[name="password"]');
+
+            const rememberInput =
+                loginForm.querySelector('[name="remember"]');
+
+
+            const identifier =
+                identifierInput.value.trim();
+
+            const password =
+                passwordInput.value;
+
+
+            /* =========================================
+               BASIC VALIDATION
+            ========================================= */
+
+            if (!identifier || !password) {
+
+                alert(
+                    "Please enter your email/phone and password."
+                );
+
+                return;
+            }
+
+
+            /* =========================================
+               GET REGISTERED USER
+            ========================================= */
+
+            const registeredUser =
+                localStorage.getItem("tipecoUser");
+
+
+            if (!registeredUser) {
+
+                alert(
+                    "No account found. Please create an account first."
+                );
+
+                return;
+            }
+
+
+            const user =
+                JSON.parse(registeredUser);
+
+
+            /* =========================================
+               CHECK LOGIN DETAILS
+            ========================================= */
+
+            const identifierMatches =
+                identifier.toLowerCase() ===
+                    user.email.toLowerCase()
+                ||
+                identifier === user.phone;
+
+
+            const passwordMatches =
+                password === user.password;
+
+
+            if (!identifierMatches || !passwordMatches) {
+
+                alert(
+                    "Invalid email/phone or password."
+                );
+
+                return;
+            }
+
+
+            /* =========================================
+               SAVE LOGIN STATE
+            ========================================= */
+
+            if (rememberInput && rememberInput.checked) {
+
+                localStorage.setItem(
+                    "tipecoLoggedIn",
+                    "true"
+                );
+
+            } else {
+
+                sessionStorage.setItem(
+                    "tipecoLoggedIn",
+                    "true"
+                );
+
+            }
+
+
+            /* =========================================
+               SUCCESS
+            ========================================= */
+
+            alert(
+                "Login successful! Welcome to TIPECO GROUP."
+            );
+
+
+            window.location.href =
+                "dashboard.html";
+
+        });
 
     }
 
-}
 
 
-/* Save users */
+    /* =================================================
+       REGISTER FORM
+    ================================================= */
 
-function saveUsers(users) {
-
-    localStorage.setItem(
-        TIPECO_USERS_KEY,
-        JSON.stringify(users)
-    );
-
-}
+    const registerForm =
+        document.getElementById("registerForm");
 
 
-/* Get current logged-in user */
+    if (registerForm) {
 
-function getCurrentUser() {
+        registerForm.addEventListener(
+            "submit",
+            function (event) {
 
-    try {
+                event.preventDefault();
 
-        return JSON.parse(
-            localStorage.getItem(TIPECO_CURRENT_USER_KEY)
+
+                const fullNameInput =
+                    registerForm.querySelector(
+                        '[name="fullName"]'
+                    );
+
+
+                const emailInput =
+                    registerForm.querySelector(
+                        '[name="email"]'
+                    );
+
+
+                const phoneInput =
+                    registerForm.querySelector(
+                        '[name="phone"]'
+                    );
+
+
+                const passwordInput =
+                    registerForm.querySelector(
+                        '[name="password"]'
+                    );
+
+
+                const confirmPasswordInput =
+                    registerForm.querySelector(
+                        '[name="confirmPassword"]'
+                    );
+
+
+                const accountTypeInput =
+                    registerForm.querySelector(
+                        '[name="accountType"]'
+                    );
+
+
+                const termsInput =
+                    registerForm.querySelector(
+                        '[name="terms"]'
+                    );
+
+
+                const fullName =
+                    fullNameInput.value.trim();
+
+
+                const email =
+                    emailInput.value.trim();
+
+
+                const phone =
+                    phoneInput.value.trim();
+
+
+                const password =
+                    passwordInput.value;
+
+
+                const confirmPassword =
+                    confirmPasswordInput.value;
+
+
+                const accountType =
+                    accountTypeInput.value;
+
+
+                /* =====================================
+                   REQUIRED FIELDS
+                ===================================== */
+
+                if (
+                    !fullName ||
+                    !email ||
+                    !phone ||
+                    !password ||
+                    !confirmPassword ||
+                    !accountType
+                ) {
+
+                    alert(
+                        "Please complete all required fields."
+                    );
+
+                    return;
+                }
+
+
+                /* =====================================
+                   TERMS
+                ===================================== */
+
+                if (!termsInput.checked) {
+
+                    alert(
+                        "Please agree to the Terms & Conditions."
+                    );
+
+                    return;
+                }
+
+
+                /* =====================================
+                   PASSWORD LENGTH
+                ===================================== */
+
+                if (password.length < 6) {
+
+                    alert(
+                        "Password must contain at least 6 characters."
+                    );
+
+                    return;
+                }
+
+
+                /* =====================================
+                   PASSWORD MATCH
+                ===================================== */
+
+                if (password !== confirmPassword) {
+
+                    alert(
+                        "Passwords do not match."
+                    );
+
+                    return;
+                }
+
+
+                /* =====================================
+                   CREATE USER OBJECT
+                ===================================== */
+
+                const user = {
+
+                    fullName: fullName,
+
+                    email: email,
+
+                    phone: phone,
+
+                    password: password,
+
+                    accountType: accountType
+
+                };
+
+
+                /* =====================================
+                   SAVE USER
+                ===================================== */
+
+                localStorage.setItem(
+                    "tipecoUser",
+                    JSON.stringify(user)
+                );
+
+
+                /* =====================================
+                   SUCCESS
+                ===================================== */
+
+                alert(
+                    "Account created successfully! You can now login."
+                );
+
+
+                window.location.href =
+                    "login.html";
+
+            }
         );
 
-    } catch (error) {
-
-        return null;
-
     }
 
-}
 
 
-/* Save current user */
+    /* =================================================
+       LOGOUT
+    ================================================= */
 
-function setCurrentUser(user) {
-
-    localStorage.setItem(
-        TIPECO_CURRENT_USER_KEY,
-        JSON.stringify(user)
-    );
-
-}
-
-
-/* Logout */
-
-function logout() {
-
-    localStorage.removeItem(
-        TIPECO_CURRENT_USER_KEY
-    );
-
-    window.location.href = "login.html";
-
-}
-
-
-/* =========================================================
-   REGISTER
-========================================================= */
-
-function registerUser(event) {
-
-    event.preventDefault();
-
-    const form = event.target;
-
-    const fullName = form.querySelector(
-        '[name="fullName"]'
-    )?.value.trim();
-
-    const email = form.querySelector(
-        '[name="email"]'
-    )?.value.trim().toLowerCase();
-
-    const phone = form.querySelector(
-        '[name="phone"]'
-    )?.value.trim();
-
-    const password = form.querySelector(
-        '[name="password"]'
-    )?.value;
-
-    const confirmPassword = form.querySelector(
-        '[name="confirmPassword"]'
-    )?.value;
-
-
-    /* Validation */
-
-    if (!fullName || !email || !phone || !password) {
-
-        alert(
-            "Please complete all required fields."
+    const logoutButtons =
+        document.querySelectorAll(
+            '[data-action="logout"]'
         );
 
-        return;
 
-    }
+    logoutButtons.forEach(function (button) {
+
+        button.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
 
 
-    if (password.length < 6) {
+                localStorage.removeItem(
+                    "tipecoLoggedIn"
+                );
 
-        alert(
-            "Password must contain at least 6 characters."
+
+                sessionStorage.removeItem(
+                    "tipecoLoggedIn"
+                );
+
+
+                window.location.href =
+                    "login.html";
+
+            }
         );
-
-        return;
-
-    }
-
-
-    if (password !== confirmPassword) {
-
-        alert(
-            "Passwords do not match."
-        );
-
-        return;
-
-    }
-
-
-    const users = getUsers();
-
-
-    /* Check existing email */
-
-    const emailExists = users.some(
-        user => user.email === email
-    );
-
-    if (emailExists) {
-
-        alert(
-            "An account with this email already exists."
-        );
-
-        return;
-
-    }
-
-
-    /* Check existing phone */
-
-    const phoneExists = users.some(
-        user => user.phone === phone
-    );
-
-    if (phoneExists) {
-
-        alert(
-            "An account with this phone number already exists."
-        );
-
-        return;
-
-    }
-
-
-    /* Create user */
-
-    const newUser = {
-
-        id:
-            "user_" +
-            Date.now(),
-
-        fullName: fullName,
-
-        email: email,
-
-        phone: phone,
-
-        password: password,
-
-        role: "service_seeker",
-
-        createdAt:
-            new Date().toISOString()
-
-    };
-
-
-    users.push(newUser);
-
-    saveUsers(users);
-
-
-    alert(
-        "Account created successfully! Please login."
-    );
-
-
-    window.location.href =
-        "login.html";
-
-}
-
-
-/* =========================================================
-   LOGIN
-========================================================= */
-
-function loginUser(event) {
-
-    event.preventDefault();
-
-    const form = event.target;
-
-
-    const identifier = form.querySelector(
-        '[name="identifier"]'
-    )?.value.trim().toLowerCase();
-
-    const password = form.querySelector(
-        '[name="password"]'
-    )?.value;
-
-
-    if (!identifier || !password) {
-
-        alert(
-            "Please enter your email/phone and password."
-        );
-
-        return;
-
-    }
-
-
-    const users = getUsers();
-
-
-    const user = users.find(
-        item =>
-
-            item.email === identifier ||
-
-            item.phone === identifier
-    );
-
-
-    if (!user) {
-
-        alert(
-            "Account not found. Please check your email or phone number."
-        );
-
-        return;
-
-    }
-
-
-    if (user.password !== password) {
-
-        alert(
-            "Incorrect password."
-        );
-
-        return;
-
-    }
-
-
-    /* Save logged-in user */
-
-    setCurrentUser({
-
-        id: user.id,
-
-        fullName: user.fullName,
-
-        email: user.email,
-
-        phone: user.phone,
-
-        role: user.role
 
     });
 
 
-    alert(
-        "Login successful. Welcome back!"
-    );
+
+    /* =================================================
+       PROTECTED DASHBOARD
+    ================================================= */
+
+    const currentPage =
+        window.location.pathname;
 
 
-    window.location.href =
-        "dashboard.html";
-
-}
-
-
-/* =========================================================
-   FORGOT PASSWORD
-========================================================= */
-
-function forgotPassword(event) {
-
-    event.preventDefault();
-
-    const form = event.target;
-
-
-    const identifier = form.querySelector(
-        '[name="identifier"]'
-    )?.value.trim().toLowerCase();
-
-
-    if (!identifier) {
-
-        alert(
-            "Please enter your email or phone number."
+    const isDashboard =
+        currentPage.includes(
+            "dashboard.html"
         );
 
-        return;
+
+    if (isDashboard) {
+
+        const loggedIn =
+            localStorage.getItem(
+                "tipecoLoggedIn"
+            )
+            ||
+            sessionStorage.getItem(
+                "tipecoLoggedIn"
+            );
+
+
+        if (loggedIn !== "true") {
+
+            alert(
+                "Please login to access your dashboard."
+            );
+
+
+            window.location.href =
+                "login.html";
+
+        }
 
     }
 
 
-    const users = getUsers();
 
+    /* =================================================
+       DISPLAY USER NAME
+    ================================================= */
 
-    const user = users.find(
-        item =>
-
-            item.email === identifier ||
-
-            item.phone === identifier
-    );
-
-
-    if (!user) {
-
-        alert(
-            "No account was found with that information."
-        );
-
-        return;
-
-    }
-
-
-    /*
-       Temporary frontend recovery flow.
-
-       Real password reset will later use
-       backend + email/SMS verification.
-    */
-
-    alert(
-        "Password reset request received. " +
-        "A secure reset system will be connected later."
-    );
-
-}
-
-
-/* =========================================================
-   PROTECT DASHBOARD
-========================================================= */
-
-function requireLogin() {
-
-    const currentUser =
-        getCurrentUser();
-
-
-    if (!currentUser) {
-
-        window.location.href =
-            "login.html";
-
-        return false;
-
-    }
-
-
-    return true;
-
-}
-
-
-/* =========================================================
-   DISPLAY CURRENT USER
-========================================================= */
-
-function displayCurrentUser() {
-
-    const user =
-        getCurrentUser();
-
-
-    if (!user) {
-
-        return;
-
-    }
-
-
-    const nameElements =
+    const userNameElements =
         document.querySelectorAll(
             "[data-user-name]"
         );
 
 
-    nameElements.forEach(
-        element => {
+    if (userNameElements.length > 0) {
 
-            element.textContent =
-                user.fullName;
-
-        }
-    );
+        const storedUser =
+            localStorage.getItem(
+                "tipecoUser"
+            );
 
 
-    const emailElements =
-        document.querySelectorAll(
-            "[data-user-email]"
-        );
+        if (storedUser) {
+
+            const user =
+                JSON.parse(storedUser);
 
 
-    emailElements.forEach(
-        element => {
+            userNameElements.forEach(
+                function (element) {
 
-            element.textContent =
-                user.email;
-
-        }
-    );
-
-
-    const phoneElements =
-        document.querySelectorAll(
-            "[data-user-phone]"
-        );
-
-
-    phoneElements.forEach(
-        element => {
-
-            element.textContent =
-                user.phone;
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   LOGOUT BUTTONS
-========================================================= */
-
-function setupLogoutButtons() {
-
-    const logoutButtons =
-        document.querySelectorAll(
-            "[data-logout]"
-        );
-
-
-    logoutButtons.forEach(
-        button => {
-
-            button.addEventListener(
-                "click",
-                function(event) {
-
-                    event.preventDefault();
-
-                    logout();
+                    element.textContent =
+                        user.fullName;
 
                 }
             );
 
         }
-    );
-
-}
-
-
-/* =========================================================
-   AUTO AUTH SETUP
-========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function() {
-
-
-        /* Register form */
-
-        const registerForm =
-            document.querySelector(
-                "#registerForm"
-            );
-
-        if (registerForm) {
-
-            registerForm.addEventListener(
-                "submit",
-                registerUser
-            );
-
-        }
-
-
-        /* Login form */
-
-        const loginForm =
-            document.querySelector(
-                "#loginForm"
-            );
-
-        if (loginForm) {
-
-            loginForm.addEventListener(
-                "submit",
-                loginUser
-            );
-
-        }
-
-
-        /* Forgot password form */
-
-        const forgotForm =
-            document.querySelector(
-                "#forgotPasswordForm"
-            );
-
-        if (forgotForm) {
-
-            forgotForm.addEventListener(
-                "submit",
-                forgotPassword
-            );
-
-        }
-
-
-        /* Display current user */
-
-        displayCurrentUser();
-
-
-        /* Setup logout */
-
-        setupLogoutButtons();
 
     }
-);
+
+});
