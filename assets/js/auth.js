@@ -550,7 +550,95 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
+/* =====================================================
+   FORGOT PASSWORD
+===================================================== */
 
+const forgotPasswordForm =
+    document.getElementById("forgotPasswordForm");
+
+if (forgotPasswordForm) {
+
+    forgotPasswordForm.addEventListener(
+        "submit",
+        function (event) {
+
+            event.preventDefault();
+
+            const identifierInput =
+                document.getElementById("resetIdentifier");
+
+            if (!identifierInput) {
+
+                alert(
+                    "Forgot password form configuration error."
+                );
+
+                return;
+            }
+
+            const identifier =
+                identifierInput.value.trim();
+
+            if (!identifier) {
+
+                alert(
+                    "Please enter your email or phone number."
+                );
+
+                return;
+            }
+
+            const user = getStoredUser();
+
+            if (!user) {
+
+                alert(
+                    "No account found. Please create an account first."
+                );
+
+                return;
+            }
+
+            const emailMatches =
+                identifier.toLowerCase() ===
+                String(user.email).toLowerCase();
+
+            const phoneMatches =
+                identifier ===
+                String(user.phone);
+
+            if (!emailMatches && !phoneMatches) {
+
+                alert(
+                    "No account was found with that email or phone number."
+                );
+
+                return;
+            }
+
+            /*
+             * TEMPORARY FRONTEND PROTOTYPE
+             *
+             * The real version will use
+             * email/SMS verification through a backend.
+             */
+
+            localStorage.setItem(
+                "tipecoResetIdentifier",
+                identifier
+            );
+
+            alert(
+                "Account found. You can now reset your password."
+            );
+
+            window.location.href =
+                "reset-password.html";
+
+        }
+    );
+}
 
     /* =====================================================
        LOGOUT
