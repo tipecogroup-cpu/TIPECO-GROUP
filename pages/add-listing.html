@@ -1,1 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+
+    <!-- =====================================================
+         TIPECO GROUP - ADD LISTING
+    ====================================================== -->
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="Add a new listing to TIPECO GROUP">
+
+    <meta name="author"
+          content="TIPECO GROUP">
+
+    <meta name="theme-color"
+          content="#0D47A1">
+
+    <title>Add Listing | TIPECO GROUP</title>
+
+
+    <!-- TIPECO GROUP AUTH CSS -->
+
+    <link rel="stylesheet"
+          href="../assets/css/auth.css">
+
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         TIPECO GROUP - ADD LISTING PAGE
+    ====================================================== -->
+
+    <main class="auth-page">
+
+        <div class="auth-container">
+
+
+            <!-- =================================================
+                 HEADER
+            ================================================== -->
+
+            <div class="auth-header">
+
+                <a href="../index.html"
+                   class="auth-logo">
+
+                    TIPECO GROUP
+
+                </a>
+
+
+                <h1>
+                    Add New Listing
+                </h1>
+
+
+                <p>
+                    Submit your product or service for verification
+                </p>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 LISTING CARD
+            ================================================== -->
+
+            <div class="auth-card">
+
+
+                <form
+                    id="addListingForm"
+                    action="javascript:void(0);"
+                    method="post">
+
+
+                    <!-- =================================================
+                         LISTING TITLE
+                    ================================================== -->
+
+                    <div class="form-group">
+
+                        <label for="listingTitle">
+
+                            Listing Title
+
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="listingTitle"
+                            name="listingTitle"
+                            placeholder="e.g. Modern 3 Bedroom House for Rent"
+                            required>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         CATEGORY
+                    ================================================== -->
+
+                    <div class="form-group">
+
+                        <label for="listingCategory">
+
+                            Category
+
+                        </label>
+
+
+                        <select
+                            id="listingCategory"
+                            name="listingCategory"
+                            required>
+
+
+                            <option value="">
+
+                                Select category
+
+                            </option>
+
+
+                            <option value="real-estate">
+
+                                Real Estate
+
+                            </option>
+
+
+                            <option value="vehicles">
+
+                                Vehicles
+
+                            </option>
+
+
+                            <option value="electronics">
+
+                                Electronics
+
+                            </option>
+
+
+                            <option value="home-furniture">
+
+                                Home &amp; Furniture
+
+                            </option>
+
+
+                            <option value="construction">
+
+                                Construction Products
+
+                            </option>
+
+
+                            <option value="services">
+
+                                Services
+
+                            </option>
+
+
+                            <option value="other">
+
+                                Other Products
+
+                            </option>
+
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         LISTING TYPE
+                    ================================================== -->
+
+                    <div class="form-group">
+
+                        <label for="listingType">
+
+                            Listing Type
+
+                        </label>
+
+
+                        <select
+                            id="listingType"
+                            name="listingType"
+                            required>
+
+
+                            <option value="">
+
+                                Select listing type
+
+                            </option>
+
+
+                            <option value="sell">
+
+                                For Sale
+
+                            </option>
+
+
+                            <option value="rent">
+
+                                For Rent
+
+                            </option>
+
+
+                            <option value="service">
+
+                                Service
+
+                            </option>
+
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         PRICE
+                    ================================================== -->
+
+                    <div class="form-group">
+
+                        <label for="listingPrice">
+
+                            Price
+
+                        </label>
+
+
+                        <input
+                            type="number"
+                            id="listingPrice"
+                            name="listingPrice"
+                            placeholder="Enter price"
+                            min="0"
+                            step="any"
+                            required>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         LOCATION
+                    ================================================== -->
+
+                    <div class="form-group">
+
+                        <label for="listingLocation">
+
+                            Location
+
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="listingLocation"
+                            name="listingLocation"
+                            placeholder="e.g. Kigali, Gasabo"
+                            required>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         DESCRIPTION
+                    ================================================== -->
+
+                    <div class="form-group">
+
+                        <label for="listingDescription">
+
+                            Description
+
+                        </label>
+
+
+                        <textarea
+                            id="listingDescription"
+                            name="listingDescription"
+                            rows="6"
+                            placeholder="Describe your product or service in detail..."
+                            required></textarea>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         CONTACT PHONE
+                    ================================================== -->
+
+                    <div class="form-group">
+
+                        <label for="listingPhone">
+
+                            Contact Phone Number
+
+                        </label>
+
+
+                        <input
+                            type="tel"
+                            id="listingPhone"
+                            name="listingPhone"
+                            placeholder="Enter contact phone number"
+                            autocomplete="tel"
+                            required>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         LISTING IMAGE
+                    ================================================== -->
+
+                    <div class="form-group">
+
+                        <label for="listingImage">
+
+                            Listing Image
+
+                        </label>
+
+
+                        <input
+                            type="file"
+                            id="listingImage"
+                            name="listingImage"
+                            accept="image/*">
+
+                        <p style="
+                            color: #757575;
+                            font-size: 13px;
+                            line-height: 1.5;
+                            margin-top: 8px;
+                        ">
+
+                            Upload a clear image of your product,
+                            property or service.
+
+                        </p>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         VERIFICATION NOTICE
+                    ================================================== -->
+
+                    <div
+                        class="form-group"
+                        style="
+                            background: #f5f8fc;
+                            padding: 15px;
+                            border-radius: 8px;
+                            margin-top: 10px;
+                        "
+                    >
+
+                        <strong>
+
+                            TIPECO GROUP Verification
+
+                        </strong>
+
+
+                        <p style="
+                            color: #757575;
+                            font-size: 13px;
+                            line-height: 1.6;
+                            margin-top: 8px;
+                        ">
+
+                            Your listing will be reviewed and verified
+                            by TIPECO GROUP before it becomes visible
+                            to customers.
+
+                        </p>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         TERMS
+                    ================================================== -->
+
+                    <div class="auth-options">
+
+                        <label class="remember-me">
+
+
+                            <input
+                                type="checkbox"
+                                id="listingAgreement"
+                                name="listingAgreement"
+                                required>
+
+
+                            <span>
+
+                                I confirm that the information
+                                provided is accurate.
+
+                            </span>
+
+
+                        </label>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         SUBMIT
+                    ================================================== -->
+
+                    <button
+                        type="submit"
+                        class="auth-btn">
+
+                        Submit Listing for Verification
+
+                    </button>
+
+
+
+                    <!-- =================================================
+                         BACK TO DASHBOARD
+                    ================================================== -->
+
+                    <div style="
+                        text-align: center;
+                        margin-top: 18px;
+                    ">
+
+
+                        <a
+                            href="dashboard.html"
+                            style="
+                                color: var(--primary-color);
+                                font-size: 14px;
+                                font-weight: 700;
+                            "
+                        >
+
+                            ← Back to Dashboard
+
+                        </a>
+
+
+                    </div>
+
+
+                </form>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 BACK HOME
+            ================================================== -->
+
+            <div class="back-home">
+
+                <a href="../index.html">
+
+                    ← Back to TIPECO GROUP
+
+                </a>
+
+            </div>
+
+
+        </div>
+
+    </main>
+
+
+
+    <!-- =====================================================
+         TIPECO GROUP AUTH JAVASCRIPT
+    ====================================================== -->
+
+    <script src="../assets/js/auth.js"></script>
+
+
+</body>
+
+</
+  
