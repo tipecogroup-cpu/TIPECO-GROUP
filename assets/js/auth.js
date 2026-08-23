@@ -889,7 +889,228 @@ if (resetPasswordForm) {
         }
     );
 }
-    /* =====================================================
+
+/* =====================================================
+   ADD LISTING
+===================================================== */
+
+const addListingForm =
+    document.getElementById("addListingForm");
+
+if (addListingForm) {
+
+    addListingForm.addEventListener(
+        "submit",
+        function (event) {
+
+            event.preventDefault();
+
+            const listingTitle =
+                document.getElementById("listingTitle").value.trim();
+
+            const listingCategory =
+                document.getElementById("listingCategory").value;
+
+            const listingType =
+                document.getElementById("listingType").value;
+
+            const listingPrice =
+                document.getElementById("listingPrice").value;
+
+            const listingLocation =
+                document.getElementById("listingLocation").value.trim();
+
+            const listingDescription =
+                document.getElementById("listingDescription").value.trim();
+
+            const listingPhone =
+                document.getElementById("listingPhone").value.trim();
+
+            const listingAgreement =
+                document.getElementById("listingAgreement");
+
+
+            /* =================================================
+               REQUIRED FIELDS
+            ================================================== */
+
+            if (
+                !listingTitle ||
+                !listingCategory ||
+                !listingType ||
+                !listingPrice ||
+                !listingLocation ||
+                !listingDescription ||
+                !listingPhone
+            ) {
+
+                alert(
+                    "Please complete all required listing information."
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               AGREEMENT
+            ================================================== */
+
+            if (!listingAgreement.checked) {
+
+                alert(
+                    "Please confirm that the information provided is accurate."
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               CURRENT USER
+            ================================================== */
+
+            const currentUser =
+                getStoredUser();
+
+            if (!currentUser) {
+
+                alert(
+                    "Please login before creating a listing."
+                );
+
+                window.location.href =
+                    "login.html";
+
+                return;
+            }
+
+
+            /* =================================================
+               CREATE LISTING
+            ================================================== */
+
+            const listing = {
+
+                id:
+                    "listing-" +
+                    Date.now(),
+
+                ownerName:
+                    currentUser.fullName,
+
+                ownerEmail:
+                    currentUser.email,
+
+                ownerPhone:
+                    currentUser.phone,
+
+                title:
+                    listingTitle,
+
+                category:
+                    listingCategory,
+
+                type:
+                    listingType,
+
+                price:
+                    listingPrice,
+
+                location:
+                    listingLocation,
+
+                description:
+                    listingDescription,
+
+                contactPhone:
+                    listingPhone,
+
+                status:
+                    "pending",
+
+                createdAt:
+                    new Date().toISOString()
+
+            };
+
+
+            /* =================================================
+               GET EXISTING LISTINGS
+            ================================================== */
+
+            let listings = [];
+
+            const storedListings =
+                localStorage.getItem(
+                    "tipecoListings"
+                );
+
+
+            if (storedListings) {
+
+                try {
+
+                    listings =
+                        JSON.parse(
+                            storedListings
+                        );
+
+                } catch (error) {
+
+                    listings = [];
+
+                }
+            }
+
+
+            /* =================================================
+               ADD NEW LISTING
+            ================================================== */
+
+            listings.push(listing);
+
+
+            /* =================================================
+               SAVE LISTINGS
+            ================================================== */
+
+            try {
+
+                localStorage.setItem(
+                    "tipecoListings",
+                    JSON.stringify(listings)
+                );
+
+            } catch (error) {
+
+                alert(
+                    "Unable to save your listing."
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               SUCCESS
+            ================================================== */
+
+            alert(
+                "Listing submitted successfully! It is now pending TIPECO GROUP verification."
+            );
+
+
+            /* =================================================
+               GO TO MY LISTINGS
+            ================================================== */
+
+            window.location.href =
+                "my-listings.html";
+
+        }
+    );
+}   /* =====================================================
        LOGOUT
     ===================================================== */
 
