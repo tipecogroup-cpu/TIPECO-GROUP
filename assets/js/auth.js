@@ -639,7 +639,256 @@ if (forgotPasswordForm) {
         }
     );
 }
+/* =====================================================
+   RESET PASSWORD
+===================================================== */
 
+const resetPasswordForm =
+    document.getElementById("resetPasswordForm");
+
+if (resetPasswordForm) {
+
+    resetPasswordForm.addEventListener(
+        "submit",
+        function (event) {
+
+            event.preventDefault();
+
+
+            /* =================================================
+               GET FORM INPUTS
+            ================================================== */
+
+            const newPasswordInput =
+                document.getElementById("newPassword");
+
+            const confirmNewPasswordInput =
+                document.getElementById("confirmNewPassword");
+
+
+            /* =================================================
+               FORM CONFIGURATION CHECK
+            ================================================== */
+
+            if (
+                !newPasswordInput ||
+                !confirmNewPasswordInput
+            ) {
+
+                alert(
+                    "Reset password form configuration error."
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               GET VALUES
+            ================================================== */
+
+            const newPassword =
+                newPasswordInput.value;
+
+            const confirmNewPassword =
+                confirmNewPasswordInput.value;
+
+
+            /* =================================================
+               REQUIRED FIELDS
+            ================================================== */
+
+            if (
+                !newPassword ||
+                !confirmNewPassword
+            ) {
+
+                alert(
+                    "Please enter and confirm your new password."
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               PASSWORD LENGTH
+            ================================================== */
+
+            if (newPassword.length < 6) {
+
+                alert(
+                    "Password must contain at least 6 characters."
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               PASSWORD MATCH
+            ================================================== */
+
+            if (
+                newPassword !==
+                confirmNewPassword
+            ) {
+
+                alert(
+                    "Passwords do not match."
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               GET RESET IDENTIFIER
+            ================================================== */
+
+            const resetIdentifier =
+                localStorage.getItem(
+                    "tipecoResetIdentifier"
+                );
+
+
+            if (!resetIdentifier) {
+
+                alert(
+                    "Password reset session expired. Please start again."
+                );
+
+                window.location.href =
+                    "forgot-password.html";
+
+                return;
+            }
+
+
+            /* =================================================
+               GET STORED USER
+            ================================================== */
+
+            const user =
+                getStoredUser();
+
+
+            if (!user) {
+
+                alert(
+                    "No account found. Please create an account first."
+                );
+
+                window.location.href =
+                    "register.html";
+
+                return;
+            }
+
+
+            /* =================================================
+               VERIFY RESET IDENTIFIER
+            ================================================== */
+
+            const emailMatches =
+                resetIdentifier.toLowerCase() ===
+                String(user.email).toLowerCase();
+
+            const phoneMatches =
+                resetIdentifier ===
+                String(user.phone);
+
+
+            if (
+                !emailMatches &&
+                !phoneMatches
+            ) {
+
+                alert(
+                    "The password reset request is no longer valid."
+                );
+
+                localStorage.removeItem(
+                    "tipecoResetIdentifier"
+                );
+
+                window.location.href =
+                    "forgot-password.html";
+
+                return;
+            }
+
+
+            /* =================================================
+               UPDATE PASSWORD
+            ================================================== */
+
+            user.password =
+                newPassword;
+
+
+            /* =================================================
+               SAVE UPDATED USER
+            ================================================== */
+
+            try {
+
+                localStorage.setItem(
+                    "tipecoUser",
+                    JSON.stringify(user)
+                );
+
+            } catch (error) {
+
+                alert(
+                    "Unable to update your password."
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               REMOVE RESET SESSION
+            ================================================== */
+
+            localStorage.removeItem(
+                "tipecoResetIdentifier"
+            );
+
+
+            /* =================================================
+               CLEAR OLD LOGIN STATE
+            ================================================== */
+
+            localStorage.removeItem(
+                "tipecoLoggedIn"
+            );
+
+            sessionStorage.removeItem(
+                "tipecoLoggedIn"
+            );
+
+
+            /* =================================================
+               SUCCESS
+            ================================================== */
+
+            alert(
+                "Password reset successfully! You can now login with your new password."
+            );
+
+
+            /* =================================================
+               GO TO LOGIN
+            ================================================== */
+
+            window.location.href =
+                "login.html";
+
+        }
+    );
+}
     /* =====================================================
        LOGOUT
     ===================================================== */
