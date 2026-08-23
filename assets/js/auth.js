@@ -898,7 +898,7 @@ const addListingForm =
     document.getElementById("addListingForm");
 
 if (addListingForm) {
-
+console.log("ADD LISTING FORM FOUND");
     addListingForm.addEventListener(
         "submit",
         function (event) {
