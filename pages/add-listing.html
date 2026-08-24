@@ -4,8 +4,8 @@
 <head>
 
     <!-- =====================================================
-         TIPECO GROUP - USER DASHBOARD
-         Version: 2.1
+         TIPECO GROUP - ADD LISTING
+         Version: 1.0
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -14,7 +14,7 @@
           content="width=device-width, initial-scale=1.0">
 
     <meta name="description"
-          content="TIPECO GROUP User Dashboard">
+          content="Submit a listing for TIPECO GROUP verification">
 
     <meta name="author"
           content="TIPECO GROUP">
@@ -22,7 +22,7 @@
     <meta name="theme-color"
           content="#0D47A1">
 
-    <title>Dashboard | TIPECO GROUP</title>
+    <title>Add Listing | TIPECO GROUP</title>
 
 
     <!-- =====================================================
@@ -44,6 +44,394 @@
     <link rel="stylesheet"
           href="../assets/css/dashboard.css">
 
+
+    <style>
+
+        /* =====================================================
+           ADD LISTING PAGE
+        ====================================================== */
+
+        .add-listing-page {
+            min-height: 100vh;
+            padding: 40px 20px 70px;
+        }
+
+
+        .add-listing-container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+
+        /* =====================================================
+           PAGE HEADER
+        ====================================================== */
+
+        .add-listing-header {
+            margin-bottom: 30px;
+        }
+
+
+        .add-listing-header .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            color: #1976D2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+
+        .add-listing-header .back-link:hover {
+            text-decoration: underline;
+        }
+
+
+        .add-listing-header h1 {
+            margin: 0 0 10px;
+            font-size: 32px;
+        }
+
+
+        .add-listing-header p {
+            margin: 0;
+            color: #666;
+            line-height: 1.6;
+        }
+
+
+        /* =====================================================
+           VERIFICATION NOTICE
+        ====================================================== */
+
+        .verification-notice {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            background: rgba(13, 71, 161, 0.08);
+            border-left: 5px solid #0D47A1;
+        }
+
+
+        .verification-notice h3 {
+            margin: 0 0 8px;
+            color: #0D47A1;
+        }
+
+
+        .verification-notice p {
+            margin: 0;
+            line-height: 1.6;
+            color: #444;
+        }
+
+
+        /* =====================================================
+           FORM CARD
+        ====================================================== */
+
+        .listing-form-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+
+        .form-section {
+            margin-bottom: 35px;
+        }
+
+
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+
+
+        .form-section-title {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+
+        .form-section-title h2 {
+            margin: 0 0 5px;
+            font-size: 21px;
+        }
+
+
+        .form-section-title p {
+            margin: 0;
+            color: #777;
+            font-size: 14px;
+        }
+
+
+        /* =====================================================
+           FORM GRID
+        ====================================================== */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+
+        .form-group label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+
+        .form-group label span {
+            color: #d32f2f;
+        }
+
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px 14px;
+            border: 1px solid #d8d8d8;
+            border-radius: 9px;
+            font-family: inherit;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s,
+                        box-shadow 0.2s;
+        }
+
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #1976D2;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.10);
+        }
+
+
+        .form-group textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+
+        .form-help {
+            font-size: 12px;
+            color: #777;
+        }
+
+
+        /* =====================================================
+           PHOTO UPLOAD
+        ====================================================== */
+
+        .photo-upload {
+            border: 2px dashed #cfcfcf;
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+
+        .photo-upload:hover {
+            border-color: #1976D2;
+            background: rgba(25, 118, 210, 0.03);
+        }
+
+
+        .photo-upload-icon {
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+
+        .photo-upload strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+
+        .photo-upload small {
+            color: #777;
+        }
+
+
+        .photo-preview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+
+        .photo-preview-item {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f2f2f2;
+        }
+
+
+        .photo-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+
+        /* =====================================================
+           CHECKBOX
+        ====================================================== */
+
+        .verification-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+
+        .verification-check input {
+            margin-top: 4px;
+        }
+
+
+        .verification-check label {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+
+        /* =====================================================
+           SUBMIT AREA
+        ====================================================== */
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding-top: 25px;
+            border-top: 1px solid #e5e5e5;
+        }
+
+
+        .btn {
+            border: none;
+            border-radius: 9px;
+            padding: 13px 22px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        .btn-secondary {
+            background: #eeeeee;
+            color: #333;
+        }
+
+
+        .btn-primary {
+            background: #0D47A1;
+            color: #ffffff;
+        }
+
+
+        .btn-primary:hover {
+            background: #08377d;
+        }
+
+
+        /* =====================================================
+           SUCCESS MESSAGE
+        ====================================================== */
+
+        .form-success {
+            display: none;
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 10px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            line-height: 1.5;
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ====================================================== */
+
+        @media (max-width: 700px) {
+
+            .add-listing-page {
+                padding: 25px 14px 50px;
+            }
+
+
+            .listing-form-card {
+                padding: 20px;
+            }
+
+
+            .add-listing-header h1 {
+                font-size: 27px;
+            }
+
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .form-group.full-width {
+                grid-column: auto;
+            }
+
+
+            .photo-preview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+
+            .btn {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
 </head>
 
 
@@ -51,17 +439,14 @@
 
 
     <!-- =====================================================
-         DASHBOARD HEADER
+         HEADER
     ====================================================== -->
 
     <header class="dashboard-header">
 
         <div class="dashboard-header-inner">
 
-
-            <!-- LOGO -->
-
-            <a href="../index.html"
+            <a href="dashboard.html"
                class="dashboard-logo">
 
                 TIPECO GROUP
@@ -69,12 +454,7 @@
             </a>
 
 
-            <!-- HEADER ACTIONS -->
-
             <div class="dashboard-header-actions">
-
-
-                <!-- USER -->
 
                 <div class="dashboard-user">
 
@@ -82,32 +462,22 @@
                         👤
                     </div>
 
-
                     <div class="dashboard-user-info">
 
-                        <span
-                            class="dashboard-user-name"
-                            data-user-name>
-
+                        <span class="dashboard-user-name"
+                              data-user-name>
                             User
-
                         </span>
 
-
-                        <span
-                            class="dashboard-user-role"
-                            data-user-role>
-
+                        <span class="dashboard-user-role"
+                              data-user-role>
                             TIPECO User
-
                         </span>
 
                     </div>
 
                 </div>
 
-
-                <!-- LOGOUT -->
 
                 <a href="#"
                    class="dashboard-logout"
@@ -126,790 +496,490 @@
 
 
     <!-- =====================================================
-         DASHBOARD PAGE
+         MAIN
     ====================================================== -->
 
-    <main class="dashboard-page">
+    <main class="add-listing-page">
 
-        <div class="dashboard-layout">
-
-
-            <!-- =================================================
-                 SIDEBAR
-            ================================================== -->
-
-            <aside class="dashboard-sidebar">
+        <div class="add-listing-container">
 
 
-                <div class="sidebar-title">
+            <!-- PAGE HEADER -->
 
-                    MY DASHBOARD
+            <section class="add-listing-header">
+
+                <a href="dashboard.html"
+                   class="back-link">
+
+                    ← Back to Dashboard
+
+                </a>
+
+
+                <h1>
+                    ➕ Add Listing
+                </h1>
+
+
+                <p>
+                    Submit your product, property, vehicle
+                    or service to TIPECO GROUP for verification.
+                </p>
+
+            </section>
+
+
+
+            <!-- VERIFICATION NOTICE -->
+
+            <div class="verification-notice">
+
+                <h3>
+                    ✓ TIPECO GROUP Verification
+                </h3>
+
+                <p>
+                    Your listing will be reviewed by TIPECO GROUP
+                    before it becomes publicly available.
+                    We may contact you to verify the information
+                    provided.
+                </p>
+
+            </div>
+
+
+
+            <!-- FORM -->
+
+            <form id="addListingForm"
+                  class="listing-form-card">
+
+
+                <!-- =================================================
+                     BASIC INFORMATION
+                ================================================== -->
+
+                <section class="form-section">
+
+                    <div class="form-section-title">
+
+                        <h2>
+                            Basic Information
+                        </h2>
+
+                        <p>
+                            Tell us what you are offering.
+                        </p>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+
+                        <!-- LISTING TYPE -->
+
+                        <div class="form-group">
+
+                            <label for="listingType">
+                                Listing Type <span>*</span>
+                            </label>
+
+                            <select id="listingType"
+                                    name="listingType"
+                                    required>
+
+                                <option value="">
+                                    Select listing type
+                                </option>
+
+                                <option value="product">
+                                    Product
+                                </option>
+
+                                <option value="vehicle">
+                                    Vehicle
+                                </option>
+
+                                <option value="property">
+                                    Property
+                                </option>
+
+                                <option value="service">
+                                    Service
+                                </option>
+
+                                <option value="other">
+                                    Other
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <!-- CATEGORY -->
+
+                        <div class="form-group">
+
+                            <label for="category">
+                                Category <span>*</span>
+                            </label>
+
+                            <select id="category"
+                                    name="category"
+                                    required>
+
+                                <option value="">
+                                    Select category
+                                </option>
+
+                                <option value="real-estate">
+                                    Real Estate
+                                </option>
+
+                                <option value="vehicles">
+                                    Vehicles
+                                </option>
+
+                                <option value="electronics">
+                                    Electronics
+                                </option>
+
+                                <option value="home-furniture">
+                                    Home &amp; Furniture
+                                </option>
+
+                                <option value="construction">
+                                    Construction Products
+                                </option>
+
+                                <option value="services">
+                                    Services
+                                </option>
+
+                                <option value="other">
+                                    Other
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <!-- TITLE -->
+
+                        <div class="form-group full-width">
+
+                            <label for="title">
+                                Listing Title <span>*</span>
+                            </label>
+
+                            <input type="text"
+                                   id="title"
+                                   name="title"
+                                   placeholder="e.g. Toyota RAV4 2020"
+                                   required>
+
+                        </div>
+
+
+
+                        <!-- DESCRIPTION -->
+
+                        <div class="form-group full-width">
+
+                            <label for="description">
+                                Description <span>*</span>
+                            </label>
+
+                            <textarea id="description"
+                                      name="description"
+                                      placeholder="Describe your product, property, vehicle or service..."
+                                      required></textarea>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     PRICE & LOCATION
+                ================================================== -->
+
+                <section class="form-section">
+
+                    <div class="form-section-title">
+
+                        <h2>
+                            Price &amp; Location
+                        </h2>
+
+                        <p>
+                            Provide the basic commercial information.
+                        </p>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label for="price">
+                                Price <span>*</span>
+                            </label>
+
+                            <input type="number"
+                                   id="price"
+                                   name="price"
+                                   min="0"
+                                   placeholder="0"
+                                   required>
+
+                        </div>
+
+
+
+                        <div class="form-group">
+
+                            <label for="currency">
+                                Currency
+                            </label>
+
+                            <select id="currency"
+                                    name="currency">
+
+                                <option value="RWF">
+                                    RWF
+                                </option>
+
+                                <option value="USD">
+                                    USD
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <div class="form-group full-width">
+
+                            <label for="location">
+                                Location <span>*</span>
+                            </label>
+
+                            <input type="text"
+                                   id="location"
+                                   name="location"
+                                   placeholder="City / District / Area"
+                                   required>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     PHOTOS
+                ================================================== -->
+
+                <section class="form-section">
+
+                    <div class="form-section-title">
+
+                        <h2>
+                            Photos
+                        </h2>
+
+                        <p>
+                            Add clear photos that help customers
+                            understand your listing.
+                        </p>
+
+                    </div>
+
+
+                    <label for="listingPhotos"
+                           class="photo-upload">
+
+                        <div class="photo-upload-icon">
+                            📷
+                        </div>
+
+                        <strong>
+                            Click to upload photos
+                        </strong>
+
+                        <small>
+                            JPG, PNG or WEBP
+                        </small>
+
+                    </label>
+
+
+                    <input type="file"
+                           id="listingPhotos"
+                           name="listingPhotos"
+                           accept="image/jpeg,image/png,image/webp"
+                           multiple
+                           hidden>
+
+
+                    <div id="photoPreview"
+                         class="photo-preview">
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     CONTACT INFORMATION
+                ================================================== -->
+
+                <section class="form-section">
+
+                    <div class="form-section-title">
+
+                        <h2>
+                            Contact Information
+                        </h2>
+
+                        <p>
+                            How can TIPECO GROUP contact you?
+                        </p>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label for="contactName">
+                                Contact Name <span>*</span>
+                            </label>
+
+                            <input type="text"
+                                   id="contactName"
+                                   name="contactName"
+                                   placeholder="Your name"
+                                   required>
+
+                        </div>
+
+
+
+                        <div class="form-group">
+
+                            <label for="phone">
+                                Phone Number <span>*</span>
+                            </label>
+
+                            <input type="tel"
+                                   id="phone"
+                                   name="phone"
+                                   placeholder="+250..."
+                                   required>
+
+                        </div>
+
+
+
+                        <div class="form-group full-width">
+
+                            <label for="email">
+                                Email Address
+                            </label>
+
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   placeholder="your@email.com">
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     VERIFICATION AGREEMENT
+                ================================================== -->
+
+                <section class="form-section">
+
+                    <div class="verification-check">
+
+                        <input type="checkbox"
+                               id="verificationAgreement"
+                               required>
+
+
+                        <label for="verificationAgreement">
+
+                            I confirm that the information provided
+                            is accurate and I understand that TIPECO
+                            GROUP may verify this listing before
+                            publishing it.
+
+                        </label>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     ACTIONS
+                ================================================== -->
+
+                <div class="form-actions">
+
+                    <a href="dashboard.html"
+                       class="btn btn-secondary">
+
+                        Cancel
+
+                    </a>
+
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        Submit for Verification
+
+                    </button>
 
                 </div>
 
 
-                <ul class="dashboard-nav">
+                <!-- SUCCESS -->
 
+                <div id="formSuccess"
+                     class="form-success">
 
-                    <!-- DASHBOARD -->
+                    ✓ Your listing has been submitted successfully
+                    for TIPECO GROUP verification.
 
-                    <li>
+                </div>
 
-                        <a href="dashboard.html"
-                           class="active">
-
-                            <span class="dashboard-nav-icon">
-                                🏠
-                            </span>
-
-                            Dashboard
-
-                        </a>
-
-                    </li>
-
-
-
-                    <!-- =================================================
-                         BUYER
-                    ================================================== -->
-
-                    <li class="buyer-only">
-
-                        <a href="marketplace.html">
-
-                            <span class="dashboard-nav-icon">
-                                🔎
-                            </span>
-
-                            Browse Buy &amp; Sell
-
-                        </a>
-
-                    </li>
-
-
-                    <li class="buyer-only">
-
-                        <a href="#">
-
-                            <span class="dashboard-nav-icon">
-                                ❤️
-                            </span>
-
-                            Saved Items
-
-                        </a>
-
-                    </li>
-
-
-                    <li class="buyer-only">
-
-                        <a href="#">
-
-                            <span class="dashboard-nav-icon">
-                                📩
-                            </span>
-
-                            My Requests
-
-                        </a>
-
-                    </li>
-
-
-                    <li class="buyer-only">
-
-                        <a href="#">
-
-                            <span class="dashboard-nav-icon">
-                                👁️
-                            </span>
-
-                            Viewing Requests
-
-                        </a>
-
-                    </li>
-
-
-
-                    <!-- =================================================
-                         SELLER
-                    ================================================== -->
-
-                    <li class="seller-only">
-
-                        <a href="add-listing.html">
-
-                            <span class="dashboard-nav-icon">
-                                ➕
-                            </span>
-
-                            Add Listing
-
-                        </a>
-
-                    </li>
-
-
-                    <li class="seller-only">
-
-                        <a href="my-listings.html">
-
-                            <span class="dashboard-nav-icon">
-                                📋
-                            </span>
-
-                            My Listings
-
-                        </a>
-
-                    </li>
-
-
-                    <li class="seller-only">
-
-                        <a href="#">
-
-                            <span class="dashboard-nav-icon">
-                                📩
-                            </span>
-
-                            Customer Requests
-
-                        </a>
-
-                    </li>
-
-
-                    <li class="seller-only">
-
-                        <a href="#">
-
-                            <span class="dashboard-nav-icon">
-                                👁️
-                            </span>
-
-                            Viewing Requests
-
-                        </a>
-
-                    </li>
-
-
-
-                    <!-- =================================================
-                         BOTH BUYER & SELLER
-                    ================================================== -->
-
-                    <li>
-
-                        <a href="#">
-
-                            <span class="dashboard-nav-icon">
-                                💬
-                            </span>
-
-                            Messages
-
-                        </a>
-
-                    </li>
-
-
-                    <li>
-
-                        <a href="#">
-
-                            <span class="dashboard-nav-icon">
-                                🔔
-                            </span>
-
-                            Notifications
-
-                        </a>
-
-                    </li>
-
-
-                    <li>
-
-                        <a href="#">
-
-                            <span class="dashboard-nav-icon">
-                                ⚙️
-                            </span>
-
-                            Account Settings
-
-                        </a>
-
-                    </li>
-
-
-                </ul>
-
-            </aside>
-
-
-
-            <!-- =================================================
-                 MAIN CONTENT
-            ================================================== -->
-
-            <section class="dashboard-main">
-
-
-                <!-- =================================================
-                     WELCOME
-                ================================================== -->
-
-                <section class="dashboard-welcome">
-
-                    <p class="dashboard-welcome-label">
-
-                        TIPECO GROUP DASHBOARD
-
-                    </p>
-
-
-                    <h1>
-
-                        Welcome Back,
-                        <span data-user-name>
-                            User
-                        </span>
-                        👋
-
-                    </h1>
-
-
-                    <p>
-
-                        Manage your TIPECO GROUP account
-                        and activities from one place.
-
-                    </p>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     PROFILE SUMMARY
-                ================================================== -->
-
-                <section class="profile-card">
-
-                    <div class="profile-card-top">
-
-
-                        <div class="dashboard-avatar">
-
-                            👤
-
-                        </div>
-
-
-                        <div>
-
-                            <h3 data-user-name>
-
-                                User
-
-                            </h3>
-
-
-                            <p data-user-email>
-
-                                user@example.com
-
-                            </p>
-
-
-                            <p data-user-role>
-
-                                TIPECO User
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <a href="#"
-                       class="profile-card-link">
-
-                        Edit Profile
-
-                    </a>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     STATISTICS
-                ================================================== -->
-
-                <section class="dashboard-section">
-
-                    <div class="dashboard-stats">
-
-
-                        <!-- MY LISTINGS -->
-
-                        <div class="dashboard-stat-card seller-only">
-
-                            <div class="stat-icon">
-                                📋
-                            </div>
-
-                            <div>
-
-                                <strong class="stat-number">
-                                    0
-                                </strong>
-
-                                <div class="stat-title">
-                                    My Listings
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- SAVED ITEMS -->
-
-                        <div class="dashboard-stat-card buyer-only">
-
-                            <div class="stat-icon">
-                                ❤️
-                            </div>
-
-                            <div>
-
-                                <strong class="stat-number">
-                                    0
-                                </strong>
-
-                                <div class="stat-title">
-                                    Saved Items
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- REQUESTS -->
-
-                        <div class="dashboard-stat-card">
-
-                            <div class="stat-icon">
-                                📩
-                            </div>
-
-                            <div>
-
-                                <strong class="stat-number">
-                                    0
-                                </strong>
-
-                                <div class="stat-title">
-                                    Requests
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- MESSAGES -->
-
-                        <div class="dashboard-stat-card">
-
-                            <div class="stat-icon">
-                                💬
-                            </div>
-
-                            <div>
-
-                                <strong class="stat-number">
-                                    0
-                                </strong>
-
-                                <div class="stat-title">
-                                    Messages
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     BUYER QUICK ACTIONS
-                ================================================== -->
-
-                <section class="dashboard-section buyer-only">
-
-                    <div class="dashboard-section-header">
-
-                        <h2>
-                            What Would You Like To Do?
-                        </h2>
-
-                    </div>
-
-
-                    <div class="quick-actions">
-
-
-                        <a href="marketplace.html"
-                           class="quick-action">
-
-                            <div class="quick-action-icon">
-                                🔎
-                            </div>
-
-                            <h3>
-                                Browse Buy &amp; Sell
-                            </h3>
-
-                            <p>
-                                Explore verified products,
-                                vehicles and properties.
-                            </p>
-
-                        </a>
-
-
-                        <a href="#"
-                           class="quick-action">
-
-                            <div class="quick-action-icon">
-                                ❤️
-                            </div>
-
-                            <h3>
-                                Saved Items
-                            </h3>
-
-                            <p>
-                                View products and properties
-                                you saved.
-                            </p>
-
-                        </a>
-
-
-                        <a href="#"
-                           class="quick-action">
-
-                            <div class="quick-action-icon">
-                                👁️
-                            </div>
-
-                            <h3>
-                                Request a Viewing
-                            </h3>
-
-                            <p>
-                                Ask TIPECO GROUP to arrange
-                                a product viewing.
-                            </p>
-
-                        </a>
-
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     SELLER QUICK ACTIONS
-                ================================================== -->
-
-                <section class="dashboard-section seller-only">
-
-                    <div class="dashboard-section-header">
-
-                        <h2>
-                            Manage Your Business
-                        </h2>
-
-                    </div>
-
-
-                    <div class="quick-actions">
-
-
-                        <!-- ADD LISTING -->
-
-                        <a href="add-listing.html"
-                           class="quick-action">
-
-                            <div class="quick-action-icon">
-                                ➕
-                            </div>
-
-                            <h3>
-                                Add Listing
-                            </h3>
-
-                            <p>
-                                Submit a product or service
-                                for TIPECO GROUP review.
-                            </p>
-
-                        </a>
-
-
-                        <!-- MY LISTINGS -->
-
-                        <a href="my-listings.html"
-                           class="quick-action">
-
-                            <div class="quick-action-icon">
-                                📋
-                            </div>
-
-                            <h3>
-                                My Listings
-                            </h3>
-
-                            <p>
-                                Manage the products and services
-                                you have submitted.
-                            </p>
-
-                        </a>
-
-
-                        <!-- CUSTOMER REQUESTS -->
-
-                        <a href="#"
-                           class="quick-action">
-
-                            <div class="quick-action-icon">
-                                📩
-                            </div>
-
-                            <h3>
-                                Customer Requests
-                            </h3>
-
-                            <p>
-                                View requests received through
-                                TIPECO GROUP.
-                            </p>
-
-                        </a>
-
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     TIPECO GROUP VERIFICATION
-                ================================================== -->
-
-                <section class="dashboard-section">
-
-                    <div class="profile-card">
-
-
-                        <div class="profile-card-top">
-
-                            <div class="dashboard-avatar">
-                                ✓
-                            </div>
-
-
-                            <div>
-
-                                <h3>
-                                    TIPECO GROUP Verification
-                                </h3>
-
-
-                                <p>
-                                    We help connect customers
-                                    with trusted sellers and
-                                    service providers.
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <p
-                            style="
-                                margin: 0 0 18px;
-                                color: rgba(255,255,255,0.85);
-                                font-size: 13px;
-                                line-height: 1.6;
-                            ">
-
-                            Product information, viewing requests
-                            and customer communication can be
-                            managed through the TIPECO GROUP platform.
-
-                        </p>
-
-
-                        <a href="contact.html"
-                           class="profile-card-link">
-
-                            Contact TIPECO GROUP
-
-                        </a>
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     RECENT ACTIVITY
-                ================================================== -->
-
-                <section class="dashboard-section">
-
-                    <div class="dashboard-section-header">
-
-                        <h2>
-                            Recent Activity
-                        </h2>
-
-
-                        <a href="#"
-                           class="dashboard-section-link">
-
-                            View All
-
-                        </a>
-
-                    </div>
-
-
-                    <div class="activity-card">
-
-
-                        <div class="activity-item">
-
-                            <span class="activity-icon">
-                                👋
-                            </span>
-
-
-                            <div class="activity-content">
-
-                                <h4>
-                                    Welcome to TIPECO GROUP
-                                </h4>
-
-
-                                <p>
-                                    Your dashboard is ready.
-                                </p>
-
-                            </div>
-
-
-                            <span class="activity-time">
-                                Today
-                            </span>
-
-                        </div>
-
-
-
-                        <div class="activity-item">
-
-                            <span class="activity-icon">
-                                🔐
-                            </span>
-
-
-                            <div class="activity-content">
-
-                                <h4>
-                                    Account Created
-                                </h4>
-
-
-                                <p>
-                                    Your account was created
-                                    successfully.
-                                </p>
-
-                            </div>
-
-
-                            <span class="activity-time">
-                                Today
-                            </span>
-
-                        </div>
-
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     EMPTY STATE
-                ================================================== -->
-
-                <section class="dashboard-section">
-
-                    <div class="dashboard-empty">
-
-
-                        <div class="dashboard-empty-icon">
-                            🚀
-                        </div>
-
-
-                        <h3>
-                            More Features Coming Soon
-                        </h3>
-
-
-                        <p>
-                            TIPECO GROUP is continuously building
-                            new tools to make buying, selling and
-                            discovering services easier.
-                        </p>
-
-
-                    </div>
-
-                </section>
-
-
-            </section>
+            </form>
 
         </div>
 
@@ -927,11 +997,9 @@
             TIPECO GROUP
         </strong>
 
-
         <p>
             Innovation • Business • Technology
         </p>
-
 
         <p>
             © 2026 TIPECO GROUP. All Rights Reserved.
@@ -950,7 +1018,7 @@
 
 
     <!-- =====================================================
-         ROLE-BASED DASHBOARD
+         ADD LISTING JAVASCRIPT
     ====================================================== -->
 
     <script>
@@ -960,107 +1028,322 @@
             function () {
 
 
+                /* =================================================
+                   CHECK USER
+                ================================================== */
+
                 const storedUser =
-                    localStorage.getItem(
-                        "tipecoUser"
-                    );
+                    localStorage.getItem("tipecoUser");
 
 
                 if (!storedUser) {
+
+                    window.location.href =
+                        "login.html";
+
                     return;
+
                 }
 
 
                 let user;
 
-
                 try {
 
                     user =
-                        JSON.parse(
-                            storedUser
-                        );
+                        JSON.parse(storedUser);
 
                 } catch (error) {
 
                     console.error(
-                        "Unable to read user role.",
+                        "Unable to read user.",
                         error
                     );
 
                     return;
+
                 }
 
 
-                const role =
-                    user.accountType;
+                /* =================================================
+                   USER INFORMATION
+                ================================================== */
+
+                document
+                    .querySelectorAll("[data-user-name]")
+                    .forEach(function (element) {
+
+                        if (user.name) {
+                            element.textContent =
+                                user.name;
+                        }
+
+                    });
 
 
-                const buyerElements =
-                    document.querySelectorAll(
-                        ".buyer-only"
-                    );
+                document
+                    .querySelectorAll("[data-user-role]")
+                    .forEach(function (element) {
 
+                        if (user.accountType) {
+                            element.textContent =
+                                user.accountType;
+                        }
 
-                const sellerElements =
-                    document.querySelectorAll(
-                        ".seller-only"
-                    );
+                    });
 
 
 
                 /* =================================================
-                   BUYER
+                   SELLER ACCESS
                 ================================================== */
 
-                if (role === "buyer") {
+                if (user.accountType !== "seller") {
 
-                    buyerElements.forEach(
-                        function (element) {
-
-                            element.style.display = "";
-
-                        }
+                    alert(
+                        "Only seller accounts can add listings."
                     );
 
+                    window.location.href =
+                        "dashboard.html";
 
-                    sellerElements.forEach(
-                        function (element) {
-
-                            element.style.display = "none";
-
-                        }
-                    );
+                    return;
 
                 }
 
 
 
                 /* =================================================
-                   SELLER
+                   PHOTO PREVIEW
                 ================================================== */
 
-                else if (role === "seller") {
-
-                    sellerElements.forEach(
-                        function (element) {
-
-                            element.style.display = "";
-
-                        }
+                const photoInput =
+                    document.getElementById(
+                        "listingPhotos"
                     );
 
 
-                    buyerElements.forEach(
-                        function (element) {
-
-                            element.style.display = "none";
-
-                        }
+                const photoPreview =
+                    document.getElementById(
+                        "photoPreview"
                     );
 
-                }
 
+                photoInput.addEventListener(
+                    "change",
+                    function () {
+
+                        photoPreview.innerHTML = "";
+
+
+                        const files =
+                            Array.from(
+                                photoInput.files
+                            );
+
+
+                        files.forEach(
+                            function (file) {
+
+                                const reader =
+                                    new FileReader();
+
+
+                                reader.onload =
+                                    function (event) {
+
+                                        const item =
+                                            document.createElement(
+                                                "div"
+                                            );
+
+                                        item.className =
+                                            "photo-preview-item";
+
+
+                                        const image =
+                                            document.createElement(
+                                                "img"
+                                            );
+
+                                        image.src =
+                                            event.target.result;
+
+
+                                        image.alt =
+                                            "Listing photo";
+
+
+                                        item.appendChild(
+                                            image
+                                        );
+
+
+                                        photoPreview.appendChild(
+                                            item
+                                        );
+
+                                    };
+
+
+                                reader.readAsDataURL(
+                                    file
+                                );
+
+                            }
+                        );
+
+                    }
+                );
+
+
+
+                /* =================================================
+                   FORM SUBMISSION
+                ================================================== */
+
+                const form =
+                    document.getElementById(
+                        "addListingForm"
+                    );
+
+
+                const successMessage =
+                    document.getElementById(
+                        "formSuccess"
+                    );
+
+
+                form.addEventListener(
+                    "submit",
+                    function (event) {
+
+                        event.preventDefault();
+
+
+                        const formData =
+                            new FormData(form);
+
+
+                        const listing =
+                            {
+
+                                id:
+                                    "LISTING-" +
+                                    Date.now(),
+
+                                seller:
+                                    user.name ||
+                                    "User",
+
+                                listingType:
+                                    formData.get(
+                                        "listingType"
+                                    ),
+
+                                category:
+                                    formData.get(
+                                        "category"
+                                    ),
+
+                                title:
+                                    formData.get(
+                                        "title"
+                                    ),
+
+                                description:
+                                    formData.get(
+                                        "description"
+                                    ),
+
+                                price:
+                                    formData.get(
+                                        "price"
+                                    ),
+
+                                currency:
+                                    formData.get(
+                                        "currency"
+                                    ),
+
+                                location:
+                                    formData.get(
+                                        "location"
+                                    ),
+
+                                contactName:
+                                    formData.get(
+                                        "contactName"
+                                    ),
+
+                                phone:
+                                    formData.get(
+                                        "phone"
+                                    ),
+
+                                email:
+                                    formData.get(
+                                        "email"
+                                    ),
+
+                                status:
+                                    "pending",
+
+                                createdAt:
+                                    new Date()
+                                    .toISOString()
+
+                            };
+
+
+                        /* =========================================
+                           SAVE TEMPORARILY
+                           ========================================= */
+
+                        const existingListings =
+                            JSON.parse(
+                                localStorage.getItem(
+                                    "tipecoListings"
+                                ) || "[]"
+                            );
+
+
+                        existingListings.push(
+                            listing
+                        );
+
+
+                        localStorage.setItem(
+                            "tipecoListings",
+                            JSON.stringify(
+                                existingListings
+                            )
+                        );
+
+
+
+                        /* =========================================
+                           SUCCESS
+                           ========================================= */
+
+                        successMessage.style.display =
+                            "block";
+
+
+                        form.reset();
+
+
+                        photoPreview.innerHTML =
+                            "";
+
+
+                        successMessage.scrollIntoView({
+                            behavior: "smooth",
+                            block: "center"
+                        });
+
+                    }
+                );
 
             }
         );
