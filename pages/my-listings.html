@@ -981,19 +981,37 @@
 
 
                                 <button
-                                    type="button"
-                                    class="listing-delete-btn"
-                                    data-listing-id="${listing.id}">
+                                <div class="listing-card-footer">
 
-                                    🗑️ Delete
-<a
-    href="listing-details.html?id=${encodeURIComponent(listing.id)}"
-    class="listing-view-btn">
+    <span class="listing-date">
 
-    👁️ View Details
+        Submitted:
+        ${dateText}
 
-</a>
-                                </button>
+    </span>
+
+    <div>
+
+        <a
+            href="listing-details.html?id=${encodeURIComponent(listing.id)}"
+            class="listing-view-btn">
+
+            👁️ View Details
+
+        </a>
+
+        <button
+            type="button"
+            class="listing-delete-btn"
+            data-listing-id="${listing.id}">
+
+            🗑️ Delete
+
+        </button>
+
+    </div>
+
+</div>
 
                             </div>
 
