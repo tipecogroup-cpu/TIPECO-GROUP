@@ -5,7 +5,8 @@
 
     <!-- =====================================================
          TIPECO GROUP - ADD LISTING
-         Version: 1.0
+         Version: 2.0
+         Compatible with auth.js Version 2.0
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -14,7 +15,7 @@
           content="width=device-width, initial-scale=1.0">
 
     <meta name="description"
-          content="Submit a listing for TIPECO GROUP verification">
+          content="Add a listing - TIPECO GROUP">
 
     <meta name="author"
           content="TIPECO GROUP">
@@ -45,10 +46,14 @@
           href="../assets/css/dashboard.css">
 
 
+    <!-- =====================================================
+         ADD LISTING PAGE STYLE
+    ====================================================== -->
+
     <style>
 
         /* =====================================================
-           ADD LISTING PAGE
+           PAGE
         ====================================================== */
 
         .add-listing-page {
@@ -59,21 +64,21 @@
 
         .add-listing-container {
             width: 100%;
-            max-width: 900px;
+            max-width: 950px;
             margin: 0 auto;
         }
 
 
         /* =====================================================
-           PAGE HEADER
+           HEADER
         ====================================================== */
 
         .add-listing-header {
-            margin-bottom: 30px;
+            margin-bottom: 28px;
         }
 
 
-        .add-listing-header .back-link {
+        .back-dashboard {
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -84,7 +89,7 @@
         }
 
 
-        .add-listing-header .back-link:hover {
+        .back-dashboard:hover {
             text-decoration: underline;
         }
 
@@ -92,6 +97,7 @@
         .add-listing-header h1 {
             margin: 0 0 10px;
             font-size: 32px;
+            color: #222;
         }
 
 
@@ -109,9 +115,9 @@
         .verification-notice {
             margin-bottom: 25px;
             padding: 20px;
-            border-radius: 12px;
-            background: rgba(13, 71, 161, 0.08);
             border-left: 5px solid #0D47A1;
+            border-radius: 10px;
+            background: rgba(13, 71, 161, 0.08);
         }
 
 
@@ -123,8 +129,9 @@
 
         .verification-notice p {
             margin: 0;
-            line-height: 1.6;
             color: #444;
+            line-height: 1.6;
+            font-size: 14px;
         }
 
 
@@ -136,34 +143,40 @@
             background: #ffffff;
             border-radius: 16px;
             padding: 30px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            box-shadow:
+                0 8px 30px rgba(0, 0, 0, 0.08);
         }
 
 
-        .form-section {
+        /* =====================================================
+           FORM SECTION
+        ====================================================== */
+
+        .listing-form-section {
             margin-bottom: 35px;
         }
 
 
-        .form-section:last-child {
-            margin-bottom: 0;
+        .listing-form-section:last-of-type {
+            margin-bottom: 20px;
         }
 
 
-        .form-section-title {
+        .listing-form-section-title {
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 1px solid #e5e5e5;
         }
 
 
-        .form-section-title h2 {
+        .listing-form-section-title h2 {
             margin: 0 0 5px;
             font-size: 21px;
+            color: #222;
         }
 
 
-        .form-section-title p {
+        .listing-form-section-title p {
             margin: 0;
             color: #777;
             font-size: 14px;
@@ -174,212 +187,175 @@
            FORM GRID
         ====================================================== */
 
-        .form-grid {
+        .listing-form-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 20px;
         }
 
 
-        .form-group {
+        .listing-form-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
 
-        .form-group.full-width {
+        .listing-form-group.full-width {
             grid-column: 1 / -1;
         }
 
 
-        .form-group label {
-            font-weight: 600;
+        .listing-form-group label {
             font-size: 14px;
+            font-weight: 600;
+            color: #333;
         }
 
 
-        .form-group label span {
+        .required {
             color: #d32f2f;
         }
 
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .listing-form-group input,
+        .listing-form-group select,
+        .listing-form-group textarea {
             width: 100%;
             box-sizing: border-box;
             padding: 13px 14px;
-            border: 1px solid #d8d8d8;
+            border: 1px solid #d5d5d5;
             border-radius: 9px;
+            background: #fff;
+            color: #222;
             font-family: inherit;
             font-size: 15px;
             outline: none;
-            transition: border-color 0.2s,
-                        box-shadow 0.2s;
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
 
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
+        .listing-form-group input:focus,
+        .listing-form-group select:focus,
+        .listing-form-group textarea:focus {
             border-color: #1976D2;
-            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.10);
+            box-shadow:
+                0 0 0 3px rgba(25, 118, 210, 0.10);
         }
 
 
-        .form-group textarea {
-            min-height: 140px;
+        .listing-form-group textarea {
+            min-height: 150px;
             resize: vertical;
         }
 
 
         .form-help {
+            color: #777;
             font-size: 12px;
-            color: #777;
-        }
-
-
-        /* =====================================================
-           PHOTO UPLOAD
-        ====================================================== */
-
-        .photo-upload {
-            border: 2px dashed #cfcfcf;
-            border-radius: 12px;
-            padding: 30px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-
-        .photo-upload:hover {
-            border-color: #1976D2;
-            background: rgba(25, 118, 210, 0.03);
-        }
-
-
-        .photo-upload-icon {
-            font-size: 38px;
-            margin-bottom: 10px;
-        }
-
-
-        .photo-upload strong {
-            display: block;
-            margin-bottom: 6px;
-        }
-
-
-        .photo-upload small {
-            color: #777;
-        }
-
-
-        .photo-preview {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-
-        .photo-preview-item {
-            position: relative;
-            aspect-ratio: 1 / 1;
-            border-radius: 8px;
-            overflow: hidden;
-            background: #f2f2f2;
-        }
-
-
-        .photo-preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-
-        /* =====================================================
-           CHECKBOX
-        ====================================================== */
-
-        .verification-check {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-
-        .verification-check input {
-            margin-top: 4px;
-        }
-
-
-        .verification-check label {
-            font-size: 14px;
             line-height: 1.5;
         }
 
 
         /* =====================================================
-           SUBMIT AREA
+           AGREEMENT
         ====================================================== */
 
-        .form-actions {
+        .listing-agreement {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f7f9fc;
+        }
+
+
+        .listing-agreement input {
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+
+        .listing-agreement label {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #444;
+        }
+
+
+        /* =====================================================
+           ACTIONS
+        ====================================================== */
+
+        .listing-form-actions {
             display: flex;
             justify-content: flex-end;
+            align-items: center;
             gap: 12px;
             padding-top: 25px;
             border-top: 1px solid #e5e5e5;
         }
 
 
-        .btn {
-            border: none;
-            border-radius: 9px;
-            padding: 13px 22px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
+        .listing-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            min-height: 46px;
+            padding: 0 22px;
+            border: none;
+            border-radius: 9px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
         }
 
 
-        .btn-secondary {
+        .listing-btn-cancel {
             background: #eeeeee;
             color: #333;
         }
 
 
-        .btn-primary {
+        .listing-btn-submit {
             background: #0D47A1;
             color: #ffffff;
         }
 
 
-        .btn-primary:hover {
+        .listing-btn-submit:hover {
             background: #08377d;
         }
 
 
         /* =====================================================
-           SUCCESS MESSAGE
+           SELLER INFO
         ====================================================== */
 
-        .form-success {
-            display: none;
-            margin-top: 20px;
-            padding: 16px;
-            border-radius: 10px;
-            background: #e8f5e9;
-            color: #2e7d32;
-            line-height: 1.5;
+        .seller-info-card {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            background: #f8f9fb;
+        }
+
+
+        .seller-info-card h3 {
+            margin: 0 0 8px;
+            font-size: 17px;
+        }
+
+
+        .seller-info-card p {
+            margin: 4px 0;
+            color: #666;
+            font-size: 14px;
         }
 
 
@@ -394,37 +370,32 @@
             }
 
 
-            .listing-form-card {
-                padding: 20px;
-            }
-
-
             .add-listing-header h1 {
                 font-size: 27px;
             }
 
 
-            .form-grid {
+            .listing-form-card {
+                padding: 20px;
+            }
+
+
+            .listing-form-grid {
                 grid-template-columns: 1fr;
             }
 
 
-            .form-group.full-width {
+            .listing-form-group.full-width {
                 grid-column: auto;
             }
 
 
-            .photo-preview {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-
-            .form-actions {
+            .listing-form-actions {
                 flex-direction: column;
             }
 
 
-            .btn {
+            .listing-btn {
                 width: 100%;
             }
 
@@ -439,12 +410,15 @@
 
 
     <!-- =====================================================
-         HEADER
+         DASHBOARD HEADER
     ====================================================== -->
 
     <header class="dashboard-header">
 
         <div class="dashboard-header-inner">
+
+
+            <!-- LOGO -->
 
             <a href="dashboard.html"
                class="dashboard-logo">
@@ -454,6 +428,8 @@
             </a>
 
 
+            <!-- USER -->
+
             <div class="dashboard-header-actions">
 
                 <div class="dashboard-user">
@@ -462,22 +438,30 @@
                         👤
                     </div>
 
+
                     <div class="dashboard-user-info">
 
                         <span class="dashboard-user-name"
                               data-user-name>
+
                             User
+
                         </span>
+
 
                         <span class="dashboard-user-role"
                               data-user-role>
+
                             TIPECO User
+
                         </span>
 
                     </div>
 
                 </div>
 
+
+                <!-- LOGOUT -->
 
                 <a href="#"
                    class="dashboard-logout"
@@ -504,12 +488,15 @@
         <div class="add-listing-container">
 
 
-            <!-- PAGE HEADER -->
+            <!-- =================================================
+                 PAGE HEADER
+            ================================================== -->
 
             <section class="add-listing-header">
 
+
                 <a href="dashboard.html"
-                   class="back-link">
+                   class="back-dashboard">
 
                     ← Back to Dashboard
 
@@ -522,15 +509,17 @@
 
 
                 <p>
-                    Submit your product, property, vehicle
-                    or service to TIPECO GROUP for verification.
+                    Submit your product, vehicle, property or
+                    service for TIPECO GROUP verification.
                 </p>
 
             </section>
 
 
 
-            <!-- VERIFICATION NOTICE -->
+            <!-- =================================================
+                 VERIFICATION NOTICE
+            ================================================== -->
 
             <div class="verification-notice">
 
@@ -538,18 +527,26 @@
                     ✓ TIPECO GROUP Verification
                 </h3>
 
+
                 <p>
-                    Your listing will be reviewed by TIPECO GROUP
-                    before it becomes publicly available.
-                    We may contact you to verify the information
-                    provided.
+
+                    Every listing submitted through TIPECO GROUP
+                    may be reviewed and verified before it becomes
+                    publicly available. We may contact you when
+                    additional information is required.
+
                 </p>
 
             </div>
 
 
 
-            <!-- FORM -->
+            <!-- =================================================
+                 ADD LISTING FORM
+                 
+                 IMPORTANT:
+                 IDs below MUST match auth.js
+            ================================================== -->
 
             <form id="addListingForm"
                   class="listing-form-card">
@@ -559,61 +556,44 @@
                      BASIC INFORMATION
                 ================================================== -->
 
-                <section class="form-section">
+                <section class="listing-form-section">
 
-                    <div class="form-section-title">
+
+                    <div class="listing-form-section-title">
 
                         <h2>
                             Basic Information
                         </h2>
 
+
                         <p>
-                            Tell us what you are offering.
+                            Provide the main information about
+                            what you are offering.
                         </p>
 
                     </div>
 
 
-                    <div class="form-grid">
+                    <div class="listing-form-grid">
 
 
-                        <!-- LISTING TYPE -->
+                        <!-- TITLE -->
 
-                        <div class="form-group">
+                        <div class="listing-form-group full-width">
 
-                            <label for="listingType">
-                                Listing Type <span>*</span>
+                            <label for="listingTitle">
+
+                                Listing Title
+                                <span class="required">*</span>
+
                             </label>
 
-                            <select id="listingType"
-                                    name="listingType"
-                                    required>
 
-                                <option value="">
-                                    Select listing type
-                                </option>
-
-                                <option value="product">
-                                    Product
-                                </option>
-
-                                <option value="vehicle">
-                                    Vehicle
-                                </option>
-
-                                <option value="property">
-                                    Property
-                                </option>
-
-                                <option value="service">
-                                    Service
-                                </option>
-
-                                <option value="other">
-                                    Other
-                                </option>
-
-                            </select>
+                            <input type="text"
+                                   id="listingTitle"
+                                   name="listingTitle"
+                                   placeholder="e.g. Toyota RAV4 2020"
+                                   required>
 
                         </div>
 
@@ -621,26 +601,30 @@
 
                         <!-- CATEGORY -->
 
-                        <div class="form-group">
+                        <div class="listing-form-group">
 
-                            <label for="category">
-                                Category <span>*</span>
+                            <label for="listingCategory">
+
+                                Category
+                                <span class="required">*</span>
+
                             </label>
 
-                            <select id="category"
-                                    name="category"
+
+                            <select id="listingCategory"
+                                    name="listingCategory"
                                     required>
 
                                 <option value="">
                                     Select category
                                 </option>
 
-                                <option value="real-estate">
-                                    Real Estate
-                                </option>
-
                                 <option value="vehicles">
                                     Vehicles
+                                </option>
+
+                                <option value="real-estate">
+                                    Real Estate
                                 </option>
 
                                 <option value="electronics">
@@ -669,19 +653,43 @@
 
 
 
-                        <!-- TITLE -->
+                        <!-- TYPE -->
 
-                        <div class="form-group full-width">
+                        <div class="listing-form-group">
 
-                            <label for="title">
-                                Listing Title <span>*</span>
+                            <label for="listingType">
+
+                                Listing Type
+                                <span class="required">*</span>
+
                             </label>
 
-                            <input type="text"
-                                   id="title"
-                                   name="title"
-                                   placeholder="e.g. Toyota RAV4 2020"
-                                   required>
+
+                            <select id="listingType"
+                                    name="listingType"
+                                    required>
+
+                                <option value="">
+                                    Select type
+                                </option>
+
+                                <option value="sell">
+                                    For Sale
+                                </option>
+
+                                <option value="rent">
+                                    For Rent
+                                </option>
+
+                                <option value="service">
+                                    Service
+                                </option>
+
+                                <option value="other">
+                                    Other
+                                </option>
+
+                            </select>
 
                         </div>
 
@@ -689,16 +697,28 @@
 
                         <!-- DESCRIPTION -->
 
-                        <div class="form-group full-width">
+                        <div class="listing-form-group full-width">
 
-                            <label for="description">
-                                Description <span>*</span>
+                            <label for="listingDescription">
+
+                                Description
+                                <span class="required">*</span>
+
                             </label>
 
-                            <textarea id="description"
-                                      name="description"
-                                      placeholder="Describe your product, property, vehicle or service..."
+
+                            <textarea id="listingDescription"
+                                      name="listingDescription"
+                                      placeholder="Describe your product, property, vehicle or service in detail..."
                                       required></textarea>
+
+
+                            <span class="form-help">
+
+                                Give customers enough information
+                                to understand your listing.
+
+                            </span>
 
                         </div>
 
@@ -712,74 +732,66 @@
                      PRICE & LOCATION
                 ================================================== -->
 
-                <section class="form-section">
+                <section class="listing-form-section">
 
-                    <div class="form-section-title">
+
+                    <div class="listing-form-section-title">
 
                         <h2>
                             Price &amp; Location
                         </h2>
 
+
                         <p>
-                            Provide the basic commercial information.
+                            Tell customers where the listing is
+                            located and its asking price.
                         </p>
 
                     </div>
 
 
-                    <div class="form-grid">
+                    <div class="listing-form-grid">
 
 
-                        <div class="form-group">
+                        <!-- PRICE -->
 
-                            <label for="price">
-                                Price <span>*</span>
+                        <div class="listing-form-group">
+
+                            <label for="listingPrice">
+
+                                Price
+                                <span class="required">*</span>
+
                             </label>
+
 
                             <input type="number"
-                                   id="price"
-                                   name="price"
+                                   id="listingPrice"
+                                   name="listingPrice"
                                    min="0"
-                                   placeholder="0"
+                                   placeholder="e.g. 15000000"
                                    required>
 
                         </div>
 
 
 
-                        <div class="form-group">
+                        <!-- LOCATION -->
 
-                            <label for="currency">
-                                Currency
+                        <div class="listing-form-group">
+
+                            <label for="listingLocation">
+
+                                Location
+                                <span class="required">*</span>
+
                             </label>
 
-                            <select id="currency"
-                                    name="currency">
-
-                                <option value="RWF">
-                                    RWF
-                                </option>
-
-                                <option value="USD">
-                                    USD
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-
-                        <div class="form-group full-width">
-
-                            <label for="location">
-                                Location <span>*</span>
-                            </label>
 
                             <input type="text"
-                                   id="location"
-                                   name="location"
-                                   placeholder="City / District / Area"
+                                   id="listingLocation"
+                                   name="listingLocation"
+                                   placeholder="District / City / Area"
                                    required>
 
                         </div>
@@ -791,123 +803,45 @@
 
 
                 <!-- =================================================
-                     PHOTOS
+                     CONTACT
                 ================================================== -->
 
-                <section class="form-section">
-
-                    <div class="form-section-title">
-
-                        <h2>
-                            Photos
-                        </h2>
-
-                        <p>
-                            Add clear photos that help customers
-                            understand your listing.
-                        </p>
-
-                    </div>
+                <section class="listing-form-section">
 
 
-                    <label for="listingPhotos"
-                           class="photo-upload">
-
-                        <div class="photo-upload-icon">
-                            📷
-                        </div>
-
-                        <strong>
-                            Click to upload photos
-                        </strong>
-
-                        <small>
-                            JPG, PNG or WEBP
-                        </small>
-
-                    </label>
-
-
-                    <input type="file"
-                           id="listingPhotos"
-                           name="listingPhotos"
-                           accept="image/jpeg,image/png,image/webp"
-                           multiple
-                           hidden>
-
-
-                    <div id="photoPreview"
-                         class="photo-preview">
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     CONTACT INFORMATION
-                ================================================== -->
-
-                <section class="form-section">
-
-                    <div class="form-section-title">
+                    <div class="listing-form-section-title">
 
                         <h2>
                             Contact Information
                         </h2>
 
+
                         <p>
-                            How can TIPECO GROUP contact you?
+                            Provide the phone number TIPECO GROUP
+                            can use to contact you about this listing.
                         </p>
 
                     </div>
 
 
-                    <div class="form-grid">
+                    <div class="listing-form-grid">
 
 
-                        <div class="form-group">
+                        <div class="listing-form-group full-width">
 
-                            <label for="contactName">
-                                Contact Name <span>*</span>
+                            <label for="listingPhone">
+
+                                Phone Number
+                                <span class="required">*</span>
+
                             </label>
 
-                            <input type="text"
-                                   id="contactName"
-                                   name="contactName"
-                                   placeholder="Your name"
-                                   required>
-
-                        </div>
-
-
-
-                        <div class="form-group">
-
-                            <label for="phone">
-                                Phone Number <span>*</span>
-                            </label>
 
                             <input type="tel"
-                                   id="phone"
-                                   name="phone"
-                                   placeholder="+250..."
+                                   id="listingPhone"
+                                   name="listingPhone"
+                                   placeholder="+250 7XX XXX XXX"
                                    required>
-
-                        </div>
-
-
-
-                        <div class="form-group full-width">
-
-                            <label for="email">
-                                Email Address
-                            </label>
-
-                            <input type="email"
-                                   id="email"
-                                   name="email"
-                                   placeholder="your@email.com">
 
                         </div>
 
@@ -921,21 +855,39 @@
                      VERIFICATION AGREEMENT
                 ================================================== -->
 
-                <section class="form-section">
+                <section class="listing-form-section">
 
-                    <div class="verification-check">
+
+                    <div class="listing-form-section-title">
+
+                        <h2>
+                            Verification
+                        </h2>
+
+
+                        <p>
+                            Please confirm that the information
+                            you provided is accurate.
+                        </p>
+
+                    </div>
+
+
+                    <div class="listing-agreement">
+
 
                         <input type="checkbox"
-                               id="verificationAgreement"
+                               id="listingAgreement"
+                               name="listingAgreement"
                                required>
 
 
-                        <label for="verificationAgreement">
+                        <label for="listingAgreement">
 
                             I confirm that the information provided
-                            is accurate and I understand that TIPECO
-                            GROUP may verify this listing before
-                            publishing it.
+                            in this listing is accurate and I agree
+                            that TIPECO GROUP may verify the listing
+                            before publishing it.
 
                         </label>
 
@@ -946,13 +898,44 @@
 
 
                 <!-- =================================================
+                     SELLER INFORMATION
+                ================================================== -->
+
+                <div class="seller-info-card">
+
+                    <h3>
+                        👤 Your Account
+                    </h3>
+
+
+                    <p>
+                        Name:
+                        <strong data-user-name>
+                            User
+                        </strong>
+                    </p>
+
+
+                    <p>
+                        Account:
+                        <strong data-user-role>
+                            TIPECO User
+                        </strong>
+                    </p>
+
+                </div>
+
+
+
+                <!-- =================================================
                      ACTIONS
                 ================================================== -->
 
-                <div class="form-actions">
+                <div class="listing-form-actions">
+
 
                     <a href="dashboard.html"
-                       class="btn btn-secondary">
+                       class="listing-btn listing-btn-cancel">
 
                         Cancel
 
@@ -960,7 +943,7 @@
 
 
                     <button type="submit"
-                            class="btn btn-primary">
+                            class="listing-btn listing-btn-submit">
 
                         Submit for Verification
 
@@ -968,16 +951,6 @@
 
                 </div>
 
-
-                <!-- SUCCESS -->
-
-                <div id="formSuccess"
-                     class="form-success">
-
-                    ✓ Your listing has been submitted successfully
-                    for TIPECO GROUP verification.
-
-                </div>
 
             </form>
 
@@ -997,9 +970,11 @@
             TIPECO GROUP
         </strong>
 
+
         <p>
             Innovation • Business • Technology
         </p>
+
 
         <p>
             © 2026 TIPECO GROUP. All Rights Reserved.
@@ -1010,345 +985,14 @@
 
 
     <!-- =====================================================
-         AUTH JAVASCRIPT
+         AUTHENTICATION JAVASCRIPT
+         
+         IMPORTANT:
+         Do NOT add another Add Listing JavaScript here.
+         auth.js already handles the form.
     ====================================================== -->
 
     <script src="../assets/js/auth.js"></script>
-
-
-
-    <!-- =====================================================
-         ADD LISTING JAVASCRIPT
-    ====================================================== -->
-
-    <script>
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            function () {
-
-
-                /* =================================================
-                   CHECK USER
-                ================================================== */
-
-                const storedUser =
-                    localStorage.getItem("tipecoUser");
-
-
-                if (!storedUser) {
-
-                    window.location.href =
-                        "login.html";
-
-                    return;
-
-                }
-
-
-                let user;
-
-                try {
-
-                    user =
-                        JSON.parse(storedUser);
-
-                } catch (error) {
-
-                    console.error(
-                        "Unable to read user.",
-                        error
-                    );
-
-                    return;
-
-                }
-
-
-                /* =================================================
-                   USER INFORMATION
-                ================================================== */
-
-                document
-                    .querySelectorAll("[data-user-name]")
-                    .forEach(function (element) {
-
-                        if (user.name) {
-                            element.textContent =
-                                user.name;
-                        }
-
-                    });
-
-
-                document
-                    .querySelectorAll("[data-user-role]")
-                    .forEach(function (element) {
-
-                        if (user.accountType) {
-                            element.textContent =
-                                user.accountType;
-                        }
-
-                    });
-
-
-
-                /* =================================================
-                   SELLER ACCESS
-                ================================================== */
-
-                if (user.accountType !== "seller") {
-
-                    alert(
-                        "Only seller accounts can add listings."
-                    );
-
-                    window.location.href =
-                        "dashboard.html";
-
-                    return;
-
-                }
-
-
-
-                /* =================================================
-                   PHOTO PREVIEW
-                ================================================== */
-
-                const photoInput =
-                    document.getElementById(
-                        "listingPhotos"
-                    );
-
-
-                const photoPreview =
-                    document.getElementById(
-                        "photoPreview"
-                    );
-
-
-                photoInput.addEventListener(
-                    "change",
-                    function () {
-
-                        photoPreview.innerHTML = "";
-
-
-                        const files =
-                            Array.from(
-                                photoInput.files
-                            );
-
-
-                        files.forEach(
-                            function (file) {
-
-                                const reader =
-                                    new FileReader();
-
-
-                                reader.onload =
-                                    function (event) {
-
-                                        const item =
-                                            document.createElement(
-                                                "div"
-                                            );
-
-                                        item.className =
-                                            "photo-preview-item";
-
-
-                                        const image =
-                                            document.createElement(
-                                                "img"
-                                            );
-
-                                        image.src =
-                                            event.target.result;
-
-
-                                        image.alt =
-                                            "Listing photo";
-
-
-                                        item.appendChild(
-                                            image
-                                        );
-
-
-                                        photoPreview.appendChild(
-                                            item
-                                        );
-
-                                    };
-
-
-                                reader.readAsDataURL(
-                                    file
-                                );
-
-                            }
-                        );
-
-                    }
-                );
-
-
-
-                /* =================================================
-                   FORM SUBMISSION
-                ================================================== */
-
-                const form =
-                    document.getElementById(
-                        "addListingForm"
-                    );
-
-
-                const successMessage =
-                    document.getElementById(
-                        "formSuccess"
-                    );
-
-
-                form.addEventListener(
-                    "submit",
-                    function (event) {
-
-                        event.preventDefault();
-
-
-                        const formData =
-                            new FormData(form);
-
-
-                        const listing =
-                            {
-
-                                id:
-                                    "LISTING-" +
-                                    Date.now(),
-
-                                seller:
-                                    user.name ||
-                                    "User",
-
-                                listingType:
-                                    formData.get(
-                                        "listingType"
-                                    ),
-
-                                category:
-                                    formData.get(
-                                        "category"
-                                    ),
-
-                                title:
-                                    formData.get(
-                                        "title"
-                                    ),
-
-                                description:
-                                    formData.get(
-                                        "description"
-                                    ),
-
-                                price:
-                                    formData.get(
-                                        "price"
-                                    ),
-
-                                currency:
-                                    formData.get(
-                                        "currency"
-                                    ),
-
-                                location:
-                                    formData.get(
-                                        "location"
-                                    ),
-
-                                contactName:
-                                    formData.get(
-                                        "contactName"
-                                    ),
-
-                                phone:
-                                    formData.get(
-                                        "phone"
-                                    ),
-
-                                email:
-                                    formData.get(
-                                        "email"
-                                    ),
-
-                                status:
-                                    "pending",
-
-                                createdAt:
-                                    new Date()
-                                    .toISOString()
-
-                            };
-
-
-                        /* =========================================
-                           SAVE TEMPORARILY
-                           ========================================= */
-
-                        const existingListings =
-                            JSON.parse(
-                                localStorage.getItem(
-                                    "tipecoListings"
-                                ) || "[]"
-                            );
-
-
-                        existingListings.push(
-                            listing
-                        );
-
-
-                        localStorage.setItem(
-                            "tipecoListings",
-                            JSON.stringify(
-                                existingListings
-                            )
-                        );
-
-
-
-                        /* =========================================
-                           SUCCESS
-                           ========================================= */
-
-                        successMessage.style.display =
-                            "block";
-
-
-                        form.reset();
-
-
-                        photoPreview.innerHTML =
-                            "";
-
-
-                        successMessage.scrollIntoView({
-                            behavior: "smooth",
-                            block: "center"
-                        });
-
-                    }
-                );
-
-            }
-        );
-
-    </script>
 
 
 </body>
