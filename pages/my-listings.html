@@ -1,1 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+
+    <!-- =====================================================
+         TIPECO GROUP - MY LISTINGS
+         Version: 1.0
+    ====================================================== -->
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="My Listings | TIPECO GROUP">
+
+    <meta name="author"
+          content="TIPECO GROUP">
+
+    <meta name="theme-color"
+          content="#0D47A1">
+
+    <title>My Listings | TIPECO GROUP</title>
+
+
+    <!-- =====================================================
+         CSS
+    ====================================================== -->
+
+    <link rel="stylesheet"
+          href="../assets/css/variables.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/style.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/responsive.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/animations.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/dashboard.css">
+
+
+    <style>
+
+        /* =====================================================
+           PAGE
+        ====================================================== */
+
+        .my-listings-page {
+            min-height: 100vh;
+            padding: 40px 20px 70px;
+        }
+
+
+        .my-listings-container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+
+        /* =====================================================
+           PAGE HEADER
+        ====================================================== */
+
+        .my-listings-header {
+            margin-bottom: 30px;
+        }
+
+
+        .back-dashboard {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            color: #1976D2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+
+        .back-dashboard:hover {
+            text-decoration: underline;
+        }
+
+
+        .my-listings-header h1 {
+            margin: 0 0 8px;
+            font-size: 32px;
+            color: #222;
+        }
+
+
+        .my-listings-header p {
+            margin: 0;
+            color: #666;
+            line-height: 1.6;
+        }
+
+
+        /* =====================================================
+           ACTION BAR
+        ====================================================== */
+
+        .listings-action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+
+        .listings-count {
+            color: #666;
+            font-size: 14px;
+        }
+
+
+        .add-listing-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 12px 18px;
+            border-radius: 9px;
+            background: #0D47A1;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+
+        .add-listing-btn:hover {
+            background: #08377d;
+        }
+
+
+        /* =====================================================
+           LISTINGS GRID
+        ====================================================== */
+
+        .my-listings-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+
+        /* =====================================================
+           LISTING CARD
+        ====================================================== */
+
+        .my-listing-card {
+            background: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid #e5e5e5;
+            box-shadow:
+                0 7px 25px rgba(0, 0, 0, 0.07);
+        }
+
+
+        .listing-card-top {
+            padding: 20px;
+        }
+
+
+        .listing-card-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+
+        .listing-card-header h2 {
+            margin: 0;
+            font-size: 19px;
+            color: #222;
+            line-height: 1.4;
+        }
+
+
+        /* =====================================================
+           STATUS
+        ====================================================== */
+
+        .listing-status {
+            flex-shrink: 0;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+
+        .status-verified {
+            background: #d4edda;
+            color: #155724;
+        }
+
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+
+        /* =====================================================
+           DETAILS
+        ====================================================== */
+
+        .listing-details {
+            margin-top: 17px;
+            display: grid;
+            grid-template-columns:
+                repeat(2, 1fr);
+            gap: 10px;
+        }
+
+
+        .listing-detail {
+            padding: 10px;
+            border-radius: 8px;
+            background: #f7f8fa;
+        }
+
+
+        .listing-detail-label {
+            display: block;
+            margin-bottom: 3px;
+            color: #888;
+            font-size: 11px;
+        }
+
+
+        .listing-detail-value {
+            color: #333;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+
+        /* =====================================================
+           DESCRIPTION
+        ====================================================== */
+
+        .listing-description {
+            margin-top: 16px;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+
+        /* =====================================================
+           MEDIA
+        ====================================================== */
+
+        .listing-media {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns:
+                repeat(3, 1fr);
+            gap: 8px;
+        }
+
+
+        .listing-media-placeholder {
+            min-height: 100px;
+            border-radius: 8px;
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           CARD FOOTER
+        ====================================================== */
+
+        .listing-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 20px;
+            border-top: 1px solid #eeeeee;
+        }
+
+
+        .listing-date {
+            color: #888;
+            font-size: 12px;
+        }
+
+
+        .listing-delete-btn {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 7px;
+            background: #f5f5f5;
+            color: #c62828;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+        }
+
+
+        .listing-delete-btn:hover {
+            background: #fdeaea;
+        }
+
+
+        /* =====================================================
+           EMPTY STATE
+        ====================================================== */
+
+        .listings-empty {
+            display: none;
+            padding: 60px 25px;
+            text-align: center;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 15px;
+        }
+
+
+        .listings-empty-icon {
+            font-size: 55px;
+            margin-bottom: 15px;
+        }
+
+
+        .listings-empty h2 {
+            margin: 0 0 10px;
+            color: #222;
+        }
+
+
+        .listings-empty p {
+            max-width: 550px;
+            margin: 0 auto 22px;
+            color: #777;
+            line-height: 1.6;
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ====================================================== */
+
+        @media (max-width: 750px) {
+
+            .my-listings-page {
+                padding: 25px 14px 50px;
+            }
+
+
+            .my-listings-header h1 {
+                font-size: 27px;
+            }
+
+
+            .my-listings-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .listings-action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+
+            .add-listing-btn {
+                width: 100%;
+            }
+
+        }
+
+
+        @media (max-width: 450px) {
+
+            .listing-details {
+                grid-template-columns: 1fr;
+            }
+
+
+            .listing-card-header {
+                flex-direction: column;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="dashboard-header">
+
+        <div class="dashboard-header-inner">
+
+
+            <a href="dashboard.html"
+               class="dashboard-logo">
+
+                TIPECO GROUP
+
+            </a>
+
+
+            <div class="dashboard-header-actions">
+
+
+                <div class="dashboard-user">
+
+                    <div class="dashboard-avatar">
+                        👤
+                    </div>
+
+
+                    <div class="dashboard-user-info">
+
+                        <span class="dashboard-user-name"
+                              data-user-name>
+
+                            User
+
+                        </span>
+
+
+                        <span class="dashboard-user-role"
+                              data-user-role>
+
+                            TIPECO User
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <a href="#"
+                   class="dashboard-logout"
+                   data-action="logout">
+
+                    Logout
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="my-listings-page">
+
+        <div class="my-listings-container">
+
+
+            <!-- =================================================
+                 HEADER
+            ================================================== -->
+
+            <section class="my-listings-header">
+
+
+                <a href="dashboard.html"
+                   class="back-dashboard">
+
+                    ← Back to Dashboard
+
+                </a>
+
+
+                <h1>
+                    📋 My Listings
+                </h1>
+
+
+                <p>
+
+                    Manage the products and services you have
+                    submitted to TIPECO GROUP.
+
+                </p>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 ACTION BAR
+            ================================================== -->
+
+            <div class="listings-action-bar">
+
+
+                <div class="listings-count"
+                     id="listingsCount">
+
+                    Loading listings...
+
+                </div>
+
+
+                <a href="add-listing.html"
+                   class="add-listing-btn">
+
+                    ➕ Add New Listing
+
+                </a>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 LISTINGS
+            ================================================== -->
+
+            <section id="myListingsGrid"
+                     class="my-listings-grid">
+            </section>
+
+
+
+            <!-- =================================================
+                 EMPTY STATE
+            ================================================== -->
+
+            <section id="emptyListings"
+                     class="listings-empty">
+
+
+                <div class="listings-empty-icon">
+                    📋
+                </div>
+
+
+                <h2>
+                    No Listings Yet
+                </h2>
+
+
+                <p>
+
+                    You have not submitted any listings yet.
+                    Add your first product, vehicle, property
+                    or service to TIPECO GROUP.
+
+                </p>
+
+
+                <a href="add-listing.html"
+                   class="add-listing-btn">
+
+                    ➕ Add Your First Listing
+
+                </a>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="dashboard-footer">
+
+        <strong>
+            TIPECO GROUP
+        </strong>
+
+
+        <p>
+            Innovation • Business • Technology
+        </p>
+
+
+        <p>
+            © 2026 TIPECO GROUP. All Rights Reserved.
+        </p>
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         AUTH JS
+    ====================================================== -->
+
+    <script src="../assets/js/auth.js"></script>
+
+
+
+    <!-- =====================================================
+         MY LISTINGS JS
+    ====================================================== -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+
+                const listingsGrid =
+                    document.getElementById(
+                        "myListingsGrid"
+                    );
+
+
+                const emptyState =
+                    document.getElementById(
+                        "emptyListings"
+                    );
+
+
+                const listingsCount =
+                    document.getElementById(
+                        "listingsCount"
+                    );
+
+
+                /* =================================================
+                   CURRENT USER
+                ================================================== */
+
+                const storedUser =
+                    localStorage.getItem(
+                        "tipecoUser"
+                    );
+
+
+                if (!storedUser) {
+
+                    listingsCount.textContent =
+                        "Please login.";
+
+                    return;
+
+                }
+
+
+                let currentUser;
+
+
+                try {
+
+                    currentUser =
+                        JSON.parse(
+                            storedUser
+                        );
+
+                } catch (error) {
+
+                    console.error(
+                        "Unable to read user.",
+                        error
+                    );
+
+                    return;
+
+                }
+
+
+                /* =================================================
+                   GET LISTINGS
+                ================================================== */
+
+                let listings = [];
+
+
+                const storedListings =
+                    localStorage.getItem(
+                        "tipecoListings"
+                    );
+
+
+                if (storedListings) {
+
+                    try {
+
+                        listings =
+                            JSON.parse(
+                                storedListings
+                            );
+
+                    } catch (error) {
+
+                        listings = [];
+
+                    }
+
+                }
+
+
+                /* =================================================
+                   ONLY CURRENT USER LISTINGS
+                ================================================== */
+
+                listings =
+                    listings.filter(
+                        function (listing) {
+
+                            return (
+
+                                listing.ownerEmail ===
+                                currentUser.email
+
+                            );
+
+                        }
+                    );
+
+
+                listingsCount.textContent =
+                    listings.length +
+                    (
+                        listings.length === 1
+                            ? " listing"
+                            : " listings"
+                    );
+
+
+                /* =================================================
+                   EMPTY
+                ================================================== */
+
+                if (listings.length === 0) {
+
+                    emptyState.style.display =
+                        "block";
+
+                    return;
+
+                }
+
+
+                /* =================================================
+                   RENDER
+                ================================================== */
+
+                listings.forEach(
+                    function (listing) {
+
+                        const card =
+                            document.createElement(
+                                "article"
+                            );
+
+
+                        card.className =
+                            "my-listing-card";
+
+
+                        /* STATUS */
+
+                        let statusClass =
+                            "status-pending";
+
+
+                        let statusText =
+                            "Pending Verification";
+
+
+                        if (
+                            listing.status ===
+                            "verified"
+                        ) {
+
+                            statusClass =
+                                "status-verified";
+
+                            statusText =
+                                "Verified";
+
+                        }
+
+
+                        if (
+                            listing.status ===
+                            "rejected"
+                        ) {
+
+                            statusClass =
+                                "status-rejected";
+
+                            statusText =
+                                "Rejected";
+
+                        }
+
+
+                        /* DATE */
+
+                        let dateText =
+                            "Date unavailable";
+
+
+                        if (listing.createdAt) {
+
+                            const date =
+                                new Date(
+                                    listing.createdAt
+                                );
+
+
+                            if (
+                                !isNaN(
+                                    date.getTime()
+                                )
+                            ) {
+
+                                dateText =
+                                    date.toLocaleDateString();
+
+                            }
+
+                        }
+
+
+                        card.innerHTML = `
+
+                            <div class="listing-card-top">
+
+                                <div class="listing-card-header">
+
+                                    <h2>
+                                        ${escapeHTML(
+                                            listing.title
+                                        )}
+                                    </h2>
+
+                                    <span class="listing-status ${statusClass}">
+                                        ${statusText}
+                                    </span>
+
+                                </div>
+
+
+                                <div class="listing-details">
+
+                                    <div class="listing-detail">
+
+                                        <span class="listing-detail-label">
+                                            Category
+                                        </span>
+
+                                        <span class="listing-detail-value">
+                                            ${escapeHTML(
+                                                listing.category
+                                            )}
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="listing-detail">
+
+                                        <span class="listing-detail-label">
+                                            Type
+                                        </span>
+
+                                        <span class="listing-detail-value">
+                                            ${escapeHTML(
+                                                listing.type
+                                            )}
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="listing-detail">
+
+                                        <span class="listing-detail-label">
+                                            Price
+                                        </span>
+
+                                        <span class="listing-detail-value">
+                                            ${escapeHTML(
+                                                listing.price
+                                            )}
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="listing-detail">
+
+                                        <span class="listing-detail-label">
+                                            Location
+                                        </span>
+
+                                        <span class="listing-detail-value">
+                                            ${escapeHTML(
+                                                listing.location
+                                            )}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+
+                                <p class="listing-description">
+
+                                    ${escapeHTML(
+                                        listing.description
+                                    )}
+
+                                </p>
+
+
+                                <div class="listing-media">
+
+                                    <div class="listing-media-placeholder">
+                                        📸 Photos
+                                    </div>
+
+                                    <div class="listing-media-placeholder">
+                                        🎥 Video
+                                    </div>
+
+                                    <div class="listing-media-placeholder">
+                                        ✓ Verification
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="listing-card-footer">
+
+                                <span class="listing-date">
+
+                                    Submitted:
+                                    ${dateText}
+
+                                </span>
+
+
+                                <button
+                                    type="button"
+                                    class="listing-delete-btn"
+                                    data-listing-id="${listing.id}">
+
+                                    🗑️ Delete
+
+                                </button>
+
+                            </div>
+
+                        `;
+
+
+                        listingsGrid.appendChild(
+                            card
+                        );
+
+                    }
+                );
+
+
+                /* =================================================
+                   DELETE
+                ================================================== */
+
+                document
+                    .querySelectorAll(
+                        ".listing-delete-btn"
+                    )
+                    .forEach(
+                        function (button) {
+
+                            button.addEventListener(
+                                "click",
+                                function () {
+
+                                    const listingId =
+                                        button.dataset.listingId;
+
+
+                                    const confirmed =
+                                        confirm(
+                                            "Are you sure you want to delete this listing?"
+                                        );
+
+
+                                    if (!confirmed) {
+                                        return;
+                                    }
+
+
+                                    let allListings = [];
+
+
+                                    const savedListings =
+                                        localStorage.getItem(
+                                            "tipecoListings"
+                                        );
+
+
+                                    if (savedListings) {
+
+                                        try {
+
+                                            allListings =
+                                                JSON.parse(
+                                                    savedListings
+                                                );
+
+                                        } catch (error) {
+
+                                            allListings = [];
+
+                                        }
+
+                                    }
+
+
+                                    allListings =
+                                        allListings.filter(
+                                            function (item) {
+
+                                                return (
+                                                    item.id !==
+                                                    listingId
+                                                );
+
+                                            }
+                                        );
+
+
+                                    localStorage.setItem(
+                                        "tipecoListings",
+                                        JSON.stringify(
+                                            allListings
+                                        )
+                                    );
+
+
+                                    window.location.reload();
+
+                                }
+                            );
+
+                        }
+                    );
+
+
+                /* =================================================
+                   HTML SECURITY HELPER
+                ================================================== */
+
+                function escapeHTML(value) {
+
+                    return String(
+                        value ?? ""
+                    )
+                        .replace(
+                            /&/g,
+                            "&amp;"
+                        )
+                        .replace(
+                            /</g,
+                            "&lt;"
+                        )
+                        .replace(
+                            />/g,
+                            "&gt;"
+                        )
+                        .replace(
+                            /"/g,
+                            "&quot;"
+                        )
+                        .replace(
+                            /'/g,
+                            "&#039;"
+                        );
+
+                }
+
+            }
+        );
+
+    </script>
+
+
+</body>
+
+</html>
