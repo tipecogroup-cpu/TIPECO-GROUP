@@ -5,7 +5,8 @@
 
     <!-- =====================================================
          TIPECO GROUP - ADD LISTING
-         Version: 2.0
+         Version: 2.1
+         Photos + Video
          Compatible with auth.js Version 2.0
     ====================================================== -->
 
@@ -260,6 +261,146 @@
 
 
         /* =====================================================
+           MEDIA UPLOAD AREA
+        ====================================================== */
+
+        .media-upload-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+
+        .media-upload-box {
+            position: relative;
+            min-height: 180px;
+            border: 2px dashed #c9c9c9;
+            border-radius: 14px;
+            background: #fafafa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 25px;
+            cursor: pointer;
+            transition:
+                border-color 0.2s ease,
+                background 0.2s ease,
+                transform 0.2s ease;
+        }
+
+
+        .media-upload-box:hover {
+            border-color: #1976D2;
+            background: rgba(25, 118, 210, 0.04);
+            transform: translateY(-2px);
+        }
+
+
+        .media-upload-content {
+            pointer-events: none;
+        }
+
+
+        .media-upload-icon {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+
+
+        .media-upload-box strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 16px;
+            color: #222;
+        }
+
+
+        .media-upload-box small {
+            color: #777;
+            line-height: 1.5;
+        }
+
+
+        .media-upload-box input {
+            display: none;
+        }
+
+
+        /* =====================================================
+           MEDIA PREVIEW
+        ====================================================== */
+
+        .media-preview-title {
+            margin: 25px 0 12px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+
+        .media-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+
+        .media-preview-item {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            border-radius: 10px;
+            background: #eeeeee;
+            border: 1px solid #dddddd;
+        }
+
+
+        .media-preview-item img,
+        .media-preview-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+
+        .media-remove {
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.70);
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+
+        .media-remove:hover {
+            background: rgba(211, 47, 47, 0.95);
+        }
+
+
+        /* =====================================================
+           MEDIA NOTICE
+        ====================================================== */
+
+        .media-notice {
+            margin-top: 15px;
+            padding: 13px 15px;
+            border-radius: 9px;
+            background: #f5f7fa;
+            color: #666;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+
+        /* =====================================================
            AGREEMENT
         ====================================================== */
 
@@ -284,6 +425,31 @@
             font-size: 14px;
             line-height: 1.6;
             color: #444;
+        }
+
+
+        /* =====================================================
+           SELLER INFO
+        ====================================================== */
+
+        .seller-info-card {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            background: #f8f9fb;
+        }
+
+
+        .seller-info-card h3 {
+            margin: 0 0 8px;
+            font-size: 17px;
+        }
+
+
+        .seller-info-card p {
+            margin: 4px 0;
+            color: #666;
+            font-size: 14px;
         }
 
 
@@ -335,31 +501,6 @@
 
 
         /* =====================================================
-           SELLER INFO
-        ====================================================== */
-
-        .seller-info-card {
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: 12px;
-            background: #f8f9fb;
-        }
-
-
-        .seller-info-card h3 {
-            margin: 0 0 8px;
-            font-size: 17px;
-        }
-
-
-        .seller-info-card p {
-            margin: 4px 0;
-            color: #666;
-            font-size: 14px;
-        }
-
-
-        /* =====================================================
            MOBILE
         ====================================================== */
 
@@ -380,13 +521,19 @@
             }
 
 
-            .listing-form-grid {
+            .listing-form-grid,
+            .media-upload-grid {
                 grid-template-columns: 1fr;
             }
 
 
             .listing-form-group.full-width {
                 grid-column: auto;
+            }
+
+
+            .media-preview-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
 
@@ -418,8 +565,6 @@
         <div class="dashboard-header-inner">
 
 
-            <!-- LOGO -->
-
             <a href="dashboard.html"
                class="dashboard-logo">
 
@@ -428,9 +573,8 @@
             </a>
 
 
-            <!-- USER -->
-
             <div class="dashboard-header-actions">
+
 
                 <div class="dashboard-user">
 
@@ -460,8 +604,6 @@
 
                 </div>
 
-
-                <!-- LOGOUT -->
 
                 <a href="#"
                    class="dashboard-logout"
@@ -509,8 +651,10 @@
 
 
                 <p>
-                    Submit your product, vehicle, property or
-                    service for TIPECO GROUP verification.
+
+                    Submit your product, vehicle, property
+                    or service for TIPECO GROUP verification.
+
                 </p>
 
             </section>
@@ -530,10 +674,9 @@
 
                 <p>
 
-                    Every listing submitted through TIPECO GROUP
-                    may be reviewed and verified before it becomes
-                    publicly available. We may contact you when
-                    additional information is required.
+                    Your listing will be reviewed by TIPECO GROUP
+                    before it becomes publicly available. We may
+                    contact you if additional information is needed.
 
                 </p>
 
@@ -542,11 +685,8 @@
 
 
             <!-- =================================================
-                 ADD LISTING FORM
-                 
-                 IMPORTANT:
-                 IDs below MUST match auth.js
-            ================================================== -->
+                 FORM
+            ================================================= -->
 
             <form id="addListingForm"
                   class="listing-form-card">
@@ -567,8 +707,7 @@
 
 
                         <p>
-                            Provide the main information about
-                            what you are offering.
+                            Tell us what you are offering.
                         </p>
 
                     </div>
@@ -709,18 +848,137 @@
 
                             <textarea id="listingDescription"
                                       name="listingDescription"
-                                      placeholder="Describe your product, property, vehicle or service in detail..."
+                                      placeholder="Describe your product, property, vehicle or service..."
                                       required></textarea>
 
-
-                            <span class="form-help">
-
-                                Give customers enough information
-                                to understand your listing.
-
-                            </span>
-
                         </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     PHOTOS & VIDEO
+                ================================================== -->
+
+                <section class="listing-form-section">
+
+
+                    <div class="listing-form-section-title">
+
+                        <h2>
+                            📸 Photos &amp; 🎥 Video
+                        </h2>
+
+
+                        <p>
+                            Add clear media to help TIPECO GROUP
+                            and customers understand your listing.
+                        </p>
+
+                    </div>
+
+
+                    <div class="media-upload-grid">
+
+
+                        <!-- PHOTOS -->
+
+                        <label class="media-upload-box"
+                               for="listingPhotos">
+
+                            <div class="media-upload-content">
+
+                                <div class="media-upload-icon">
+                                    📸
+                                </div>
+
+
+                                <strong>
+                                    Add Photos
+                                </strong>
+
+
+                                <small>
+                                    Select multiple images
+                                    from your device.
+                                </small>
+
+                            </div>
+
+
+                            <input type="file"
+                                   id="listingPhotos"
+                                   name="listingPhotos"
+                                   accept="image/jpeg,image/png,image/webp"
+                                   multiple>
+
+                        </label>
+
+
+
+                        <!-- VIDEO -->
+
+                        <label class="media-upload-box"
+                               for="listingVideo">
+
+                            <div class="media-upload-content">
+
+                                <div class="media-upload-icon">
+                                    🎥
+                                </div>
+
+
+                                <strong>
+                                    Add Video
+                                </strong>
+
+
+                                <small>
+                                    Add a short video showing
+                                    the product or property.
+                                </small>
+
+                            </div>
+
+
+                            <input type="file"
+                                   id="listingVideo"
+                                   name="listingVideo"
+                                   accept="video/mp4,video/webm,video/quicktime">
+
+                        </label>
+
+                    </div>
+
+
+
+                    <!-- MEDIA PREVIEW -->
+
+                    <div id="mediaPreviewTitle"
+                         class="media-preview-title"
+                         style="display:none;">
+
+                        Media Preview
+
+                    </div>
+
+
+                    <div id="mediaPreview"
+                         class="media-preview-grid">
+                    </div>
+
+
+
+                    <div class="media-notice">
+
+                        💡 <strong>Tip:</strong>
+                        Use clear photos taken in good lighting.
+                        For vehicles and properties, show important
+                        areas clearly so TIPECO GROUP can verify the
+                        information more easily.
 
                     </div>
 
@@ -743,8 +1001,7 @@
 
 
                         <p>
-                            Tell customers where the listing is
-                            located and its asking price.
+                            Provide the basic commercial information.
                         </p>
 
                     </div>
@@ -818,7 +1075,7 @@
 
                         <p>
                             Provide the phone number TIPECO GROUP
-                            can use to contact you about this listing.
+                            can use to contact you.
                         </p>
 
                     </div>
@@ -852,7 +1109,7 @@
 
 
                 <!-- =================================================
-                     VERIFICATION AGREEMENT
+                     AGREEMENT
                 ================================================== -->
 
                 <section class="listing-form-section">
@@ -861,20 +1118,18 @@
                     <div class="listing-form-section-title">
 
                         <h2>
-                            Verification
+                            Verification Agreement
                         </h2>
 
 
                         <p>
-                            Please confirm that the information
-                            you provided is accurate.
+                            Confirm that the information is accurate.
                         </p>
 
                     </div>
 
 
                     <div class="listing-agreement">
-
 
                         <input type="checkbox"
                                id="listingAgreement"
@@ -885,9 +1140,9 @@
                         <label for="listingAgreement">
 
                             I confirm that the information provided
-                            in this listing is accurate and I agree
-                            that TIPECO GROUP may verify the listing
-                            before publishing it.
+                            is accurate and I understand that TIPECO
+                            GROUP may verify this listing before
+                            publishing it.
 
                         </label>
 
@@ -909,18 +1164,22 @@
 
 
                     <p>
+
                         Name:
                         <strong data-user-name>
                             User
                         </strong>
+
                     </p>
 
 
                     <p>
+
                         Account:
                         <strong data-user-role>
                             TIPECO User
                         </strong>
+
                     </p>
 
                 </div>
@@ -950,7 +1209,6 @@
                     </button>
 
                 </div>
-
 
             </form>
 
@@ -985,14 +1243,282 @@
 
 
     <!-- =====================================================
-         AUTHENTICATION JAVASCRIPT
+         AUTH JAVASCRIPT
          
          IMPORTANT:
-         Do NOT add another Add Listing JavaScript here.
-         auth.js already handles the form.
+         auth.js handles the actual form submission.
     ====================================================== -->
 
     <script src="../assets/js/auth.js"></script>
+
+
+
+    <!-- =====================================================
+         MEDIA PREVIEW ONLY
+         
+         This does NOT replace auth.js.
+         It only displays selected photos/video locally.
+    ====================================================== -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+
+                const photoInput =
+                    document.getElementById(
+                        "listingPhotos"
+                    );
+
+
+                const videoInput =
+                    document.getElementById(
+                        "listingVideo"
+                    );
+
+
+                const preview =
+                    document.getElementById(
+                        "mediaPreview"
+                    );
+
+
+                const previewTitle =
+                    document.getElementById(
+                        "mediaPreviewTitle"
+                    );
+
+
+                function updatePreviewTitle() {
+
+                    if (preview.children.length > 0) {
+
+                        previewTitle.style.display =
+                            "block";
+
+                    } else {
+
+                        previewTitle.style.display =
+                            "none";
+
+                    }
+
+                }
+
+
+                /* =================================================
+                   CREATE PREVIEW ITEM
+                ================================================== */
+
+                function createPreview(
+                    file,
+                    type,
+                    input
+                ) {
+
+                    const wrapper =
+                        document.createElement(
+                            "div"
+                        );
+
+                    wrapper.className =
+                        "media-preview-item";
+
+
+                    const removeButton =
+                        document.createElement(
+                            "button"
+                        );
+
+                    removeButton.type =
+                        "button";
+
+                    removeButton.className =
+                        "media-remove";
+
+                    removeButton.textContent =
+                        "×";
+
+
+                    removeButton.addEventListener(
+                        "click",
+                        function () {
+
+                            wrapper.remove();
+
+                            input.value = "";
+
+                            updatePreviewTitle();
+
+                        }
+                    );
+
+
+                    if (type === "image") {
+
+                        const image =
+                            document.createElement(
+                                "img"
+                            );
+
+
+                        image.alt =
+                            "Listing photo";
+
+
+                        const reader =
+                            new FileReader();
+
+
+                        reader.onload =
+                            function (event) {
+
+                                image.src =
+                                    event.target.result;
+
+                            };
+
+
+                        reader.readAsDataURL(file);
+
+
+                        wrapper.appendChild(
+                            image
+                        );
+
+                    }
+
+
+                    if (type === "video") {
+
+                        const video =
+                            document.createElement(
+                                "video"
+                            );
+
+
+                        video.controls =
+                            true;
+
+
+                        video.muted =
+                            true;
+
+
+                        const videoURL =
+                            URL.createObjectURL(
+                                file
+                            );
+
+
+                        video.src =
+                            videoURL;
+
+
+                        wrapper.appendChild(
+                            video
+                        );
+
+                    }
+
+
+                    wrapper.appendChild(
+                        removeButton
+                    );
+
+
+                    preview.appendChild(
+                        wrapper
+                    );
+
+
+                    updatePreviewTitle();
+
+                }
+
+
+
+                /* =================================================
+                   PHOTO INPUT
+                ================================================== */
+
+                photoInput.addEventListener(
+                    "change",
+                    function () {
+
+
+                        const files =
+                            Array.from(
+                                photoInput.files
+                            );
+
+
+                        files.forEach(
+                            function (file) {
+
+                                if (
+                                    file.type.startsWith(
+                                        "image/"
+                                    )
+                                ) {
+
+                                    createPreview(
+                                        file,
+                                        "image",
+                                        photoInput
+                                    );
+
+                                }
+
+                            }
+                        );
+
+                    }
+                );
+
+
+
+                /* =================================================
+                   VIDEO INPUT
+                ================================================== */
+
+                videoInput.addEventListener(
+                    "change",
+                    function () {
+
+
+                        const file =
+                            videoInput.files[0];
+
+
+                        if (!file) {
+                            return;
+                        }
+
+
+                        if (
+                            file.type.startsWith(
+                                "video/"
+                            )
+                        ) {
+
+                            createPreview(
+                                file,
+                                "video",
+                                videoInput
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+    </script>
 
 
 </body>
