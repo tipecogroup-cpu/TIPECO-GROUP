@@ -5,7 +5,7 @@
 
     <!-- =====================================================
          TIPECO GROUP - USER DASHBOARD
-         Version: 2.0
+         Version: 2.1
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -152,6 +152,10 @@
                 <ul class="dashboard-nav">
 
 
+                    <!-- =================================================
+                         DASHBOARD
+                    ================================================== -->
+
                     <li>
 
                         <a href="dashboard.html"
@@ -168,10 +172,12 @@
                     </li>
 
 
-                    <!-- BUYER -->
 
-                    <li
-                        class="buyer-only">
+                    <!-- =================================================
+                         BUYER
+                    ================================================== -->
+
+                    <li class="buyer-only">
 
                         <a href="marketplace.html">
 
@@ -186,8 +192,7 @@
                     </li>
 
 
-                    <li
-                        class="buyer-only">
+                    <li class="buyer-only">
 
                         <a href="#">
 
@@ -202,8 +207,7 @@
                     </li>
 
 
-                    <li
-                        class="buyer-only">
+                    <li class="buyer-only">
 
                         <a href="#">
 
@@ -218,8 +222,7 @@
                     </li>
 
 
-                    <li
-                        class="buyer-only">
+                    <li class="buyer-only">
 
                         <a href="#">
 
@@ -234,12 +237,14 @@
                     </li>
 
 
-                    <!-- SELLER -->
 
-                    <li
-                        class="seller-only">
+                    <!-- =================================================
+                         SELLER
+                    ================================================== -->
 
-                        <a href="#">
+                    <li class="seller-only">
+
+                        <a href="add-listing.html">
 
                             <span class="dashboard-nav-icon">
                                 ➕
@@ -252,10 +257,9 @@
                     </li>
 
 
-                    <li
-                        class="seller-only">
+                    <li class="seller-only">
 
-                        <a href="#">
+                        <a href="my-listings.html">
 
                             <span class="dashboard-nav-icon">
                                 📋
@@ -268,8 +272,7 @@
                     </li>
 
 
-                    <li
-                        class="seller-only">
+                    <li class="seller-only">
 
                         <a href="#">
 
@@ -284,8 +287,7 @@
                     </li>
 
 
-                    <li
-                        class="seller-only">
+                    <li class="seller-only">
 
                         <a href="#">
 
@@ -300,7 +302,10 @@
                     </li>
 
 
-                    <!-- BOTH -->
+
+                    <!-- =================================================
+                         BOTH BUYER & SELLER
+                    ================================================== -->
 
                     <li>
 
@@ -413,24 +418,21 @@
 
                         <div>
 
-                            <h3
-                                data-user-name>
+                            <h3 data-user-name>
 
                                 User
 
                             </h3>
 
 
-                            <p
-                                data-user-email>
+                            <p data-user-email>
 
                                 user@example.com
 
                             </p>
 
 
-                            <p
-                                data-user-role>
+                            <p data-user-role>
 
                                 TIPECO User
 
@@ -464,8 +466,7 @@
 
                         <!-- MY LISTINGS -->
 
-                        <div
-                            class="dashboard-stat-card seller-only">
+                        <div class="dashboard-stat-card seller-only">
 
                             <div class="stat-icon">
                                 📋
@@ -488,8 +489,7 @@
 
                         <!-- SAVED -->
 
-                        <div
-                            class="dashboard-stat-card buyer-only">
+                        <div class="dashboard-stat-card buyer-only">
 
                             <div class="stat-icon">
                                 ❤️
@@ -512,8 +512,7 @@
 
                         <!-- REQUESTS -->
 
-                        <div
-                            class="dashboard-stat-card">
+                        <div class="dashboard-stat-card">
 
                             <div class="stat-icon">
                                 📩
@@ -536,8 +535,7 @@
 
                         <!-- MESSAGES -->
 
-                        <div
-                            class="dashboard-stat-card">
+                        <div class="dashboard-stat-card">
 
                             <div class="stat-icon">
                                 💬
@@ -568,8 +566,7 @@
                      BUYER QUICK ACTIONS
                 ================================================== -->
 
-                <section
-                    class="dashboard-section buyer-only">
+                <section class="dashboard-section buyer-only">
 
 
                     <div class="dashboard-section-header">
@@ -583,6 +580,8 @@
 
                     <div class="quick-actions">
 
+
+                        <!-- BROWSE -->
 
                         <a href="marketplace.html"
                            class="quick-action">
@@ -603,6 +602,8 @@
                         </a>
 
 
+                        <!-- SAVED -->
+
                         <a href="#"
                            class="quick-action">
 
@@ -621,6 +622,8 @@
 
                         </a>
 
+
+                        <!-- VIEWING -->
 
                         <a href="#"
                            class="quick-action">
@@ -651,8 +654,7 @@
                      SELLER QUICK ACTIONS
                 ================================================== -->
 
-                <section
-                    class="dashboard-section seller-only">
+                <section class="dashboard-section seller-only">
 
 
                     <div class="dashboard-section-header">
@@ -661,20 +663,26 @@
                             Manage Your Business
                         </h2>
 
-                   <li class="seller-only">
+                    </div>
 
-    <a href="add-listing.html">
 
-        <span class="dashboard-nav-icon">
-            ➕
-        </span>
+                    <div class="quick-actions">
 
-        Add Listing
 
-    </a>
+                        <!-- ADD LISTING -->
 
-</li> 
-                            <div class="quick-acti
+                        <a href="add-listing.html"
+                           class="quick-action">
+
+                            <div class="quick-action-icon">
+                                ➕
+                            </div>
+
+                            <h3>
+                                Add Listing
+                            </h3>
+
+                            <p>
                                 Submit a product or service
                                 for TIPECO GROUP review.
                             </p>
@@ -682,7 +690,9 @@
                         </a>
 
 
-                        <a href="#"
+                        <!-- MY LISTINGS -->
+
+                        <a href="my-listings.html"
                            class="quick-action">
 
                             <div class="quick-action-icon">
@@ -700,6 +710,8 @@
 
                         </a>
 
+
+                        <!-- CUSTOMER REQUESTS -->
 
                         <a href="#"
                            class="quick-action">
@@ -738,6 +750,7 @@
 
                         <div class="profile-card-top">
 
+
                             <div class="dashboard-avatar">
                                 ✓
                             </div>
@@ -748,6 +761,7 @@
                                 <h3>
                                     TIPECO GROUP Verification
                                 </h3>
+
 
                                 <p>
                                     We help connect customers
@@ -760,13 +774,12 @@
                         </div>
 
 
-                        <p
-                            style="
-                                margin: 0 0 18px;
-                                color: rgba(255,255,255,0.85);
-                                font-size: 13px;
-                                line-height: 1.6;
-                            ">
+                        <p style="
+                            margin: 0 0 18px;
+                            color: rgba(255,255,255,0.85);
+                            font-size: 13px;
+                            line-height: 1.6;
+                        ">
 
                             Product information, viewing requests
                             and customer communication can be
@@ -801,6 +814,7 @@
                             Recent Activity
                         </h2>
 
+
                         <a href="#"
                            class="dashboard-section-link">
 
@@ -813,6 +827,8 @@
 
                     <div class="activity-card">
 
+
+                        <!-- ACTIVITY 1 -->
 
                         <div class="activity-item">
 
@@ -828,6 +844,7 @@
                                     Welcome to TIPECO GROUP
                                 </h4>
 
+
                                 <p>
                                     Your dashboard is ready.
                                 </p>
@@ -842,6 +859,8 @@
                         </div>
 
 
+                        <!-- ACTIVITY 2 -->
+
                         <div class="activity-item">
 
 
@@ -855,6 +874,7 @@
                                 <h4>
                                     Account Created
                                 </h4>
+
 
                                 <p>
                                     Your account was created
@@ -881,8 +901,7 @@
                      EMPTY STATE
                 ================================================== -->
 
-                <section
-                    class="dashboard-section">
+                <section class="dashboard-section">
 
 
                     <div class="dashboard-empty">
@@ -924,17 +943,21 @@
 
     <footer class="dashboard-footer">
 
+
         <strong>
             TIPECO GROUP
         </strong>
+
 
         <p>
             Innovation • Business • Technology
         </p>
 
+
         <p>
             © 2026 TIPECO GROUP. All Rights Reserved.
         </p>
+
 
     </footer>
 
@@ -945,6 +968,7 @@
     ====================================================== -->
 
     <script src="../assets/js/auth.js"></script>
+
 
 
     <!-- =====================================================
@@ -965,7 +989,9 @@
 
 
                 if (!storedUser) {
+
                     return;
+
                 }
 
 
@@ -986,6 +1012,7 @@
                     );
 
                     return;
+
                 }
 
 
@@ -1011,10 +1038,12 @@
 
                 if (role === "buyer") {
 
+
                     buyerElements.forEach(
                         function (element) {
 
-                            element.style.display = "";
+                            element.style.display =
+                                "";
 
                         }
                     );
@@ -1028,6 +1057,7 @@
 
                         }
                     );
+
 
                 }
 
@@ -1040,10 +1070,12 @@
                     role === "seller"
                 ) {
 
+
                     sellerElements.forEach(
                         function (element) {
 
-                            element.style.display = "";
+                            element.style.display =
+                                "";
 
                         }
                     );
@@ -1057,6 +1089,7 @@
 
                         }
                     );
+
 
                 }
 
