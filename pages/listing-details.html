@@ -1,1 +1,1641 @@
 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <!-- =====================================================
+         TIPECO GROUP - LISTING DETAILS
+         Version: 1.0
+         Compatible with auth.js Version 2.0
+    ====================================================== -->
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="Listing Details | TIPECO GROUP">
+
+    <meta name="author"
+          content="TIPECO GROUP">
+
+    <meta name="theme-color"
+          content="#0D47A1">
+
+    <title>Listing Details | TIPECO GROUP</title>
+
+
+    <!-- =====================================================
+         CSS
+    ====================================================== -->
+
+    <link rel="stylesheet"
+          href="../assets/css/variables.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/style.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/responsive.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/animations.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/dashboard.css">
+
+
+    <!-- =====================================================
+         PAGE STYLE
+    ====================================================== -->
+
+    <style>
+
+        /* =====================================================
+           PAGE
+        ====================================================== */
+
+        .listing-details-page {
+
+            min-height: 100vh;
+
+            padding: 40px 20px 70px;
+
+        }
+
+
+        .listing-details-container {
+
+            width: 100%;
+
+            max-width: 1100px;
+
+            margin: 0 auto;
+
+        }
+
+
+        /* =====================================================
+           BACK
+        ====================================================== */
+
+        .back-dashboard {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin-bottom: 25px;
+
+            color: #1976D2;
+
+            text-decoration: none;
+
+            font-weight: 600;
+
+        }
+
+
+        .back-dashboard:hover {
+
+            text-decoration: underline;
+
+        }
+
+
+        /* =====================================================
+           ERROR
+        ====================================================== */
+
+        .listing-error {
+
+            display: none;
+
+            padding: 50px 25px;
+
+            text-align: center;
+
+            background: #fff;
+
+            border: 1px solid #e5e5e5;
+
+            border-radius: 16px;
+
+        }
+
+
+        .listing-error-icon {
+
+            font-size: 55px;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        .listing-error h2 {
+
+            margin: 0 0 10px;
+
+            color: #222;
+
+        }
+
+
+        .listing-error p {
+
+            margin: 0 0 22px;
+
+            color: #777;
+
+            line-height: 1.6;
+
+        }
+
+
+        .back-btn {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 12px 20px;
+
+            border-radius: 9px;
+
+            background: #0D47A1;
+
+            color: #fff;
+
+            text-decoration: none;
+
+            font-weight: 600;
+
+        }
+
+
+        .back-btn:hover {
+
+            background: #08377d;
+
+        }
+
+
+        /* =====================================================
+           MAIN CARD
+        ====================================================== */
+
+        .listing-details-card {
+
+            display: none;
+
+            background: #fff;
+
+            border-radius: 18px;
+
+            overflow: hidden;
+
+            border: 1px solid #e5e5e5;
+
+            box-shadow:
+                0 8px 30px rgba(0, 0, 0, 0.08);
+
+        }
+
+
+        /* =====================================================
+           MEDIA AREA
+        ====================================================== */
+
+        .listing-media-area {
+
+            width: 100%;
+
+            min-height: 300px;
+
+            background: #f3f5f8;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            text-align: center;
+
+        }
+
+
+        .listing-media-placeholder {
+
+            padding: 50px 20px;
+
+            color: #999;
+
+        }
+
+
+        .listing-media-placeholder-icon {
+
+            font-size: 70px;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .listing-media-placeholder strong {
+
+            display: block;
+
+            font-size: 18px;
+
+            color: #666;
+
+            margin-bottom: 5px;
+
+        }
+
+
+        .listing-media-placeholder span {
+
+            font-size: 13px;
+
+            color: #999;
+
+        }
+
+
+        /* =====================================================
+           CONTENT
+        ====================================================== */
+
+        .listing-details-content {
+
+            padding: 30px;
+
+        }
+
+
+        .listing-top {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: flex-start;
+
+            gap: 20px;
+
+        }
+
+
+        .listing-title {
+
+            margin: 0;
+
+            font-size: 30px;
+
+            line-height: 1.35;
+
+            color: #222;
+
+        }
+
+
+        /* =====================================================
+           STATUS
+        ====================================================== */
+
+        .listing-status {
+
+            flex-shrink: 0;
+
+            padding: 7px 13px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+        }
+
+
+        .status-pending {
+
+            background: #fff3cd;
+
+            color: #856404;
+
+        }
+
+
+        .status-verified {
+
+            background: #d4edda;
+
+            color: #155724;
+
+        }
+
+
+        .status-rejected {
+
+            background: #f8d7da;
+
+            color: #721c24;
+
+        }
+
+
+        /* =====================================================
+           PRICE
+        ====================================================== */
+
+        .listing-price {
+
+            margin-top: 20px;
+
+            font-size: 28px;
+
+            font-weight: 800;
+
+            color: #0D47A1;
+
+        }
+
+
+        /* =====================================================
+           DETAILS GRID
+        ====================================================== */
+
+        .listing-info-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 15px;
+
+            margin-top: 25px;
+
+        }
+
+
+        .listing-info-box {
+
+            padding: 15px;
+
+            border-radius: 10px;
+
+            background: #f7f8fa;
+
+        }
+
+
+        .listing-info-label {
+
+            display: block;
+
+            margin-bottom: 5px;
+
+            font-size: 12px;
+
+            color: #888;
+
+        }
+
+
+        .listing-info-value {
+
+            font-size: 15px;
+
+            font-weight: 600;
+
+            color: #333;
+
+        }
+
+
+        /* =====================================================
+           DESCRIPTION
+        ====================================================== */
+
+        .listing-section {
+
+            margin-top: 30px;
+
+            padding-top: 25px;
+
+            border-top: 1px solid #eeeeee;
+
+        }
+
+
+        .listing-section h2 {
+
+            margin: 0 0 12px;
+
+            font-size: 20px;
+
+            color: #222;
+
+        }
+
+
+        .listing-description {
+
+            margin: 0;
+
+            color: #666;
+
+            line-height: 1.8;
+
+            white-space: pre-line;
+
+        }
+
+
+        /* =====================================================
+           SELLER
+        ====================================================== */
+
+        .seller-card {
+
+            margin-top: 20px;
+
+            padding: 20px;
+
+            border-radius: 12px;
+
+            background: #f7f9fc;
+
+        }
+
+
+        .seller-card p {
+
+            margin: 7px 0;
+
+            color: #555;
+
+            font-size: 14px;
+
+        }
+
+
+        .seller-card strong {
+
+            color: #222;
+
+        }
+
+
+        /* =====================================================
+           VERIFICATION
+        ====================================================== */
+
+        .verification-box {
+
+            margin-top: 25px;
+
+            padding: 18px;
+
+            border-radius: 12px;
+
+            background: rgba(13, 71, 161, 0.07);
+
+            border-left: 5px solid #0D47A1;
+
+        }
+
+
+        .verification-box h3 {
+
+            margin: 0 0 7px;
+
+            color: #0D47A1;
+
+        }
+
+
+        .verification-box p {
+
+            margin: 0;
+
+            color: #555;
+
+            font-size: 14px;
+
+            line-height: 1.6;
+
+        }
+
+
+        /* =====================================================
+           ACTIONS
+        ====================================================== */
+
+        .listing-actions {
+
+            display: flex;
+
+            gap: 12px;
+
+            flex-wrap: wrap;
+
+            margin-top: 30px;
+
+        }
+
+
+        .listing-action-btn {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            min-height: 45px;
+
+            padding: 0 20px;
+
+            border-radius: 9px;
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+        }
+
+
+        .listing-action-primary {
+
+            background: #0D47A1;
+
+            color: #fff;
+
+        }
+
+
+        .listing-action-primary:hover {
+
+            background: #08377d;
+
+        }
+
+
+        .listing-action-secondary {
+
+            background: #eeeeee;
+
+            color: #333;
+
+        }
+
+
+        .listing-action-secondary:hover {
+
+            background: #e1e1e1;
+
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ====================================================== */
+
+        .listing-date {
+
+            margin-top: 20px;
+
+            color: #999;
+
+            font-size: 12px;
+
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ====================================================== */
+
+        @media (max-width: 700px) {
+
+            .listing-details-page {
+
+                padding: 25px 14px 50px;
+
+            }
+
+
+            .listing-details-content {
+
+                padding: 20px;
+
+            }
+
+
+            .listing-top {
+
+                flex-direction: column;
+
+            }
+
+
+            .listing-title {
+
+                font-size: 25px;
+
+            }
+
+
+            .listing-price {
+
+                font-size: 24px;
+
+            }
+
+
+            .listing-info-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .listing-actions {
+
+                flex-direction: column;
+
+            }
+
+
+            .listing-action-btn {
+
+                width: 100%;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="dashboard-header">
+
+        <div class="dashboard-header-inner">
+
+
+            <a href="dashboard.html"
+               class="dashboard-logo">
+
+                TIPECO GROUP
+
+            </a>
+
+
+            <div class="dashboard-header-actions">
+
+
+                <div class="dashboard-user">
+
+                    <div class="dashboard-avatar">
+                        👤
+                    </div>
+
+
+                    <div class="dashboard-user-info">
+
+                        <span class="dashboard-user-name"
+                              data-user-name>
+
+                            User
+
+                        </span>
+
+
+                        <span class="dashboard-user-role"
+                              data-user-role>
+
+                            TIPECO User
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <a href="#"
+                   class="dashboard-logout"
+                   data-action="logout">
+
+                    Logout
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="listing-details-page">
+
+        <div class="listing-details-container">
+
+
+            <!-- BACK -->
+
+            <a href="my-listings.html"
+               class="back-dashboard">
+
+                ← Back to My Listings
+
+            </a>
+
+
+
+            <!-- =================================================
+                 ERROR STATE
+            ================================================== -->
+
+            <section id="listingError"
+                     class="listing-error">
+
+                <div class="listing-error-icon">
+                    ⚠️
+                </div>
+
+
+                <h2>
+                    Listing Not Found
+                </h2>
+
+
+                <p>
+
+                    We could not find this listing.
+                    It may have been deleted or the link may
+                    no longer be valid.
+
+                </p>
+
+
+                <a href="my-listings.html"
+                   class="back-btn">
+
+                    Back to My Listings
+
+                </a>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 LISTING
+            ================================================== -->
+
+            <article id="listingDetailsCard"
+                     class="listing-details-card">
+
+
+                <!-- =================================================
+                     MEDIA
+                ================================================== -->
+
+                <div class="listing-media-area"
+                     id="listingMediaArea">
+
+                    <div class="listing-media-placeholder">
+
+                        <div class="listing-media-placeholder-icon">
+                            📸
+                        </div>
+
+
+                        <strong>
+                            Listing Media
+                        </strong>
+
+
+                        <span>
+                            Photos and video storage will be
+                            connected later.
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     CONTENT
+                ================================================== -->
+
+                <div class="listing-details-content">
+
+
+                    <div class="listing-top">
+
+
+                        <h1 id="listingTitle"
+                            class="listing-title">
+
+                            Listing Title
+
+                        </h1>
+
+
+                        <span id="listingStatus"
+                              class="listing-status status-pending">
+
+                            Pending Verification
+
+                        </span>
+
+                    </div>
+
+
+
+                    <!-- PRICE -->
+
+                    <div id="listingPrice"
+                         class="listing-price">
+
+                        —
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         INFORMATION
+                    ================================================== -->
+
+                    <div class="listing-info-grid">
+
+
+                        <div class="listing-info-box">
+
+                            <span class="listing-info-label">
+                                Category
+                            </span>
+
+
+                            <span id="listingCategory"
+                                  class="listing-info-value">
+
+                                —
+
+                            </span>
+
+                        </div>
+
+
+
+                        <div class="listing-info-box">
+
+                            <span class="listing-info-label">
+                                Listing Type
+                            </span>
+
+
+                            <span id="listingType"
+                                  class="listing-info-value">
+
+                                —
+
+                            </span>
+
+                        </div>
+
+
+
+                        <div class="listing-info-box">
+
+                            <span class="listing-info-label">
+                                Location
+                            </span>
+
+
+                            <span id="listingLocation"
+                                  class="listing-info-value">
+
+                                —
+
+                            </span>
+
+                        </div>
+
+
+
+                        <div class="listing-info-box">
+
+                            <span class="listing-info-label">
+                                Contact Phone
+                            </span>
+
+
+                            <span id="listingPhone"
+                                  class="listing-info-value">
+
+                                —
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         DESCRIPTION
+                    ================================================== -->
+
+                    <section class="listing-section">
+
+
+                        <h2>
+                            Description
+                        </h2>
+
+
+                        <p id="listingDescription"
+                           class="listing-description">
+
+                            —
+
+                        </p>
+
+                    </section>
+
+
+
+                    <!-- =================================================
+                         SELLER
+                    ================================================== -->
+
+                    <section class="listing-section">
+
+
+                        <h2>
+                            👤 Account Information
+                        </h2>
+
+
+                        <div class="seller-card">
+
+
+                            <p>
+
+                                <strong>
+                                    Name:
+                                </strong>
+
+                                <span id="ownerName">
+                                    —
+                                </span>
+
+                            </p>
+
+
+                            <p>
+
+                                <strong>
+                                    Email:
+                                </strong>
+
+                                <span id="ownerEmail">
+                                    —
+                                </span>
+
+                            </p>
+
+
+                            <p>
+
+                                <strong>
+                                    Phone:
+                                </strong>
+
+                                <span id="ownerPhone">
+                                    —
+                                </span>
+
+                            </p>
+
+                        </div>
+
+                    </section>
+
+
+
+                    <!-- =================================================
+                         VERIFICATION
+                    ================================================== -->
+
+                    <div class="verification-box">
+
+
+                        <h3>
+                            🛡️ TIPECO GROUP Verification
+                        </h3>
+
+
+                        <p id="verificationMessage">
+
+                            Your listing is currently waiting
+                            for TIPECO GROUP verification.
+
+                        </p>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         ACTIONS
+                    ================================================== -->
+
+                    <div class="listing-actions">
+
+
+                        <a href="my-listings.html"
+                           class="listing-action-btn listing-action-secondary">
+
+                            ← My Listings
+
+                        </a>
+
+
+                        <a id="contactSellerBtn"
+                           href="#"
+                           class="listing-action-btn listing-action-primary">
+
+                            📞 Contact
+
+                        </a>
+
+                    </div>
+
+
+
+                    <!-- DATE -->
+
+                    <div id="listingDate"
+                         class="listing-date">
+
+                        Submitted: —
+
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+    </main>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="dashboard-footer">
+
+        <strong>
+            TIPECO GROUP
+        </strong>
+
+
+        <p>
+            Innovation • Business • Technology
+        </p>
+
+
+        <p>
+            © 2026 TIPECO GROUP. All Rights Reserved.
+        </p>
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         AUTH JS
+    ====================================================== -->
+
+    <script src="../assets/js/auth.js"></script>
+
+
+
+    <!-- =====================================================
+         LISTING DETAILS JS
+    ====================================================== -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+
+                /* =================================================
+                   ELEMENTS
+                ================================================== */
+
+                const listingCard =
+                    document.getElementById(
+                        "listingDetailsCard"
+                    );
+
+
+                const errorBox =
+                    document.getElementById(
+                        "listingError"
+                    );
+
+
+                /* =================================================
+                   GET LISTING ID FROM URL
+                   
+                   Example:
+                   listing-details.html?id=listing-123
+                ================================================== */
+
+                const urlParams =
+                    new URLSearchParams(
+                        window.location.search
+                    );
+
+
+                const listingId =
+                    urlParams.get("id");
+
+
+                if (!listingId) {
+
+                    errorBox.style.display =
+                        "block";
+
+                    return;
+
+                }
+
+
+                /* =================================================
+                   GET STORED LISTINGS
+                ================================================== */
+
+                const storedListings =
+                    localStorage.getItem(
+                        "tipecoListings"
+                    );
+
+
+                if (!storedListings) {
+
+                    errorBox.style.display =
+                        "block";
+
+                    return;
+
+                }
+
+
+                let listings;
+
+
+                try {
+
+                    listings =
+                        JSON.parse(
+                            storedListings
+                        );
+
+                } catch (error) {
+
+                    console.error(
+                        "Unable to read listings.",
+                        error
+                    );
+
+                    errorBox.style.display =
+                        "block";
+
+                    return;
+
+                }
+
+
+                /* =================================================
+                   FIND LISTING
+                ================================================== */
+
+                const listing =
+                    listings.find(
+                        function (item) {
+
+                            return (
+                                item.id ===
+                                listingId
+                            );
+
+                        }
+                    );
+
+
+                if (!listing) {
+
+                    errorBox.style.display =
+                        "block";
+
+                    return;
+
+                }
+
+
+                /* =================================================
+                   DISPLAY LISTING
+                ================================================== */
+
+                listingCard.style.display =
+                    "block";
+
+
+                document.getElementById(
+                    "listingTitle"
+                ).textContent =
+                    listing.title || "Untitled Listing";
+
+
+                document.getElementById(
+                    "listingPrice"
+                ).textContent =
+                    formatPrice(
+                        listing.price
+                    );
+
+
+                document.getElementById(
+                    "listingCategory"
+                ).textContent =
+                    formatCategory(
+                        listing.category
+                    );
+
+
+                document.getElementById(
+                    "listingType"
+                ).textContent =
+                    formatType(
+                        listing.type
+                    );
+
+
+                document.getElementById(
+                    "listingLocation"
+                ).textContent =
+                    listing.location || "Not provided";
+
+
+                document.getElementById(
+                    "listingPhone"
+                ).textContent =
+                    listing.contactPhone ||
+                    listing.ownerPhone ||
+                    "Not provided";
+
+
+                document.getElementById(
+                    "listingDescription"
+                ).textContent =
+                    listing.description ||
+                    "No description provided.";
+
+
+                document.getElementById(
+                    "ownerName"
+                ).textContent =
+                    listing.ownerName ||
+                    "TIPECO User";
+
+
+                document.getElementById(
+                    "ownerEmail"
+                ).textContent =
+                    listing.ownerEmail ||
+                    "Not provided";
+
+
+                document.getElementById(
+                    "ownerPhone"
+                ).textContent =
+                    listing.ownerPhone ||
+                    "Not provided";
+
+
+                /* =================================================
+                   STATUS
+                ================================================== */
+
+                const statusElement =
+                    document.getElementById(
+                        "listingStatus"
+                    );
+
+
+                const verificationMessage =
+                    document.getElementById(
+                        "verificationMessage"
+                    );
+
+
+                if (
+                    listing.status ===
+                    "verified"
+                ) {
+
+                    statusElement.textContent =
+                        "Verified";
+
+                    statusElement.className =
+                        "listing-status status-verified";
+
+
+                    verificationMessage.textContent =
+                        "This listing has been verified by TIPECO GROUP.";
+
+                }
+
+                else if (
+                    listing.status ===
+                    "rejected"
+                ) {
+
+                    statusElement.textContent =
+                        "Rejected";
+
+                    statusElement.className =
+                        "listing-status status-rejected";
+
+
+                    verificationMessage.textContent =
+                        "This listing was not approved by TIPECO GROUP. Please review the information or contact TIPECO GROUP.";
+
+                }
+
+                else {
+
+                    statusElement.textContent =
+                        "Pending Verification";
+
+                    statusElement.className =
+                        "listing-status status-pending";
+
+
+                    verificationMessage.textContent =
+                        "Your listing has been submitted and is waiting for TIPECO GROUP verification.";
+
+                }
+
+
+
+                /* =================================================
+                   DATE
+                ================================================== */
+
+                const listingDate =
+                    document.getElementById(
+                        "listingDate"
+                    );
+
+
+                if (listing.createdAt) {
+
+                    const date =
+                        new Date(
+                            listing.createdAt
+                        );
+
+
+                    if (
+                        !isNaN(
+                            date.getTime()
+                        )
+                    ) {
+
+                        listingDate.textContent =
+                            "Submitted: " +
+                            date.toLocaleString();
+
+                    }
+
+                }
+
+
+
+                /* =================================================
+                   CONTACT BUTTON
+                ================================================== */
+
+                const contactButton =
+                    document.getElementById(
+                        "contactSellerBtn"
+                    );
+
+
+                const phone =
+                    listing.contactPhone ||
+                    listing.ownerPhone;
+
+
+                if (phone) {
+
+                    const cleanPhone =
+                        String(phone)
+                            .replace(
+                                /[^0-9+]/g,
+                                ""
+                            );
+
+
+                    contactButton.href =
+                        "tel:" +
+                        cleanPhone;
+
+                } else {
+
+                    contactButton.style.display =
+                        "none";
+
+                }
+
+
+
+                /* =================================================
+                   PRICE FORMAT
+                ================================================== */
+
+                function formatPrice(price) {
+
+                    if (
+                        price === undefined ||
+                        price === null ||
+                        price === ""
+                    ) {
+
+                        return "Price not provided";
+
+                    }
+
+
+                    const number =
+                        Number(price);
+
+
+                    if (
+                        !isNaN(number)
+                    ) {
+
+                        return (
+                            number.toLocaleString() +
+                            " RWF"
+                        );
+
+                    }
+
+
+                    return String(price);
+
+                }
+
+
+
+                /* =================================================
+                   CATEGORY FORMAT
+                ================================================== */
+
+                function formatCategory(category) {
+
+                    if (!category) {
+
+                        return "Not specified";
+
+                    }
+
+
+                    const labels = {
+
+                        "vehicles":
+                            "Vehicles",
+
+                        "real-estate":
+                            "Real Estate",
+
+                        "electronics":
+                            "Electronics",
+
+                        "home-furniture":
+                            "Home & Furniture",
+
+                        "construction":
+                            "Construction Products",
+
+                        "services":
+                            "Services",
+
+                        "other":
+                            "Other"
+
+                    };
+
+
+                    return (
+                        labels[category] ||
+                        category
+                    );
+
+                }
+
+
+
+                /* =================================================
+                   TYPE FORMAT
+                ================================================== */
+
+                function formatType(type) {
+
+                    if (!type) {
+
+                        return "Not specified";
+
+                    }
+
+
+                    const labels = {
+
+                        "sell":
+                            "For Sale",
+
+                        "rent":
+                            "For Rent",
+
+                        "service":
+                            "Service",
+
+                        "other":
+                            "Other"
+
+                    };
+
+
+                    return (
+                        labels[type] ||
+                        type
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+
+</body>
+
+</html>
