@@ -4,7 +4,8 @@
 <head>
 
     <!-- =====================================================
-         TIPECO GROUP - ADD LISTING
+         TIPECO GROUP - USER DASHBOARD
+         Version: 2.1
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -13,7 +14,7 @@
           content="width=device-width, initial-scale=1.0">
 
     <meta name="description"
-          content="Add a new listing to TIPECO GROUP">
+          content="TIPECO GROUP User Dashboard">
 
     <meta name="author"
           content="TIPECO GROUP">
@@ -21,14 +22,27 @@
     <meta name="theme-color"
           content="#0D47A1">
 
-    <title>Add Listing | TIPECO GROUP</title>
+    <title>Dashboard | TIPECO GROUP</title>
 
 
-    <!-- TIPECO GROUP AUTH CSS -->
+    <!-- =====================================================
+         CSS
+    ====================================================== -->
 
     <link rel="stylesheet"
-          href="../assets/css/auth.css">
+          href="../assets/css/variables.css">
 
+    <link rel="stylesheet"
+          href="../assets/css/style.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/responsive.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/animations.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/dashboard.css">
 
 </head>
 
@@ -37,477 +51,865 @@
 
 
     <!-- =====================================================
-         TIPECO GROUP - ADD LISTING PAGE
+         DASHBOARD HEADER
     ====================================================== -->
 
-    <main class="auth-page">
+    <header class="dashboard-header">
 
-        <div class="auth-container">
+        <div class="dashboard-header-inner">
 
 
-            <!-- =================================================
-                 HEADER
-            ================================================== -->
+            <!-- LOGO -->
 
-            <div class="auth-header">
+            <a href="../index.html"
+               class="dashboard-logo">
 
-                <a href="../index.html"
-                   class="auth-logo">
+                TIPECO GROUP
 
-                    TIPECO GROUP
+            </a>
+
+
+            <!-- HEADER ACTIONS -->
+
+            <div class="dashboard-header-actions">
+
+
+                <!-- USER -->
+
+                <div class="dashboard-user">
+
+                    <div class="dashboard-avatar">
+                        👤
+                    </div>
+
+
+                    <div class="dashboard-user-info">
+
+                        <span
+                            class="dashboard-user-name"
+                            data-user-name>
+
+                            User
+
+                        </span>
+
+
+                        <span
+                            class="dashboard-user-role"
+                            data-user-role>
+
+                            TIPECO User
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- LOGOUT -->
+
+                <a href="#"
+                   class="dashboard-logout"
+                   data-action="logout">
+
+                    Logout
 
                 </a>
 
-
-                <h1>
-                    Add New Listing
-                </h1>
-
-
-                <p>
-                    Submit your product or service for verification
-                </p>
-
             </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         DASHBOARD PAGE
+    ====================================================== -->
+
+    <main class="dashboard-page">
+
+        <div class="dashboard-layout">
+
+
+            <!-- =================================================
+                 SIDEBAR
+            ================================================== -->
+
+            <aside class="dashboard-sidebar">
+
+
+                <div class="sidebar-title">
+
+                    MY DASHBOARD
+
+                </div>
+
+
+                <ul class="dashboard-nav">
+
+
+                    <!-- DASHBOARD -->
+
+                    <li>
+
+                        <a href="dashboard.html"
+                           class="active">
+
+                            <span class="dashboard-nav-icon">
+                                🏠
+                            </span>
+
+                            Dashboard
+
+                        </a>
+
+                    </li>
+
+
+
+                    <!-- =================================================
+                         BUYER
+                    ================================================== -->
+
+                    <li class="buyer-only">
+
+                        <a href="marketplace.html">
+
+                            <span class="dashboard-nav-icon">
+                                🔎
+                            </span>
+
+                            Browse Buy &amp; Sell
+
+                        </a>
+
+                    </li>
+
+
+                    <li class="buyer-only">
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                ❤️
+                            </span>
+
+                            Saved Items
+
+                        </a>
+
+                    </li>
+
+
+                    <li class="buyer-only">
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                📩
+                            </span>
+
+                            My Requests
+
+                        </a>
+
+                    </li>
+
+
+                    <li class="buyer-only">
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                👁️
+                            </span>
+
+                            Viewing Requests
+
+                        </a>
+
+                    </li>
+
+
+
+                    <!-- =================================================
+                         SELLER
+                    ================================================== -->
+
+                    <li class="seller-only">
+
+                        <a href="add-listing.html">
+
+                            <span class="dashboard-nav-icon">
+                                ➕
+                            </span>
+
+                            Add Listing
+
+                        </a>
+
+                    </li>
+
+
+                    <li class="seller-only">
+
+                        <a href="my-listings.html">
+
+                            <span class="dashboard-nav-icon">
+                                📋
+                            </span>
+
+                            My Listings
+
+                        </a>
+
+                    </li>
+
+
+                    <li class="seller-only">
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                📩
+                            </span>
+
+                            Customer Requests
+
+                        </a>
+
+                    </li>
+
+
+                    <li class="seller-only">
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                👁️
+                            </span>
+
+                            Viewing Requests
+
+                        </a>
+
+                    </li>
+
+
+
+                    <!-- =================================================
+                         BOTH BUYER & SELLER
+                    ================================================== -->
+
+                    <li>
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                💬
+                            </span>
+
+                            Messages
+
+                        </a>
+
+                    </li>
+
+
+                    <li>
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                🔔
+                            </span>
+
+                            Notifications
+
+                        </a>
+
+                    </li>
+
+
+                    <li>
+
+                        <a href="#">
+
+                            <span class="dashboard-nav-icon">
+                                ⚙️
+                            </span>
+
+                            Account Settings
+
+                        </a>
+
+                    </li>
+
+
+                </ul>
+
+            </aside>
 
 
 
             <!-- =================================================
-                 LISTING CARD
+                 MAIN CONTENT
             ================================================== -->
 
-            <div class="auth-card">
+            <section class="dashboard-main">
 
 
-                <form
-                    id="addListingForm"
-                    action="javascript:void(0);"
-                    method="post">
+                <!-- =================================================
+                     WELCOME
+                ================================================== -->
+
+                <section class="dashboard-welcome">
+
+                    <p class="dashboard-welcome-label">
+
+                        TIPECO GROUP DASHBOARD
+
+                    </p>
 
 
-                    <!-- =================================================
-                         LISTING TITLE
-                    ================================================== -->
+                    <h1>
 
-                    <div class="form-group">
+                        Welcome Back,
+                        <span data-user-name>
+                            User
+                        </span>
+                        👋
 
-                        <label for="listingTitle">
-
-                            Listing Title
-
-                        </label>
+                    </h1>
 
 
-                        <input
-                            type="text"
-                            id="listingTitle"
-                            name="listingTitle"
-                            placeholder="e.g. Modern 3 Bedroom House for Rent"
-                            required>
+                    <p>
 
-                    </div>
+                        Manage your TIPECO GROUP account
+                        and activities from one place.
+
+                    </p>
+
+                </section>
 
 
 
-                    <!-- =================================================
-                         CATEGORY
-                    ================================================== -->
+                <!-- =================================================
+                     PROFILE SUMMARY
+                ================================================== -->
 
-                    <div class="form-group">
+                <section class="profile-card">
 
-                        <label for="listingCategory">
-
-                            Category
-
-                        </label>
+                    <div class="profile-card-top">
 
 
-                        <select
-                            id="listingCategory"
-                            name="listingCategory"
-                            required>
+                        <div class="dashboard-avatar">
+
+                            👤
+
+                        </div>
 
 
-                            <option value="">
+                        <div>
 
-                                Select category
+                            <h3 data-user-name>
 
-                            </option>
+                                User
 
-
-                            <option value="real-estate">
-
-                                Real Estate
-
-                            </option>
+                            </h3>
 
 
-                            <option value="vehicles">
+                            <p data-user-email>
 
-                                Vehicles
+                                user@example.com
 
-                            </option>
-
-
-                            <option value="electronics">
-
-                                Electronics
-
-                            </option>
+                            </p>
 
 
-                            <option value="home-furniture">
+                            <p data-user-role>
 
-                                Home &amp; Furniture
+                                TIPECO User
 
-                            </option>
+                            </p>
 
-
-                            <option value="construction">
-
-                                Construction Products
-
-                            </option>
-
-
-                            <option value="services">
-
-                                Services
-
-                            </option>
-
-
-                            <option value="other">
-
-                                Other Products
-
-                            </option>
-
-
-                        </select>
+                        </div>
 
                     </div>
 
 
+                    <a href="#"
+                       class="profile-card-link">
 
-                    <!-- =================================================
-                         LISTING TYPE
-                    ================================================== -->
+                        Edit Profile
 
-                    <div class="form-group">
+                    </a>
 
-                        <label for="listingType">
-
-                            Listing Type
-
-                        </label>
+                </section>
 
 
-                        <select
-                            id="listingType"
-                            name="listingType"
-                            required>
+
+                <!-- =================================================
+                     STATISTICS
+                ================================================== -->
+
+                <section class="dashboard-section">
+
+                    <div class="dashboard-stats">
 
 
-                            <option value="">
+                        <!-- MY LISTINGS -->
 
-                                Select listing type
+                        <div class="dashboard-stat-card seller-only">
 
-                            </option>
+                            <div class="stat-icon">
+                                📋
+                            </div>
 
+                            <div>
 
-                            <option value="sell">
+                                <strong class="stat-number">
+                                    0
+                                </strong>
 
-                                For Sale
+                                <div class="stat-title">
+                                    My Listings
+                                </div>
 
-                            </option>
+                            </div>
 
-
-                            <option value="rent">
-
-                                For Rent
-
-                            </option>
-
-
-                            <option value="service">
-
-                                Service
-
-                            </option>
+                        </div>
 
 
-                        </select>
+                        <!-- SAVED ITEMS -->
+
+                        <div class="dashboard-stat-card buyer-only">
+
+                            <div class="stat-icon">
+                                ❤️
+                            </div>
+
+                            <div>
+
+                                <strong class="stat-number">
+                                    0
+                                </strong>
+
+                                <div class="stat-title">
+                                    Saved Items
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- REQUESTS -->
+
+                        <div class="dashboard-stat-card">
+
+                            <div class="stat-icon">
+                                📩
+                            </div>
+
+                            <div>
+
+                                <strong class="stat-number">
+                                    0
+                                </strong>
+
+                                <div class="stat-title">
+                                    Requests
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- MESSAGES -->
+
+                        <div class="dashboard-stat-card">
+
+                            <div class="stat-icon">
+                                💬
+                            </div>
+
+                            <div>
+
+                                <strong class="stat-number">
+                                    0
+                                </strong>
+
+                                <div class="stat-title">
+                                    Messages
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     BUYER QUICK ACTIONS
+                ================================================== -->
+
+                <section class="dashboard-section buyer-only">
+
+                    <div class="dashboard-section-header">
+
+                        <h2>
+                            What Would You Like To Do?
+                        </h2>
 
                     </div>
 
 
+                    <div class="quick-actions">
 
-                    <!-- =================================================
-                         PRICE
-                    ================================================== -->
 
-                    <div class="form-group">
+                        <a href="marketplace.html"
+                           class="quick-action">
 
-                        <label for="listingPrice">
+                            <div class="quick-action-icon">
+                                🔎
+                            </div>
 
-                            Price
+                            <h3>
+                                Browse Buy &amp; Sell
+                            </h3>
 
-                        </label>
+                            <p>
+                                Explore verified products,
+                                vehicles and properties.
+                            </p>
 
+                        </a>
 
-                        <input
-                            type="number"
-                            id="listingPrice"
-                            name="listingPrice"
-                            placeholder="Enter price"
-                            min="0"
-                            step="any"
-                            required>
 
-                    </div>
+                        <a href="#"
+                           class="quick-action">
 
+                            <div class="quick-action-icon">
+                                ❤️
+                            </div>
 
+                            <h3>
+                                Saved Items
+                            </h3>
 
-                    <!-- =================================================
-                         LOCATION
-                    ================================================== -->
+                            <p>
+                                View products and properties
+                                you saved.
+                            </p>
 
-                    <div class="form-group">
+                        </a>
 
-                        <label for="listingLocation">
 
-                            Location
+                        <a href="#"
+                           class="quick-action">
 
-                        </label>
+                            <div class="quick-action-icon">
+                                👁️
+                            </div>
 
+                            <h3>
+                                Request a Viewing
+                            </h3>
 
-                        <input
-                            type="text"
-                            id="listingLocation"
-                            name="listingLocation"
-                            placeholder="e.g. Kigali, Gasabo"
-                            required>
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         DESCRIPTION
-                    ================================================== -->
-
-                    <div class="form-group">
-
-                        <label for="listingDescription">
-
-                            Description
-
-                        </label>
-
-
-                        <textarea
-                            id="listingDescription"
-                            name="listingDescription"
-                            rows="6"
-                            placeholder="Describe your product or service in detail..."
-                            required></textarea>
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         CONTACT PHONE
-                    ================================================== -->
-
-                    <div class="form-group">
-
-                        <label for="listingPhone">
-
-                            Contact Phone Number
-
-                        </label>
-
-
-                        <input
-                            type="tel"
-                            id="listingPhone"
-                            name="listingPhone"
-                            placeholder="Enter contact phone number"
-                            autocomplete="tel"
-                            required>
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         LISTING IMAGE
-                    ================================================== -->
-
-                    <div class="form-group">
-
-                        <label for="listingImage">
-
-                            Listing Image
-
-                        </label>
-
-
-                        <input
-                            type="file"
-                            id="listingImage"
-                            name="listingImage"
-                            accept="image/*">
-
-                        <p style="
-                            color: #757575;
-                            font-size: 13px;
-                            line-height: 1.5;
-                            margin-top: 8px;
-                        ">
-
-                            Upload a clear image of your product,
-                            property or service.
-
-                        </p>
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         VERIFICATION NOTICE
-                    ================================================== -->
-
-                    <div
-                        class="form-group"
-                        style="
-                            background: #f5f8fc;
-                            padding: 15px;
-                            border-radius: 8px;
-                            margin-top: 10px;
-                        "
-                    >
-
-                        <strong>
-
-                            TIPECO GROUP Verification
-
-                        </strong>
-
-
-                        <p style="
-                            color: #757575;
-                            font-size: 13px;
-                            line-height: 1.6;
-                            margin-top: 8px;
-                        ">
-
-                            Your listing will be reviewed and verified
-                            by TIPECO GROUP before it becomes visible
-                            to customers.
-
-                        </p>
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         TERMS
-                    ================================================== -->
-
-                    <div class="auth-options">
-
-                        <label class="remember-me">
-
-
-                            <input
-                                type="checkbox"
-                                id="listingAgreement"
-                                name="listingAgreement"
-                                required>
-
-
-                            <span>
-
-                                I confirm that the information
-                                provided is accurate.
-
-                            </span>
-
-
-                        </label>
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         SUBMIT
-                    ================================================== -->
-
-                    <button
-    type="submit"
-    id="submitListingButton"
-    class="auth-btn">
-
-    Submit Listing for Verification
-
-</button>
-
-
-
-                    <!-- =================================================
-                         BACK TO DASHBOARD
-                    ================================================== -->
-
-                    <div style="
-                        text-align: center;
-                        margin-top: 18px;
-                    ">
-
-
-                        <a
-                            href="dashboard.html"
-                            style="
-                                color: var(--primary-color);
-                                font-size: 14px;
-                                font-weight: 700;
-                            "
-                        >
-
-                            ← Back to Dashboard
+                            <p>
+                                Ask TIPECO GROUP to arrange
+                                a product viewing.
+                            </p>
 
                         </a>
 
 
                     </div>
 
-
-                </form>
-
-
-            </div>
+                </section>
 
 
 
-            <!-- =================================================
-                 BACK HOME
-            ================================================== -->
+                <!-- =================================================
+                     SELLER QUICK ACTIONS
+                ================================================== -->
 
-            <div class="back-home">
+                <section class="dashboard-section seller-only">
 
-                <a href="../index.html">
+                    <div class="dashboard-section-header">
 
-                    ← Back to TIPECO GROUP
+                        <h2>
+                            Manage Your Business
+                        </h2>
 
-                </a>
+                    </div>
 
-            </div>
 
+                    <div class="quick-actions">
+
+
+                        <!-- ADD LISTING -->
+
+                        <a href="add-listing.html"
+                           class="quick-action">
+
+                            <div class="quick-action-icon">
+                                ➕
+                            </div>
+
+                            <h3>
+                                Add Listing
+                            </h3>
+
+                            <p>
+                                Submit a product or service
+                                for TIPECO GROUP review.
+                            </p>
+
+                        </a>
+
+
+                        <!-- MY LISTINGS -->
+
+                        <a href="my-listings.html"
+                           class="quick-action">
+
+                            <div class="quick-action-icon">
+                                📋
+                            </div>
+
+                            <h3>
+                                My Listings
+                            </h3>
+
+                            <p>
+                                Manage the products and services
+                                you have submitted.
+                            </p>
+
+                        </a>
+
+
+                        <!-- CUSTOMER REQUESTS -->
+
+                        <a href="#"
+                           class="quick-action">
+
+                            <div class="quick-action-icon">
+                                📩
+                            </div>
+
+                            <h3>
+                                Customer Requests
+                            </h3>
+
+                            <p>
+                                View requests received through
+                                TIPECO GROUP.
+                            </p>
+
+                        </a>
+
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     TIPECO GROUP VERIFICATION
+                ================================================== -->
+
+                <section class="dashboard-section">
+
+                    <div class="profile-card">
+
+
+                        <div class="profile-card-top">
+
+                            <div class="dashboard-avatar">
+                                ✓
+                            </div>
+
+
+                            <div>
+
+                                <h3>
+                                    TIPECO GROUP Verification
+                                </h3>
+
+
+                                <p>
+                                    We help connect customers
+                                    with trusted sellers and
+                                    service providers.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <p
+                            style="
+                                margin: 0 0 18px;
+                                color: rgba(255,255,255,0.85);
+                                font-size: 13px;
+                                line-height: 1.6;
+                            ">
+
+                            Product information, viewing requests
+                            and customer communication can be
+                            managed through the TIPECO GROUP platform.
+
+                        </p>
+
+
+                        <a href="contact.html"
+                           class="profile-card-link">
+
+                            Contact TIPECO GROUP
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     RECENT ACTIVITY
+                ================================================== -->
+
+                <section class="dashboard-section">
+
+                    <div class="dashboard-section-header">
+
+                        <h2>
+                            Recent Activity
+                        </h2>
+
+
+                        <a href="#"
+                           class="dashboard-section-link">
+
+                            View All
+
+                        </a>
+
+                    </div>
+
+
+                    <div class="activity-card">
+
+
+                        <div class="activity-item">
+
+                            <span class="activity-icon">
+                                👋
+                            </span>
+
+
+                            <div class="activity-content">
+
+                                <h4>
+                                    Welcome to TIPECO GROUP
+                                </h4>
+
+
+                                <p>
+                                    Your dashboard is ready.
+                                </p>
+
+                            </div>
+
+
+                            <span class="activity-time">
+                                Today
+                            </span>
+
+                        </div>
+
+
+
+                        <div class="activity-item">
+
+                            <span class="activity-icon">
+                                🔐
+                            </span>
+
+
+                            <div class="activity-content">
+
+                                <h4>
+                                    Account Created
+                                </h4>
+
+
+                                <p>
+                                    Your account was created
+                                    successfully.
+                                </p>
+
+                            </div>
+
+
+                            <span class="activity-time">
+                                Today
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     EMPTY STATE
+                ================================================== -->
+
+                <section class="dashboard-section">
+
+                    <div class="dashboard-empty">
+
+
+                        <div class="dashboard-empty-icon">
+                            🚀
+                        </div>
+
+
+                        <h3>
+                            More Features Coming Soon
+                        </h3>
+
+
+                        <p>
+                            TIPECO GROUP is continuously building
+                            new tools to make buying, selling and
+                            discovering services easier.
+                        </p>
+
+
+                    </div>
+
+                </section>
+
+
+            </section>
 
         </div>
 
@@ -516,13 +918,156 @@
 
 
     <!-- =====================================================
-         TIPECO GROUP AUTH JAVASCRIPT
+         FOOTER
+    ====================================================== -->
+
+    <footer class="dashboard-footer">
+
+        <strong>
+            TIPECO GROUP
+        </strong>
+
+
+        <p>
+            Innovation • Business • Technology
+        </p>
+
+
+        <p>
+            © 2026 TIPECO GROUP. All Rights Reserved.
+        </p>
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         AUTH JAVASCRIPT
     ====================================================== -->
 
     <script src="../assets/js/auth.js"></script>
 
 
+
+    <!-- =====================================================
+         ROLE-BASED DASHBOARD
+    ====================================================== -->
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+
+                const storedUser =
+                    localStorage.getItem(
+                        "tipecoUser"
+                    );
+
+
+                if (!storedUser) {
+                    return;
+                }
+
+
+                let user;
+
+
+                try {
+
+                    user =
+                        JSON.parse(
+                            storedUser
+                        );
+
+                } catch (error) {
+
+                    console.error(
+                        "Unable to read user role.",
+                        error
+                    );
+
+                    return;
+                }
+
+
+                const role =
+                    user.accountType;
+
+
+                const buyerElements =
+                    document.querySelectorAll(
+                        ".buyer-only"
+                    );
+
+
+                const sellerElements =
+                    document.querySelectorAll(
+                        ".seller-only"
+                    );
+
+
+
+                /* =================================================
+                   BUYER
+                ================================================== */
+
+                if (role === "buyer") {
+
+                    buyerElements.forEach(
+                        function (element) {
+
+                            element.style.display = "";
+
+                        }
+                    );
+
+
+                    sellerElements.forEach(
+                        function (element) {
+
+                            element.style.display = "none";
+
+                        }
+                    );
+
+                }
+
+
+
+                /* =================================================
+                   SELLER
+                ================================================== */
+
+                else if (role === "seller") {
+
+                    sellerElements.forEach(
+                        function (element) {
+
+                            element.style.display = "";
+
+                        }
+                    );
+
+
+                    buyerElements.forEach(
+                        function (element) {
+
+                            element.style.display = "none";
+
+                        }
+                    );
+
+                }
+
+
+            }
+        );
+
+    </script>
+
+
 </body>
 
-</
-  
+</html>
