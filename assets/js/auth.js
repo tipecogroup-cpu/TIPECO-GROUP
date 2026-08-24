@@ -1,7 +1,7 @@
 /* =====================================================
    TIPECO GROUP - AUTHENTICATION JAVASCRIPT
-   Version: 2.0
-   Frontend Authentication Prototype
+   Version: 2.1
+   Frontend Authentication + Listings + Media
 ===================================================== */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -58,12 +58,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
+
     /* =====================================================
        LOGIN
     ===================================================== */
 
     const loginForm =
         document.getElementById("loginForm");
+
 
     if (loginForm) {
 
@@ -90,8 +92,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
 
-                /* FORM CHECK */
-
                 if (
                     !identifierInput ||
                     !passwordInput
@@ -105,16 +105,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* GET VALUES */
-
                 const identifier =
                     identifierInput.value.trim();
 
                 const password =
                     passwordInput.value;
 
-
-                /* REQUIRED FIELDS */
 
                 if (
                     !identifier ||
@@ -128,8 +124,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-
-                /* GET REGISTERED USER */
 
                 const registeredUser =
                     localStorage.getItem(
@@ -167,8 +161,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* IDENTIFIER CHECK */
-
                 const identifierMatches =
 
                     identifier.toLowerCase() ===
@@ -180,8 +172,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     identifier ===
                     String(user.phone);
 
-
-                /* PASSWORD CHECK */
 
                 const passwordMatches =
                     password === user.password;
@@ -200,9 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* =================================================
-                   SAVE LOGIN STATE
-                ================================================== */
+                /* SAVE LOGIN STATE */
 
                 localStorage.removeItem(
                     "tipecoLoggedIn"
@@ -232,14 +220,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* SUCCESS */
-
                 alert(
                     "Login successful! Welcome to TIPECO GROUP."
                 );
 
-
-                /* GO TO DASHBOARD */
 
                 window.location.href =
                     "dashboard.html";
@@ -268,10 +252,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 event.preventDefault();
 
-
-                /* =================================================
-                   GET FORM INPUTS
-                ================================================== */
 
                 const fullNameInput =
                     document.getElementById(
@@ -309,10 +289,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
 
-                /* =================================================
-                   CHECK FORM ELEMENTS
-                ================================================== */
-
                 if (
 
                     !fullNameInput ||
@@ -333,10 +309,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* =================================================
-                   GET VALUES
-                ================================================== */
-
                 const fullName =
                     fullNameInput.value.trim();
 
@@ -355,10 +327,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const accountType =
                     accountTypeInput.value;
 
-
-                /* =================================================
-                   REQUIRED FIELDS
-                ================================================== */
 
                 if (
 
@@ -379,10 +347,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* =================================================
-                   TERMS
-                ================================================== */
-
                 if (!termsInput.checked) {
 
                     alert(
@@ -393,13 +357,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* =================================================
-                   PASSWORD LENGTH
-                ================================================== */
-
-                if (
-                    password.length < 6
-                ) {
+                if (password.length < 6) {
 
                     alert(
                         "Password must contain at least 6 characters."
@@ -408,10 +366,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-
-                /* =================================================
-                   PASSWORD MATCH
-                ================================================== */
 
                 if (
                     password !==
@@ -425,10 +379,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-
-                /* =================================================
-                   EMAIL CHECK
-                ================================================== */
 
                 const emailPattern =
                     /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -446,17 +396,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* =================================================
-                   ROLE SECURITY
-                   
-                   PUBLIC REGISTRATION ONLY ALLOWS:
-                   buyer
-                   seller
-
-                   staff/admin MUST NOT be selectable
-                   through public registration.
-                ================================================== */
-
                 if (
 
                     accountType !== "buyer" &&
@@ -471,10 +410,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-
-                /* =================================================
-                   CREATE USER
-                ================================================== */
 
                 const user = {
 
@@ -496,10 +431,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 };
 
 
-                /* =================================================
-                   SAVE USER
-                ================================================== */
-
                 try {
 
                     localStorage.setItem(
@@ -517,9 +448,314 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* =================================================
-                   REMOVE OLD LOGIN STATE
-                ================================================== */
+                localStorage.removeItem(
+                    "tipecoLoggedIn"
+                );
+
+                sessionStorage.removeItem(
+                    "tipecoLoggedIn"
+                );
+
+
+                alert(
+                    "Account created successfully! You can now login."
+                );
+
+
+                window.location.href =
+                    "login.html";
+
+            }
+        );
+    }
+
+
+
+    /* =====================================================
+       FORGOT PASSWORD
+    ===================================================== */
+
+    const forgotPasswordForm =
+        document.getElementById(
+            "forgotPasswordForm"
+        );
+
+
+    if (forgotPasswordForm) {
+
+        forgotPasswordForm.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
+
+
+                const identifierInput =
+                    document.getElementById(
+                        "resetIdentifier"
+                    );
+
+
+                if (!identifierInput) {
+
+                    alert(
+                        "Forgot password form configuration error."
+                    );
+
+                    return;
+                }
+
+
+                const identifier =
+                    identifierInput.value.trim();
+
+
+                if (!identifier) {
+
+                    alert(
+                        "Please enter your email or phone number."
+                    );
+
+                    return;
+                }
+
+
+                const user =
+                    getStoredUser();
+
+
+                if (!user) {
+
+                    alert(
+                        "No account found. Please create an account first."
+                    );
+
+                    return;
+                }
+
+
+                const emailMatches =
+                    identifier.toLowerCase() ===
+                    String(user.email)
+                        .toLowerCase();
+
+
+                const phoneMatches =
+                    identifier ===
+                    String(user.phone);
+
+
+                if (
+                    !emailMatches &&
+                    !phoneMatches
+                ) {
+
+                    alert(
+                        "No account was found with that email or phone number."
+                    );
+
+                    return;
+                }
+
+
+                localStorage.setItem(
+                    "tipecoResetIdentifier",
+                    identifier
+                );
+
+
+                alert(
+                    "Account found. You can now reset your password."
+                );
+
+
+                window.location.href =
+                    "reset-password.html";
+
+            }
+        );
+    }
+
+
+
+    /* =====================================================
+       RESET PASSWORD
+    ===================================================== */
+
+    const resetPasswordForm =
+        document.getElementById(
+            "resetPasswordForm"
+        );
+
+
+    if (resetPasswordForm) {
+
+        resetPasswordForm.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
+
+
+                const newPasswordInput =
+                    document.getElementById(
+                        "newPassword"
+                    );
+
+                const confirmNewPasswordInput =
+                    document.getElementById(
+                        "confirmNewPassword"
+                    );
+
+
+                if (
+                    !newPasswordInput ||
+                    !confirmNewPasswordInput
+                ) {
+
+                    alert(
+                        "Reset password form configuration error."
+                    );
+
+                    return;
+                }
+
+
+                const newPassword =
+                    newPasswordInput.value;
+
+                const confirmNewPassword =
+                    confirmNewPasswordInput.value;
+
+
+                if (
+                    !newPassword ||
+                    !confirmNewPassword
+                ) {
+
+                    alert(
+                        "Please enter and confirm your new password."
+                    );
+
+                    return;
+                }
+
+
+                if (newPassword.length < 6) {
+
+                    alert(
+                        "Password must contain at least 6 characters."
+                    );
+
+                    return;
+                }
+
+
+                if (
+                    newPassword !==
+                    confirmNewPassword
+                ) {
+
+                    alert(
+                        "Passwords do not match."
+                    );
+
+                    return;
+                }
+
+
+                const resetIdentifier =
+                    localStorage.getItem(
+                        "tipecoResetIdentifier"
+                    );
+
+
+                if (!resetIdentifier) {
+
+                    alert(
+                        "Password reset session expired. Please start again."
+                    );
+
+                    window.location.href =
+                        "forgot-password.html";
+
+                    return;
+                }
+
+
+                const user =
+                    getStoredUser();
+
+
+                if (!user) {
+
+                    alert(
+                        "No account found. Please create an account first."
+                    );
+
+                    window.location.href =
+                        "register.html";
+
+                    return;
+                }
+
+
+                const emailMatches =
+                    resetIdentifier.toLowerCase() ===
+                    String(user.email)
+                        .toLowerCase();
+
+
+                const phoneMatches =
+                    resetIdentifier ===
+                    String(user.phone);
+
+
+                if (
+                    !emailMatches &&
+                    !phoneMatches
+                ) {
+
+                    alert(
+                        "The password reset request is no longer valid."
+                    );
+
+                    localStorage.removeItem(
+                        "tipecoResetIdentifier"
+                    );
+
+                    window.location.href =
+                        "forgot-password.html";
+
+                    return;
+                }
+
+
+                user.password =
+                    newPassword;
+
+
+                try {
+
+                    localStorage.setItem(
+                        "tipecoUser",
+                        JSON.stringify(user)
+                    );
+
+                } catch (error) {
+
+                    alert(
+                        "Unable to update your password."
+                    );
+
+                    return;
+                }
+
+
+                localStorage.removeItem(
+                    "tipecoResetIdentifier"
+                );
+
 
                 localStorage.removeItem(
                     "tipecoLoggedIn"
@@ -530,18 +766,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
 
 
-                /* =================================================
-                   SUCCESS
-                ================================================== */
-
                 alert(
-                    "Account created successfully! You can now login."
+                    "Password reset successfully! You can now login with your new password."
                 );
 
-
-                /* =================================================
-                   GO TO LOGIN
-                ================================================== */
 
                 window.location.href =
                     "login.html";
@@ -550,567 +778,549 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
-/* =====================================================
-   FORGOT PASSWORD
-===================================================== */
 
-const forgotPasswordForm =
-    document.getElementById("forgotPasswordForm");
 
-if (forgotPasswordForm) {
+    /* =====================================================
+       ADD LISTING
+       Photos + Video
+    ===================================================== */
 
-    forgotPasswordForm.addEventListener(
-        "submit",
-        function (event) {
+    const addListingForm =
+        document.getElementById(
+            "addListingForm"
+        );
 
-            event.preventDefault();
 
-            const identifierInput =
-                document.getElementById("resetIdentifier");
+    if (addListingForm) {
 
-            if (!identifierInput) {
+        console.log(
+            "TIPECO ADD LISTING FORM FOUND"
+        );
 
-                alert(
-                    "Forgot password form configuration error."
-                );
 
-                return;
-            }
+        addListingForm.addEventListener(
+            "submit",
+            async function (event) {
 
-            const identifier =
-                identifierInput.value.trim();
+                event.preventDefault();
 
-            if (!identifier) {
 
-                alert(
-                    "Please enter your email or phone number."
-                );
+                /* =================================================
+                   GET FORM VALUES
+                ================================================== */
 
-                return;
-            }
+                const listingTitle =
+                    document.getElementById(
+                        "listingTitle"
+                    ).value.trim();
 
-            const user = getStoredUser();
 
-            if (!user) {
+                const listingCategory =
+                    document.getElementById(
+                        "listingCategory"
+                    ).value;
 
-                alert(
-                    "No account found. Please create an account first."
-                );
 
-                return;
-            }
+                const listingType =
+                    document.getElementById(
+                        "listingType"
+                    ).value;
 
-            const emailMatches =
-                identifier.toLowerCase() ===
-                String(user.email).toLowerCase();
 
-            const phoneMatches =
-                identifier ===
-                String(user.phone);
+                const listingPrice =
+                    document.getElementById(
+                        "listingPrice"
+                    ).value;
 
-            if (!emailMatches && !phoneMatches) {
 
-                alert(
-                    "No account was found with that email or phone number."
-                );
+                const listingLocation =
+                    document.getElementById(
+                        "listingLocation"
+                    ).value.trim();
 
-                return;
-            }
 
-            /*
-             * TEMPORARY FRONTEND PROTOTYPE
-             *
-             * The real version will use
-             * email/SMS verification through a backend.
-             */
+                const listingDescription =
+                    document.getElementById(
+                        "listingDescription"
+                    ).value.trim();
 
-            localStorage.setItem(
-                "tipecoResetIdentifier",
-                identifier
-            );
 
-            alert(
-                "Account found. You can now reset your password."
-            );
+                const listingPhone =
+                    document.getElementById(
+                        "listingPhone"
+                    ).value.trim();
 
-            window.location.href =
-                "reset-password.html";
 
-        }
-    );
-}
-/* =====================================================
-   RESET PASSWORD
-===================================================== */
+                const listingAgreement =
+                    document.getElementById(
+                        "listingAgreement"
+                    );
 
-const resetPasswordForm =
-    document.getElementById("resetPasswordForm");
 
-if (resetPasswordForm) {
+                const photoInput =
+                    document.getElementById(
+                        "listingPhotos"
+                    );
 
-    resetPasswordForm.addEventListener(
-        "submit",
-        function (event) {
 
-            event.preventDefault();
+                const videoInput =
+                    document.getElementById(
+                        "listingVideo"
+                    );
 
 
-            /* =================================================
-               GET FORM INPUTS
-            ================================================== */
 
-            const newPasswordInput =
-                document.getElementById("newPassword");
+                /* =================================================
+                   REQUIRED FIELDS
+                ================================================== */
 
-            const confirmNewPasswordInput =
-                document.getElementById("confirmNewPassword");
+                if (
+                    !listingTitle ||
+                    !listingCategory ||
+                    !listingType ||
+                    !listingPrice ||
+                    !listingLocation ||
+                    !listingDescription ||
+                    !listingPhone
+                ) {
 
+                    alert(
+                        "Please complete all required listing information."
+                    );
 
-            /* =================================================
-               FORM CONFIGURATION CHECK
-            ================================================== */
+                    return;
+                }
 
-            if (
-                !newPasswordInput ||
-                !confirmNewPasswordInput
-            ) {
 
-                alert(
-                    "Reset password form configuration error."
-                );
 
-                return;
-            }
+                /* =================================================
+                   AGREEMENT
+                ================================================== */
 
+                if (
+                    !listingAgreement ||
+                    !listingAgreement.checked
+                ) {
 
-            /* =================================================
-               GET VALUES
-            ================================================== */
+                    alert(
+                        "Please confirm that the information provided is accurate."
+                    );
 
-            const newPassword =
-                newPasswordInput.value;
+                    return;
+                }
 
-            const confirmNewPassword =
-                confirmNewPasswordInput.value;
 
 
-            /* =================================================
-               REQUIRED FIELDS
-            ================================================== */
+                /* =================================================
+                   CURRENT USER
+                ================================================== */
 
-            if (
-                !newPassword ||
-                !confirmNewPassword
-            ) {
+                const currentUser =
+                    getStoredUser();
 
-                alert(
-                    "Please enter and confirm your new password."
-                );
 
-                return;
-            }
+                if (!currentUser) {
 
+                    alert(
+                        "Please login before creating a listing."
+                    );
 
-            /* =================================================
-               PASSWORD LENGTH
-            ================================================== */
+                    window.location.href =
+                        "login.html";
 
-            if (newPassword.length < 6) {
+                    return;
+                }
 
-                alert(
-                    "Password must contain at least 6 characters."
-                );
 
-                return;
-            }
 
+                /* =================================================
+                   LOGIN CHECK
+                ================================================== */
 
-            /* =================================================
-               PASSWORD MATCH
-            ================================================== */
+                const loggedIn =
 
-            if (
-                newPassword !==
-                confirmNewPassword
-            ) {
+                    localStorage.getItem(
+                        "tipecoLoggedIn"
+                    )
 
-                alert(
-                    "Passwords do not match."
-                );
+                    ||
 
-                return;
-            }
+                    sessionStorage.getItem(
+                        "tipecoLoggedIn"
+                    );
 
 
-            /* =================================================
-               GET RESET IDENTIFIER
-            ================================================== */
+                if (
+                    loggedIn !== "true"
+                ) {
 
-            const resetIdentifier =
-                localStorage.getItem(
-                    "tipecoResetIdentifier"
-                );
+                    alert(
+                        "Your login session has expired. Please login again."
+                    );
 
+                    window.location.href =
+                        "login.html";
 
-            if (!resetIdentifier) {
+                    return;
+                }
 
-                alert(
-                    "Password reset session expired. Please start again."
-                );
 
-                window.location.href =
-                    "forgot-password.html";
 
-                return;
-            }
+                /* =================================================
+                   READ PHOTOS
+                ================================================== */
 
+                let photos = [];
 
-            /* =================================================
-               GET STORED USER
-            ================================================== */
 
-            const user =
-                getStoredUser();
+                if (
+                    photoInput &&
+                    photoInput.files &&
+                    photoInput.files.length > 0
+                ) {
 
+                    for (
+                        const file of photoInput.files
+                    ) {
 
-            if (!user) {
+                        if (
+                            !file.type.startsWith(
+                                "image/"
+                            )
+                        ) {
 
-                alert(
-                    "No account found. Please create an account first."
-                );
+                            continue;
+                        }
 
-                window.location.href =
-                    "register.html";
 
-                return;
-            }
+                        try {
 
+                            const imageData =
+                                await fileToDataURL(
+                                    file
+                                );
 
-            /* =================================================
-               VERIFY RESET IDENTIFIER
-            ================================================== */
 
-            const emailMatches =
-                resetIdentifier.toLowerCase() ===
-                String(user.email).toLowerCase();
+                            photos.push({
 
-            const phoneMatches =
-                resetIdentifier ===
-                String(user.phone);
+                                name:
+                                    file.name,
 
+                                type:
+                                    file.type,
 
-            if (
-                !emailMatches &&
-                !phoneMatches
-            ) {
+                                size:
+                                    file.size,
 
-                alert(
-                    "The password reset request is no longer valid."
-                );
+                                data:
+                                    imageData
 
-                localStorage.removeItem(
-                    "tipecoResetIdentifier"
-                );
+                            });
 
-                window.location.href =
-                    "forgot-password.html";
+                        } catch (error) {
 
-                return;
-            }
+                            console.error(
+                                "Unable to read image:",
+                                error
+                            );
 
+                        }
 
-            /* =================================================
-               UPDATE PASSWORD
-            ================================================== */
+                    }
 
-            user.password =
-                newPassword;
+                }
 
 
-            /* =================================================
-               SAVE UPDATED USER
-            ================================================== */
 
-            try {
+                /* =================================================
+                   READ VIDEO
+                ================================================== */
 
-                localStorage.setItem(
-                    "tipecoUser",
-                    JSON.stringify(user)
-                );
+                let video = null;
 
-            } catch (error) {
 
-                alert(
-                    "Unable to update your password."
-                );
+                if (
+                    videoInput &&
+                    videoInput.files &&
+                    videoInput.files.length > 0
+                ) {
 
-                return;
-            }
+                    const videoFile =
+                        videoInput.files[0];
 
 
-            /* =================================================
-               REMOVE RESET SESSION
-            ================================================== */
+                    if (
+                        videoFile.type.startsWith(
+                            "video/"
+                        )
+                    ) {
 
-            localStorage.removeItem(
-                "tipecoResetIdentifier"
-            );
+                        /*
+                         * Videos can be very large.
+                         * We still attempt to save the
+                         * selected video as a data URL
+                         * for this frontend prototype.
+                         */
 
+                        try {
 
-            /* =================================================
-               CLEAR OLD LOGIN STATE
-            ================================================== */
+                            const videoData =
+                                await fileToDataURL(
+                                    videoFile
+                                );
 
-            localStorage.removeItem(
-                "tipecoLoggedIn"
-            );
 
-            sessionStorage.removeItem(
-                "tipecoLoggedIn"
-            );
+                            video = {
 
+                                name:
+                                    videoFile.name,
 
-            /* =================================================
-               SUCCESS
-            ================================================== */
+                                type:
+                                    videoFile.type,
 
-            alert(
-                "Password reset successfully! You can now login with your new password."
-            );
+                                size:
+                                    videoFile.size,
 
+                                data:
+                                    videoData
 
-            /* =================================================
-               GO TO LOGIN
-            ================================================== */
+                            };
 
-            window.location.href =
-                "login.html";
+                        } catch (error) {
 
-        }
-    );
-}
+                            console.error(
+                                "Unable to read video:",
+                                error
+                            );
 
-/* =====================================================
-   ADD LISTING
-===================================================== */
+                        }
 
-const addListingForm =
-    document.getElementById("addListingForm");
+                    }
 
-if (addListingForm) {
-console.log("ADD LISTING FORM FOUND");
-    addListingForm.addEventListener(
-        "submit",
-        function (event) {
+                }
 
-            event.preventDefault();
 
-            const listingTitle =
-                document.getElementById("listingTitle").value.trim();
 
-            const listingCategory =
-                document.getElementById("listingCategory").value;
+                /* =================================================
+                   CREATE LISTING
+                ================================================== */
 
-            const listingType =
-                document.getElementById("listingType").value;
+                const listing = {
 
-            const listingPrice =
-                document.getElementById("listingPrice").value;
+                    id:
+                        "listing-" +
+                        Date.now(),
 
-            const listingLocation =
-                document.getElementById("listingLocation").value.trim();
+                    ownerName:
+                        currentUser.fullName,
 
-            const listingDescription =
-                document.getElementById("listingDescription").value.trim();
+                    ownerEmail:
+                        currentUser.email,
 
-            const listingPhone =
-                document.getElementById("listingPhone").value.trim();
+                    ownerPhone:
+                        currentUser.phone,
 
-            const listingAgreement =
-                document.getElementById("listingAgreement");
+                    title:
+                        listingTitle,
 
+                    category:
+                        listingCategory,
 
-            /* =================================================
-               REQUIRED FIELDS
-            ================================================== */
+                    type:
+                        listingType,
 
-            if (
-                !listingTitle ||
-                !listingCategory ||
-                !listingType ||
-                !listingPrice ||
-                !listingLocation ||
-                !listingDescription ||
-                !listingPhone
-            ) {
+                    price:
+                        listingPrice,
 
-                alert(
-                    "Please complete all required listing information."
-                );
+                    location:
+                        listingLocation,
 
-                return;
-            }
+                    description:
+                        listingDescription,
 
+                    contactPhone:
+                        listingPhone,
 
-            /* =================================================
-               AGREEMENT
-            ================================================== */
+                    photos:
+                        photos,
 
-            if (!listingAgreement.checked) {
+                    video:
+                        video,
 
-                alert(
-                    "Please confirm that the information provided is accurate."
-                );
+                    status:
+                        "pending",
 
-                return;
-            }
+                    createdAt:
+                        new Date().toISOString()
 
+                };
 
-            /* =================================================
-               CURRENT USER
-            ================================================== */
 
-            const currentUser =
-                getStoredUser();
 
-            if (!currentUser) {
+                /* =================================================
+                   GET EXISTING LISTINGS
+                ================================================== */
 
-                alert(
-                    "Please login before creating a listing."
-                );
+                let listings = [];
 
-                window.location.href =
-                    "login.html";
 
-                return;
-            }
+                const storedListings =
+                    localStorage.getItem(
+                        "tipecoListings"
+                    );
 
 
-            /* =================================================
-               CREATE LISTING
-            ================================================== */
+                if (storedListings) {
 
-            const listing = {
+                    try {
 
-                id:
-                    "listing-" +
-                    Date.now(),
+                        listings =
+                            JSON.parse(
+                                storedListings
+                            );
 
-                ownerName:
-                    currentUser.fullName,
 
-                ownerEmail:
-                    currentUser.email,
+                        if (
+                            !Array.isArray(
+                                listings
+                            )
+                        ) {
 
-                ownerPhone:
-                    currentUser.phone,
+                            listings = [];
 
-                title:
-                    listingTitle,
+                        }
 
-                category:
-                    listingCategory,
+                    } catch (error) {
 
-                type:
-                    listingType,
+                        console.error(
+                            "Unable to read existing listings.",
+                            error
+                        );
 
-                price:
-                    listingPrice,
+                        listings = [];
 
-                location:
-                    listingLocation,
+                    }
 
-                description:
-                    listingDescription,
+                }
 
-                contactPhone:
-                    listingPhone,
 
-                status:
-                    "pending",
 
-                createdAt:
-                    new Date().toISOString()
+                /* =================================================
+                   ADD NEW LISTING
+                ================================================== */
 
-            };
-
-
-            /* =================================================
-               GET EXISTING LISTINGS
-            ================================================== */
-
-            let listings = [];
-
-            const storedListings =
-                localStorage.getItem(
-                    "tipecoListings"
+                listings.push(
+                    listing
                 );
 
 
-            if (storedListings) {
+
+                /* =================================================
+                   SAVE LISTINGS
+                ================================================== */
 
                 try {
 
-                    listings =
-                        JSON.parse(
-                            storedListings
-                        );
+                    localStorage.setItem(
+                        "tipecoListings",
+                        JSON.stringify(
+                            listings
+                        )
+                    );
 
                 } catch (error) {
 
-                    listings = [];
+                    console.error(
+                        "Listing storage error:",
+                        error
+                    );
+
+
+                    /*
+                     * localStorage has a limited size.
+                     * Large videos/photos may exceed it.
+                     */
+
+                    alert(
+                        "The listing could not be saved because the selected media is too large. Please use fewer/smaller photos or a shorter/smaller video."
+                    );
+
+                    return;
 
                 }
-            }
 
 
-            /* =================================================
-               ADD NEW LISTING
-            ================================================== */
 
-            listings.push(listing);
-
-
-            /* =================================================
-               SAVE LISTINGS
-            ================================================== */
-
-            try {
-
-                localStorage.setItem(
-                    "tipecoListings",
-                    JSON.stringify(listings)
-                );
-
-            } catch (error) {
+                /* =================================================
+                   SUCCESS
+                ================================================== */
 
                 alert(
-                    "Unable to save your listing."
+                    "Listing submitted successfully! It is now pending TIPECO GROUP verification."
                 );
 
-                return;
+
+
+                /* =================================================
+                   GO TO MY LISTINGS
+                ================================================== */
+
+                window.location.href =
+                    "my-listings.html";
+
             }
+        );
+    }
 
 
-            /* =================================================
-               SUCCESS
-            ================================================== */
 
-            alert(
-                "Listing submitted successfully! It is now pending TIPECO GROUP verification."
-            );
+    /* =====================================================
+       FILE TO DATA URL
+       
+       Used for prototype media storage.
+    ===================================================== */
+
+    function fileToDataURL(file) {
+
+        return new Promise(
+            function (resolve, reject) {
+
+                const reader =
+                    new FileReader();
 
 
-            /* =================================================
-               GO TO MY LISTINGS
-            ================================================== */
+                reader.onload =
+                    function () {
 
-            window.location.href =
-                "my-listings.html";
+                        resolve(
+                            reader.result
+                        );
 
-        }
-    );
-}   /* =====================================================
+                    };
+
+
+                reader.onerror =
+                    function (error) {
+
+                        reject(
+                            error
+                        );
+
+                    };
+
+
+                reader.readAsDataURL(
+                    file
+                );
+
+            }
+        );
+
+    }
+
+
+
+    /* =====================================================
        LOGOUT
     ===================================================== */
 
@@ -1192,6 +1402,7 @@ console.log("ADD LISTING FORM FOUND");
 
             return;
         }
+
     }
 
 
@@ -1228,6 +1439,7 @@ console.log("ADD LISTING FORM FOUND");
 
             }
         );
+
     }
 
 
@@ -1255,6 +1467,7 @@ console.log("ADD LISTING FORM FOUND");
 
             }
         );
+
     }
 
 
@@ -1288,15 +1501,13 @@ console.log("ADD LISTING FORM FOUND");
 
             }
         );
+
     }
 
 
 
     /* =====================================================
        STORE CURRENT ROLE
-       
-       This makes the current role easy to use
-       in future dashboard features.
     ===================================================== */
 
     if (currentUser) {
@@ -1305,5 +1516,6 @@ console.log("ADD LISTING FORM FOUND");
             currentUser.accountType || "";
 
     }
+
 
 });
