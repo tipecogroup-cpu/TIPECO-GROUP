@@ -5,9 +5,10 @@
 
     <!-- =====================================================
          TIPECO GROUP - ADD LISTING
-         Version: 2.1
+         Version: 2.2
          Photos + Video
-         Compatible with auth.js Version 2.0
+         IndexedDB Storage
+         Compatible with auth.js + storage.js + listing.js
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -500,6 +501,12 @@
         }
 
 
+        .listing-btn-submit:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+
         /* =====================================================
            MOBILE
         ====================================================== */
@@ -564,7 +571,6 @@
 
         <div class="dashboard-header-inner">
 
-
             <a href="dashboard.html"
                class="dashboard-logo">
 
@@ -574,7 +580,6 @@
 
 
             <div class="dashboard-header-actions">
-
 
                 <div class="dashboard-user">
 
@@ -636,7 +641,6 @@
 
             <section class="add-listing-header">
 
-
                 <a href="dashboard.html"
                    class="back-dashboard">
 
@@ -697,7 +701,6 @@
                 ================================================== -->
 
                 <section class="listing-form-section">
-
 
                     <div class="listing-form-section-title">
 
@@ -865,7 +868,6 @@
 
                 <section class="listing-form-section">
 
-
                     <div class="listing-form-section-title">
 
                         <h2>
@@ -992,7 +994,6 @@
 
                 <section class="listing-form-section">
 
-
                     <div class="listing-form-section-title">
 
                         <h2>
@@ -1065,7 +1066,6 @@
 
                 <section class="listing-form-section">
 
-
                     <div class="listing-form-section-title">
 
                         <h2>
@@ -1082,7 +1082,6 @@
 
 
                     <div class="listing-form-grid">
-
 
                         <div class="listing-form-group full-width">
 
@@ -1113,7 +1112,6 @@
                 ================================================== -->
 
                 <section class="listing-form-section">
-
 
                     <div class="listing-form-section-title">
 
@@ -1192,7 +1190,6 @@
 
                 <div class="listing-form-actions">
 
-
                     <a href="dashboard.html"
                        class="listing-btn listing-btn-cancel">
 
@@ -1243,21 +1240,30 @@
 
 
     <!-- =====================================================
-         AUTH JAVASCRIPT
+         TIPECO JAVASCRIPT
          
-         IMPORTANT:
-         auth.js handles the actual form submission.
+         IMPORTANT ORDER:
+         
+         1. auth.js
+         2. storage.js
+         3. listing.js
+         
+         listing.js depends on functions from storage.js.
     ====================================================== -->
 
     <script src="../assets/js/auth.js"></script>
+
+    <script src="../assets/js/storage.js"></script>
+
+    <script src="../assets/js/listing.js"></script>
 
 
 
     <!-- =====================================================
          MEDIA PREVIEW ONLY
          
-         This does NOT replace auth.js.
-         It only displays selected photos/video locally.
+         This does NOT save the listing.
+         listing.js handles actual submission/storage.
     ====================================================== -->
 
     <script>
@@ -1265,7 +1271,6 @@
         document.addEventListener(
             "DOMContentLoaded",
             function () {
-
 
                 const photoInput =
                     document.getElementById(
@@ -1289,6 +1294,22 @@
                     document.getElementById(
                         "mediaPreviewTitle"
                     );
+
+
+                if (
+                    !photoInput ||
+                    !videoInput ||
+                    !preview ||
+                    !previewTitle
+                ) {
+
+                    console.error(
+                        "TIPECO Listing: Media preview elements not found."
+                    );
+
+                    return;
+
+                }
 
 
                 function updatePreviewTitle() {
@@ -1323,6 +1344,7 @@
                             "div"
                         );
 
+
                     wrapper.className =
                         "media-preview-item";
 
@@ -1332,14 +1354,23 @@
                             "button"
                         );
 
+
                     removeButton.type =
                         "button";
+
 
                     removeButton.className =
                         "media-remove";
 
+
                     removeButton.textContent =
                         "×";
+
+
+                    removeButton.setAttribute(
+                        "aria-label",
+                        "Remove media"
+                    );
 
 
                     removeButton.addEventListener(
@@ -1381,7 +1412,9 @@
                             };
 
 
-                        reader.readAsDataURL(file);
+                        reader.readAsDataURL(
+                            file
+                        );
 
 
                         wrapper.appendChild(
@@ -1404,6 +1437,10 @@
 
 
                         video.muted =
+                            true;
+
+
+                        video.playsInline =
                             true;
 
 
@@ -1448,7 +1485,6 @@
                     "change",
                     function () {
 
-
                         const files =
                             Array.from(
                                 photoInput.files
@@ -1487,7 +1523,6 @@
                 videoInput.addEventListener(
                     "change",
                     function () {
-
 
                         const file =
                             videoInput.files[0];
