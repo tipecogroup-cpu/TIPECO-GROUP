@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>TIPECO GROUP | Owner Setup</title>
+
+</head>
+
+<body>
+
+    <h1>TIPECO GROUP</h1>
+
+    <h2>Create Owner Account</h2>
+
+    <p>
+        This setup is for the first TIPECO GROUP Owner account.
+    </p>
+
+    <p>
+        <strong>Name:</strong>
+        ITANGISHAKA TIMOTHY
+    </p>
+
+    <p>
+        <strong>Email:</strong>
+        itangishakatimothy@gmail.com
+    </p>
+
+    <p>
+        <strong>Phone:</strong>
+        +250783884346
+    </p>
+
+    <input
+        id="ownerPassword"
+        type="password"
+        placeholder="Create Owner Password"
+    >
+
+    <br><br>
+
+    <button id="createOwner">
+        Create Owner Account
+    </button>
+
+    <p id="message"></p>
+
+
+<script>
+
+document
+.getElementById("createOwner")
+.addEventListener("click", function () {
+
+
+    const password =
+        document
+        .getElementById("ownerPassword")
+        .value;
+
+
+    const message =
+        document
+        .getElementById("message");
+
+
+    if (password.length < 6) {
+
+        message.textContent =
+            "Password must contain at least 6 characters.";
+
+        return;
+    }
+
+
+    const USERS_KEY =
+        "tipecoUsers";
+
+
+    let users = [];
+
+
+    const storedUsers =
+        localStorage.getItem(
+            USERS_KEY
+        );
+
+
+    if (storedUsers) {
+
+        try {
+
+            users =
+                JSON.parse(
+                    storedUsers
+                );
+
+        } catch (error) {
+
+            users = [];
+
+        }
+
+    }
+
+
+    if (!Array.isArray(users)) {
+
+        users = [];
+
+    }
+
+
+    const ownerExists =
+        users.some(function (user) {
+
+            return (
+                user.accountType === "owner"
+            );
+
+        });
+
+
+    if (ownerExists) {
+
+        message.textContent =
+            "An Owner account already exists.";
+
+        return;
+    }
+
+
+    const owner = {
+
+        id:
+            "OWNER-" + Date.now(),
+
+        fullName:
+            "ITANGISHAKA TIMOTHY",
+
+        email:
+            "itangishakatimothy@gmail.com",
+
+        phone:
+            "+250783884346",
+
+        password:
+            password,
+
+        accountType:
+            "owner",
+
+        status:
+            "active",
+
+        createdAt:
+            new Date().toISOString()
+
+    };
+
+
+    users.push(owner);
+
+
+    localStorage.setItem(
+        USERS_KEY,
+        JSON.stringify(users)
+    );
+
+
+    message.textContent =
+        "Owner account created successfully. You can now login.";
+
+});
+
+</script>
+
+</body>
+
+</html>
