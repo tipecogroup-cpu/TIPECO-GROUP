@@ -1,11 +1,12 @@
 /* =====================================================
    TIPECO GROUP - LISTING JAVASCRIPT
-   Version: 1.0
+   Version: 2.0
    Add Listing Management
+   IndexedDB Version
 
    Works with:
    - auth.js
-   - storage.js
+   - storage.js v2.0
    - add-listing.html
 ===================================================== */
 
@@ -15,11 +16,6 @@
 ===================================================== */
 
 document.addEventListener("DOMContentLoaded", function () {
-
-
-    /* =================================================
-       ADD LISTING FORM
-    ================================================== */
 
     const addListingForm =
         document.getElementById("addListingForm");
@@ -113,6 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
             ================================================== */
 
             if (
+                !currentUser ||
                 currentUser.accountType !== "seller"
             ) {
 
@@ -181,7 +178,6 @@ document.addEventListener("DOMContentLoaded", function () {
             ================================================== */
 
             if (
-
                 !listingTitle ||
                 !listingCategory ||
                 !listingType ||
@@ -189,7 +185,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 !listingLocation ||
                 !listingDescription ||
                 !listingPhone
-
             ) {
 
                 alert(
@@ -218,7 +213,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
             /* =================================================
-               MEDIA FILES
+               MEDIA INPUTS
             ================================================== */
 
             const photoInput =
@@ -254,7 +249,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const listingId =
                 "listing-" +
-                Date.now();
+                Date.now() +
+                "-" +
+                Math.random()
+                    .toString(36)
+                    .substring(2, 8);
 
 
             /* =================================================
@@ -268,10 +267,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
             /* =================================================
-               SAVE PHOTOS
+               DISABLE SUBMIT BUTTON
+            ================================================== */
+
+            const submitButton =
+                addListingForm.querySelector(
+                    'button[type="submit"]'
+                );
+
+
+            if (submitButton) {
+
+                submitButton.disabled =
+                    true;
+
+                submitButton.textContent =
+                    "Saving Listing...";
+
+            }
+
+
+            /* =================================================
+               SAVE MEDIA
             ================================================== */
 
             try {
+
+
+                /* =============================================
+                   SAVE PHOTOS
+                ============================================== */
 
                 for (
                     let i = 0;
@@ -287,6 +312,12 @@ document.addEventListener("DOMContentLoaded", function () {
                         listingId +
                         "-photo-" +
                         i;
+
+
+                    console.log(
+                        "TIPECO Listing: Saving photo:",
+                        file.name
+                    );
 
 
                     await saveTipecoMedia({
@@ -325,15 +356,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                /* =================================================
+                /* =============================================
                    SAVE VIDEO
-                ================================================== */
+                ============================================== */
 
                 if (videoFile) {
 
                     videoMediaId =
                         listingId +
                         "-video";
+
+
+                    console.log(
+                        "TIPECO Listing: Saving video:",
+                        videoFile.name
+                    );
 
 
                     await saveTipecoMedia({
@@ -374,9 +411,22 @@ document.addEventListener("DOMContentLoaded", function () {
                     error
                 );
 
+
                 alert(
                     "Unable to save listing photos or video. Please try again."
                 );
+
+
+                if (submitButton) {
+
+                    submitButton.disabled =
+                        false;
+
+                    submitButton.textContent =
+                        "Submit for Verification";
+
+                }
+
 
                 return;
             }
@@ -386,13 +436,23 @@ document.addEventListener("DOMContentLoaded", function () {
                CREATE LISTING OBJECT
             ================================================== */
 
+            const now =
+                new Date().toISOString();
+
+
             const listing = {
+
+                /* =============================================
+                   IDENTIFICATION
+                ============================================== */
 
                 id:
                     listingId,
 
 
-                /* OWNER */
+                /* =============================================
+                   OWNER
+                ============================================== */
 
                 ownerName:
                     currentUser.fullName || "",
@@ -407,7 +467,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     currentUser.accountType || "seller",
 
 
-                /* LISTING */
+                /* =============================================
+                   LISTING INFORMATION
+                ============================================== */
 
                 title:
                     listingTitle,
@@ -431,7 +493,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     listingPhone,
 
 
-                /* MEDIA */
+                /* =============================================
+                   MEDIA REFERENCES
+                ============================================== */
 
                 photos:
                     photoMediaIds,
@@ -440,7 +504,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     videoMediaId,
 
 
-                /* VERIFICATION */
+                /* =============================================
+                   VERIFICATION
+                ============================================== */
 
                 status:
                     "pending",
@@ -452,85 +518,40 @@ document.addEventListener("DOMContentLoaded", function () {
                     false,
 
 
-                /* TIMESTAMP */
+                /* =============================================
+                   TIMESTAMPS
+                ============================================== */
 
                 createdAt:
-                    new Date().toISOString(),
+                    now,
 
                 updatedAt:
-                    new Date().toISOString()
+                    now
 
             };
 
 
             /* =================================================
-               GET EXISTING LISTINGS
-            ================================================== */
-
-            let listings = [];
-
-
-            const storedListings =
-                localStorage.getItem(
-                    "tipecoListings"
-                );
-
-
-            if (storedListings) {
-
-                try {
-
-                    const parsedListings =
-                        JSON.parse(
-                            storedListings
-                        );
-
-
-                    if (
-                        Array.isArray(
-                            parsedListings
-                        )
-                    ) {
-
-                        listings =
-                            parsedListings;
-
-                    }
-
-                } catch (error) {
-
-                    console.warn(
-                        "TIPECO Listing: Existing listing data could not be read."
-                    );
-
-                    listings = [];
-
-                }
-
-            }
-
-
-            /* =================================================
-               ADD NEW LISTING
-            ================================================== */
-
-            listings.push(
-                listing
-            );
-
-
-            /* =================================================
-               SAVE LISTINGS
+               SAVE LISTING TO INDEXEDDB
             ================================================== */
 
             try {
 
-                localStorage.setItem(
-                    "tipecoListings",
-                    JSON.stringify(
-                        listings
-                    )
+                console.log(
+                    "TIPECO Listing: Saving listing to IndexedDB..."
                 );
+
+
+                await saveTipecoListing(
+                    listing
+                );
+
+
+                console.log(
+                    "TIPECO Listing: Listing saved successfully.",
+                    listing
+                );
+
 
             } catch (error) {
 
@@ -539,9 +560,61 @@ document.addEventListener("DOMContentLoaded", function () {
                     error
                 );
 
+
+                /*
+                 * IMPORTANT:
+                 * If listing storage fails after media
+                 * has already been saved, remove the media
+                 * so we don't leave orphaned files.
+                 */
+
+                try {
+
+                    for (
+                        const mediaId
+                        of photoMediaIds
+                    ) {
+
+                        await deleteTipecoMedia(
+                            mediaId
+                        );
+
+                    }
+
+
+                    if (videoMediaId) {
+
+                        await deleteTipecoMedia(
+                            videoMediaId
+                        );
+
+                    }
+
+                } catch (cleanupError) {
+
+                    console.error(
+                        "TIPECO Listing: Media cleanup failed.",
+                        cleanupError
+                    );
+
+                }
+
+
                 alert(
-                    "Unable to save your listing."
+                    "Unable to save your listing. Please try again."
                 );
+
+
+                if (submitButton) {
+
+                    submitButton.disabled =
+                        false;
+
+                    submitButton.textContent =
+                        "Submit for Verification";
+
+                }
+
 
                 return;
             }
@@ -550,12 +623,6 @@ document.addEventListener("DOMContentLoaded", function () {
             /* =================================================
                SUCCESS
             ================================================== */
-
-            console.log(
-                "TIPECO Listing: Listing created successfully.",
-                listing
-            );
-
 
             alert(
                 "Listing submitted successfully! It is now pending TIPECO GROUP verification."
