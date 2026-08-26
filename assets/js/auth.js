@@ -29,8 +29,46 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const OLD_USER_KEY = "tipecoUser";
 
+/* =====================================================
+   TIPECO OWNER ACCOUNT
+   First Owner account
+===================================================== */
 
-    /* =====================================================
+function ensureOwnerAccount() {
+
+    const users = getUsers();
+
+    const ownerEmail =
+        "itangishakatimothy@gmail.com";
+
+    const ownerPhone =
+        "+250783884346";
+
+    const ownerExists =
+        users.some(function (user) {
+
+            return (
+                user.accountType === "owner" ||
+                String(user.email).toLowerCase() ===
+                ownerEmail.toLowerCase() ||
+                String(user.phone) === ownerPhone
+            );
+
+        });
+
+
+    if (ownerExists) {
+        return;
+    }
+
+
+    /*
+     * Owner account will be activated
+     * after a secure password is provided.
+     */
+
+}
+   /* =====================================================
        HELPER - READ USERS
     ====================================================== */
 
