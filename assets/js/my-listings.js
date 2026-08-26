@@ -1,16 +1,16 @@
 /* =====================================================
    TIPECO GROUP - MY LISTINGS
-   Version: 4.0
+   Version: 5.0
 
-   FINAL FIX
-   Works with:
+   Compatible with:
    - auth.js v2.1
    - storage.js v2.0
    - listing.js v2.0
    - my-listings.html v3.0
 
-   STORAGE:
-   IndexedDB
+   PURPOSE:
+   Load and display current user's listings
+   from TIPECO IndexedDB.
 ===================================================== */
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -18,12 +18,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     "use strict";
 
     console.log("====================================");
-    console.log("TIPECO MY LISTINGS v4.0 STARTED");
+    console.log("TIPECO MY LISTINGS v5.0");
     console.log("====================================");
 
 
     /* =====================================================
-       ELEMENTS
+       HTML ELEMENTS
     ===================================================== */
 
     const grid =
@@ -42,10 +42,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         document.getElementById("listingsLoading");
 
 
-    if (!grid || !emptyState || !countElement) {
+    if (!grid) {
 
         console.error(
-            "TIPECO My Listings: HTML elements missing."
+            "TIPECO My Listings: #myListingsGrid not found."
         );
 
         return;
@@ -53,103 +53,26 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
     /* =====================================================
-       HELPERS
+       INITIAL UI
     ===================================================== */
 
-    function escapeHTML(value) {
+    grid.innerHTML = "";
 
-        return String(value ?? "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+    if (emptyState) {
+        emptyState.style.display = "none";
     }
 
-
-    function normalizeEmail(email) {
-
-        return String(email || "")
-            .trim()
-            .toLowerCase();
+    if (errorElement) {
+        errorElement.style.display = "none";
     }
 
-
-    function formatDate(value) {
-
-        if (!value) {
-
-            return "Date unavailable";
-        }
-
-
-        const date =
-            new Date(value);
-
-
-        if (
-            Number.isNaN(
-                date.getTime()
-            )
-        ) {
-
-            return "Date unavailable";
-        }
-
-
-        return date.toLocaleDateString(
-            undefined,
-            {
-                year: "numeric",
-                month: "short",
-                day: "numeric"
-            }
-        );
+    if (loadingElement) {
+        loadingElement.style.display = "block";
     }
 
-
-    /* =====================================================
-       SHOW ERROR
-    ===================================================== */
-
-    function showError(message) {
-
-        if (loadingElement) {
-
-            loadingElement.style.display =
-                "none";
-        }
-
-
-        if (emptyState) {
-
-            emptyState.style.display =
-                "none";
-        }
-
-
-        if (grid) {
-
-            grid.innerHTML = "";
-        }
-
-
-        if (countElement) {
-
-            countElement.textContent =
-                "Unable to load listings.";
-        }
-
-
-        if (errorElement) {
-
-            errorElement.textContent =
-                message;
-
-            errorElement.style.display =
-                "block";
-        }
-
+    if (countElement) {
+        countElement.textContent =
+            "Loading listings...";
     }
 
 
@@ -158,28 +81,23 @@ document.addEventListener("DOMContentLoaded", async function () {
     ===================================================== */
 
     const storedUser =
-        localStorage.getItem(
-            "tipecoUser"
-        );
+        localStorage.getItem("tipecoUser");
 
 
     if (!storedUser) {
 
-        console.log(
+        console.warn(
             "TIPECO My Listings: No user found."
         );
 
+        finishLoading();
 
-        if (loadingElement) {
+        if (countElement) {
 
-            loadingElement.style.display =
-                "none";
+            countElement.textContent =
+                "Please login to view your listings.";
+
         }
-
-
-        countElement.textContent =
-            "Please login to view your listings.";
-
 
         return;
     }
@@ -191,9 +109,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     try {
 
         currentUser =
-            JSON.parse(
-                storedUser
-            );
+            JSON.parse(storedUser);
 
     } catch (error) {
 
@@ -202,9 +118,8 @@ document.addEventListener("DOMContentLoaded", async function () {
             error
         );
 
-
         showError(
-            "Unable to read your account information."
+            "Your account information could not be read."
         );
 
         return;
@@ -225,15 +140,36 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
     const userEmail =
-        normalizeEmail(
-            currentUser.email
-        );
+        String(currentUser.email)
+            .trim()
+            .toLowerCase();
 
 
     console.log(
-        "TIPECO My Listings: Current user email:",
+        "TIPECO My Listings: Current user:",
         userEmail
     );
+
+
+    /* =====================================================
+       CHECK STORAGE FUNCTION
+    ===================================================== */
+
+    if (
+        typeof getTipecoListingsByOwner !==
+        "function"
+    ) {
+
+        console.error(
+            "TIPECO My Listings: getTipecoListingsByOwner() is missing."
+        );
+
+        showError(
+            "Listing storage is not available. Please check storage.js."
+        );
+
+        return;
+    }
 
 
     /* =====================================================
@@ -242,197 +178,145 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     try {
 
-        if (
-            typeof getTipecoListings !==
-            "function"
-        ) {
-
-            throw new Error(
-                "getTipecoListings() is not available."
+        const result =
+            await getTipecoListingsByOwner(
+                currentUser.email
             );
-        }
 
 
         console.log(
-            "TIPECO My Listings: Reading IndexedDB..."
+            "TIPECO My Listings: IndexedDB result:",
+            result
         );
 
 
-        /* =================================================
-           IMPORTANT FIX
+        const listings =
+            Array.isArray(result)
+                ? result.filter(function (listing) {
 
-           We DO NOT use:
-           getTipecoListingsByOwner()
-
-           Instead:
-           get ALL listings
-           then filter by normalized email.
-        ================================================== */
-
-        const allListings =
-            await getTipecoListings();
-
-
-        console.log(
-            "TIPECO My Listings: ALL listings:",
-            allListings
-        );
-
-
-        if (
-            !Array.isArray(
-                allListings
-            )
-        ) {
-
-            throw new Error(
-                "IndexedDB returned invalid listings data."
-            );
-        }
-
-
-        /* =================================================
-           FILTER CURRENT USER
-        ================================================== */
-
-        const myListings =
-            allListings.filter(
-                function (listing) {
-
-                    if (
-                        !listing ||
-                        !listing.ownerEmail
-                    ) {
-
+                    if (!listing) {
                         return false;
                     }
 
+                    if (!listing.ownerEmail) {
+                        return false;
+                    }
 
-                    return (
-                        normalizeEmail(
-                            listing.ownerEmail
-                        ) ===
-                        userEmail
-                    );
+                    return String(
+                        listing.ownerEmail
+                    )
+                        .trim()
+                        .toLowerCase()
+                        ===
+                        userEmail;
 
-                }
-            );
+                })
+                : [];
 
 
         console.log(
-            "TIPECO My Listings: MY listings:",
-            myListings
+            "TIPECO My Listings: User listings:",
+            listings
         );
 
 
         /* =================================================
-           SORT NEWEST FIRST
-        ================================================== */
-
-        myListings.sort(
-            function (a, b) {
-
-                return (
-                    new Date(
-                        b.createdAt || 0
-                    ).getTime()
-                    -
-                    new Date(
-                        a.createdAt || 0
-                    ).getTime()
-                );
-
-            }
-        );
-
-
-        /* =================================================
-           HIDE LOADING
+           SORT
         ================================================= */
 
-        if (loadingElement) {
+        listings.sort(function (a, b) {
 
-            loadingElement.style.display =
-                "none";
-        }
+            return new Date(
+                b.createdAt || 0
+            ).getTime()
+            -
+            new Date(
+                a.createdAt || 0
+            ).getTime();
+
+        });
 
 
         /* =================================================
            UPDATE COUNT
         ================================================= */
 
-        countElement.textContent =
-            myListings.length +
-            (
-                myListings.length === 1
-                    ? " listing"
-                    : " listings"
-            );
+        if (countElement) {
+
+            countElement.textContent =
+                listings.length +
+                (
+                    listings.length === 1
+                        ? " listing"
+                        : " listings"
+                );
+
+        }
+
+
+        finishLoading();
 
 
         /* =================================================
            EMPTY
         ================================================= */
 
-        if (
-            myListings.length === 0
-        ) {
+        if (listings.length === 0) {
 
             grid.innerHTML = "";
 
-            emptyState.style.display =
-                "block";
+            if (emptyState) {
 
+                emptyState.style.display =
+                    "block";
+
+            }
 
             console.log(
-                "TIPECO My Listings: No listings for current user."
+                "TIPECO My Listings: No listings found."
             );
-
 
             return;
         }
 
 
         /* =================================================
-           SHOW LISTINGS
+           DISPLAY LISTINGS
         ================================================= */
 
-        emptyState.style.display =
-            "none";
+        if (emptyState) {
 
+            emptyState.style.display =
+                "none";
 
-        grid.innerHTML = "";
+        }
 
 
         for (
-            const listing of myListings
+            const listing of listings
         ) {
 
             const card =
-                await createListingCard(
+                createListingCard(
                     listing
                 );
 
-
-            grid.appendChild(
-                card
-            );
+            grid.appendChild(card);
 
         }
 
 
         console.log(
-            "TIPECO My Listings: Rendering completed."
+            "TIPECO My Listings: Display completed."
         );
 
 
     } catch (error) {
 
         console.error(
-            "TIPECO My Listings ERROR:",
+            "TIPECO My Listings: Failed to load.",
             error
         );
-
 
         showError(
             "Unable to load your listings. Please refresh the page."
@@ -442,15 +326,88 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
     /* =====================================================
+       FINISH LOADING
+    ===================================================== */
+
+    function finishLoading() {
+
+        if (loadingElement) {
+
+            loadingElement.style.display =
+                "none";
+
+        }
+
+    }
+
+
+    /* =====================================================
+       SHOW ERROR
+    ===================================================== */
+
+    function showError(message) {
+
+        finishLoading();
+
+
+        grid.innerHTML = "";
+
+
+        if (emptyState) {
+
+            emptyState.style.display =
+                "none";
+
+        }
+
+
+        if (countElement) {
+
+            countElement.textContent =
+                "Unable to load listings.";
+
+        }
+
+
+        if (errorElement) {
+
+            errorElement.textContent =
+                message;
+
+            errorElement.style.display =
+                "block";
+
+        }
+
+    }
+
+
+    /* =====================================================
+       ESCAPE HTML
+    ===================================================== */
+
+    function escapeHTML(value) {
+
+        return String(
+            value ?? ""
+        )
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    /* =====================================================
        CREATE LISTING CARD
     ===================================================== */
 
-    async function createListingCard(listing) {
+    function createListingCard(listing) {
 
         const card =
-            document.createElement(
-                "article"
-            );
+            document.createElement("article");
 
 
         card.className =
@@ -459,26 +416,24 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         /* =================================================
            STATUS
-        ================================================== */
+        ================================================= */
 
-        const status =
+        const rawStatus =
             String(
-                listing.status ||
-                "pending"
+                listing.status || "pending"
             ).toLowerCase();
 
 
         let statusClass =
             "status-pending";
 
-
         let statusText =
             "Pending Verification";
 
 
         if (
-            status === "verified" ||
-            status === "approved"
+            rawStatus === "verified" ||
+            rawStatus === "approved"
         ) {
 
             statusClass =
@@ -486,11 +441,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             statusText =
                 "Verified";
+
         }
 
 
         if (
-            status === "rejected"
+            rawStatus === "rejected"
         ) {
 
             statusClass =
@@ -498,243 +454,21 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             statusText =
                 "Rejected";
-        }
-
-
-        /* =================================================
-           MEDIA
-        ================================================== */
-
-        let photosHTML = "";
-
-        let videoHTML = "";
-
-
-        /* =================================================
-           PHOTOS
-        ================================================== */
-
-        if (
-            Array.isArray(
-                listing.photos
-            ) &&
-            listing.photos.length > 0
-        ) {
-
-            const photoElements = [];
-
-
-            for (
-                const mediaId of listing.photos
-            ) {
-
-                if (!mediaId) {
-                    continue;
-                }
-
-
-                try {
-
-                    if (
-                        typeof getTipecoMedia !==
-                        "function"
-                    ) {
-
-                        continue;
-                    }
-
-
-                    const media =
-                        await getTipecoMedia(
-                            mediaId
-                        );
-
-
-                    if (
-                        media &&
-                        media.file
-                    ) {
-
-                        const imageURL =
-                            URL.createObjectURL(
-                                media.file
-                            );
-
-
-                        photoElements.push(`
-
-                            <img
-                                class="listing-photo"
-                                src="${imageURL}"
-                                alt="${escapeHTML(
-                                    media.name ||
-                                    "Listing photo"
-                                )}"
-                                loading="lazy"
-                            >
-
-                        `);
-
-                    }
-
-                } catch (error) {
-
-                    console.error(
-                        "TIPECO photo error:",
-                        error
-                    );
-
-                }
-
-            }
-
-
-            if (
-                photoElements.length > 0
-            ) {
-
-                photosHTML = `
-
-                    <div class="listing-media">
-
-                        <div class="listing-media-title">
-
-                            📸 Photos
-
-                        </div>
-
-                        <div class="listing-photo-grid">
-
-                            ${photoElements.join("")}
-
-                        </div>
-
-                    </div>
-
-                `;
-
-            }
-
-        }
-
-
-        /* =================================================
-           VIDEO
-        ================================================== */
-
-        if (listing.video) {
-
-            try {
-
-                if (
-                    typeof getTipecoMedia ===
-                    "function"
-                ) {
-
-                    const media =
-                        await getTipecoMedia(
-                            listing.video
-                        );
-
-
-                    if (
-                        media &&
-                        media.file
-                    ) {
-
-                        const videoURL =
-                            URL.createObjectURL(
-                                media.file
-                            );
-
-
-                        videoHTML = `
-
-                            <div class="listing-media">
-
-                                <div class="listing-media-title">
-
-                                    🎥 Video
-
-                                </div>
-
-                                <video
-                                    class="listing-video"
-                                    controls
-                                    preload="metadata"
-                                >
-
-                                    <source
-                                        src="${videoURL}"
-                                        type="${escapeHTML(
-                                            media.mimeType ||
-                                            "video/mp4"
-                                        )}"
-                                    >
-
-                                </video>
-
-                            </div>
-
-                        `;
-
-                    }
-
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "TIPECO video error:",
-                    error
-                );
-
-            }
-
-        }
-
-
-        /* =================================================
-           MEDIA FALLBACK
-        ================================================== */
-
-        let mediaHTML =
-            "";
-
-
-        if (
-            !photosHTML &&
-            !videoHTML
-        ) {
-
-            mediaHTML = `
-
-                <div class="listing-media">
-
-                    <div class="media-empty">
-
-                        📷 No photos or video added.
-
-                    </div>
-
-                </div>
-
-            `;
 
         }
 
 
         /* =================================================
            VERIFICATION MESSAGE
-        ================================================== */
+        ================================================= */
 
         let verificationMessage =
             "Your listing has been submitted and is waiting for TIPECO GROUP verification.";
 
 
         if (
-            status === "verified" ||
-            status === "approved"
+            rawStatus === "verified" ||
+            rawStatus === "approved"
         ) {
 
             verificationMessage =
@@ -744,7 +478,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
         if (
-            status === "rejected"
+            rawStatus === "rejected"
         ) {
 
             verificationMessage =
@@ -754,8 +488,18 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
         /* =================================================
+           DATE
+        ================================================= */
+
+        const dateText =
+            formatDate(
+                listing.createdAt
+            );
+
+
+        /* =================================================
            CARD
-        ================================================== */
+        ================================================= */
 
         card.innerHTML = `
 
@@ -789,8 +533,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                         <span class="listing-detail-value">
                             ${escapeHTML(
-                                listing.category ||
-                                "—"
+                                listing.category || "—"
                             )}
                         </span>
 
@@ -805,8 +548,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                         <span class="listing-detail-value">
                             ${escapeHTML(
-                                listing.type ||
-                                "—"
+                                listing.type || "—"
                             )}
                         </span>
 
@@ -821,8 +563,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                         <span class="listing-detail-value">
                             ${escapeHTML(
-                                listing.price ||
-                                "—"
+                                listing.price || "—"
                             )}
                         </span>
 
@@ -837,8 +578,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                         <span class="listing-detail-value">
                             ${escapeHTML(
-                                listing.location ||
-                                "—"
+                                listing.location || "—"
                             )}
                         </span>
 
@@ -855,13 +595,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                     )}
 
                 </p>
-
-
-                ${photosHTML}
-
-                ${videoHTML}
-
-                ${mediaHTML}
 
 
                 <div class="verification-box">
@@ -884,11 +617,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <span class="listing-date">
 
                     Submitted:
-                    ${escapeHTML(
-                        formatDate(
-                            listing.createdAt
-                        )
-                    )}
+                    ${escapeHTML(dateText)}
 
                 </span>
 
@@ -911,6 +640,46 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
         return card;
+
+    }
+
+
+    /* =====================================================
+       FORMAT DATE
+    ===================================================== */
+
+    function formatDate(value) {
+
+        if (!value) {
+
+            return "Date unavailable";
+
+        }
+
+
+        const date =
+            new Date(value);
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            return "Date unavailable";
+
+        }
+
+
+        return date.toLocaleDateString(
+            undefined,
+            {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            }
+        );
 
     }
 
@@ -959,15 +728,37 @@ document.addEventListener("DOMContentLoaded", async function () {
             }
 
 
-            button.disabled =
-                true;
-
+            button.disabled = true;
 
             button.textContent =
                 "Deleting...";
 
 
             try {
+
+                if (
+                    typeof getTipecoListing !==
+                    "function"
+                ) {
+
+                    throw new Error(
+                        "getTipecoListing() is unavailable."
+                    );
+
+                }
+
+
+                if (
+                    typeof deleteTipecoListing !==
+                    "function"
+                ) {
+
+                    throw new Error(
+                        "deleteTipecoListing() is unavailable."
+                    );
+
+                }
+
 
                 const listing =
                     await getTipecoListing(
@@ -984,13 +775,18 @@ document.addEventListener("DOMContentLoaded", async function () {
                 }
 
 
-                /* SECURITY */
+                /* =============================================
+                   OWNER SECURITY
+                ============================================== */
 
                 if (
-                    normalizeEmail(
-                        listing.ownerEmail
-                    ) !==
-                    userEmail
+                    String(
+                        listing.ownerEmail || ""
+                    )
+                        .trim()
+                        .toLowerCase()
+                        !==
+                        userEmail
                 ) {
 
                     throw new Error(
@@ -1000,12 +796,16 @@ document.addEventListener("DOMContentLoaded", async function () {
                 }
 
 
-                /* DELETE PHOTOS */
+                /* =============================================
+                   DELETE PHOTOS
+                ============================================== */
 
                 if (
                     Array.isArray(
                         listing.photos
-                    )
+                    ) &&
+                    typeof deleteTipecoMedia ===
+                    "function"
                 ) {
 
                     for (
@@ -1024,11 +824,12 @@ document.addEventListener("DOMContentLoaded", async function () {
                                 mediaId
                             );
 
-                        } catch (error) {
+                        } catch (mediaError) {
 
-                            console.error(
-                                "Photo delete error:",
-                                error
+                            console.warn(
+                                "Unable to delete media:",
+                                mediaId,
+                                mediaError
                             );
 
                         }
@@ -1038,9 +839,15 @@ document.addEventListener("DOMContentLoaded", async function () {
                 }
 
 
-                /* DELETE VIDEO */
+                /* =============================================
+                   DELETE VIDEO
+                ============================================== */
 
-                if (listing.video) {
+                if (
+                    listing.video &&
+                    typeof deleteTipecoMedia ===
+                    "function"
+                ) {
 
                     try {
 
@@ -1048,11 +855,11 @@ document.addEventListener("DOMContentLoaded", async function () {
                             listing.video
                         );
 
-                    } catch (error) {
+                    } catch (videoError) {
 
-                        console.error(
-                            "Video delete error:",
-                            error
+                        console.warn(
+                            "Unable to delete video:",
+                            videoError
                         );
 
                     }
@@ -1060,7 +867,9 @@ document.addEventListener("DOMContentLoaded", async function () {
                 }
 
 
-                /* DELETE LISTING */
+                /* =============================================
+                   DELETE LISTING
+                ============================================== */
 
                 await deleteTipecoListing(
                     listingId
@@ -1072,13 +881,17 @@ document.addEventListener("DOMContentLoaded", async function () {
                 );
 
 
-                location.reload();
+                /* =============================================
+                   RELOAD PAGE DATA
+                ============================================== */
+
+                window.location.reload();
 
 
             } catch (error) {
 
                 console.error(
-                    "TIPECO delete error:",
+                    "TIPECO My Listings: Delete failed.",
                     error
                 );
 
@@ -1092,7 +905,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                 button.disabled =
                     false;
 
-
                 button.textContent =
                     "🗑️ Delete";
 
@@ -1103,25 +915,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
     console.log(
-        "===================================="
-    );
-
-    console.log(
-        "TIPECO MY LISTINGS v4.0 READY"
-    );
-
-    console.log(
-        "Current user:",
-        userEmail
-    );
-
-    console.log(
-        "IndexedDB: ACTIVE"
-    );
-
-    console.log(
-        "===================================="
-
+        "TIPECO My Listings v5.0 initialized successfully."
     );
 
 });
