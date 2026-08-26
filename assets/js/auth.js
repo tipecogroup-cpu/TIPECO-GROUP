@@ -1,1494 +1,1127 @@
 /* =====================================================
-   TIPECO GROUP - AUTHENTICATION SYSTEM
-   Version: 3.0
-
-   Works with:
-   - storage.js v1.0
-   - IndexedDB Media Storage
-   - Login
-   - Signup
-   - Logout
-   - Session
-   - User isolation
-   - Add Listing protection
+   TIPECO GROUP - AUTHENTICATION JAVASCRIPT
+   Version: 2.1
+   Authentication Only
 ===================================================== */
 
-
-/* =====================================================
-   CONFIGURATION
-===================================================== */
-
-const TIPECO_AUTH_VERSION = "3.0";
-
-const TIPECO_USERS_KEY =
-    "TIPECO_GROUP_USERS";
-
-const TIPECO_SESSION_KEY =
-    "TIPECO_GROUP_SESSION";
-
-const TIPECO_USER_PREFIX =
-    "TIPECO_USER_";
+document.addEventListener("DOMContentLoaded", function () {
 
 
-/* =====================================================
-   UTILITY - GENERATE USER ID
-===================================================== */
+    /* =====================================================
+       HELPER FUNCTIONS
+    ===================================================== */
 
-function generateTipecoUserId() {
+    function getStoredUser() {
 
-    return (
-        "user_" +
-        Date.now().toString(36) +
-        "_" +
-        Math.random()
-            .toString(36)
-            .substring(2, 10)
-    );
+        const storedUser =
+            localStorage.getItem("tipecoUser");
 
-}
-
-
-/* =====================================================
-   UTILITY - GET USERS
-===================================================== */
-
-function getTipecoUsers() {
-
-    try {
-
-        const users =
-            localStorage.getItem(
-                TIPECO_USERS_KEY
-            );
-
-        if (!users) {
-
-            return [];
-
+        if (!storedUser) {
+            return null;
         }
 
-        const parsed =
-            JSON.parse(users);
+        try {
 
-        return Array.isArray(parsed)
-            ? parsed
-            : [];
+            return JSON.parse(storedUser);
 
-    } catch (error) {
+        } catch (error) {
 
-        console.error(
-            "TIPECO: Unable to read users.",
-            error
-        );
-
-        return [];
-
-    }
-
-}
-
-
-/* =====================================================
-   UTILITY - SAVE USERS
-===================================================== */
-
-function saveTipecoUsers(users) {
-
-    localStorage.setItem(
-        TIPECO_USERS_KEY,
-        JSON.stringify(users)
-    );
-
-}
-
-
-/* =====================================================
-   UTILITY - NORMALIZE EMAIL
-===================================================== */
-
-function normalizeTipecoEmail(email) {
-
-    return String(email || "")
-        .trim()
-        .toLowerCase();
-
-}
-
-
-/* =====================================================
-   UTILITY - NORMALIZE PHONE
-===================================================== */
-
-function normalizeTipecoPhone(phone) {
-
-    return String(phone || "")
-        .trim()
-        .replace(/\s+/g, "");
-
-}
-
-
-/* =====================================================
-   CREATE SESSION
-===================================================== */
-
-function createTipecoSession(user) {
-
-    const session = {
-
-        userId: user.id,
-
-        email: user.email || null,
-
-        phone: user.phone || null,
-
-        name: user.name || "",
-
-        role: user.role || "user",
-
-        loginAt:
-            new Date().toISOString(),
-
-        authVersion:
-            TIPECO_AUTH_VERSION
-
-    };
-
-
-    localStorage.setItem(
-        TIPECO_SESSION_KEY,
-        JSON.stringify(session)
-    );
-
-
-    return session;
-
-}
-
-
-/* =====================================================
-   GET CURRENT SESSION
-===================================================== */
-
-function getTipecoSession() {
-
-    try {
-
-        const session =
-            localStorage.getItem(
-                TIPECO_SESSION_KEY
+            console.error(
+                "Unable to read TIPECO user data.",
+                error
             );
-
-        if (!session) {
 
             return null;
-
         }
-
-        return JSON.parse(session);
-
-    } catch (error) {
-
-        console.error(
-            "TIPECO: Invalid session.",
-            error
-        );
-
-        return null;
-
-    }
-
-}
-
-
-/* =====================================================
-   GET CURRENT USER
-===================================================== */
-
-function getCurrentTipecoUser() {
-
-    const session =
-        getTipecoSession();
-
-
-    if (!session || !session.userId) {
-
-        return null;
-
     }
 
 
-    const users =
-        getTipecoUsers();
+    function getUserRoleLabel(accountType) {
 
+        switch (accountType) {
 
-    const user =
-        users.find(function (item) {
+            case "buyer":
+                return "Buyer / Customer";
 
-            return item.id === session.userId;
+            case "seller":
+                return "Seller / Agent / Service Provider";
 
-        });
+            case "staff":
+                return "TIPECO Staff";
 
+            case "admin":
+                return "TIPECO Admin";
 
-    if (!user) {
-
-        return null;
-
+            default:
+                return "TIPECO User";
+        }
     }
 
 
-    return user;
+    /* =====================================================
+       LOGIN
+    ===================================================== */
 
-}
+    const loginForm =
+        document.getElementById("loginForm");
 
+    if (loginForm) {
 
-/* =====================================================
-   CHECK LOGIN
-===================================================== */
+        loginForm.addEventListener(
+            "submit",
+            function (event) {
 
-function isTipecoLoggedIn() {
-
-    return (
-        getCurrentTipecoUser() !== null
-    );
-
-}
+                event.preventDefault();
 
 
-/* =====================================================
-   SIGN UP
-===================================================== */
-
-function tipecoSignup(userData) {
-
-    try {
-
-        userData =
-            userData || {};
-
-
-        const name =
-            String(
-                userData.name || ""
-            ).trim();
-
-
-        const email =
-            normalizeTipecoEmail(
-                userData.email
-            );
-
-
-        const phone =
-            normalizeTipecoPhone(
-                userData.phone
-            );
-
-
-        const password =
-            String(
-                userData.password || ""
-            );
-
-
-        /* =============================================
-           VALIDATION
-        ============================================== */
-
-        if (!name) {
-
-            return {
-
-                success: false,
-
-                message:
-                    "Please enter your name."
-
-            };
-
-        }
-
-
-        if (!email && !phone) {
-
-            return {
-
-                success: false,
-
-                message:
-                    "Email or phone number is required."
-
-            };
-
-        }
-
-
-        if (password.length < 6) {
-
-            return {
-
-                success: false,
-
-                message:
-                    "Password must contain at least 6 characters."
-
-            };
-
-        }
-
-
-        const users =
-            getTipecoUsers();
-
-
-        /* =============================================
-           CHECK DUPLICATE EMAIL
-        ============================================== */
-
-        if (email) {
-
-            const emailExists =
-                users.some(function (user) {
-
-                    return (
-                        user.email &&
-                        normalizeTipecoEmail(
-                            user.email
-                        ) === email
+                const identifierInput =
+                    loginForm.querySelector(
+                        '[name="login"], [name="identifier"]'
                     );
 
-                });
-
-
-            if (emailExists) {
-
-                return {
-
-                    success: false,
-
-                    message:
-                        "An account with this email already exists."
-
-                };
-
-            }
-
-        }
-
-
-        /* =============================================
-           CHECK DUPLICATE PHONE
-        ============================================== */
-
-        if (phone) {
-
-            const phoneExists =
-                users.some(function (user) {
-
-                    return (
-                        user.phone &&
-                        normalizeTipecoPhone(
-                            user.phone
-                        ) === phone
+                const passwordInput =
+                    loginForm.querySelector(
+                        '[name="password"]'
                     );
 
-                });
+                const rememberInput =
+                    loginForm.querySelector(
+                        '[name="remember"]'
+                    );
 
 
-            if (phoneExists) {
+                /* FORM CHECK */
 
-                return {
+                if (
+                    !identifierInput ||
+                    !passwordInput
+                ) {
 
-                    success: false,
+                    alert(
+                        "Login form configuration error."
+                    );
 
-                    message:
-                        "An account with this phone number already exists."
+                    return;
+                }
 
-                };
 
-            }
+                /* GET VALUES */
 
-        }
+                const identifier =
+                    identifierInput.value.trim();
 
+                const password =
+                    passwordInput.value;
 
-        /* =============================================
-           CREATE USER
-        ============================================== */
 
-        const user = {
+                /* REQUIRED FIELDS */
 
-            id:
-                generateTipecoUserId(),
+                if (
+                    !identifier ||
+                    !password
+                ) {
 
-            name:
-                name,
+                    alert(
+                        "Please enter your email/phone and password."
+                    );
 
-            email:
-                email || null,
+                    return;
+                }
 
-            phone:
-                phone || null,
 
-            password:
-                password,
+                /* GET REGISTERED USER */
 
-            role:
-                "user",
+                const registeredUser =
+                    localStorage.getItem(
+                        "tipecoUser"
+                    );
 
-            createdAt:
-                new Date().toISOString(),
 
-            updatedAt:
-                new Date().toISOString(),
+                if (!registeredUser) {
 
-            status:
-                "active"
+                    alert(
+                        "No account found. Please create an account first."
+                    );
 
-        };
+                    return;
+                }
 
 
-        users.push(user);
+                let user;
 
 
-        saveTipecoUsers(users);
+                try {
 
+                    user =
+                        JSON.parse(
+                            registeredUser
+                        );
 
-        /* =============================================
-           CREATE USER STORAGE NAMESPACE
-        ============================================== */
+                } catch (error) {
 
-        localStorage.setItem(
+                    alert(
+                        "Account data is corrupted. Please register again."
+                    );
 
-            TIPECO_USER_PREFIX +
-            user.id,
+                    return;
+                }
 
-            JSON.stringify({
 
-                userId: user.id,
+                /* IDENTIFIER CHECK */
 
-                listings: [],
+                const identifierMatches =
 
-                favorites: [],
+                    identifier.toLowerCase() ===
+                    String(user.email)
+                        .toLowerCase()
 
-                settings: {},
+                    ||
 
-                createdAt:
-                    new Date().toISOString()
+                    identifier ===
+                    String(user.phone);
 
-            })
 
-        );
+                /* PASSWORD CHECK */
 
+                const passwordMatches =
+                    password === user.password;
 
-        /* =============================================
-           AUTO LOGIN
-        ============================================== */
 
-        const session =
-            createTipecoSession(user);
+                if (
+                    !identifierMatches ||
+                    !passwordMatches
+                ) {
 
+                    alert(
+                        "Invalid email/phone or password."
+                    );
 
-        return {
+                    return;
+                }
 
-            success: true,
 
-            message:
-                "Account created successfully.",
+                /* =================================================
+                   SAVE LOGIN STATE
+                ================================================== */
 
-            user: user,
-
-            session: session
-
-        };
-
-    } catch (error) {
-
-        console.error(
-            "TIPECO Signup Error:",
-            error
-        );
-
-
-        return {
-
-            success: false,
-
-            message:
-                "Something went wrong while creating your account."
-
-        };
-
-    }
-
-}
-
-
-/* =====================================================
-   LOGIN
-===================================================== */
-
-function tipecoLogin(loginData) {
-
-    try {
-
-        loginData =
-            loginData || {};
-
-
-        const identifier =
-            String(
-                loginData.identifier ||
-                loginData.email ||
-                loginData.phone ||
-                ""
-            )
-            .trim();
-
-
-        const password =
-            String(
-                loginData.password || ""
-            );
-
-
-        if (!identifier) {
-
-            return {
-
-                success: false,
-
-                message:
-                    "Enter your email or phone number."
-
-            };
-
-        }
-
-
-        if (!password) {
-
-            return {
-
-                success: false,
-
-                message:
-                    "Enter your password."
-
-            };
-
-        }
-
-
-        const users =
-            getTipecoUsers();
-
-
-        const normalizedEmail =
-            normalizeTipecoEmail(
-                identifier
-            );
-
-
-        const normalizedPhone =
-            normalizeTipecoPhone(
-                identifier
-            );
-
-
-        const user =
-            users.find(function (item) {
-
-                const emailMatch =
-                    item.email &&
-                    normalizeTipecoEmail(
-                        item.email
-                    ) === normalizedEmail;
-
-
-                const phoneMatch =
-                    item.phone &&
-                    normalizeTipecoPhone(
-                        item.phone
-                    ) === normalizedPhone;
-
-
-                return (
-                    emailMatch ||
-                    phoneMatch
+                localStorage.removeItem(
+                    "tipecoLoggedIn"
                 );
 
-            });
+                sessionStorage.removeItem(
+                    "tipecoLoggedIn"
+                );
 
 
-        if (!user) {
+                if (
+                    rememberInput &&
+                    rememberInput.checked
+                ) {
 
-            return {
+                    localStorage.setItem(
+                        "tipecoLoggedIn",
+                        "true"
+                    );
 
-                success: false,
+                } else {
 
-                message:
-                    "Account not found."
+                    sessionStorage.setItem(
+                        "tipecoLoggedIn",
+                        "true"
+                    );
+                }
 
-            };
+
+                /* SUCCESS */
+
+                alert(
+                    "Login successful! Welcome to TIPECO GROUP."
+                );
+
+
+                /* GO TO DASHBOARD */
+
+                window.location.href =
+                    "dashboard.html";
+
+            }
+        );
+    }
+
+
+
+    /* =====================================================
+       REGISTER / CREATE ACCOUNT
+    ===================================================== */
+
+    const registerForm =
+        document.getElementById(
+            "registerForm"
+        );
+
+
+    if (registerForm) {
+
+        registerForm.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
+
+
+                /* =================================================
+                   GET FORM INPUTS
+                ================================================== */
+
+                const fullNameInput =
+                    document.getElementById(
+                        "fullName"
+                    );
+
+                const emailInput =
+                    document.getElementById(
+                        "email"
+                    );
+
+                const phoneInput =
+                    document.getElementById(
+                        "phone"
+                    );
+
+                const passwordInput =
+                    document.getElementById(
+                        "password"
+                    );
+
+                const confirmPasswordInput =
+                    document.getElementById(
+                        "confirmPassword"
+                    );
+
+                const accountTypeInput =
+                    document.getElementById(
+                        "accountType"
+                    );
+
+                const termsInput =
+                    document.getElementById(
+                        "terms"
+                    );
+
+
+                /* =================================================
+                   CHECK FORM ELEMENTS
+                ================================================== */
+
+                if (
+
+                    !fullNameInput ||
+                    !emailInput ||
+                    !phoneInput ||
+                    !passwordInput ||
+                    !confirmPasswordInput ||
+                    !accountTypeInput ||
+                    !termsInput
+
+                ) {
+
+                    alert(
+                        "Registration form configuration error."
+                    );
+
+                    return;
+                }
+
+
+                /* =================================================
+                   GET VALUES
+                ================================================== */
+
+                const fullName =
+                    fullNameInput.value.trim();
+
+                const email =
+                    emailInput.value.trim();
+
+                const phone =
+                    phoneInput.value.trim();
+
+                const password =
+                    passwordInput.value;
+
+                const confirmPassword =
+                    confirmPasswordInput.value;
+
+                const accountType =
+                    accountTypeInput.value;
+
+
+                /* =================================================
+                   REQUIRED FIELDS
+                ================================================== */
+
+                if (
+
+                    !fullName ||
+                    !email ||
+                    !phone ||
+                    !password ||
+                    !confirmPassword ||
+                    !accountType
+
+                ) {
+
+                    alert(
+                        "Please complete all required fields."
+                    );
+
+                    return;
+                }
+
+
+                /* =================================================
+                   TERMS
+                ================================================== */
+
+                if (!termsInput.checked) {
+
+                    alert(
+                        "Please agree to the Terms & Conditions."
+                    );
+
+                    return;
+                }
+
+
+                /* =================================================
+                   PASSWORD LENGTH
+                ================================================== */
+
+                if (
+                    password.length < 6
+                ) {
+
+                    alert(
+                        "Password must contain at least 6 characters."
+                    );
+
+                    return;
+                }
+
+
+                /* =================================================
+                   PASSWORD MATCH
+                ================================================== */
+
+                if (
+                    password !==
+                    confirmPassword
+                ) {
+
+                    alert(
+                        "Passwords do not match."
+                    );
+
+                    return;
+                }
+
+
+                /* =================================================
+                   EMAIL CHECK
+                ================================================== */
+
+                const emailPattern =
+                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+                if (
+                    !emailPattern.test(email)
+                ) {
+
+                    alert(
+                        "Please enter a valid email address."
+                    );
+
+                    return;
+                }
+
+
+                /* =================================================
+                   ROLE SECURITY
+                   
+                   PUBLIC REGISTRATION ONLY ALLOWS:
+                   buyer
+                   seller
+
+                   staff/admin MUST NOT be selectable
+                   through public registration.
+                ================================================== */
+
+                if (
+
+                    accountType !== "buyer" &&
+                    accountType !== "seller"
+
+                ) {
+
+                    alert(
+                        "Invalid account type."
+                    );
+
+                    return;
+                }
+
+
+                /* =================================================
+                   CREATE USER
+                ================================================== */
+
+                const user = {
+
+                    fullName:
+                        fullName,
+
+                    email:
+                        email,
+
+                    phone:
+                        phone,
+
+                    password:
+                        password,
+
+                    accountType:
+                        accountType
+
+                };
+
+
+                /* =================================================
+                   SAVE USER
+                ================================================== */
+
+                try {
+
+                    localStorage.setItem(
+                        "tipecoUser",
+                        JSON.stringify(user)
+                    );
+
+                } catch (error) {
+
+                    alert(
+                        "Unable to save account information."
+                    );
+
+                    return;
+                }
+
+
+                /* =================================================
+                   REMOVE OLD LOGIN STATE
+                ================================================== */
+
+                localStorage.removeItem(
+                    "tipecoLoggedIn"
+                );
+
+                sessionStorage.removeItem(
+                    "tipecoLoggedIn"
+                );
+
+
+                /* =================================================
+                   SUCCESS
+                ================================================== */
+
+                alert(
+                    "Account created successfully! You can now login."
+                );
+
+
+                /* =================================================
+                   GO TO LOGIN
+                ================================================== */
+
+                window.location.href =
+                    "login.html";
+
+            }
+        );
+    }
+
+
+
+    /* =====================================================
+       FORGOT PASSWORD
+    ===================================================== */
+
+    const forgotPasswordForm =
+        document.getElementById(
+            "forgotPasswordForm"
+        );
+
+
+    if (forgotPasswordForm) {
+
+        forgotPasswordForm.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
+
+
+                const identifierInput =
+                    document.getElementById(
+                        "resetIdentifier"
+                    );
+
+
+                if (!identifierInput) {
+
+                    alert(
+                        "Forgot password form configuration error."
+                    );
+
+                    return;
+                }
+
+
+                const identifier =
+                    identifierInput.value.trim();
+
+
+                if (!identifier) {
+
+                    alert(
+                        "Please enter your email or phone number."
+                    );
+
+                    return;
+                }
+
+
+                const user =
+                    getStoredUser();
+
+
+                if (!user) {
+
+                    alert(
+                        "No account found. Please create an account first."
+                    );
+
+                    return;
+                }
+
+
+                const emailMatches =
+                    identifier.toLowerCase() ===
+                    String(user.email).toLowerCase();
+
+
+                const phoneMatches =
+                    identifier ===
+                    String(user.phone);
+
+
+                if (
+                    !emailMatches &&
+                    !phoneMatches
+                ) {
+
+                    alert(
+                        "No account was found with that email or phone number."
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * TEMPORARY FRONTEND PROTOTYPE
+                 *
+                 * The real version will use
+                 * email/SMS verification through a backend.
+                 */
+
+                localStorage.setItem(
+                    "tipecoResetIdentifier",
+                    identifier
+                );
+
+
+                alert(
+                    "Account found. You can now reset your password."
+                );
+
+
+                window.location.href =
+                    "reset-password.html";
+
+            }
+        );
+    }
+
+
+
+    /* =====================================================
+       RESET PASSWORD
+    ===================================================== */
+
+    const resetPasswordForm =
+        document.getElementById(
+            "resetPasswordForm"
+        );
+
+
+    if (resetPasswordForm) {
+
+        resetPasswordForm.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
+
+
+                /* =================================================
+                   GET FORM INPUTS
+                ================================================== */
+
+                const newPasswordInput =
+                    document.getElementById(
+                        "newPassword"
+                    );
+
+                const confirmNewPasswordInput =
+                    document.getElementById(
+                        "confirmNewPassword"
+                    );
+
+
+                /* =================================================
+                   FORM CONFIGURATION CHECK
+                ================================================== */
+
+                if (
+                    !newPasswordInput ||
+                    !confirmNewPasswordInput
+                ) {
+
+                    alert(
+                        "Reset password form configuration error."
+                    );
+
+                    return;
+                }
+
+
+                /* =================================================
+                   GET VALUES
+                ================================================== */
+
+                const newPassword =
+                    newPasswordInput.value;
+
+                const confirmNewPassword =
+                    confirmNewPasswordInput.value;
+
+
+                /* =================================================
+                   REQUIRED FIELDS
+                ================================================== */
+
+                if (
+                    !newPassword ||
+                    !confirmNewPassword
+                ) {
+
+                    alert(
+                        "Please enter and confirm your new password."
+                    );
+
+                    return;
+                }
+
+
+                /* =================================================
+                   PASSWORD LENGTH
+                ================================================== */
+
+                if (
+                    newPassword.length < 6
+                ) {
+
+                    alert(
+                        "Password must contain at least 6 characters."
+                    );
+
+                    return;
+                }
+
+
+                /* =================================================
+                   PASSWORD MATCH
+                ================================================== */
+
+                if (
+                    newPassword !==
+                    confirmNewPassword
+                ) {
+
+                    alert(
+                        "Passwords do not match."
+                    );
+
+                    return;
+                }
+
+
+                /* =================================================
+                   GET RESET IDENTIFIER
+                ================================================== */
+
+                const resetIdentifier =
+                    localStorage.getItem(
+                        "tipecoResetIdentifier"
+                    );
+
+
+                if (!resetIdentifier) {
+
+                    alert(
+                        "Password reset session expired. Please start again."
+                    );
+
+                    window.location.href =
+                        "forgot-password.html";
+
+                    return;
+                }
+
+
+                /* =================================================
+                   GET STORED USER
+                ================================================== */
+
+                const user =
+                    getStoredUser();
+
+
+                if (!user) {
+
+                    alert(
+                        "No account found. Please create an account first."
+                    );
+
+                    window.location.href =
+                        "register.html";
+
+                    return;
+                }
+
+
+                /* =================================================
+                   VERIFY RESET IDENTIFIER
+                ================================================== */
+
+                const emailMatches =
+                    resetIdentifier.toLowerCase() ===
+                    String(user.email).toLowerCase();
+
+
+                const phoneMatches =
+                    resetIdentifier ===
+                    String(user.phone);
+
+
+                if (
+                    !emailMatches &&
+                    !phoneMatches
+                ) {
+
+                    alert(
+                        "The password reset request is no longer valid."
+                    );
+
+                    localStorage.removeItem(
+                        "tipecoResetIdentifier"
+                    );
+
+                    window.location.href =
+                        "forgot-password.html";
+
+                    return;
+                }
+
+
+                /* =================================================
+                   UPDATE PASSWORD
+                ================================================== */
+
+                user.password =
+                    newPassword;
+
+
+                /* =================================================
+                   SAVE UPDATED USER
+                ================================================== */
+
+                try {
+
+                    localStorage.setItem(
+                        "tipecoUser",
+                        JSON.stringify(user)
+                    );
+
+                } catch (error) {
+
+                    alert(
+                        "Unable to update your password."
+                    );
+
+                    return;
+                }
+
+
+                /* =================================================
+                   REMOVE RESET SESSION
+                ================================================== */
+
+                localStorage.removeItem(
+                    "tipecoResetIdentifier"
+                );
+
+
+                /* =================================================
+                   CLEAR OLD LOGIN STATE
+                ================================================== */
+
+                localStorage.removeItem(
+                    "tipecoLoggedIn"
+                );
+
+                sessionStorage.removeItem(
+                    "tipecoLoggedIn"
+                );
+
+
+                /* =================================================
+                   SUCCESS
+                ================================================== */
+
+                alert(
+                    "Password reset successfully! You can now login with your new password."
+                );
+
+
+                /* =================================================
+                   GO TO LOGIN
+                ================================================== */
+
+                window.location.href =
+                    "login.html";
+
+            }
+        );
+    }
+
+
+
+    /* =====================================================
+       LOGOUT
+    ===================================================== */
+
+    const logoutButtons =
+        document.querySelectorAll(
+            '[data-action="logout"]'
+        );
+
+
+    logoutButtons.forEach(
+        function (button) {
+
+            button.addEventListener(
+                "click",
+                function (event) {
+
+                    event.preventDefault();
+
+
+                    localStorage.removeItem(
+                        "tipecoLoggedIn"
+                    );
+
+                    sessionStorage.removeItem(
+                        "tipecoLoggedIn"
+                    );
+
+
+                    window.location.href =
+                        "login.html";
+
+                }
+            );
 
         }
+    );
+
+
+
+    /* =====================================================
+       PROTECTED DASHBOARD
+    ===================================================== */
+
+    const currentPage =
+        window.location.pathname;
+
+
+    const isDashboard =
+        currentPage.includes(
+            "dashboard.html"
+        );
+
+
+    if (isDashboard) {
+
+        const loggedIn =
+
+            localStorage.getItem(
+                "tipecoLoggedIn"
+            )
+
+            ||
+
+            sessionStorage.getItem(
+                "tipecoLoggedIn"
+            );
 
 
         if (
-            user.status &&
-            user.status !== "active"
+            loggedIn !== "true"
         ) {
 
-            return {
-
-                success: false,
-
-                message:
-                    "This account is not active."
-
-            };
-
-        }
-
-
-        if (user.password !== password) {
-
-            return {
-
-                success: false,
-
-                message:
-                    "Incorrect password."
-
-            };
-
-        }
-
-
-        /* =============================================
-           CREATE SESSION
-        ============================================== */
-
-        const session =
-            createTipecoSession(user);
-
-
-        return {
-
-            success: true,
-
-            message:
-                "Login successful.",
-
-            user: user,
-
-            session: session
-
-        };
-
-    } catch (error) {
-
-        console.error(
-            "TIPECO Login Error:",
-            error
-        );
-
-
-        return {
-
-            success: false,
-
-            message:
-                "Something went wrong while logging in."
-
-        };
-
-    }
-
-}
-
-
-/* =====================================================
-   LOGOUT
-===================================================== */
-
-function tipecoLogout() {
-
-    localStorage.removeItem(
-        TIPECO_SESSION_KEY
-    );
-
-
-    return {
-
-        success: true,
-
-        message:
-            "You have been logged out."
-
-    };
-
-}
-
-
-/* =====================================================
-   REQUIRE AUTHENTICATION
-===================================================== */
-
-function requireTipecoAuth() {
-
-    const user =
-        getCurrentTipecoUser();
-
-
-    if (!user) {
-
-        return {
-
-            authenticated: false,
-
-            user: null,
-
-            message:
-                "Please login to continue."
-
-        };
-
-    }
-
-
-    return {
-
-        authenticated: true,
-
-        user: user,
-
-        message:
-            "Authenticated."
-
-    };
-
-}
-
-
-/* =====================================================
-   GET USER-SPECIFIC STORAGE
-===================================================== */
-
-function getTipecoUserStorage() {
-
-    const user =
-        getCurrentTipecoUser();
-
-
-    if (!user) {
-
-        return null;
-
-    }
-
-
-    const key =
-        TIPECO_USER_PREFIX +
-        user.id;
-
-
-    try {
-
-        const data =
-            localStorage.getItem(key);
-
-
-        if (!data) {
-
-            return {
-
-                userId: user.id,
-
-                listings: [],
-
-                favorites: [],
-
-                settings: {}
-
-            };
-
-        }
-
-
-        return JSON.parse(data);
-
-    } catch (error) {
-
-        console.error(
-            "TIPECO User Storage Error:",
-            error
-        );
-
-        return null;
-
-    }
-
-}
-
-
-/* =====================================================
-   SAVE USER-SPECIFIC STORAGE
-===================================================== */
-
-function saveTipecoUserStorage(data) {
-
-    const user =
-        getCurrentTipecoUser();
-
-
-    if (!user) {
-
-        return false;
-
-    }
-
-
-    const key =
-        TIPECO_USER_PREFIX +
-        user.id;
-
-
-    data.userId =
-        user.id;
-
-
-    localStorage.setItem(
-
-        key,
-
-        JSON.stringify(data)
-
-    );
-
-
-    return true;
-
-}
-
-
-/* =====================================================
-   SAVE USER LISTING REFERENCE
-===================================================== */
-
-function saveTipecoListingReference(listing) {
-
-    const user =
-        getCurrentTipecoUser();
-
-
-    if (!user) {
-
-        return {
-
-            success: false,
-
-            message:
-                "Please login before creating a listing."
-
-        };
-
-    }
-
-
-    const storage =
-        getTipecoUserStorage();
-
-
-    if (!storage) {
-
-        return {
-
-            success: false,
-
-            message:
-                "User storage is unavailable."
-
-        };
-
-    }
-
-
-    if (!Array.isArray(storage.listings)) {
-
-        storage.listings = [];
-
-    }
-
-
-    storage.listings.push({
-
-        listingId:
-            listing.listingId ||
-            listing.id,
-
-        title:
-            listing.title || "",
-
-        createdAt:
-            listing.createdAt ||
-            new Date().toISOString(),
-
-        mediaIds:
-            Array.isArray(
-                listing.mediaIds
-            )
-                ? listing.mediaIds
-                : []
-
-    });
-
-
-    saveTipecoUserStorage(
-        storage
-    );
-
-
-    return {
-
-        success: true,
-
-        userId: user.id,
-
-        message:
-            "Listing reference saved."
-
-    };
-
-}
-
-
-/* =====================================================
-   GET USER LISTINGS
-===================================================== */
-
-function getTipecoUserListings() {
-
-    const storage =
-        getTipecoUserStorage();
-
-
-    if (!storage) {
-
-        return [];
-
-    }
-
-
-    return Array.isArray(
-        storage.listings
-    )
-        ? storage.listings
-        : [];
-
-}
-
-
-/* =====================================================
-   SAVE MEDIA FOR CURRENT USER
-   Works with storage.js v1.0
-===================================================== */
-
-async function saveTipecoUserMedia(
-    mediaObject
-) {
-
-    const user =
-        getCurrentTipecoUser();
-
-
-    if (!user) {
-
-        throw new Error(
-            "User must be logged in."
-        );
-
-    }
-
-
-    if (!mediaObject) {
-
-        throw new Error(
-            "Media object is required."
-        );
-
-    }
-
-
-    mediaObject.ownerId =
-        user.id;
-
-
-    mediaObject.createdAt =
-        mediaObject.createdAt ||
-        new Date().toISOString();
-
-
-    return await saveTipecoMedia(
-        mediaObject
-    );
-
-}
-
-
-/* =====================================================
-   GET MEDIA FOR CURRENT USER
-===================================================== */
-
-async function getTipecoUserMedia(
-    mediaId
-) {
-
-    const user =
-        getCurrentTipecoUser();
-
-
-    if (!user) {
-
-        return null;
-
-    }
-
-
-    const media =
-        await getTipecoMedia(
-            mediaId
-        );
-
-
-    if (!media) {
-
-        return null;
-
-    }
-
-
-    /* =============================================
-       USER ISOLATION
-    ============================================== */
-
-    if (
-        media.ownerId &&
-        media.ownerId !== user.id
-    ) {
-
-        console.warn(
-            "TIPECO: Unauthorized media access."
-        );
-
-        return null;
-
-    }
-
-
-    return media;
-
-}
-
-
-/* =====================================================
-   DELETE MEDIA FOR CURRENT USER
-===================================================== */
-
-async function deleteTipecoUserMedia(
-    mediaId
-) {
-
-    const user =
-        getCurrentTipecoUser();
-
-
-    if (!user) {
-
-        return false;
-
-    }
-
-
-    const media =
-        await getTipecoMedia(
-            mediaId
-        );
-
-
-    if (!media) {
-
-        return false;
-
-    }
-
-
-    if (
-        media.ownerId &&
-        media.ownerId !== user.id
-    ) {
-
-        console.warn(
-            "TIPECO: Unauthorized media deletion."
-        );
-
-        return false;
-
-    }
-
-
-    await deleteTipecoMedia(
-        mediaId
-    );
-
-
-    return true;
-
-}
-
-
-/* =====================================================
-   FORGOT PASSWORD
-   NOTE:
-   This version prepares the flow locally.
-   Real email/SMS reset will come later.
-===================================================== */
-
-function tipecoForgotPassword(identifier) {
-
-    const value =
-        String(
-            identifier || ""
-        ).trim();
-
-
-    if (!value) {
-
-        return {
-
-            success: false,
-
-            message:
-                "Enter your email or phone number."
-
-        };
-
-    }
-
-
-    const users =
-        getTipecoUsers();
-
-
-    const email =
-        normalizeTipecoEmail(
-            value
-        );
-
-
-    const phone =
-        normalizeTipecoPhone(
-            value
-        );
-
-
-    const user =
-        users.find(function (item) {
-
-            return (
-
-                (
-                    item.email &&
-                    normalizeTipecoEmail(
-                        item.email
-                    ) === email
-                )
-
-                ||
-
-                (
-                    item.phone &&
-                    normalizeTipecoPhone(
-                        item.phone
-                    ) === phone
-                )
-
+            alert(
+                "Please login to access your dashboard."
             );
 
-        });
+            window.location.href =
+                "login.html";
 
-
-    if (!user) {
-
-        return {
-
-            success: false,
-
-            message:
-                "No account was found."
-
-        };
-
+            return;
+        }
     }
 
 
-    return {
 
-        success: true,
-
-        userId:
-            user.id,
-
-        message:
-            "Account found. Password reset verification can now continue."
-
-    };
-
-}
-
-
-/* =====================================================
-   UPDATE USER
-===================================================== */
-
-function updateTipecoUser(updates) {
+    /* =====================================================
+       GET CURRENT USER
+    ===================================================== */
 
     const currentUser =
-        getCurrentTipecoUser();
+        getStoredUser();
 
 
-    if (!currentUser) {
 
-        return {
+    /* =====================================================
+       DISPLAY USER NAME
+    ===================================================== */
 
-            success: false,
-
-            message:
-                "Please login first."
-
-        };
-
-    }
+    const userNameElements =
+        document.querySelectorAll(
+            "[data-user-name]"
+        );
 
 
-    const users =
-        getTipecoUsers();
+    if (
+        userNameElements.length > 0 &&
+        currentUser
+    ) {
 
+        userNameElements.forEach(
+            function (element) {
 
-    const index =
-        users.findIndex(function (user) {
-
-            return (
-                user.id ===
-                currentUser.id
-            );
-
-        });
-
-
-    if (index === -1) {
-
-        return {
-
-            success: false,
-
-            message:
-                "User account not found."
-
-        };
-
-    }
-
-
-    const allowedFields = [
-
-        "name",
-
-        "email",
-
-        "phone"
-
-    ];
-
-
-    allowedFields.forEach(
-        function (field) {
-
-            if (
-                updates &&
-                Object.prototype.hasOwnProperty.call(
-                    updates,
-                    field
-                )
-            ) {
-
-                if (field === "email") {
-
-                    users[index][field] =
-                        normalizeTipecoEmail(
-                            updates[field]
-                        );
-
-                }
-
-                else if (
-                    field === "phone"
-                ) {
-
-                    users[index][field] =
-                        normalizeTipecoPhone(
-                            updates[field]
-                        );
-
-                }
-
-                else {
-
-                    users[index][field] =
-                        String(
-                            updates[field]
-                        ).trim();
-
-                }
+                element.textContent =
+                    currentUser.fullName;
 
             }
-
-        }
-    );
-
-
-    users[index].updatedAt =
-        new Date().toISOString();
-
-
-    saveTipecoUsers(
-        users
-    );
-
-
-    createTipecoSession(
-        users[index]
-    );
-
-
-    return {
-
-        success: true,
-
-        user:
-            users[index],
-
-        message:
-            "Profile updated successfully."
-
-    };
-
-}
-
-
-/* =====================================================
-   AUTH SYSTEM STATUS
-===================================================== */
-
-function getTipecoAuthStatus() {
-
-    const user =
-        getCurrentTipecoUser();
-
-
-    return {
-
-        version:
-            TIPECO_AUTH_VERSION,
-
-        loggedIn:
-            !!user,
-
-        userId:
-            user
-                ? user.id
-                : null,
-
-        user:
-            user || null
-
-    };
-
-}
-
-
-/* =====================================================
-   AUTH TEST
-===================================================== */
-
-function testTipecoAuth() {
-
-    try {
-
-        const status =
-            getTipecoAuthStatus();
-
-
-        console.log(
-            "===================================="
         );
+    }
 
-        console.log(
-            "TIPECO AUTH SYSTEM"
-        );
 
-        console.log(
-            "Version:",
-            TIPECO_AUTH_VERSION
-        );
 
-        console.log(
-            "Logged in:",
-            status.loggedIn
-        );
+    /* =====================================================
+       DISPLAY USER EMAIL
+    ===================================================== */
 
-        console.log(
-            "User:",
-            status.user
-        );
-
-        console.log(
-            "===================================="
+    const userEmailElements =
+        document.querySelectorAll(
+            "[data-user-email]"
         );
 
 
-        return true;
+    if (
+        userEmailElements.length > 0 &&
+        currentUser
+    ) {
 
-    } catch (error) {
+        userEmailElements.forEach(
+            function (element) {
 
-        console.error(
-            "TIPECO Auth Test Error:",
-            error
+                element.textContent =
+                    currentUser.email;
+
+            }
+        );
+    }
+
+
+
+    /* =====================================================
+       DISPLAY USER ROLE
+    ===================================================== */
+
+    const userRoleElements =
+        document.querySelectorAll(
+            "[data-user-role]"
         );
 
-        return false;
+
+    if (
+        userRoleElements.length > 0 &&
+        currentUser
+    ) {
+
+        const roleLabel =
+            getUserRoleLabel(
+                currentUser.accountType
+            );
+
+
+        userRoleElements.forEach(
+            function (element) {
+
+                element.textContent =
+                    roleLabel;
+
+            }
+        );
+    }
+
+
+
+    /* =====================================================
+       STORE CURRENT ROLE
+       
+       This makes the current role easy to use
+       in future dashboard features.
+    ===================================================== */
+
+    if (currentUser) {
+
+        document.body.dataset.userRole =
+            currentUser.accountType || "";
 
     }
 
-}
-
-
-/* =====================================================
-   AUTO AUTH CHECK
-===================================================== */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        const status =
-            getTipecoAuthStatus();
-
-
-        console.log(
-            "TIPECO Auth v3.0 loaded.",
-            status
-        );
-
-    }
-);
+});
