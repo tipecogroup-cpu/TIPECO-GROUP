@@ -1,24 +1,113 @@
 /* =====================================================
    TIPECO GROUP - AUTHENTICATION JAVASCRIPT
-   Version: 2.1
-   Authentication Only
+   Version: 3.0
+   Multi-User Authentication
+   Roles:
+   - buyer
+   - seller
+   - owner
+
+   NOTE:
+   This is a frontend prototype.
+   Real production authentication should use
+   a secure backend and hashed passwords.
 ===================================================== */
+
 
 document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
-       HELPER FUNCTIONS
-    ===================================================== */
+       STORAGE KEYS
+    ====================================================== */
 
-    function getStoredUser() {
+    const USERS_KEY = "tipecoUsers";
+    const CURRENT_USER_KEY = "tipecoCurrentUser";
+
+    const LOGIN_LOCAL_KEY = "tipecoLoggedIn";
+    const LOGIN_SESSION_KEY = "tipecoLoggedIn";
+
+    const OLD_USER_KEY = "tipecoUser";
+
+
+    /* =====================================================
+       HELPER - READ USERS
+    ====================================================== */
+
+    function getUsers() {
+
+        const storedUsers =
+            localStorage.getItem(USERS_KEY);
+
+
+        if (!storedUsers) {
+
+            return [];
+
+        }
+
+
+        try {
+
+            const users =
+                JSON.parse(storedUsers);
+
+
+            if (!Array.isArray(users)) {
+
+                return [];
+
+            }
+
+
+            return users;
+
+        } catch (error) {
+
+            console.error(
+                "Unable to read TIPECO users.",
+                error
+            );
+
+            return [];
+
+        }
+
+    }
+
+
+    /* =====================================================
+       HELPER - SAVE USERS
+    ====================================================== */
+
+    function saveUsers(users) {
+
+        localStorage.setItem(
+            USERS_KEY,
+            JSON.stringify(users)
+        );
+
+    }
+
+
+    /* =====================================================
+       HELPER - CURRENT USER
+    ====================================================== */
+
+    function getCurrentUser() {
 
         const storedUser =
-            localStorage.getItem("tipecoUser");
+            localStorage.getItem(
+                CURRENT_USER_KEY
+            );
+
 
         if (!storedUser) {
+
             return null;
+
         }
+
 
         try {
 
@@ -27,14 +116,20 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (error) {
 
             console.error(
-                "Unable to read TIPECO user data.",
+                "Unable to read current TIPECO user.",
                 error
             );
 
             return null;
+
         }
+
     }
 
+
+    /* =====================================================
+       HELPER - ROLE LABEL
+    ====================================================== */
 
     function getUserRoleLabel(accountType) {
 
@@ -44,7 +139,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 return "Buyer / Customer";
 
             case "seller":
-                return "Seller / Agent / Service Provider";
+                return "Seller / Service Provider";
+
+            case "owner":
+                return "TIPECO Owner";
 
             case "staff":
                 return "TIPECO Staff";
@@ -54,16 +152,137 @@ document.addEventListener("DOMContentLoaded", function () {
 
             default:
                 return "TIPECO User";
+
         }
+
     }
 
 
     /* =====================================================
-       LOGIN
-    ===================================================== */
+       MIGRATE OLD USER
+       
+       v2.1 stored one user as:
+       tipecoUser
+
+       v3.0 stores multiple users as:
+       tipecoUsers
+    ====================================================== */
+
+    function migrateOldUser() {
+
+        const oldUser =
+            localStorage.getItem(
+                OLD_USER_KEY
+            );
+
+
+        if (!oldUser) {
+
+            return;
+
+        }
+
+
+        let parsedOldUser;
+
+
+        try {
+
+            parsedOldUser =
+                JSON.parse(oldUser);
+
+        } catch (error) {
+
+            console.error(
+                "Unable to migrate old TIPECO user.",
+                error
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !parsedOldUser ||
+            !parsedOldUser.email
+        ) {
+
+            return;
+
+        }
+
+
+        const users =
+            getUsers();
+
+
+        const exists =
+            users.some(function (user) {
+
+                return String(user.email)
+                    .toLowerCase() ===
+                    String(parsedOldUser.email)
+                        .toLowerCase();
+
+            });
+
+
+        if (!exists) {
+
+            users.push({
+
+                id:
+                    "USR-" +
+                    Date.now(),
+
+                fullName:
+                    parsedOldUser.fullName || "",
+
+                email:
+                    parsedOldUser.email || "",
+
+                phone:
+                    parsedOldUser.phone || "",
+
+                password:
+                    parsedOldUser.password || "",
+
+                accountType:
+                    parsedOldUser.accountType === "seller"
+                        ? "seller"
+                        : "buyer",
+
+                status:
+                    "active",
+
+                createdAt:
+                    new Date().toISOString()
+
+            });
+
+
+            saveUsers(users);
+
+        }
+
+    }
+
+
+    /* =====================================================
+       RUN MIGRATION
+    ====================================================== */
+
+    migrateOldUser();
+
+
+    /* =====================================================
+       LOGIN FORM
+    ====================================================== */
 
     const loginForm =
         document.getElementById("loginForm");
+
 
     if (loginForm) {
 
@@ -74,23 +293,27 @@ document.addEventListener("DOMContentLoaded", function () {
                 event.preventDefault();
 
 
+                /* =================================================
+                   GET INPUTS
+                ================================================== */
+
                 const identifierInput =
                     loginForm.querySelector(
                         '[name="login"], [name="identifier"]'
                     );
+
 
                 const passwordInput =
                     loginForm.querySelector(
                         '[name="password"]'
                     );
 
+
                 const rememberInput =
                     loginForm.querySelector(
                         '[name="remember"]'
                     );
 
-
-                /* FORM CHECK */
 
                 if (
                     !identifierInput ||
@@ -102,19 +325,21 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
 
-                /* GET VALUES */
+                /* =================================================
+                   VALUES
+                ================================================== */
 
                 const identifier =
                     identifierInput.value.trim();
 
+
                 const password =
                     passwordInput.value;
 
-
-                /* REQUIRED FIELDS */
 
                 if (
                     !identifier ||
@@ -126,70 +351,73 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
 
-                /* GET REGISTERED USER */
+                /* =================================================
+                   GET USERS
+                ================================================== */
 
-                const registeredUser =
-                    localStorage.getItem(
-                        "tipecoUser"
-                    );
+                const users =
+                    getUsers();
 
 
-                if (!registeredUser) {
+                if (users.length === 0) {
 
                     alert(
                         "No account found. Please create an account first."
                     );
 
                     return;
+
                 }
 
 
-                let user;
+                /* =================================================
+                   FIND USER
+                ================================================== */
+
+                const user =
+                    users.find(function (item) {
+
+                        const emailMatches =
+                            identifier.toLowerCase() ===
+                            String(item.email)
+                                .toLowerCase();
 
 
-                try {
+                        const phoneMatches =
+                            identifier ===
+                            String(item.phone);
 
-                    user =
-                        JSON.parse(
-                            registeredUser
+
+                        return (
+                            emailMatches ||
+                            phoneMatches
                         );
 
-                } catch (error) {
+                    });
+
+
+                if (!user) {
 
                     alert(
-                        "Account data is corrupted. Please register again."
+                        "Invalid email/phone or password."
                     );
 
                     return;
+
                 }
 
 
-                /* IDENTIFIER CHECK */
-
-                const identifierMatches =
-
-                    identifier.toLowerCase() ===
-                    String(user.email)
-                        .toLowerCase()
-
-                    ||
-
-                    identifier ===
-                    String(user.phone);
-
-
-                /* PASSWORD CHECK */
-
-                const passwordMatches =
-                    password === user.password;
-
+                /* =================================================
+                   PASSWORD CHECK
+                ================================================== */
 
                 if (
-                    !identifierMatches ||
-                    !passwordMatches
+                    password !==
+                    user.password
                 ) {
 
                     alert(
@@ -197,19 +425,48 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
 
                 /* =================================================
-                   SAVE LOGIN STATE
+                   ACCOUNT STATUS
+                ================================================== */
+
+                if (
+                    user.status &&
+                    user.status !== "active"
+                ) {
+
+                    alert(
+                        "This account is not currently active."
+                    );
+
+                    return;
+
+                }
+
+
+                /* =================================================
+                   SAVE CURRENT USER
+                ================================================== */
+
+                localStorage.setItem(
+                    CURRENT_USER_KEY,
+                    JSON.stringify(user)
+                );
+
+
+                /* =================================================
+                   LOGIN STATE
                 ================================================== */
 
                 localStorage.removeItem(
-                    "tipecoLoggedIn"
+                    LOGIN_LOCAL_KEY
                 );
 
                 sessionStorage.removeItem(
-                    "tipecoLoggedIn"
+                    LOGIN_SESSION_KEY
                 );
 
 
@@ -219,40 +476,81 @@ document.addEventListener("DOMContentLoaded", function () {
                 ) {
 
                     localStorage.setItem(
-                        "tipecoLoggedIn",
+                        LOGIN_LOCAL_KEY,
                         "true"
                     );
 
                 } else {
 
                     sessionStorage.setItem(
-                        "tipecoLoggedIn",
+                        LOGIN_SESSION_KEY,
                         "true"
                     );
+
                 }
 
 
-                /* SUCCESS */
+                /* =================================================
+                   SUCCESS MESSAGE
+                ================================================== */
 
                 alert(
                     "Login successful! Welcome to TIPECO GROUP."
                 );
 
 
-                /* GO TO DASHBOARD */
+                /* =================================================
+                   ROLE-BASED REDIRECT
+                ================================================== */
 
-                window.location.href =
-                    "dashboard.html";
+                switch (user.accountType) {
+
+                    case "owner":
+
+                        window.location.href =
+                            "owner-dashboard.html";
+
+                        break;
+
+
+                    case "seller":
+
+                        window.location.href =
+                            "dashboard.html";
+
+                        break;
+
+
+                    case "buyer":
+
+                        window.location.href =
+                            "dashboard.html";
+
+                        break;
+
+
+                    default:
+
+                        window.location.href =
+                            "dashboard.html";
+
+                }
 
             }
         );
+
     }
 
 
-
     /* =====================================================
-       REGISTER / CREATE ACCOUNT
-    ===================================================== */
+       REGISTER FORM
+       
+       PUBLIC REGISTRATION:
+       buyer
+       seller
+
+       Owner CANNOT be created here.
+    ====================================================== */
 
     const registerForm =
         document.getElementById(
@@ -270,7 +568,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
                 /* =================================================
-                   GET FORM INPUTS
+                   GET INPUTS
                 ================================================== */
 
                 const fullNameInput =
@@ -278,40 +576,42 @@ document.addEventListener("DOMContentLoaded", function () {
                         "fullName"
                     );
 
+
                 const emailInput =
                     document.getElementById(
                         "email"
                     );
+
 
                 const phoneInput =
                     document.getElementById(
                         "phone"
                     );
 
+
                 const passwordInput =
                     document.getElementById(
                         "password"
                     );
+
 
                 const confirmPasswordInput =
                     document.getElementById(
                         "confirmPassword"
                     );
 
+
                 const accountTypeInput =
                     document.getElementById(
                         "accountType"
                     );
+
 
                 const termsInput =
                     document.getElementById(
                         "terms"
                     );
 
-
-                /* =================================================
-                   CHECK FORM ELEMENTS
-                ================================================== */
 
                 if (
 
@@ -330,34 +630,40 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
 
                 /* =================================================
-                   GET VALUES
+                   VALUES
                 ================================================== */
 
                 const fullName =
                     fullNameInput.value.trim();
 
+
                 const email =
                     emailInput.value.trim();
+
 
                 const phone =
                     phoneInput.value.trim();
 
+
                 const password =
                     passwordInput.value;
 
+
                 const confirmPassword =
                     confirmPasswordInput.value;
+
 
                 const accountType =
                     accountTypeInput.value;
 
 
                 /* =================================================
-                   REQUIRED FIELDS
+                   REQUIRED
                 ================================================== */
 
                 if (
@@ -376,6 +682,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
 
@@ -390,6 +697,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
 
@@ -406,6 +714,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
 
@@ -423,11 +732,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
 
                 /* =================================================
-                   EMAIL CHECK
+                   EMAIL
                 ================================================== */
 
                 const emailPattern =
@@ -443,18 +753,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
 
                 /* =================================================
-                   ROLE SECURITY
-                   
-                   PUBLIC REGISTRATION ONLY ALLOWS:
-                   buyer
-                   seller
-
-                   staff/admin MUST NOT be selectable
-                   through public registration.
+                   PUBLIC ROLE SECURITY
                 ================================================== */
 
                 if (
@@ -469,6 +773,64 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
+                }
+
+
+                /* =================================================
+                   GET USERS
+                ================================================== */
+
+                const users =
+                    getUsers();
+
+
+                /* =================================================
+                   DUPLICATE EMAIL
+                ================================================== */
+
+                const emailExists =
+                    users.some(function (user) {
+
+                        return String(user.email)
+                            .toLowerCase() ===
+                            email.toLowerCase();
+
+                    });
+
+
+                if (emailExists) {
+
+                    alert(
+                        "An account with this email already exists."
+                    );
+
+                    return;
+
+                }
+
+
+                /* =================================================
+                   DUPLICATE PHONE
+                ================================================== */
+
+                const phoneExists =
+                    users.some(function (user) {
+
+                        return String(user.phone) ===
+                            phone;
+
+                    });
+
+
+                if (phoneExists) {
+
+                    alert(
+                        "An account with this phone number already exists."
+                    );
+
+                    return;
+
                 }
 
 
@@ -477,6 +839,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 ================================================== */
 
                 const user = {
+
+                    id:
+                        "USR-" +
+                        Date.now(),
 
                     fullName:
                         fullName,
@@ -491,21 +857,27 @@ document.addEventListener("DOMContentLoaded", function () {
                         password,
 
                     accountType:
-                        accountType
+                        accountType,
+
+                    status:
+                        "active",
+
+                    createdAt:
+                        new Date().toISOString()
 
                 };
 
 
                 /* =================================================
-                   SAVE USER
+                   SAVE
                 ================================================== */
+
+                users.push(user);
+
 
                 try {
 
-                    localStorage.setItem(
-                        "tipecoUser",
-                        JSON.stringify(user)
-                    );
+                    saveUsers(users);
 
                 } catch (error) {
 
@@ -514,19 +886,31 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
 
                 /* =================================================
-                   REMOVE OLD LOGIN STATE
+                   CLEAR OLD USER STORAGE
                 ================================================== */
 
                 localStorage.removeItem(
-                    "tipecoLoggedIn"
+                    OLD_USER_KEY
                 );
 
+
+                localStorage.removeItem(
+                    CURRENT_USER_KEY
+                );
+
+
+                localStorage.removeItem(
+                    LOGIN_LOCAL_KEY
+                );
+
+
                 sessionStorage.removeItem(
-                    "tipecoLoggedIn"
+                    LOGIN_SESSION_KEY
                 );
 
 
@@ -539,22 +923,287 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
 
 
-                /* =================================================
-                   GO TO LOGIN
-                ================================================== */
-
                 window.location.href =
                     "login.html";
 
             }
         );
+
     }
 
+
+    /* =====================================================
+       LOGOUT
+    ====================================================== */
+
+    const logoutButtons =
+        document.querySelectorAll(
+            '[data-action="logout"]'
+        );
+
+
+    logoutButtons.forEach(
+        function (button) {
+
+            button.addEventListener(
+                "click",
+                function (event) {
+
+                    event.preventDefault();
+
+
+                    localStorage.removeItem(
+                        CURRENT_USER_KEY
+                    );
+
+
+                    localStorage.removeItem(
+                        LOGIN_LOCAL_KEY
+                    );
+
+
+                    sessionStorage.removeItem(
+                        LOGIN_SESSION_KEY
+                    );
+
+
+                    window.location.href =
+                        "login.html";
+
+                }
+            );
+
+        }
+    );
+
+
+    /* =====================================================
+       PROTECTED DASHBOARDS
+    ====================================================== */
+
+    const currentPage =
+        window.location.pathname;
+
+
+    const isSellerDashboard =
+        currentPage.includes(
+            "dashboard.html"
+        );
+
+
+    const isOwnerDashboard =
+        currentPage.includes(
+            "owner-dashboard.html"
+        );
+
+
+    const loggedIn =
+
+        localStorage.getItem(
+            LOGIN_LOCAL_KEY
+        )
+
+        ||
+
+        sessionStorage.getItem(
+            LOGIN_SESSION_KEY
+        );
+
+
+    const currentUser =
+        getCurrentUser();
+
+
+    /* =====================================================
+       SELLER / GENERAL DASHBOARD PROTECTION
+    ====================================================== */
+
+    if (isSellerDashboard) {
+
+        if (
+            loggedIn !== "true" ||
+            !currentUser
+        ) {
+
+            alert(
+                "Please login to access your dashboard."
+            );
+
+            window.location.href =
+                "login.html";
+
+            return;
+
+        }
+
+
+        if (
+            currentUser.accountType ===
+            "owner"
+        ) {
+
+            window.location.href =
+                "owner-dashboard.html";
+
+            return;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       OWNER DASHBOARD PROTECTION
+    ====================================================== */
+
+    if (isOwnerDashboard) {
+
+        if (
+            loggedIn !== "true" ||
+            !currentUser
+        ) {
+
+            alert(
+                "Please login to access the Owner Dashboard."
+            );
+
+            window.location.href =
+                "login.html";
+
+            return;
+
+        }
+
+
+        if (
+            currentUser.accountType !==
+            "owner"
+        ) {
+
+            alert(
+                "Access denied. Owner permissions required."
+            );
+
+
+            window.location.href =
+                "dashboard.html";
+
+
+            return;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       DISPLAY CURRENT USER
+    ====================================================== */
+
+    if (currentUser) {
+
+
+        /* =================================================
+           NAME
+        ================================================== */
+
+        const userNameElements =
+            document.querySelectorAll(
+                "[data-user-name]"
+            );
+
+
+        userNameElements.forEach(
+            function (element) {
+
+                element.textContent =
+                    currentUser.fullName;
+
+            }
+        );
+
+
+        /* =================================================
+           EMAIL
+        ================================================== */
+
+        const userEmailElements =
+            document.querySelectorAll(
+                "[data-user-email]"
+            );
+
+
+        userEmailElements.forEach(
+            function (element) {
+
+                element.textContent =
+                    currentUser.email;
+
+            }
+        );
+
+
+        /* =================================================
+           ROLE
+        ================================================== */
+
+        const userRoleElements =
+            document.querySelectorAll(
+                "[data-user-role]"
+            );
+
+
+        const roleLabel =
+            getUserRoleLabel(
+                currentUser.accountType
+            );
+
+
+        userRoleElements.forEach(
+            function (element) {
+
+                element.textContent =
+                    roleLabel;
+
+            }
+        );
+
+
+        /* =================================================
+           OWNER DASHBOARD NAME
+        ================================================== */
+
+        const ownerName =
+            document.getElementById(
+                "ownerName"
+            );
+
+
+        if (
+            ownerName &&
+            currentUser.accountType ===
+            "owner"
+        ) {
+
+            ownerName.textContent =
+                currentUser.fullName;
+
+        }
+
+
+        /* =================================================
+           BODY ROLE
+        ================================================== */
+
+        document.body.dataset.userRole =
+            currentUser.accountType || "";
+
+    }
 
 
     /* =====================================================
        FORGOT PASSWORD
-    ===================================================== */
+    ====================================================== */
 
     const forgotPasswordForm =
         document.getElementById(
@@ -584,6 +1233,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
 
@@ -598,52 +1248,43 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
+
+
+                const users =
+                    getUsers();
 
 
                 const user =
-                    getStoredUser();
+                    users.find(function (item) {
+
+                        return (
+
+                            identifier.toLowerCase() ===
+                            String(item.email)
+                                .toLowerCase()
+
+                            ||
+
+                            identifier ===
+                            String(item.phone)
+
+                        );
+
+                    });
 
 
                 if (!user) {
-
-                    alert(
-                        "No account found. Please create an account first."
-                    );
-
-                    return;
-                }
-
-
-                const emailMatches =
-                    identifier.toLowerCase() ===
-                    String(user.email).toLowerCase();
-
-
-                const phoneMatches =
-                    identifier ===
-                    String(user.phone);
-
-
-                if (
-                    !emailMatches &&
-                    !phoneMatches
-                ) {
 
                     alert(
                         "No account was found with that email or phone number."
                     );
 
                     return;
+
                 }
 
-
-                /*
-                 * TEMPORARY FRONTEND PROTOTYPE
-                 *
-                 * The real version will use
-                 * email/SMS verification through a backend.
-                 */
 
                 localStorage.setItem(
                     "tipecoResetIdentifier",
@@ -661,13 +1302,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
             }
         );
-    }
 
+    }
 
 
     /* =====================================================
        RESET PASSWORD
-    ===================================================== */
+    ====================================================== */
 
     const resetPasswordForm =
         document.getElementById(
@@ -684,24 +1325,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 event.preventDefault();
 
 
-                /* =================================================
-                   GET FORM INPUTS
-                ================================================== */
-
                 const newPasswordInput =
                     document.getElementById(
                         "newPassword"
                     );
+
 
                 const confirmNewPasswordInput =
                     document.getElementById(
                         "confirmNewPassword"
                     );
 
-
-                /* =================================================
-                   FORM CONFIGURATION CHECK
-                ================================================== */
 
                 if (
                     !newPasswordInput ||
@@ -713,23 +1347,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
-
-                /* =================================================
-                   GET VALUES
-                ================================================== */
 
                 const newPassword =
                     newPasswordInput.value;
 
+
                 const confirmNewPassword =
                     confirmNewPasswordInput.value;
 
-
-                /* =================================================
-                   REQUIRED FIELDS
-                ================================================== */
 
                 if (
                     !newPassword ||
@@ -741,12 +1369,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
-
-                /* =================================================
-                   PASSWORD LENGTH
-                ================================================== */
 
                 if (
                     newPassword.length < 6
@@ -757,12 +1382,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
-
-                /* =================================================
-                   PASSWORD MATCH
-                ================================================== */
 
                 if (
                     newPassword !==
@@ -774,12 +1396,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     return;
+
                 }
 
-
-                /* =================================================
-                   GET RESET IDENTIFIER
-                ================================================== */
 
                 const resetIdentifier =
                     localStorage.getItem(
@@ -797,48 +1416,36 @@ document.addEventListener("DOMContentLoaded", function () {
                         "forgot-password.html";
 
                     return;
+
                 }
 
 
-                /* =================================================
-                   GET STORED USER
-                ================================================== */
-
-                const user =
-                    getStoredUser();
+                const users =
+                    getUsers();
 
 
-                if (!user) {
+                const userIndex =
+                    users.findIndex(
+                        function (item) {
 
-                    alert(
-                        "No account found. Please create an account first."
+                            return (
+
+                                resetIdentifier.toLowerCase() ===
+                                String(item.email)
+                                    .toLowerCase()
+
+                                ||
+
+                                resetIdentifier ===
+                                String(item.phone)
+
+                            );
+
+                        }
                     );
 
-                    window.location.href =
-                        "register.html";
 
-                    return;
-                }
-
-
-                /* =================================================
-                   VERIFY RESET IDENTIFIER
-                ================================================== */
-
-                const emailMatches =
-                    resetIdentifier.toLowerCase() ===
-                    String(user.email).toLowerCase();
-
-
-                const phoneMatches =
-                    resetIdentifier ===
-                    String(user.phone);
-
-
-                if (
-                    !emailMatches &&
-                    !phoneMatches
-                ) {
+                if (userIndex === -1) {
 
                     alert(
                         "The password reset request is no longer valid."
@@ -852,275 +1459,47 @@ document.addEventListener("DOMContentLoaded", function () {
                         "forgot-password.html";
 
                     return;
+
                 }
 
 
-                /* =================================================
-                   UPDATE PASSWORD
-                ================================================== */
-
-                user.password =
+                users[userIndex].password =
                     newPassword;
 
 
-                /* =================================================
-                   SAVE UPDATED USER
-                ================================================== */
+                saveUsers(users);
 
-                try {
-
-                    localStorage.setItem(
-                        "tipecoUser",
-                        JSON.stringify(user)
-                    );
-
-                } catch (error) {
-
-                    alert(
-                        "Unable to update your password."
-                    );
-
-                    return;
-                }
-
-
-                /* =================================================
-                   REMOVE RESET SESSION
-                ================================================== */
 
                 localStorage.removeItem(
                     "tipecoResetIdentifier"
                 );
 
 
-                /* =================================================
-                   CLEAR OLD LOGIN STATE
-                ================================================== */
+                localStorage.removeItem(
+                    CURRENT_USER_KEY
+                );
+
 
                 localStorage.removeItem(
-                    "tipecoLoggedIn"
+                    LOGIN_LOCAL_KEY
                 );
+
 
                 sessionStorage.removeItem(
-                    "tipecoLoggedIn"
+                    LOGIN_SESSION_KEY
                 );
 
-
-                /* =================================================
-                   SUCCESS
-                ================================================== */
 
                 alert(
                     "Password reset successfully! You can now login with your new password."
                 );
 
 
-                /* =================================================
-                   GO TO LOGIN
-                ================================================== */
-
                 window.location.href =
                     "login.html";
 
             }
         );
-    }
-
-
-
-    /* =====================================================
-       LOGOUT
-    ===================================================== */
-
-    const logoutButtons =
-        document.querySelectorAll(
-            '[data-action="logout"]'
-        );
-
-
-    logoutButtons.forEach(
-        function (button) {
-
-            button.addEventListener(
-                "click",
-                function (event) {
-
-                    event.preventDefault();
-
-
-                    localStorage.removeItem(
-                        "tipecoLoggedIn"
-                    );
-
-                    sessionStorage.removeItem(
-                        "tipecoLoggedIn"
-                    );
-
-
-                    window.location.href =
-                        "login.html";
-
-                }
-            );
-
-        }
-    );
-
-
-
-    /* =====================================================
-       PROTECTED DASHBOARD
-    ===================================================== */
-
-    const currentPage =
-        window.location.pathname;
-
-
-    const isDashboard =
-        currentPage.includes(
-            "dashboard.html"
-        );
-
-
-    if (isDashboard) {
-
-        const loggedIn =
-
-            localStorage.getItem(
-                "tipecoLoggedIn"
-            )
-
-            ||
-
-            sessionStorage.getItem(
-                "tipecoLoggedIn"
-            );
-
-
-        if (
-            loggedIn !== "true"
-        ) {
-
-            alert(
-                "Please login to access your dashboard."
-            );
-
-            window.location.href =
-                "login.html";
-
-            return;
-        }
-    }
-
-
-
-    /* =====================================================
-       GET CURRENT USER
-    ===================================================== */
-
-    const currentUser =
-        getStoredUser();
-
-
-
-    /* =====================================================
-       DISPLAY USER NAME
-    ===================================================== */
-
-    const userNameElements =
-        document.querySelectorAll(
-            "[data-user-name]"
-        );
-
-
-    if (
-        userNameElements.length > 0 &&
-        currentUser
-    ) {
-
-        userNameElements.forEach(
-            function (element) {
-
-                element.textContent =
-                    currentUser.fullName;
-
-            }
-        );
-    }
-
-
-
-    /* =====================================================
-       DISPLAY USER EMAIL
-    ===================================================== */
-
-    const userEmailElements =
-        document.querySelectorAll(
-            "[data-user-email]"
-        );
-
-
-    if (
-        userEmailElements.length > 0 &&
-        currentUser
-    ) {
-
-        userEmailElements.forEach(
-            function (element) {
-
-                element.textContent =
-                    currentUser.email;
-
-            }
-        );
-    }
-
-
-
-    /* =====================================================
-       DISPLAY USER ROLE
-    ===================================================== */
-
-    const userRoleElements =
-        document.querySelectorAll(
-            "[data-user-role]"
-        );
-
-
-    if (
-        userRoleElements.length > 0 &&
-        currentUser
-    ) {
-
-        const roleLabel =
-            getUserRoleLabel(
-                currentUser.accountType
-            );
-
-
-        userRoleElements.forEach(
-            function (element) {
-
-                element.textContent =
-                    roleLabel;
-
-            }
-        );
-    }
-
-
-
-    /* =====================================================
-       STORE CURRENT ROLE
-       
-       This makes the current role easy to use
-       in future dashboard features.
-    ===================================================== */
-
-    if (currentUser) {
-
-        document.body.dataset.userRole =
-            currentUser.accountType || "";
 
     }
 
