@@ -5,7 +5,8 @@
 
     <!-- =====================================================
          TIPECO GROUP - REGISTER PAGE
-         Version: 2.0
+         REAL PROJECT
+         Version: 3.0
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -80,8 +81,7 @@
 
             <div class="auth-card">
 
-                <form
-    id="registerForm">
+                <form id="registerForm">
 
 
                     <!-- =================================================
@@ -91,9 +91,7 @@
                     <div class="form-group">
 
                         <label for="fullName">
-
                             Full Name
-
                         </label>
 
 
@@ -116,9 +114,7 @@
                     <div class="form-group">
 
                         <label for="email">
-
                             Email Address
-
                         </label>
 
 
@@ -141,9 +137,7 @@
                     <div class="form-group">
 
                         <label for="phone">
-
                             Phone Number
-
                         </label>
 
 
@@ -166,9 +160,7 @@
                     <div class="form-group">
 
                         <label for="password">
-
                             Password
-
                         </label>
 
 
@@ -192,9 +184,7 @@
                     <div class="form-group">
 
                         <label for="confirmPassword">
-
                             Confirm Password
-
                         </label>
 
 
@@ -218,9 +208,7 @@
                     <div class="form-group">
 
                         <label for="accountType">
-
                             Account Type
-
                         </label>
 
 
@@ -231,27 +219,17 @@
 
 
                             <option value="">
-
                                 Select account type
-
                             </option>
 
-
-                            <!-- BUYER -->
 
                             <option value="buyer">
-
                                 Buyer / Customer
-
                             </option>
 
 
-                            <!-- SELLER -->
-
                             <option value="seller">
-
                                 Seller / Agent / Service Provider
-
                             </option>
 
 
@@ -330,7 +308,8 @@
 
                     <button
                         type="submit"
-                        class="auth-btn">
+                        class="auth-btn"
+                        id="registerButton">
 
                         Create Account
 
@@ -345,9 +324,7 @@
                     <div class="auth-divider">
 
                         <span>
-
                             OR
-
                         </span>
 
                     </div>
@@ -360,20 +337,17 @@
 
                     <button
                         type="button"
-                        class="google-btn">
+                        class="google-btn"
+                        id="googleSignUpButton">
 
 
                         <span class="google-icon">
-
                             G
-
                         </span>
 
 
                         <span>
-
                             Continue with Google
-
                         </span>
 
 
@@ -381,6 +355,38 @@
 
 
                 </form>
+
+
+
+                <!-- =================================================
+                     EMAIL VERIFICATION MESSAGE
+                ================================================== -->
+
+                <div
+                    id="verificationMessage"
+                    class="account-type-info"
+                    style="display:none;">
+
+                    <p>
+
+                        <strong>
+                            Verify your email
+                        </strong>
+
+                    </p>
+
+
+                    <p>
+
+                        We have sent a verification email
+                        to your email address.
+
+                        Please open your inbox and verify
+                        your email before logging in.
+
+                    </p>
+
+                </div>
 
 
 
@@ -395,9 +401,7 @@
                         Already have an account?
 
                         <a href="login.html">
-
                             Login
-
                         </a>
 
                     </p>
@@ -431,10 +435,14 @@
 
 
     <!-- =====================================================
-         TIPECO GROUP AUTH JAVASCRIPT
+         TIPECO GROUP FIREBASE AUTHENTICATION
+         REAL PROJECT
     ====================================================== -->
 
-    <script type="module" src="../assets/js/auth.js"></script>
+    <script
+        type="module"
+        src="../assets/js/auth.js">
+    </script>
 
 
 </body>
