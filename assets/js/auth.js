@@ -1,6 +1,6 @@
 /* =====================================================
    TIPECO GROUP - FIREBASE AUTHENTICATION
-   Version: 4.0
+   Version: 4.1
    REAL PROJECT
 ===================================================== */
 
@@ -60,7 +60,13 @@ if (registerForm) {
            VALIDATION
         ============================================= */
 
-        if (!fullName || !email || !phone || !password || !accountType) {
+        if (
+            !fullName ||
+            !email ||
+            !phone ||
+            !password ||
+            !accountType
+        ) {
 
             alert("Please complete all required fields.");
 
@@ -86,7 +92,9 @@ if (registerForm) {
 
         if (password.length < 6) {
 
-            alert("Password must contain at least 6 characters.");
+            alert(
+                "Password must contain at least 6 characters."
+            );
 
             return;
         }
@@ -95,7 +103,7 @@ if (registerForm) {
         try {
 
             /* =============================================
-               CREATE FIREBASE AUTH USER
+               CREATE FIREBASE AUTH ACCOUNT
             ============================================= */
 
             const userCredential =
@@ -111,7 +119,7 @@ if (registerForm) {
 
 
             /* =============================================
-               CREATE FIRESTORE USER PROFILE
+               CREATE FIRESTORE PROFILE
             ============================================= */
 
             await setDoc(
@@ -158,10 +166,6 @@ if (registerForm) {
             );
 
 
-            /* =============================================
-               FIREBASE ERROR HANDLING
-            ============================================= */
-
             switch (error.code) {
 
                 case "auth/email-already-in-use":
@@ -194,7 +198,7 @@ if (registerForm) {
                 case "permission-denied":
 
                     alert(
-                        "Account created, but the profile could not be saved. Please contact TIPECO GROUP support."
+                        "Account created, but the user profile could not be saved. Please contact TIPECO GROUP support."
                     );
 
                     break;
@@ -227,16 +231,40 @@ if (loginForm) {
 
         event.preventDefault();
 
+
+        const emailElement =
+            document.getElementById("loginEmail");
+
+        const passwordElement =
+            document.getElementById("password");
+
+
+        if (!emailElement || !passwordElement) {
+
+            console.error(
+                "TIPECO GROUP: Login fields not found."
+            );
+
+            alert(
+                "Login form configuration error."
+            );
+
+            return;
+        }
+
+
         const email =
-            document.getElementById("email").value.trim();
+            emailElement.value.trim();
 
         const password =
-            document.getElementById("password").value;
+            passwordElement.value;
 
 
         if (!email || !password) {
 
-            alert("Please enter your email and password.");
+            alert(
+                "Please enter your email and password."
+            );
 
             return;
         }
@@ -244,14 +272,69 @@ if (loginForm) {
 
         try {
 
-            await signInWithEmailAndPassword(
-                auth,
-                email,
-                password
+            /* =============================================
+               FIREBASE LOGIN
+            ============================================= */
+
+            const userCredential =
+                await signInWithEmailAndPassword(
+                    auth,
+                    email,
+                    password
+                );
+
+
+            const user =
+                userCredential.user;
+
+
+            console.log(
+                "TIPECO GROUP Login Successful:",
+                user.uid
             );
 
 
-            window.location.href = "../index.html";
+            /* =============================================
+               GET USER PROFILE
+            ============================================= */
+
+            const userRef =
+                doc(db, "users", user.uid);
+
+            const userSnapshot =
+                await getDoc(userRef);
+
+
+            if (!userSnapshot.exists()) {
+
+                console.warn(
+                    "Firebase account exists but Firestore profile is missing."
+                );
+
+                alert(
+                    "Your account exists, but your TIPECO GROUP profile is incomplete. Please contact support."
+                );
+
+                return;
+            }
+
+
+            const profile =
+                userSnapshot.data();
+
+
+            console.log(
+                "TIPECO GROUP User Profile:",
+                profile
+            );
+
+
+            /* =============================================
+               LOGIN SUCCESS
+            ============================================= */
+
+            window.location.href =
+                "../index.html";
 
 
         } catch (error) {
@@ -276,7 +359,7 @@ if (loginForm) {
                 case "auth/user-not-found":
 
                     alert(
-                        "No account was found with this email."
+                        "No TIPECO GROUP account was found with this email."
                     );
 
                     break;
@@ -291,10 +374,28 @@ if (loginForm) {
                     break;
 
 
+                case "auth/invalid-email":
+
+                    alert(
+                        "Please enter a valid email address."
+                    );
+
+                    break;
+
+
                 case "auth/too-many-requests":
 
                     alert(
-                        "Too many attempts. Please try again later."
+                        "Too many login attempts. Please try again later."
+                    );
+
+                    break;
+
+
+                case "auth/user-disabled":
+
+                    alert(
+                        "This account has been disabled."
                     );
 
                     break;
@@ -325,7 +426,8 @@ window.tipecoLogout = async function () {
 
         await signOut(auth);
 
-        window.location.href = "../index.html";
+        window.location.href =
+            "../index.html";
 
     } catch (error) {
 
@@ -334,13 +436,17 @@ window.tipecoLogout = async function () {
             error
         );
 
+        alert(
+            "Logout failed. Please try again."
+        );
+
     }
 
 };
 
 
 /* =====================================================
-   CURRENT USER
+   GET CURRENT USER
 ===================================================== */
 
 window.getTipecoCurrentUser = function () {
@@ -351,12 +457,14 @@ window.getTipecoCurrentUser = function () {
 
 
 /* =====================================================
-   USER PROFILE
+   GET USER PROFILE
 ===================================================== */
 
 window.getTipecoUserProfile = async function () {
 
-    const user = auth.currentUser;
+    const user =
+        auth.currentUser;
+
 
     if (!user) {
 
@@ -367,6 +475,7 @@ window.getTipecoUserProfile = async function () {
 
     const userRef =
         doc(db, "users", user.uid);
+
 
     const userSnapshot =
         await getDoc(userRef);
@@ -394,24 +503,27 @@ window.getTipecoUserProfile = async function () {
    AUTH STATE
 ===================================================== */
 
-onAuthStateChanged(auth, async function (user) {
+onAuthStateChanged(
+    auth,
+    function (user) {
 
-    if (user) {
+        if (user) {
 
-        console.log(
-            "TIPECO GROUP authenticated:",
-            user.uid
-        );
+            console.log(
+                "TIPECO GROUP: Authenticated",
+                user.uid
+            );
 
-    } else {
+        } else {
 
-        console.log(
-            "TIPECO GROUP: No authenticated user."
-        );
+            console.log(
+                "TIPECO GROUP: No authenticated user"
+            );
+
+        }
 
     }
-
-});
+);
 
 
 /* =====================================================
