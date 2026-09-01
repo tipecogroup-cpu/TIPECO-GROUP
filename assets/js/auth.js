@@ -1,18 +1,34 @@
 /* =====================================================
    TIPECO GROUP - FIREBASE AUTHENTICATION
-   Version: 4.1
    REAL PROJECT
+   Version: 5.0
+===================================================== */
+
+
+/* =====================================================
+   FIREBASE CONFIG
 ===================================================== */
 
 import { auth, db } from "./firebase-config.js";
+
+
+/* =====================================================
+   FIREBASE AUTH IMPORTS
+===================================================== */
 
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
     onAuthStateChanged,
+    sendEmailVerification,
     sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+
+/* =====================================================
+   FIRESTORE IMPORTS
+===================================================== */
 
 import {
     doc,
@@ -26,195 +42,329 @@ import {
    REGISTER
 ===================================================== */
 
-const registerForm = document.getElementById("registerForm");
+const registerForm =
+    document.getElementById("registerForm");
+
 
 if (registerForm) {
 
-    registerForm.addEventListener("submit", async function (event) {
+    registerForm.addEventListener(
+        "submit",
+        async function (event) {
 
-        event.preventDefault();
+            event.preventDefault();
 
-        const fullName =
-            document.getElementById("fullName").value.trim();
-
-        const email =
-            document.getElementById("email").value.trim();
-
-        const phone =
-            document.getElementById("phone").value.trim();
-
-        const password =
-            document.getElementById("password").value;
-
-        const confirmPassword =
-            document.getElementById("confirmPassword").value;
-
-        const accountType =
-            document.getElementById("accountType").value;
-
-        const terms =
-            document.getElementById("terms").checked;
-
-
-        /* =============================================
-           VALIDATION
-        ============================================= */
-
-        if (
-            !fullName ||
-            !email ||
-            !phone ||
-            !password ||
-            !accountType
-        ) {
-
-            alert("Please complete all required fields.");
-
-            return;
-        }
-
-
-        if (password !== confirmPassword) {
-
-            alert("Passwords do not match.");
-
-            return;
-        }
-
-
-        if (!terms) {
-
-            alert("Please agree to the Terms & Conditions.");
-
-            return;
-        }
-
-
-        if (password.length < 6) {
-
-            alert(
-                "Password must contain at least 6 characters."
-            );
-
-            return;
-        }
-
-
-        try {
 
             /* =============================================
-               CREATE FIREBASE AUTH ACCOUNT
+               GET FORM VALUES
             ============================================= */
 
-            const userCredential =
-                await createUserWithEmailAndPassword(
-                    auth,
-                    email,
-                    password
+            const fullName =
+                document
+                    .getElementById("fullName")
+                    .value
+                    .trim();
+
+
+            const email =
+                document
+                    .getElementById("email")
+                    .value
+                    .trim();
+
+
+            const phone =
+                document
+                    .getElementById("phone")
+                    .value
+                    .trim();
+
+
+            const password =
+                document
+                    .getElementById("password")
+                    .value;
+
+
+            const confirmPassword =
+                document
+                    .getElementById("confirmPassword")
+                    .value;
+
+
+            const accountType =
+                document
+                    .getElementById("accountType")
+                    .value;
+
+
+            const terms =
+                document
+                    .getElementById("terms")
+                    .checked;
+
+
+            const registerButton =
+                document
+                    .getElementById("registerButton");
+
+
+            /* =============================================
+               VALIDATION
+            ============================================= */
+
+            if (
+                !fullName ||
+                !email ||
+                !phone ||
+                !password ||
+                !accountType
+            ) {
+
+                alert(
+                    "Please complete all required fields."
+                );
+
+                return;
+            }
+
+
+            if (password !== confirmPassword) {
+
+                alert(
+                    "Passwords do not match."
+                );
+
+                return;
+            }
+
+
+            if (password.length < 6) {
+
+                alert(
+                    "Password must contain at least 6 characters."
+                );
+
+                return;
+            }
+
+
+            if (!terms) {
+
+                alert(
+                    "Please agree to the Terms & Conditions."
+                );
+
+                return;
+            }
+
+
+            /* =============================================
+               DISABLE BUTTON
+            ============================================= */
+
+            if (registerButton) {
+
+                registerButton.disabled = true;
+
+                registerButton.textContent =
+                    "Creating Account...";
+
+            }
+
+
+            try {
+
+                /* =============================================
+                   CREATE FIREBASE ACCOUNT
+                ============================================= */
+
+                const userCredential =
+                    await createUserWithEmailAndPassword(
+                        auth,
+                        email,
+                        password
+                    );
+
+
+                const user =
+                    userCredential.user;
+
+
+                /* =============================================
+                   CREATE FIRESTORE USER PROFILE
+                ============================================= */
+
+                await setDoc(
+                    doc(
+                        db,
+                        "users",
+                        user.uid
+                    ),
+                    {
+
+                        uid: user.uid,
+
+                        fullName: fullName,
+
+                        email: user.email,
+
+                        phone: phone,
+
+                        role: accountType,
+
+                        accountStatus:
+                            "pending_verification",
+
+                        emailVerified: false,
+
+                        createdAt:
+                            serverTimestamp(),
+
+                        updatedAt:
+                            serverTimestamp()
+
+                    }
                 );
 
 
-            const user =
-                userCredential.user;
+                /* =============================================
+                   SEND EMAIL VERIFICATION
+                ============================================= */
+
+                await sendEmailVerification(user);
 
 
-            /* =============================================
-               CREATE FIRESTORE PROFILE
-            ============================================= */
+                /* =============================================
+                   SHOW VERIFICATION MESSAGE
+                ============================================= */
 
-            await setDoc(
-                doc(db, "users", user.uid),
-                {
+                const verificationMessage =
+                    document.getElementById(
+                        "verificationMessage"
+                    );
 
-                    uid: user.uid,
 
-                    fullName: fullName,
+                if (verificationMessage) {
 
-                    email: user.email,
-
-                    phone: phone,
-
-                    role: accountType,
-
-                    accountStatus: "active",
-
-                    createdAt: serverTimestamp(),
-
-                    updatedAt: serverTimestamp()
+                    verificationMessage.style.display =
+                        "block";
 
                 }
-            );
 
 
-            /* =============================================
-               SUCCESS
-            ============================================= */
+                /* =============================================
+                   SUCCESS MESSAGE
+                ============================================= */
 
-            alert(
-                "Welcome to TIPECO GROUP! Your account has been created successfully."
-            );
-
-
-            window.location.href = "../index.html";
+                alert(
+                    "Account created successfully! A verification email has been sent to your email address. Please verify your email before logging in."
+                );
 
 
-        } catch (error) {
+                /* =============================================
+                   SIGN OUT UNTIL EMAIL IS VERIFIED
+                ============================================= */
 
-            console.error(
-                "TIPECO GROUP Registration Error:",
-                error
-            );
-
-
-            switch (error.code) {
-
-                case "auth/email-already-in-use":
-
-                    alert(
-                        "This email is already registered."
-                    );
-
-                    break;
+                await signOut(auth);
 
 
-                case "auth/invalid-email":
+                /* =============================================
+                   GO TO LOGIN
+                ============================================= */
 
-                    alert(
-                        "Please enter a valid email address."
-                    );
+                setTimeout(
+                    function () {
 
-                    break;
+                        window.location.href =
+                            "login.html";
 
-
-                case "auth/weak-password":
-
-                    alert(
-                        "Password is too weak."
-                    );
-
-                    break;
+                    },
+                    1500
+                );
 
 
-                case "permission-denied":
+            } catch (error) {
 
-                    alert(
-                        "Account created, but the user profile could not be saved. Please contact TIPECO GROUP support."
-                    );
+                console.error(
+                    "TIPECO GROUP Registration Error:",
+                    error
+                );
 
-                    break;
+
+                switch (error.code) {
+
+                    case "auth/email-already-in-use":
+
+                        alert(
+                            "This email is already registered."
+                        );
+
+                        break;
 
 
-                default:
+                    case "auth/invalid-email":
 
-                    alert(
-                        "Registration failed. Please try again."
-                    );
+                        alert(
+                            "Please enter a valid email address."
+                        );
+
+                        break;
+
+
+                    case "auth/weak-password":
+
+                        alert(
+                            "Password is too weak. Please use a stronger password."
+                        );
+
+                        break;
+
+
+                    case "auth/network-request-failed":
+
+                        alert(
+                            "Network error. Please check your internet connection and try again."
+                        );
+
+                        break;
+
+
+                    case "permission-denied":
+
+                        alert(
+                            "Your account could not be completed because access to the TIPECO profile database was denied."
+                        );
+
+                        break;
+
+
+                    default:
+
+                        alert(
+                            "Registration failed. Please try again."
+                        );
+
+                }
+
+
+                /* =============================================
+                   ENABLE BUTTON AGAIN
+                ============================================= */
+
+                if (registerButton) {
+
+                    registerButton.disabled = false;
+
+                    registerButton.textContent =
+                        "Create Account";
+
+                }
 
             }
 
         }
-
-    });
+    );
 
 }
 
@@ -223,195 +373,253 @@ if (registerForm) {
    LOGIN
 ===================================================== */
 
-const loginForm = document.getElementById("loginForm");
+const loginForm =
+    document.getElementById("loginForm");
+
 
 if (loginForm) {
 
-    loginForm.addEventListener("submit", async function (event) {
+    loginForm.addEventListener(
+        "submit",
+        async function (event) {
 
-        event.preventDefault();
-
-
-        const emailElement =
-            document.getElementById("loginEmail");
-
-        const passwordElement =
-            document.getElementById("password");
-
-
-        if (!emailElement || !passwordElement) {
-
-            console.error(
-                "TIPECO GROUP: Login fields not found."
-            );
-
-            alert(
-                "Login form configuration error."
-            );
-
-            return;
-        }
-
-
-        const email =
-            emailElement.value.trim();
-
-        const password =
-            passwordElement.value;
-
-
-        if (!email || !password) {
-
-            alert(
-                "Please enter your email and password."
-            );
-
-            return;
-        }
-
-
-        try {
-
-            /* =============================================
-               FIREBASE LOGIN
-            ============================================= */
-
-            const userCredential =
-                await signInWithEmailAndPassword(
-                    auth,
-                    email,
-                    password
-                );
-
-
-            const user =
-                userCredential.user;
-
-
-            console.log(
-                "TIPECO GROUP Login Successful:",
-                user.uid
-            );
+            event.preventDefault();
 
 
             /* =============================================
-               GET USER PROFILE
+               GET LOGIN FIELDS
             ============================================= */
 
-            const userRef =
-                doc(db, "users", user.uid);
+            const email =
+                document
+                    .getElementById("loginEmail")
+                    ?.value
+                    .trim();
 
-            const userSnapshot =
-                await getDoc(userRef);
+
+            const password =
+                document
+                    .getElementById("password")
+                    ?.value;
 
 
-            if (!userSnapshot.exists()) {
-
-                console.warn(
-                    "Firebase account exists but Firestore profile is missing."
-                );
+            if (!email || !password) {
 
                 alert(
-                    "Your account exists, but your TIPECO GROUP profile is incomplete. Please contact support."
+                    "Please enter your email and password."
                 );
 
                 return;
             }
 
 
-            const profile =
-                userSnapshot.data();
+            try {
 
+                /* =============================================
+                   FIREBASE LOGIN
+                ============================================= */
 
-            console.log(
-                "TIPECO GROUP User Profile:",
-                profile
-            );
-
-
-            /* =============================================
-               LOGIN SUCCESS
-            ============================================= */
-
-            window.location.href =
-                "../index.html";
-
-
-        } catch (error) {
-
-            console.error(
-                "TIPECO GROUP Login Error:",
-                error
-            );
-
-
-            switch (error.code) {
-
-                case "auth/invalid-credential":
-
-                    alert(
-                        "Invalid email or password."
+                const userCredential =
+                    await signInWithEmailAndPassword(
+                        auth,
+                        email,
+                        password
                     );
 
-                    break;
+
+                const user =
+                    userCredential.user;
 
 
-                case "auth/user-not-found":
+                /* =============================================
+                   EMAIL VERIFICATION CHECK
+                ============================================= */
 
-                    alert(
-                        "No TIPECO GROUP account was found with this email."
-                    );
-
-                    break;
-
-
-                case "auth/wrong-password":
+                if (!user.emailVerified) {
 
                     alert(
-                        "Incorrect password."
+                        "Please verify your email address before logging in. Check your inbox for the TIPECO GROUP verification email."
                     );
 
-                    break;
+
+                    /* =========================================
+                       RESEND VERIFICATION EMAIL
+                    ========================================= */
+
+                    try {
+
+                        await sendEmailVerification(user);
+
+                    } catch (verificationError) {
+
+                        console.warn(
+                            "Verification email could not be resent:",
+                            verificationError
+                        );
+
+                    }
 
 
-                case "auth/invalid-email":
+                    await signOut(auth);
+
+                    return;
+                }
+
+
+                /* =============================================
+                   GET FIRESTORE PROFILE
+                ============================================= */
+
+                const userRef =
+                    doc(
+                        db,
+                        "users",
+                        user.uid
+                    );
+
+
+                const userSnapshot =
+                    await getDoc(userRef);
+
+
+                if (!userSnapshot.exists()) {
 
                     alert(
-                        "Please enter a valid email address."
+                        "Your Firebase account exists, but your TIPECO GROUP profile could not be found."
                     );
 
-                    break;
+
+                    await signOut(auth);
+
+                    return;
+                }
 
 
-                case "auth/too-many-requests":
-
-                    alert(
-                        "Too many login attempts. Please try again later."
-                    );
-
-                    break;
+                const profile =
+                    userSnapshot.data();
 
 
-                case "auth/user-disabled":
-
-                    alert(
-                        "This account has been disabled."
-                    );
-
-                    break;
+                console.log(
+                    "TIPECO GROUP authenticated user:",
+                    profile
+                );
 
 
-                default:
+                /* =============================================
+                   UPDATE VERIFIED STATUS
+                ============================================= */
 
-                    alert(
-                        "Login failed. Please try again."
-                    );
+                await setDoc(
+                    userRef,
+                    {
+
+                        emailVerified: true,
+
+                        accountStatus: "active",
+
+                        updatedAt:
+                            serverTimestamp()
+
+                    },
+                    {
+                        merge: true
+                    }
+                );
+
+
+                /* =============================================
+                   LOGIN SUCCESS
+                ============================================= */
+
+                window.location.href =
+                    "../index.html";
+
+
+            } catch (error) {
+
+                console.error(
+                    "TIPECO GROUP Login Error:",
+                    error
+                );
+
+
+                switch (error.code) {
+
+                    case "auth/invalid-credential":
+
+                        alert(
+                            "Invalid email or password."
+                        );
+
+                        break;
+
+
+                    case "auth/user-not-found":
+
+                        alert(
+                            "No TIPECO GROUP account was found with this email."
+                        );
+
+                        break;
+
+
+                    case "auth/wrong-password":
+
+                        alert(
+                            "Incorrect password."
+                        );
+
+                        break;
+
+
+                    case "auth/invalid-email":
+
+                        alert(
+                            "Please enter a valid email address."
+                        );
+
+                        break;
+
+
+                    case "auth/too-many-requests":
+
+                        alert(
+                            "Too many login attempts. Please try again later."
+                        );
+
+                        break;
+
+
+                    case "auth/user-disabled":
+
+                        alert(
+                            "This account has been disabled."
+                        );
+
+                        break;
+
+
+                    case "auth/network-request-failed":
+
+                        alert(
+                            "Network error. Please check your internet connection."
+                        );
+
+                        break;
+
+
+                    default:
+
+                        alert(
+                            "Login failed. Please try again."
+                        );
+
+                }
 
             }
 
         }
-
-    });
+    );
 
 }
 
@@ -420,83 +628,90 @@ if (loginForm) {
    LOGOUT
 ===================================================== */
 
-window.tipecoLogout = async function () {
+window.tipecoLogout =
+    async function () {
 
-    try {
+        try {
 
-        await signOut(auth);
+            await signOut(auth);
 
-        window.location.href =
-            "../index.html";
+            window.location.href =
+                "../index.html";
 
-    } catch (error) {
+        } catch (error) {
 
-        console.error(
-            "TIPECO GROUP Logout Error:",
-            error
-        );
+            console.error(
+                "TIPECO GROUP Logout Error:",
+                error
+            );
 
-        alert(
-            "Logout failed. Please try again."
-        );
+            alert(
+                "Logout failed. Please try again."
+            );
 
-    }
+        }
 
-};
+    };
 
 
 /* =====================================================
    GET CURRENT USER
 ===================================================== */
 
-window.getTipecoCurrentUser = function () {
+window.getTipecoCurrentUser =
+    function () {
 
-    return auth.currentUser;
+        return auth.currentUser;
 
-};
+    };
 
 
 /* =====================================================
    GET USER PROFILE
 ===================================================== */
 
-window.getTipecoUserProfile = async function () {
+window.getTipecoUserProfile =
+    async function () {
 
-    const user =
-        auth.currentUser;
-
-
-    if (!user) {
-
-        return null;
-
-    }
+        const user =
+            auth.currentUser;
 
 
-    const userRef =
-        doc(db, "users", user.uid);
+        if (!user) {
+
+            return null;
+
+        }
 
 
-    const userSnapshot =
-        await getDoc(userRef);
+        const userRef =
+            doc(
+                db,
+                "users",
+                user.uid
+            );
 
 
-    if (!userSnapshot.exists()) {
-
-        return null;
-
-    }
+        const userSnapshot =
+            await getDoc(userRef);
 
 
-    return {
+        if (!userSnapshot.exists()) {
 
-        id: userSnapshot.id,
+            return null;
 
-        ...userSnapshot.data()
+        }
+
+
+        return {
+
+            id: userSnapshot.id,
+
+            ...userSnapshot.data()
+
+        };
 
     };
-
-};
 
 
 /* =====================================================
@@ -510,14 +725,14 @@ onAuthStateChanged(
         if (user) {
 
             console.log(
-                "TIPECO GROUP: Authenticated",
+                "TIPECO GROUP Firebase Authenticated:",
                 user.uid
             );
 
         } else {
 
             console.log(
-                "TIPECO GROUP: No authenticated user"
+                "TIPECO GROUP Firebase: No authenticated user."
             );
 
         }
@@ -530,20 +745,21 @@ onAuthStateChanged(
    FORGOT PASSWORD
 ===================================================== */
 
-window.tipecoResetPassword = async function (email) {
+window.tipecoResetPassword =
+    async function (email) {
 
-    if (!email) {
+        if (!email) {
 
-        throw new Error(
-            "Email address is required."
+            throw new Error(
+                "Email address is required."
+            );
+
+        }
+
+
+        await sendPasswordResetEmail(
+            auth,
+            email
         );
 
-    }
-
-
-    await sendPasswordResetEmail(
-        auth,
-        email
-    );
-
-};
+    };
