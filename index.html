@@ -4,7 +4,8 @@
 <head>
 
     <!-- =====================================================
-         TIPECO GROUP - HEAD
+         TIPECO GROUP - HOMEPAGE
+         REAL FIREBASE PROJECT
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -21,20 +22,18 @@
     <meta name="author"
           content="TIPECO GROUP">
 
-    <!-- Browser Theme -->
     <meta name="theme-color"
           content="#0D47A1">
 
-    <!-- Website Title -->
     <title>TIPECO GROUP | Innovation, Business & Technology</title>
 
-    <!-- Favicon -->
     <link rel="icon"
           type="image/x-icon"
           href="favicon.ico">
 
+
     <!-- =====================================================
-         CSS FILES
+         CSS
     ====================================================== -->
 
     <link rel="stylesheet"
@@ -54,36 +53,47 @@
 
 <body>
 
+
     <!-- =====================================================
          HEADER
-         TIPECO GROUP HOMEPAGE
     ====================================================== -->
 
     <header class="header">
 
         <div class="container">
 
-            <!-- Logo -->
-            <a href="index.html" class="logo">
+            <!-- LOGO -->
+
+            <a href="index.html"
+               class="logo">
+
                 <h1>TIPECO GROUP</h1>
+
             </a>
 
 
-            <!-- Navigation -->
+            <!-- NAVIGATION -->
+
             <nav class="navbar">
 
                 <ul class="nav-links">
 
                     <li>
-                        <a href="index.html">Home</a>
+                        <a href="index.html">
+                            Home
+                        </a>
                     </li>
 
                     <li>
-                        <a href="pages/about.html">About</a>
+                        <a href="pages/about.html">
+                            About
+                        </a>
                     </li>
 
                     <li>
-                        <a href="pages/services.html">Services</a>
+                        <a href="pages/services.html">
+                            Services
+                        </a>
                     </li>
 
                     <li>
@@ -93,7 +103,9 @@
                     </li>
 
                     <li>
-                        <a href="pages/contact.html">Contact</a>
+                        <a href="pages/contact.html">
+                            Contact
+                        </a>
                     </li>
 
                 </ul>
@@ -101,31 +113,75 @@
             </nav>
 
 
-            <!-- Header Actions -->
+            <!-- =================================================
+                 HEADER ACTIONS
+            ================================================== -->
+
             <div class="header-actions">
 
-                <!-- Language -->
+
+                <!-- LANGUAGE -->
+
                 <select class="language-selector">
 
                     <option>English</option>
+
                     <option>Kinyarwanda</option>
+
                     <option>Français</option>
 
                 </select>
 
 
-                <!-- Login -->
-                <a href="pages/login.html"
-                   class="login-btn">
-                    Login
-                </a>
+                <!-- =================================================
+                     GUEST ACTIONS
+                ================================================== -->
+
+                <div id="guestActions">
+
+                    <a href="pages/login.html"
+                       class="login-btn">
+
+                        Login
+
+                    </a>
 
 
-                <!-- Sign Up -->
-                <a href="pages/register.html"
-                   class="signup-btn">
-                    Sign Up
-                </a>
+                    <a href="pages/register.html"
+                       class="signup-btn">
+
+                        Sign Up
+
+                    </a>
+
+                </div>
+
+
+                <!-- =================================================
+                     AUTHENTICATED USER ACTIONS
+                ================================================== -->
+
+                <div id="userActions"
+                     style="display: none;">
+
+                    <a href="pages/owner-dashboard.html"
+                       class="login-btn">
+
+                        Dashboard
+
+                    </a>
+
+
+                    <button type="button"
+                            id="logoutBtn"
+                            class="signup-btn">
+
+                        Logout
+
+                    </button>
+
+                </div>
+
 
             </div>
 
@@ -134,9 +190,9 @@
     </header>
 
 
+
     <!-- =====================================================
-         HERO SECTION
-         TIPECO GROUP HOMEPAGE
+         HERO
     ====================================================== -->
 
     <section class="hero">
@@ -181,355 +237,759 @@
 
     </section>
 
-<!-- =========================
-     STATS SECTION
-========================= -->
-<section class="stats-section">
-    <div class="container">
 
-        <div class="stats-header">
-            <h2>Our Impact</h2>
-            <p>Growing through innovation, business and technology.</p>
-        </div>
 
-        <div class="stats-grid">
-
-            <div class="stat-card">
-                <span class="stat-number">5+</span>
-                <h3>Business Divisions</h3>
-                <p>Building diverse solutions for tomorrow.</p>
-            </div>
-
-            <div class="stat-card">
-                <span class="stat-number">3+</span>
-                <h3>Core Services</h3>
-                <p>Solutions designed to support growth.</p>
-            </div>
-
-            <div class="stat-card">
-                <span class="stat-number">100%</span>
-                <h3>Innovation Focus</h3>
-                <p>Driven by ideas, technology and progress.</p>
-            </div>
-
-            <div class="stat-card">
-                <span class="stat-number">24/7</span>
-                <h3>Digital Access</h3>
-                <p>Connecting people with solutions anytime.</p>
-            </div>
-
-        </div>
-    </div>
-</section>
-<!-- =========================
-     CTA SECTION
-========================= -->
-<section class="cta-section">
-    <div class="container">
-
-        <div class="cta-content">
-            <h2>Let's Build the Future Together</h2>
-
-            <p>
-                Discover our businesses, explore our services,
-                and connect with TIPECO GROUP today.
-            </p>
-
-            <div class="cta-buttons">
-                <a href="#" class="btn btn-primary">Explore Our Businesses</a>
-                <a href="#" class="btn btn-outline">Contact Us</a>
-            </div>
-        </div>
-
-    </div>
-</section>    
     <!-- =====================================================
-         BUSINESSES SECTION
-         WILL BE BUILT NEXT
+         STATS
     ====================================================== -->
 
-<!-- =====================================================
-     BUSINESSES SECTION
-     TIPECO GROUP HOMEPAGE
-===================================================== -->
+    <section class="stats-section">
 
-<section class="businesses" id="businesses">
+        <div class="container">
 
-    <div class="container">
+            <div class="stats-header">
 
-        <div class="section-header">
-
-            <p class="section-label">OUR BUSINESSES</p>
-
-            <h2>Five Powerful Divisions</h2>
-
-            <p class="section-description">
-                One strong vision. Building solutions for today and tomorrow.
-            </p>
-
-        </div>
-
-
-        <div class="business-grid">
-
-
-            <!-- TIPECO PAINT -->
-            <div class="business-card paint-card">
-
-                <div class="business-icon">
-                    🎨
-                </div>
-
-                <h3>TIPECO PAINT</h3>
-
-                <p class="business-tagline">
-                    Paints &amp; Coating
-                </p>
-
-                <ul>
-                    <li>✓ Paints &amp; Coating</li>
-                    <li>✓ Construction Products</li>
-                    <li>✓ Home Improvement</li>
-                </ul>
-
-                <a href="#" class="business-btn">
-                    Explore →
-                </a>
-
-            </div>
-
-
-            <!-- TIPECO CRYPTO -->
-            <div class="business-card crypto-card">
-
-                <div class="business-icon">
-                    ₿
-                </div>
-
-                <h3>TIPECO CRYPTO</h3>
-
-                <p class="business-tagline">
-                    Learn. Trade. Grow.
-                </p>
-
-                <ul>
-                    <li>✓ Trading Academy</li>
-                    <li>✓ Market Analysis</li>
-                    <li>✓ Blockchain Education</li>
-                    <li>✓ Digital Assets</li>
-                </ul>
-
-                <a href="#" class="business-btn">
-                    Learn More →
-                </a>
-
-            </div>
-
-
-            <!-- TIPECO MARKETPLACE -->
-            <div class="business-card marketplace-card">
-
-                <div class="business-icon">
-                    🛒
-                </div>
-
-                <h3>TIPECO MARKETPLACE</h3>
-
-                <p class="business-tagline">
-                    Buy • Sell • Rent
-                </p>
-
-                <ul>
-                    <li>✓ Vehicles</li>
-                    <li>✓ Real Estate</li>
-                    <li>✓ Electronics</li>
-                    <li>✓ Home &amp; Furnitures</li>
-                    <li>✓ Other Products</li>
-                </ul>
-
-                <a href="#" class="business-btn">
-                    Shop Now →
-                </a>
-
-            </div>
-
-
-            <!-- TIPECO MEDIA -->
-            <div class="business-card media-card">
-
-                <div class="business-icon">
-                    ▶
-                </div>
-
-                <h3>TIPECO MEDIA</h3>
-
-                <p class="business-tagline">
-                    Inspire. Inform. Impact.
-                </p>
-
-                <ul>
-                    <li>✓ Blog</li>
-                    <li>✓ Videos</li>
-                    <li>✓ News</li>
-                    <li>✓ Tutorials</li>
-                </ul>
-
-                <a href="#" class="business-btn">
-                    Discover →
-                </a>
-
-            </div>
-
-
-            <!-- TIPECO SERVICES -->
-            <div class="business-card services-card">
-
-                <div class="business-icon">
-                    👥
-                </div>
-
-                <h3>TIPECO SERVICES</h3>
-
-                <p class="business-tagline">
-                    Solutions for Growth
-                </p>
-
-                <ul>
-                    <li>✓ Consulting</li>
-                    <li>✓ Training</li>
-                    <li>✓ Digital Solutions</li>
-                </ul>
-
-                <a href="#" class="business-btn">
-                    Get Started →
-                </a>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-<!-- ========================================
-     FOOTER
-     TIPECO GROUP HOMEPAGE
-======================================== -->
-
-<footer class="footer">
-
-    <div class="container">
-
-        <div class="footer-grid">
-
-            <!-- TIPECO GROUP -->
-            <div class="footer-column footer-about">
-
-                <h3>TIPECO GROUP</h3>
-
-                <p class="footer-tagline">
-                    INNOVATION • BUSINESS • TECHNOLOGY
-                </p>
+                <h2>
+                    Our Impact
+                </h2>
 
                 <p>
-                    Building solutions for today and tomorrow
-                    through innovation, business and technology.
+                    Growing through innovation, business and technology.
                 </p>
 
             </div>
 
 
-            <!-- QUICK LINKS -->
-            <div class="footer-column">
+            <div class="stats-grid">
 
-                <h3>QUICK LINKS</h3>
 
-                <ul>
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#businesses">Our Businesses</a></li>
-                    <li><a href="#">Contact</a></li>
-                </ul>
+                <div class="stat-card">
+
+                    <span class="stat-number">
+                        5+
+                    </span>
+
+                    <h3>
+                        Business Divisions
+                    </h3>
+
+                    <p>
+                        Building diverse solutions for tomorrow.
+                    </p>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span class="stat-number">
+                        3+
+                    </span>
+
+                    <h3>
+                        Core Services
+                    </h3>
+
+                    <p>
+                        Solutions designed to support growth.
+                    </p>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span class="stat-number">
+                        100%
+                    </span>
+
+                    <h3>
+                        Innovation Focus
+                    </h3>
+
+                    <p>
+                        Driven by ideas, technology and progress.
+                    </p>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span class="stat-number">
+                        24/7
+                    </span>
+
+                    <h3>
+                        Digital Access
+                    </h3>
+
+                    <p>
+                        Connecting people with solutions anytime.
+                    </p>
+
+                </div>
+
 
             </div>
 
+        </div>
 
-            <!-- OUR BUSINESSES -->
-            <div class="footer-column">
-
-                <h3>OUR BUSINESSES</h3>
-
-                <ul>
-                    <li><a href="#">TIPECO PAINT</a></li>
-                    <li><a href="#">TIPECO CRYPTO</a></li>
-                    <li><a href="#">TIPECO MARKETPLACE</a></li>
-                    <li><a href="#">TIPECO MEDIA</a></li>
-                    <li><a href="#">TIPECO SERVICES</a></li>
-                </ul>
-
-            </div>
+    </section>
 
 
-            <!-- CONTACT & SOCIAL -->
-            <div class="footer-column">
 
-                <h3>CONTACT & SOCIAL</h3>
+    <!-- =====================================================
+         CTA
+    ====================================================== -->
 
-                <ul class="footer-contact">
+    <section class="cta-section">
 
-    <li>
-        Email:
-        <a href="mailto:tipecogroup@gmail.com">
-            tipecogroup@gmail.com
-        </a>
-    </li>
+        <div class="container">
 
-    <li>Rwanda</li>
+            <div class="cta-content">
 
-    <li>
-        WhatsApp:
-        <a href="https://chat.whatsapp.com/DWGQPaKm6KwJxnTZZcfe34?s=cl&p=a&ilr=4"
-           target="_blank"
-           rel="noopener noreferrer">
-            Join Support Group
-        </a>
-    </li>
+                <h2>
+                    Let's Build the Future Together
+                </h2>
 
-    <li>
-        Telegram:
-        <a href="https://t.me/Tipeco1"
-           target="_blank"
-           rel="noopener noreferrer">
-            @Tipeco1
-        </a>
-    </li>
+                <p>
+                    Discover our businesses, explore our services,
+                    and connect with TIPECO GROUP today.
+                </p>
 
-</ul>
 
-                <div class="footer-social">
-                    <a href="#" aria-label="Facebook">Facebook</a>
-                    <a href="#" aria-label="YouTube">YouTube</a>
-                    <a href="#" aria-label="Instagram">Instagram</a>
-                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
+                <div class="cta-buttons">
+
+                    <a href="#businesses"
+                       class="btn btn-primary">
+
+                        Explore Our Businesses
+
+                    </a>
+
+
+                    <a href="pages/contact.html"
+                       class="btn btn-outline">
+
+                        Contact Us
+
+                    </a>
+
                 </div>
 
             </div>
 
         </div>
 
+    </section>
 
-        <!-- FOOTER BOTTOM -->
-        <div class="footer-bottom">
 
-            <p>
-                © 2026 TIPECO GROUP. All Rights Reserved.
-            </p>
+
+    <!-- =====================================================
+         BUSINESSES
+    ====================================================== -->
+
+    <section class="businesses"
+             id="businesses">
+
+        <div class="container">
+
+
+            <div class="section-header">
+
+                <p class="section-label">
+                    OUR BUSINESSES
+                </p>
+
+                <h2>
+                    Five Powerful Divisions
+                </h2>
+
+                <p class="section-description">
+                    One strong vision. Building solutions for today and tomorrow.
+                </p>
+
+            </div>
+
+
+            <div class="business-grid">
+
+
+                <!-- TIPECO PAINT -->
+
+                <div class="business-card paint-card">
+
+                    <div class="business-icon">
+                        🎨
+                    </div>
+
+                    <h3>
+                        TIPECO PAINT
+                    </h3>
+
+                    <p class="business-tagline">
+                        Paints &amp; Coating
+                    </p>
+
+                    <ul>
+
+                        <li>
+                            ✓ Paints &amp; Coating
+                        </li>
+
+                        <li>
+                            ✓ Construction Products
+                        </li>
+
+                        <li>
+                            ✓ Home Improvement
+                        </li>
+
+                    </ul>
+
+                    <a href="#"
+                       class="business-btn">
+
+                        Explore →
+
+                    </a>
+
+                </div>
+
+
+
+                <!-- TIPECO CRYPTO -->
+
+                <div class="business-card crypto-card">
+
+                    <div class="business-icon">
+                        ₿
+                    </div>
+
+                    <h3>
+                        TIPECO CRYPTO
+                    </h3>
+
+                    <p class="business-tagline">
+                        Learn. Trade. Grow.
+                    </p>
+
+                    <ul>
+
+                        <li>
+                            ✓ Trading Academy
+                        </li>
+
+                        <li>
+                            ✓ Market Analysis
+                        </li>
+
+                        <li>
+                            ✓ Blockchain Education
+                        </li>
+
+                        <li>
+                            ✓ Digital Assets
+                        </li>
+
+                    </ul>
+
+                    <a href="#"
+                       class="business-btn">
+
+                        Learn More →
+
+                    </a>
+
+                </div>
+
+
+
+                <!-- TIPECO MARKETPLACE -->
+
+                <div class="business-card marketplace-card">
+
+                    <div class="business-icon">
+                        🛒
+                    </div>
+
+                    <h3>
+                        TIPECO MARKETPLACE
+                    </h3>
+
+                    <p class="business-tagline">
+                        Buy • Sell • Rent
+                    </p>
+
+                    <ul>
+
+                        <li>
+                            ✓ Vehicles
+                        </li>
+
+                        <li>
+                            ✓ Real Estate
+                        </li>
+
+                        <li>
+                            ✓ Electronics
+                        </li>
+
+                        <li>
+                            ✓ Home &amp; Furnitures
+                        </li>
+
+                        <li>
+                            ✓ Other Products
+                        </li>
+
+                    </ul>
+
+                    <a href="pages/marketplace.html"
+                       class="business-btn">
+
+                        Shop Now →
+
+                    </a>
+
+                </div>
+
+
+
+                <!-- TIPECO MEDIA -->
+
+                <div class="business-card media-card">
+
+                    <div class="business-icon">
+                        ▶
+                    </div>
+
+                    <h3>
+                        TIPECO MEDIA
+                    </h3>
+
+                    <p class="business-tagline">
+                        Inspire. Inform. Impact.
+                    </p>
+
+                    <ul>
+
+                        <li>
+                            ✓ Blog
+                        </li>
+
+                        <li>
+                            ✓ Videos
+                        </li>
+
+                        <li>
+                            ✓ News
+                        </li>
+
+                        <li>
+                            ✓ Tutorials
+                        </li>
+
+                    </ul>
+
+                    <a href="#"
+                       class="business-btn">
+
+                        Discover →
+
+                    </a>
+
+                </div>
+
+
+
+                <!-- TIPECO SERVICES -->
+
+                <div class="business-card services-card">
+
+                    <div class="business-icon">
+                        👥
+                    </div>
+
+                    <h3>
+                        TIPECO SERVICES
+                    </h3>
+
+                    <p class="business-tagline">
+                        Solutions for Growth
+                    </p>
+
+                    <ul>
+
+                        <li>
+                            ✓ Consulting
+                        </li>
+
+                        <li>
+                            ✓ Training
+                        </li>
+
+                        <li>
+                            ✓ Digital Solutions
+                        </li>
+
+                    </ul>
+
+                    <a href="pages/services.html"
+                       class="business-btn">
+
+                        Get Started →
+
+                    </a>
+
+                </div>
+
+
+            </div>
 
         </div>
 
-    </div>
+    </section>
 
-</footer>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="footer">
+
+        <div class="container">
+
+            <div class="footer-grid">
+
+
+                <!-- TIPECO GROUP -->
+
+                <div class="footer-column footer-about">
+
+                    <h3>
+                        TIPECO GROUP
+                    </h3>
+
+                    <p class="footer-tagline">
+                        INNOVATION • BUSINESS • TECHNOLOGY
+                    </p>
+
+                    <p>
+                        Building solutions for today and tomorrow
+                        through innovation, business and technology.
+                    </p>
+
+                </div>
+
+
+
+                <!-- QUICK LINKS -->
+
+                <div class="footer-column">
+
+                    <h3>
+                        QUICK LINKS
+                    </h3>
+
+                    <ul>
+
+                        <li>
+                            <a href="index.html">
+                                Home
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="pages/about.html">
+                                About Us
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#businesses">
+                                Our Businesses
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="pages/contact.html">
+                                Contact
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+
+
+                <!-- OUR BUSINESSES -->
+
+                <div class="footer-column">
+
+                    <h3>
+                        OUR BUSINESSES
+                    </h3>
+
+                    <ul>
+
+                        <li>
+                            <a href="#">
+                                TIPECO PAINT
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                TIPECO CRYPTO
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="pages/marketplace.html">
+                                TIPECO MARKETPLACE
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="#">
+                                TIPECO MEDIA
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="pages/services.html">
+                                TIPECO SERVICES
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+
+
+                <!-- CONTACT & SOCIAL -->
+
+                <div class="footer-column">
+
+                    <h3>
+                        CONTACT & SOCIAL
+                    </h3>
+
+
+                    <ul class="footer-contact">
+
+                        <li>
+
+                            Email:
+
+                            <a href="mailto:tipecogroup@gmail.com">
+
+                                tipecogroup@gmail.com
+
+                            </a>
+
+                        </li>
+
+
+                        <li>
+                            Rwanda
+                        </li>
+
+
+                        <li>
+
+                            WhatsApp:
+
+                            <a href="https://chat.whatsapp.com/DWGQPaKm6KwJxnTZZcfe34?s=cl&p=a&ilr=4"
+                               target="_blank"
+                               rel="noopener noreferrer">
+
+                                Join Support Group
+
+                            </a>
+
+                        </li>
+
+
+                        <li>
+
+                            Telegram:
+
+                            <a href="https://t.me/Tipeco1"
+                               target="_blank"
+                               rel="noopener noreferrer">
+
+                                @Tipeco1
+
+                            </a>
+
+                        </li>
+
+                    </ul>
+
+
+                    <div class="footer-social">
+
+                        <a href="#"
+                           aria-label="Facebook">
+                            Facebook
+                        </a>
+
+                        <a href="#"
+                           aria-label="YouTube">
+                            YouTube
+                        </a>
+
+                        <a href="#"
+                           aria-label="Instagram">
+                            Instagram
+                        </a>
+
+                        <a href="#"
+                           aria-label="LinkedIn">
+                            LinkedIn
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- FOOTER BOTTOM -->
+
+            <div class="footer-bottom">
+
+                <p>
+                    © 2026 TIPECO GROUP. All Rights Reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         REAL FIREBASE AUTH STATE
+    ====================================================== -->
+
+    <script type="module">
+
+        import {
+            auth
+        } from "./assets/js/firebase-config.js";
+
+
+        import {
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+
+        const guestActions =
+            document.getElementById("guestActions");
+
+
+        const userActions =
+            document.getElementById("userActions");
+
+
+        const logoutBtn =
+            document.getElementById("logoutBtn");
+
+
+        /* =================================================
+           FIREBASE AUTH STATE
+        ================================================= */
+
+        onAuthStateChanged(
+            auth,
+            function (user) {
+
+                if (user && user.emailVerified) {
+
+                    /* =====================================
+                       USER IS AUTHENTICATED
+                    ===================================== */
+
+                    guestActions.style.display =
+                        "none";
+
+                    userActions.style.display =
+                        "flex";
+
+
+                    console.log(
+                        "TIPECO GROUP: User authenticated",
+                        user.uid
+                    );
+
+                } else {
+
+                    /* =====================================
+                       USER IS NOT AUTHENTICATED
+                    ===================================== */
+
+                    guestActions.style.display =
+                        "flex";
+
+                    userActions.style.display =
+                        "none";
+
+                }
+
+            }
+        );
+
+
+        /* =================================================
+           LOGOUT
+        ================================================= */
+
+        if (logoutBtn) {
+
+            logoutBtn.addEventListener(
+                "click",
+                async function () {
+
+                    try {
+
+                        await signOut(auth);
+
+                        window.location.href =
+                            "index.html";
+
+                    } catch (error) {
+
+                        console.error(
+                            "TIPECO GROUP Logout Error:",
+                            error
+                        );
+
+                        alert(
+                            "Logout failed. Please try again."
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+
+    </script>
+
+
 </body>
 
 </html>
