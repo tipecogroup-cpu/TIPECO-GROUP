@@ -1,8 +1,9 @@
 /* =====================================================
    TIPECO GROUP - FIREBASE AUTHENTICATION
    REAL PROJECT
-   Version: 7.0
+   Version: 7.1
    Owner Role Authentication
+   Firebase Auth State Safe Check
 ===================================================== */
 
 
@@ -187,6 +188,29 @@ if (registerForm) {
 
 
             /* =============================================
+               CHECK FORM CONFIGURATION
+            ============================================= */
+
+            if (
+                !fullNameElement ||
+                !emailElement ||
+                !phoneElement ||
+                !passwordElement ||
+                !confirmPasswordElement ||
+                !accountTypeElement ||
+                !termsElement
+            ) {
+
+                showMessage(
+                    "Registration form configuration error. Please contact TIPECO GROUP support."
+                );
+
+                return;
+
+            }
+
+
+            /* =============================================
                VALUES
             ============================================= */
 
@@ -342,14 +366,18 @@ if (registerForm) {
                    SEND EMAIL VERIFICATION
                 ========================================== */
 
-                await sendEmailVerification(user);
+                await sendEmailVerification(
+                    user
+                );
 
 
                 /* =========================================
                    SIGN OUT
                 ========================================== */
 
-                await signOut(auth);
+                await signOut(
+                    auth
+                );
 
 
                 showMessage(
@@ -511,7 +539,9 @@ if (loginForm) {
                    REFRESH USER
                 ========================================== */
 
-                await reload(user);
+                await reload(
+                    user
+                );
 
 
                 /* =========================================
@@ -522,7 +552,9 @@ if (loginForm) {
 
                     try {
 
-                        await sendEmailVerification(user);
+                        await sendEmailVerification(
+                            user
+                        );
 
                     } catch (verificationError) {
 
@@ -534,7 +566,9 @@ if (loginForm) {
                     }
 
 
-                    await signOut(auth);
+                    await signOut(
+                        auth
+                    );
 
 
                     showMessage(
@@ -551,12 +585,16 @@ if (loginForm) {
                 ========================================== */
 
                 const profile =
-                    await getUserProfile(user);
+                    await getUserProfile(
+                        user
+                    );
 
 
                 if (!profile) {
 
-                    await signOut(auth);
+                    await signOut(
+                        auth
+                    );
 
 
                     showMessage(
@@ -734,6 +772,8 @@ if (loginForm) {
 
 /* =====================================================
    OWNER DASHBOARD PROTECTION
+   Version: 7.1
+   Firebase Auth State Safe Check
 ===================================================== */
 
 window.tipecoRequireOwner =
@@ -741,12 +781,43 @@ window.tipecoRequireOwner =
 
         try {
 
-            const user =
-                auth.currentUser;
+            /* =============================================
+               WAIT FOR FIREBASE AUTH STATE
+            ============================================== */
 
+            const user =
+                await new Promise(
+                    function (resolve) {
+
+                        const unsubscribe =
+                            onAuthStateChanged(
+                                auth,
+                                function (currentUser) {
+
+                                    unsubscribe();
+
+                                    resolve(
+                                        currentUser
+                                    );
+
+                                }
+                            );
+
+                    }
+                );
+
+
+            /* =============================================
+               NO AUTHENTICATED USER
+            ============================================== */
 
             if (!user) {
 
+                console.warn(
+                    "TIPECO: No authenticated Firebase user."
+                );
+
+
                 window.location.href =
                     "../login.html";
 
@@ -755,12 +826,30 @@ window.tipecoRequireOwner =
             }
 
 
-            await reload(user);
+            /* =============================================
+               REFRESH FIREBASE USER
+            ============================================== */
 
+            await reload(
+                user
+            );
+
+
+            /* =============================================
+               EMAIL VERIFICATION
+            ============================================== */
 
             if (!user.emailVerified) {
 
-                await signOut(auth);
+                console.warn(
+                    "TIPECO: Owner email is not verified."
+                );
+
+
+                await signOut(
+                    auth
+                );
+
 
                 window.location.href =
                     "../login.html";
@@ -770,13 +859,27 @@ window.tipecoRequireOwner =
             }
 
 
+            /* =============================================
+               GET FIRESTORE PROFILE
+            ============================================== */
+
             const profile =
-                await getUserProfile(user);
+                await getUserProfile(
+                    user
+                );
 
 
             if (!profile) {
 
-                await signOut(auth);
+                console.warn(
+                    "TIPECO: Firebase user profile not found."
+                );
+
+
+                await signOut(
+                    auth
+                );
+
 
                 window.location.href =
                     "../login.html";
@@ -786,20 +889,68 @@ window.tipecoRequireOwner =
             }
 
 
+            /* =============================================
+               CHECK OWNER ROLE
+            ============================================== */
+
             if (
                 profile.role !== OWNER_ROLE
             ) {
+
+                console.warn(
+                    "TIPECO: User is not an Owner."
+                );
+
 
                 showMessage(
                     "Access denied. Owner authorization is required."
                 );
 
 
-                await signOut(auth);
+                await signOut(
+                    auth
+                );
 
 
                 window.location.href =
                     "../index.html";
+
+                return false;
+
+            }
+
+
+            /* =============================================
+               CHECK ACCOUNT STATUS
+            ============================================== */
+
+            const accountStatus =
+                String(
+                    profile.status ||
+                    profile.accountStatus ||
+                    "active"
+                )
+                .trim()
+                .toLowerCase();
+
+
+            if (
+                accountStatus === "blocked" ||
+                accountStatus === "suspended"
+            ) {
+
+                showMessage(
+                    "This Owner account is currently blocked or suspended."
+                );
+
+
+                await signOut(
+                    auth
+                );
+
+
+                window.location.href =
+                    "../login.html";
 
                 return false;
 
@@ -828,7 +979,14 @@ window.tipecoRequireOwner =
             );
 
 
+            console.log(
+                "TIPECO: Owner authorization successful.",
+                user.uid
+            );
+
+
             return true;
+
 
         } catch (error) {
 
@@ -838,7 +996,20 @@ window.tipecoRequireOwner =
             );
 
 
-            await signOut(auth);
+            try {
+
+                await signOut(
+                    auth
+                );
+
+            } catch (logoutError) {
+
+                console.warn(
+                    "TIPECO: Firebase signOut failed:",
+                    logoutError
+                );
+
+            }
 
 
             window.location.href =
@@ -860,7 +1031,9 @@ window.tipecoLogout =
 
         try {
 
-            await signOut(auth);
+            await signOut(
+                auth
+            );
 
 
             sessionStorage.removeItem(
