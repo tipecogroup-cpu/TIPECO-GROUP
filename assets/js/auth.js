@@ -51,7 +51,7 @@ import {
 const OWNER_ROLE = "owner";
 
 const OWNER_DASHBOARD =
-    "../owner-dashboard.html";
+    "pages/owner-dashboard.html";
 
 const DEFAULT_HOME =
     "../index.html";
