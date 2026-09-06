@@ -1,9 +1,27 @@
 /* =====================================================
    TIPECO GROUP - FIREBASE AUTHENTICATION
    REAL PROJECT
-   Version: 7.1
-   Owner Role Authentication
-   Firebase Auth State Safe Check
+   Version: 7.2
+
+   FEATURES
+   -----------------------------------------------------
+   - Firebase Email/Password Authentication
+   - Email Verification
+   - Firestore User Profiles
+   - Owner Role Authentication
+   - Owner Dashboard Protection
+   - Blocked / Suspended Account Protection
+   - Safe Auth State Check
+   - Forgot Password
+   - Secure Logout
+   - Public Owner Registration Prevention
+
+   IMPORTANT
+   -----------------------------------------------------
+   login.html              -> pages/login.html
+   register.html           -> pages/register.html
+   owner-dashboard.html    -> pages/owner-dashboard.html
+   auth.js                 -> assets/js/auth.js
 ===================================================== */
 
 
@@ -45,20 +63,52 @@ import {
 
 
 /* =====================================================
-   CONSTANTS
+   TIPECO CONSTANTS
 ===================================================== */
 
 const OWNER_ROLE = "owner";
 
 const OWNER_DASHBOARD =
-    "pages/owner-dashboard.html";
+    "owner-dashboard.html";
 
 const DEFAULT_HOME =
     "../index.html";
 
+const LOGIN_PAGE =
+    "login.html";
+
 
 /* =====================================================
-   HELPER
+   PUBLIC REGISTRATION RULE
+   -----------------------------------------------------
+   Owner account MUST NEVER be created through the
+   public registration page.
+
+   The Owner account must be created/administered
+   separately and its Firestore role must be:
+
+       role: "owner"
+===================================================== */
+
+const PUBLIC_OWNER_FORBIDDEN = true;
+
+
+/* =====================================================
+   SESSION KEYS
+===================================================== */
+
+const AUTH_SESSION_KEY =
+    "tipecoAuthenticated";
+
+const USER_ID_SESSION_KEY =
+    "tipecoUserId";
+
+const ROLE_SESSION_KEY =
+    "tipecoRole";
+
+
+/* =====================================================
+   MESSAGE HELPER
 ===================================================== */
 
 function showMessage(message) {
@@ -69,51 +119,129 @@ function showMessage(message) {
 
 
 /* =====================================================
-   GET FIRESTORE USER PROFILE
+   CLEAR TIPECO SESSION
 ===================================================== */
 
-async function getUserProfile(user) {
+function clearTipecoSession() {
 
-    if (!user) {
+    try {
 
-        return null;
-
-    }
-
-
-    const userRef =
-        doc(
-            db,
-            "users",
-            user.uid
+        sessionStorage.removeItem(
+            AUTH_SESSION_KEY
         );
 
+        sessionStorage.removeItem(
+            USER_ID_SESSION_KEY
+        );
 
-    const snapshot =
-        await getDoc(userRef);
+        sessionStorage.removeItem(
+            ROLE_SESSION_KEY
+        );
 
+    } catch (error) {
 
-    if (!snapshot.exists()) {
-
-        return null;
+        console.error(
+            "TIPECO session cleanup error:",
+            error
+        );
 
     }
-
-
-    return {
-
-        id:
-            snapshot.id,
-
-        ...snapshot.data()
-
-    };
 
 }
 
 
 /* =====================================================
-   CHECK OWNER ROLE
+   SAVE TIPECO SESSION
+===================================================== */
+
+function saveTipecoSession(user, profile) {
+
+    try {
+
+        sessionStorage.setItem(
+            AUTH_SESSION_KEY,
+            "true"
+        );
+
+        sessionStorage.setItem(
+            USER_ID_SESSION_KEY,
+            user.uid
+        );
+
+        sessionStorage.setItem(
+            ROLE_SESSION_KEY,
+            profile?.role || ""
+        );
+
+    } catch (error) {
+
+        console.error(
+            "TIPECO session save error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   GET USER PROFILE
+   -----------------------------------------------------
+   Reads:
+
+       users/{uid}
+
+   from Firestore.
+===================================================== */
+
+async function getUserProfile(user) {
+
+    if (!user) {
+        return null;
+    }
+
+    try {
+
+        const userRef = doc(
+            db,
+            "users",
+            user.uid
+        );
+
+        const snapshot =
+            await getDoc(userRef);
+
+        if (!snapshot.exists()) {
+
+            return null;
+
+        }
+
+        return {
+
+            id: snapshot.id,
+
+            ...snapshot.data()
+
+        };
+
+    } catch (error) {
+
+        console.error(
+            "Error loading user profile:",
+            error
+        );
+
+        throw error;
+
+    }
+
+}
+
+
+/* =====================================================
+   CHECK TIPECO OWNER
 ===================================================== */
 
 async function isTipecoOwner(user) {
@@ -124,10 +252,8 @@ async function isTipecoOwner(user) {
 
     }
 
-
     const profile =
         await getUserProfile(user);
-
 
     if (!profile) {
 
@@ -135,18 +261,56 @@ async function isTipecoOwner(user) {
 
     }
 
-
-    return profile.role === OWNER_ROLE;
+    return (
+        String(profile.role || "")
+            .trim()
+            .toLowerCase()
+        === OWNER_ROLE
+    );
 
 }
 
 
 /* =====================================================
-   REGISTER
+   CHECK ACCOUNT STATUS
+===================================================== */
+
+function getAccountStatus(profile) {
+
+    if (!profile) {
+
+        return "unknown";
+
+    }
+
+    return String(
+
+        profile.accountStatus
+        ??
+        profile.status
+        ??
+        "active"
+
+    )
+        .trim()
+        .toLowerCase();
+
+}
+
+
+/* =====================================================
+   REGISTRATION
+   -----------------------------------------------------
+   Public registration.
+
+   SECURITY:
+   Owner cannot be created from this page.
 ===================================================== */
 
 const registerForm =
-    document.getElementById("registerForm");
+    document.getElementById(
+        "registerForm"
+    );
 
 
 if (registerForm) {
@@ -158,87 +322,60 @@ if (registerForm) {
             event.preventDefault();
 
 
-            /* =============================================
-               FORM ELEMENTS
-            ============================================= */
-
-            const fullNameElement =
-                document.getElementById("fullName");
-
-            const emailElement =
-                document.getElementById("email");
-
-            const phoneElement =
-                document.getElementById("phone");
-
-            const passwordElement =
-                document.getElementById("password");
-
-            const confirmPasswordElement =
-                document.getElementById("confirmPassword");
-
-            const accountTypeElement =
-                document.getElementById("accountType");
-
-            const termsElement =
-                document.getElementById("terms");
-
-            const registerButton =
-                document.getElementById("registerButton");
-
-
-            /* =============================================
-               CHECK FORM CONFIGURATION
-            ============================================= */
-
-            if (
-                !fullNameElement ||
-                !emailElement ||
-                !phoneElement ||
-                !passwordElement ||
-                !confirmPasswordElement ||
-                !accountTypeElement ||
-                !termsElement
-            ) {
-
-                showMessage(
-                    "Registration form configuration error. Please contact TIPECO GROUP support."
-                );
-
-                return;
-
-            }
-
-
-            /* =============================================
-               VALUES
-            ============================================= */
+            /* =========================================
+               GET FORM ELEMENTS
+            ========================================= */
 
             const fullName =
-                fullNameElement.value.trim();
+                document.getElementById(
+                    "fullName"
+                )?.value.trim();
 
             const email =
-                emailElement.value.trim();
+                document.getElementById(
+                    "email"
+                )?.value.trim().toLowerCase();
 
             const phone =
-                phoneElement.value.trim();
+                document.getElementById(
+                    "phone"
+                )?.value.trim();
 
             const password =
-                passwordElement.value;
+                document.getElementById(
+                    "password"
+                )?.value;
 
             const confirmPassword =
-                confirmPasswordElement.value;
+                document.getElementById(
+                    "confirmPassword"
+                )?.value;
+
+            const accountTypeElement =
+                document.getElementById(
+                    "accountType"
+                );
 
             const accountType =
-                accountTypeElement.value;
+                accountTypeElement
+                    ?.value
+                    ?.trim()
+                    ?.toLowerCase();
 
             const terms =
-                termsElement.checked;
+                document.getElementById(
+                    "terms"
+                );
+
+            const registerButton =
+                document.getElementById(
+                    "registerButton"
+                );
 
 
-            /* =============================================
-               VALIDATION
-            ============================================= */
+            /* =========================================
+               BASIC VALIDATION
+            ========================================= */
 
             if (
                 !fullName ||
@@ -250,13 +387,17 @@ if (registerForm) {
             ) {
 
                 showMessage(
-                    "Please complete all required fields."
+                    "Please fill in all required fields."
                 );
 
                 return;
 
             }
 
+
+            /* =========================================
+               PASSWORD CHECK
+            ========================================= */
 
             if (password !== confirmPassword) {
 
@@ -269,6 +410,10 @@ if (registerForm) {
             }
 
 
+            /* =========================================
+               PASSWORD LENGTH
+            ========================================= */
+
             if (password.length < 6) {
 
                 showMessage(
@@ -280,10 +425,17 @@ if (registerForm) {
             }
 
 
-            if (!terms) {
+            /* =========================================
+               TERMS CHECK
+            ========================================= */
+
+            if (
+                terms &&
+                !terms.checked
+            ) {
 
                 showMessage(
-                    "Please agree to the Terms & Conditions."
+                    "Please accept the Terms and Conditions."
                 );
 
                 return;
@@ -291,44 +443,93 @@ if (registerForm) {
             }
 
 
+            /* =========================================
+               OWNER SECURITY
+               -----------------------------------------
+               NEVER allow public registration to create
+               an Owner account.
+            ========================================= */
+
+            if (
+                PUBLIC_OWNER_FORBIDDEN &&
+                accountType === OWNER_ROLE
+            ) {
+
+                showMessage(
+                    "Owner accounts cannot be created through public registration."
+                );
+
+                return;
+
+            }
+
+
+            /* =========================================
+               DISABLE BUTTON
+            ========================================= */
+
             if (registerButton) {
 
                 registerButton.disabled = true;
 
+                registerButton.dataset.originalText =
+                    registerButton.textContent;
+
                 registerButton.textContent =
-                    "Creating Account...";
+                    "Creating account...";
 
             }
 
 
             try {
 
-                /* =========================================
-                   CREATE FIREBASE AUTH ACCOUNT
-                ========================================== */
+                /* =====================================
+                   CREATE FIREBASE AUTH USER
+                ===================================== */
 
-                const credential =
+                const userCredential =
                     await createUserWithEmailAndPassword(
                         auth,
                         email,
                         password
                     );
 
-
                 const user =
-                    credential.user;
+                    userCredential.user;
 
 
-                /* =========================================
-                   CREATE TIPECO USER PROFILE
-                ========================================== */
+                /* =====================================
+                   SECURITY:
+                   PUBLIC USERS CANNOT BECOME OWNER
+                ===================================== */
 
-                await setDoc(
+                let assignedRole =
+                    accountType;
+
+                if (
+                    assignedRole === OWNER_ROLE
+                ) {
+
+                    assignedRole =
+                        "seller";
+
+                }
+
+
+                /* =====================================
+                   CREATE FIRESTORE PROFILE
+                ===================================== */
+
+                const userRef =
                     doc(
                         db,
                         "users",
                         user.uid
-                    ),
+                    );
+
+
+                await setDoc(
+                    userRef,
                     {
 
                         uid:
@@ -338,13 +539,13 @@ if (registerForm) {
                             fullName,
 
                         email:
-                            user.email,
+                            email,
 
                         phone:
                             phone,
 
                         role:
-                            accountType,
+                            assignedRole,
 
                         accountStatus:
                             "pending_verification",
@@ -358,100 +559,121 @@ if (registerForm) {
                         updatedAt:
                             serverTimestamp()
 
+                    },
+                    {
+                        merge: true
                     }
                 );
 
 
-                /* =========================================
+                /* =====================================
                    SEND EMAIL VERIFICATION
-                ========================================== */
+                ===================================== */
 
                 await sendEmailVerification(
                     user
                 );
 
 
-                /* =========================================
-                   SIGN OUT
-                ========================================== */
+                /* =====================================
+                   CLEAN SESSION
+                ===================================== */
 
-                await signOut(
-                    auth
-                );
+                clearTipecoSession();
 
+
+                /* =====================================
+                   SIGN OUT AFTER REGISTRATION
+                ===================================== */
+
+                await signOut(auth);
+
+
+                /* =====================================
+                   SUCCESS
+                ===================================== */
 
                 showMessage(
-                    "Your TIPECO GROUP account has been created successfully.\n\nA verification email has been sent to:\n" +
-                    email +
-                    "\n\nPlease open your email and click the verification link before logging in."
+                    "Account created successfully.\n\n" +
+                    "Please check your email and verify your account before logging in."
                 );
 
 
+                /* =====================================
+                   REDIRECT TO LOGIN
+                ===================================== */
+
                 window.location.href =
-                    "login.html";
+                    LOGIN_PAGE;
 
 
             } catch (error) {
 
                 console.error(
-                    "TIPECO GROUP Registration Error:",
+                    "TIPECO registration error:",
                     error
                 );
+
+
+                let message =
+                    "Registration failed. Please try again.";
 
 
                 switch (error.code) {
 
                     case "auth/email-already-in-use":
 
-                        showMessage(
-                            "This email address is already registered."
-                        );
+                        message =
+                            "This email is already registered.";
 
                         break;
 
 
                     case "auth/invalid-email":
 
-                        showMessage(
-                            "Please enter a valid email address."
-                        );
+                        message =
+                            "Please enter a valid email address.";
 
                         break;
 
 
                     case "auth/weak-password":
 
-                        showMessage(
-                            "Your password is too weak. Please create a stronger password."
-                        );
+                        message =
+                            "Password is too weak.";
 
                         break;
 
 
                     case "auth/network-request-failed":
 
-                        showMessage(
-                            "Network error. Please check your internet connection and try again."
-                        );
+                        message =
+                            "Network error. Please check your internet connection.";
 
                         break;
 
 
                     default:
 
-                        showMessage(
-                            "Registration failed.\n\n" +
-                            error.message
-                        );
+                        message =
+                            error.message ||
+                            message;
 
                 }
 
 
+                showMessage(message);
+
+
+            } finally {
+
                 if (registerButton) {
 
-                    registerButton.disabled = false;
+                    registerButton.disabled =
+                        false;
 
                     registerButton.textContent =
+                        registerButton.dataset.originalText ||
                         "Create Account";
 
                 }
@@ -466,10 +688,22 @@ if (registerForm) {
 
 /* =====================================================
    LOGIN
+   -----------------------------------------------------
+   Compatible with:
+
+       id="loginForm"
+       id="login"
+       id="password"
+
+   NOTE:
+   Current Firebase implementation is EMAIL/PASSWORD.
+   Phone-number login is NOT implemented here.
 ===================================================== */
 
 const loginForm =
-    document.getElementById("loginForm");
+    document.getElementById(
+        "loginForm"
+    );
 
 
 if (loginForm) {
@@ -481,30 +715,35 @@ if (loginForm) {
             event.preventDefault();
 
 
-            const loginElement =
-                document.getElementById("login");
+            /* =========================================
+               GET LOGIN DATA
+            ========================================= */
 
-            const passwordElement =
-                document.getElementById("password");
-
-
-            if (!loginElement || !passwordElement) {
-
-                showMessage(
-                    "Login form configuration error. Please contact TIPECO GROUP support."
+            const loginInput =
+                document.getElementById(
+                    "login"
                 );
 
-                return;
-
-            }
+            const passwordInput =
+                document.getElementById(
+                    "password"
+                );
 
 
             const email =
-                loginElement.value.trim();
+                loginInput
+                    ?.value
+                    ?.trim()
+                    ?.toLowerCase();
 
             const password =
-                passwordElement.value;
+                passwordInput
+                    ?.value;
 
+
+            /* =========================================
+               VALIDATION
+            ========================================= */
 
             if (!email || !password) {
 
@@ -517,13 +756,37 @@ if (loginForm) {
             }
 
 
+            /* =========================================
+               LOGIN BUTTON
+            ========================================= */
+
+            const loginButton =
+                loginForm.querySelector(
+                    'button[type="submit"]'
+                );
+
+
+            if (loginButton) {
+
+                loginButton.disabled =
+                    true;
+
+                loginButton.dataset.originalText =
+                    loginButton.textContent;
+
+                loginButton.textContent =
+                    "Signing in...";
+
+            }
+
+
             try {
 
-                /* =========================================
+                /* =====================================
                    FIREBASE LOGIN
-                ========================================== */
+                ===================================== */
 
-                const credential =
+                const userCredential =
                     await signInWithEmailAndPassword(
                         auth,
                         email,
@@ -532,21 +795,19 @@ if (loginForm) {
 
 
                 const user =
-                    credential.user;
+                    userCredential.user;
 
 
-                /* =========================================
-                   REFRESH USER
-                ========================================== */
+                /* =====================================
+                   REFRESH FIREBASE USER
+                ===================================== */
 
-                await reload(
-                    user
-                );
+                await reload(user);
 
 
-                /* =========================================
+                /* =====================================
                    EMAIL VERIFICATION
-                ========================================== */
+                ===================================== */
 
                 if (!user.emailVerified) {
 
@@ -556,66 +817,107 @@ if (loginForm) {
                             user
                         );
 
-                    } catch (verificationError) {
+                    } catch (
+                        verificationError
+                    ) {
 
                         console.warn(
-                            "Verification email:",
+                            "Verification email could not be resent:",
                             verificationError
                         );
 
                     }
 
 
-                    await signOut(
-                        auth
-                    );
+                    await signOut(auth);
+
+                    clearTipecoSession();
 
 
                     showMessage(
-                        "Your email has not been verified yet.\n\nPlease check your email and click the TIPECO GROUP verification link before logging in."
+                        "Your email address is not verified yet.\n\n" +
+                        "A verification email has been sent. " +
+                        "Please verify your email and then log in again."
                     );
+
 
                     return;
 
                 }
 
 
-                /* =========================================
+                /* =====================================
                    GET FIRESTORE PROFILE
-                ========================================== */
+                ===================================== */
 
                 const profile =
-                    await getUserProfile(
-                        user
-                    );
+                    await getUserProfile(user);
 
 
                 if (!profile) {
 
-                    await signOut(
-                        auth
-                    );
+                    await signOut(auth);
+
+                    clearTipecoSession();
 
 
                     showMessage(
-                        "Your Firebase account exists, but your TIPECO GROUP profile could not be found."
+                        "Your account profile could not be found. Please contact TIPECO GROUP support."
                     );
+
 
                     return;
 
                 }
 
 
-                /* =========================================
-                   UPDATE VERIFICATION STATUS
-                ========================================== */
+                /* =====================================
+                   ACCOUNT STATUS
+                ===================================== */
 
-                await setDoc(
+                const accountStatus =
+                    getAccountStatus(profile);
+
+
+                if (
+                    accountStatus ===
+                        "blocked"
+                    ||
+                    accountStatus ===
+                        "suspended"
+                ) {
+
+                    await signOut(auth);
+
+                    clearTipecoSession();
+
+
+                    showMessage(
+                        "This account is currently " +
+                        accountStatus +
+                        ". Please contact TIPECO GROUP support."
+                    );
+
+
+                    return;
+
+                }
+
+
+                /* =====================================
+                   UPDATE VERIFIED STATUS
+                ===================================== */
+
+                const userRef =
                     doc(
                         db,
                         "users",
                         user.uid
-                    ),
+                    );
+
+
+                await setDoc(
+                    userRef,
                     {
 
                         emailVerified:
@@ -634,35 +936,43 @@ if (loginForm) {
                 );
 
 
-                /* =========================================
+                /* =====================================
                    SAVE SESSION
-                ========================================== */
+                ===================================== */
 
-                sessionStorage.setItem(
-                    "tipecoAuthenticated",
-                    "true"
+                saveTipecoSession(
+                    user,
+                    profile
                 );
 
 
-                sessionStorage.setItem(
-                    "tipecoUserId",
-                    user.uid
-                );
+                /* =====================================
+                   OWNER CHECK
+                   -------------------------------------
+                   Owner authorization is based on the
+                   Firestore profile role.
+                ===================================== */
 
+                const userRole =
+                    String(
+                        profile.role || ""
+                    )
+                        .trim()
+                        .toLowerCase();
 
-                sessionStorage.setItem(
-                    "tipecoRole",
-                    profile.role || ""
-                );
-
-
-                /* =========================================
-                   OWNER REDIRECT
-                ========================================== */
 
                 if (
-                    profile.role === OWNER_ROLE
+                    userRole ===
+                    OWNER_ROLE
                 ) {
+
+                    /* =================================
+                       OWNER DASHBOARD
+
+                       IMPORTANT:
+                       login.html and owner-dashboard.html
+                       are both inside /pages/
+                    ================================= */
 
                     window.location.href =
                         OWNER_DASHBOARD;
@@ -672,9 +982,9 @@ if (loginForm) {
                 }
 
 
-                /* =========================================
-                   NORMAL USER REDIRECT
-                ========================================== */
+                /* =====================================
+                   NORMAL USER / SELLER
+                ===================================== */
 
                 window.location.href =
                     DEFAULT_HOME;
@@ -683,82 +993,90 @@ if (loginForm) {
             } catch (error) {
 
                 console.error(
-                    "TIPECO GROUP Login Error:",
+                    "TIPECO login error:",
                     error
                 );
+
+
+                clearTipecoSession();
+
+
+                let message =
+                    "Login failed. Please check your email and password.";
 
 
                 switch (error.code) {
 
                     case "auth/invalid-credential":
 
-                        showMessage(
-                            "Invalid email or password."
-                        );
+                        message =
+                            "Invalid email or password.";
 
                         break;
 
 
                     case "auth/user-not-found":
 
-                        showMessage(
-                            "No TIPECO GROUP account was found with this email."
-                        );
+                        message =
+                            "No account was found with this email.";
 
                         break;
 
 
                     case "auth/wrong-password":
 
-                        showMessage(
-                            "Incorrect password."
-                        );
+                        message =
+                            "Incorrect password.";
 
                         break;
 
 
                     case "auth/invalid-email":
 
-                        showMessage(
-                            "Please enter a valid email address."
-                        );
+                        message =
+                            "Please enter a valid email address.";
 
                         break;
 
 
                     case "auth/too-many-requests":
 
-                        showMessage(
-                            "Too many login attempts. Please wait and try again later."
-                        );
-
-                        break;
-
-
-                    case "auth/user-disabled":
-
-                        showMessage(
-                            "This account has been disabled."
-                        );
+                        message =
+                            "Too many login attempts. Please wait and try again later.";
 
                         break;
 
 
                     case "auth/network-request-failed":
 
-                        showMessage(
-                            "Network error. Please check your internet connection."
-                        );
+                        message =
+                            "Network error. Please check your internet connection.";
 
                         break;
 
 
                     default:
 
-                        showMessage(
-                            "Login failed.\n\n" +
-                            error.message
-                        );
+                        message =
+                            error.message ||
+                            message;
+
+                }
+
+
+                showMessage(message);
+
+
+            } finally {
+
+                if (loginButton) {
+
+                    loginButton.disabled =
+                        false;
+
+                    loginButton.textContent =
+                        loginButton.dataset.originalText ||
+                        "Login";
 
                 }
 
@@ -772,8 +1090,15 @@ if (loginForm) {
 
 /* =====================================================
    OWNER DASHBOARD PROTECTION
-   Version: 7.1
-   Firebase Auth State Safe Check
+   -----------------------------------------------------
+   This function MUST be called by
+   owner-dashboard.html.
+
+   Example:
+
+       <script type="module">
+           await window.tipecoRequireOwner();
+       </script>
 ===================================================== */
 
 window.tipecoRequireOwner =
@@ -781,18 +1106,34 @@ window.tipecoRequireOwner =
 
         try {
 
-            /* =============================================
+            /* =========================================
                WAIT FOR FIREBASE AUTH STATE
-            ============================================== */
+            ========================================= */
 
             const user =
                 await new Promise(
                     function (resolve) {
 
+                        let finished =
+                            false;
+
                         const unsubscribe =
                             onAuthStateChanged(
                                 auth,
-                                function (currentUser) {
+                                function (
+                                    currentUser
+                                ) {
+
+                                    if (
+                                        finished
+                                    ) {
+
+                                        return;
+
+                                    }
+
+                                    finished =
+                                        true;
 
                                     unsubscribe();
 
@@ -807,109 +1148,134 @@ window.tipecoRequireOwner =
                 );
 
 
-            /* =============================================
-               NO AUTHENTICATED USER
-            ============================================== */
+            /* =========================================
+               NO AUTH USER
+            ========================================= */
 
             if (!user) {
 
-                console.warn(
-                    "TIPECO: No authenticated Firebase user."
-                );
-
+                clearTipecoSession();
 
                 window.location.href =
-                    "../login.html";
+                    LOGIN_PAGE;
 
                 return false;
 
             }
 
 
-            /* =============================================
-               REFRESH FIREBASE USER
-            ============================================== */
+            /* =========================================
+               REFRESH AUTH USER
+            ========================================= */
 
-            await reload(
-                user
-            );
+            await reload(user);
 
 
-            /* =============================================
-               EMAIL VERIFICATION
-            ============================================== */
+            /* =========================================
+               EMAIL VERIFICATION REQUIRED
+            ========================================= */
 
             if (!user.emailVerified) {
 
-                console.warn(
-                    "TIPECO: Owner email is not verified."
-                );
+                clearTipecoSession();
 
+                try {
 
-                await signOut(
-                    auth
-                );
+                    await signOut(auth);
 
+                } catch (error) {
+
+                    console.warn(
+                        "Owner signout error:",
+                        error
+                    );
+
+                }
 
                 window.location.href =
-                    "../login.html";
+                    LOGIN_PAGE;
 
                 return false;
 
             }
 
 
-            /* =============================================
-               GET FIRESTORE PROFILE
-            ============================================== */
+            /* =========================================
+               LOAD FIRESTORE PROFILE
+            ========================================= */
 
             const profile =
-                await getUserProfile(
-                    user
-                );
+                await getUserProfile(user);
 
 
             if (!profile) {
 
-                console.warn(
-                    "TIPECO: Firebase user profile not found."
-                );
+                clearTipecoSession();
 
+                try {
 
-                await signOut(
-                    auth
+                    await signOut(auth);
+
+                } catch (error) {
+
+                    console.warn(
+                        "Owner signout error:",
+                        error
+                    );
+
+                }
+
+                showMessage(
+                    "Owner profile not found."
                 );
 
 
                 window.location.href =
-                    "../login.html";
+                    LOGIN_PAGE;
 
                 return false;
 
             }
 
 
-            /* =============================================
-               CHECK OWNER ROLE
-            ============================================== */
+            /* =========================================
+               VERIFY OWNER ROLE
+               -----------------------------------------
+               THIS IS THE IMPORTANT SECURITY CHECK.
+            ========================================= */
+
+            const role =
+                String(
+                    profile.role || ""
+                )
+                    .trim()
+                    .toLowerCase();
+
 
             if (
-                profile.role !== OWNER_ROLE
+                role !== OWNER_ROLE
             ) {
 
-                console.warn(
-                    "TIPECO: User is not an Owner."
-                );
+                clearTipecoSession();
 
 
                 showMessage(
-                    "Access denied. Owner authorization is required."
+                    "Access denied.\n\nOwner authorization is required."
                 );
 
 
-                await signOut(
-                    auth
-                );
+                try {
+
+                    await signOut(auth);
+
+                } catch (error) {
+
+                    console.warn(
+                        "Unauthorized signout error:",
+                        error
+                    );
+
+                }
 
 
                 window.location.href =
@@ -920,70 +1286,67 @@ window.tipecoRequireOwner =
             }
 
 
-            /* =============================================
-               CHECK ACCOUNT STATUS
-            ============================================== */
+            /* =========================================
+               CHECK OWNER ACCOUNT STATUS
+            ========================================= */
 
             const accountStatus =
-                String(
-                    profile.status ||
-                    profile.accountStatus ||
-                    "active"
-                )
-                .trim()
-                .toLowerCase();
+                getAccountStatus(profile);
 
 
             if (
-                accountStatus === "blocked" ||
-                accountStatus === "suspended"
+                accountStatus ===
+                    "blocked"
+                ||
+                accountStatus ===
+                    "suspended"
             ) {
 
+                clearTipecoSession();
+
+
                 showMessage(
-                    "This Owner account is currently blocked or suspended."
+                    "This Owner account is currently " +
+                    accountStatus +
+                    "."
                 );
 
 
-                await signOut(
-                    auth
-                );
+                try {
+
+                    await signOut(auth);
+
+                } catch (error) {
+
+                    console.warn(
+                        "Owner status signout error:",
+                        error
+                    );
+
+                }
 
 
                 window.location.href =
-                    "../login.html";
+                    LOGIN_PAGE;
 
                 return false;
 
             }
 
 
-            /* =============================================
-               OWNER SESSION
-            ============================================== */
+            /* =========================================
+               SAVE VERIFIED OWNER SESSION
+            ========================================= */
 
-            sessionStorage.setItem(
-                "tipecoAuthenticated",
-                "true"
+            saveTipecoSession(
+                user,
+                profile
             );
 
 
-            sessionStorage.setItem(
-                "tipecoUserId",
-                user.uid
-            );
-
-
-            sessionStorage.setItem(
-                "tipecoRole",
-                OWNER_ROLE
-            );
-
-
-            console.log(
-                "TIPECO: Owner authorization successful.",
-                user.uid
-            );
-
+            /* =========================================
+               SUCCESS
+            ========================================= */
 
             return true;
 
@@ -991,29 +1354,30 @@ window.tipecoRequireOwner =
         } catch (error) {
 
             console.error(
-                "TIPECO GROUP Owner Authorization Error:",
+                "TIPECO Owner authorization error:",
                 error
             );
 
 
+            clearTipecoSession();
+
+
             try {
 
-                await signOut(
-                    auth
-                );
+                await signOut(auth);
 
-            } catch (logoutError) {
+            } catch (signOutError) {
 
                 console.warn(
-                    "TIPECO: Firebase signOut failed:",
-                    logoutError
+                    "Final Owner signout error:",
+                    signOutError
                 );
 
             }
 
 
             window.location.href =
-                "../login.html";
+                LOGIN_PAGE;
 
             return false;
 
@@ -1031,23 +1395,9 @@ window.tipecoLogout =
 
         try {
 
-            await signOut(
-                auth
-            );
+            await signOut(auth);
 
-
-            sessionStorage.removeItem(
-                "tipecoAuthenticated"
-            );
-
-            sessionStorage.removeItem(
-                "tipecoUserId"
-            );
-
-            sessionStorage.removeItem(
-                "tipecoRole"
-            );
-
+            clearTipecoSession();
 
             window.location.href =
                 "../index.html";
@@ -1056,14 +1406,16 @@ window.tipecoLogout =
         } catch (error) {
 
             console.error(
-                "TIPECO GROUP Logout Error:",
+                "TIPECO logout error:",
                 error
             );
 
 
-            showMessage(
-                "Logout failed. Please try again."
-            );
+            clearTipecoSession();
+
+
+            window.location.href =
+                "../index.html";
 
         }
 
@@ -1071,71 +1423,171 @@ window.tipecoLogout =
 
 
 /* =====================================================
-   CURRENT FIREBASE USER
-===================================================== */
-
-window.getTipecoCurrentUser =
-    function () {
-
-        return auth.currentUser;
-
-    };
-
-
-/* =====================================================
-   GET TIPECO USER PROFILE
-===================================================== */
-
-window.getTipecoUserProfile =
-    async function () {
-
-        return await getUserProfile(
-            auth.currentUser
-        );
-
-    };
-
-
-/* =====================================================
-   CHECK OWNER
-===================================================== */
-
-window.isTipecoOwner =
-    async function () {
-
-        return await isTipecoOwner(
-            auth.currentUser
-        );
-
-    };
-
-
-/* =====================================================
-   FORGOT PASSWORD
+   FORGOT / RESET PASSWORD
 ===================================================== */
 
 window.tipecoResetPassword =
     async function (email) {
 
-        if (!email) {
+        const cleanEmail =
+            String(email || "")
+                .trim()
+                .toLowerCase();
 
-            throw new Error(
-                "Email address is required."
+
+        if (!cleanEmail) {
+
+            showMessage(
+                "Please enter your email address."
             );
+
+            return false;
 
         }
 
 
-        await sendPasswordResetEmail(
-            auth,
-            email.trim()
+        try {
+
+            await sendPasswordResetEmail(
+                auth,
+                cleanEmail
+            );
+
+
+            showMessage(
+                "Password reset email sent successfully. Please check your inbox."
+            );
+
+
+            return true;
+
+
+        } catch (error) {
+
+            console.error(
+                "TIPECO password reset error:",
+                error
+            );
+
+
+            let message =
+                "Unable to send password reset email.";
+
+
+            switch (error.code) {
+
+                case "auth/user-not-found":
+
+                    message =
+                        "No account was found with this email.";
+
+                    break;
+
+
+                case "auth/invalid-email":
+
+                    message =
+                        "Please enter a valid email address.";
+
+                    break;
+
+
+                case "auth/network-request-failed":
+
+                    message =
+                        "Network error. Please check your internet connection.";
+
+                    break;
+
+
+                default:
+
+                    message =
+                        error.message ||
+                        message;
+
+            }
+
+
+            showMessage(message);
+
+
+            return false;
+
+        }
+
+    };
+
+
+/* =====================================================
+   CURRENT USER HELPER
+===================================================== */
+
+window.tipecoGetCurrentUser =
+    function () {
+
+        return auth.currentUser || null;
+
+    };
+
+
+/* =====================================================
+   CURRENT PROFILE HELPER
+===================================================== */
+
+window.tipecoGetCurrentProfile =
+    async function () {
+
+        const user =
+            auth.currentUser;
+
+
+        if (!user) {
+
+            return null;
+
+        }
+
+
+        return await getUserProfile(
+            user
         );
 
     };
 
 
 /* =====================================================
-   AUTH STATE
+   OWNER CHECK HELPER
+===================================================== */
+
+window.tipecoIsOwner =
+    async function () {
+
+        const user =
+            auth.currentUser;
+
+
+        if (!user) {
+
+            return false;
+
+        }
+
+
+        return await isTipecoOwner(
+            user
+        );
+
+    };
+
+
+/* =====================================================
+   FIREBASE AUTH STATE MONITOR
+   -----------------------------------------------------
+   Informational only.
+
+   Actual Owner authorization is performed by
+   tipecoRequireOwner().
 ===================================================== */
 
 onAuthStateChanged(
@@ -1145,17 +1597,26 @@ onAuthStateChanged(
         if (user) {
 
             console.log(
-                "TIPECO GROUP Firebase user:",
+                "TIPECO Firebase Auth:",
                 user.uid
             );
 
         } else {
 
             console.log(
-                "TIPECO GROUP: No authenticated user."
+                "TIPECO Firebase Auth: No user signed in."
             );
 
         }
 
     }
+);
+
+
+/* =====================================================
+   VERSION
+===================================================== */
+
+console.log(
+    "TIPECO GROUP auth.js Version 7.2 loaded."
 );
