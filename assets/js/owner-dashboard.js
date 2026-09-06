@@ -1,380 +1,221 @@
 /* =====================================================
    TIPECO GROUP - OWNER DASHBOARD
-   Version: 3.0
-   Firebase + Firestore Integration
+   Version: 4.0
+   REAL PROJECT
+   Owner Dashboard Data Engine
 
-   Compatible with:
-   - auth.js V7.1
-   - storage.js V2.0
-   - owner-dashboard.html
+   PUBLIC ACCOUNT TYPES:
+   - buyer
+   - seller
+
+   PRIVATE / CONTROLLED ROLES:
+   - owner
+   - agent
+
+   DATA SOURCES:
+   - Firebase Auth
+   - Firestore: users, reports
+   - IndexedDB: listings, listingMedia
 
    IMPORTANT:
-   - Firebase/Firestore = Users, Owner, Agents, Reports
-   - IndexedDB = Listings + Listing Media
+   This file does NOT create Owner or Agent accounts.
+   Owner and Agent are controlled roles.
 ===================================================== */
 
 
 /* =====================================================
-   CONFIGURATION
+   FIREBASE / AUTH
 ===================================================== */
 
-const TIPECO_OWNER_DASHBOARD_VERSION = "3.0";
+import "./auth.js";
 
-const FIRESTORE_USERS_COLLECTION = "users";
-const FIRESTORE_REPORTS_COLLECTION = "reports";
+import {
+    collection,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+import {
+    auth,
+    db
+} from "./firebase-config.js";
+
+
+/* =====================================================
+   VERSION
+===================================================== */
+
+const TIPECO_OWNER_DASHBOARD_VERSION = "4.0";
+
+
+/* =====================================================
+   FIRESTORE COLLECTIONS
+===================================================== */
+
+const USERS_COLLECTION = "users";
+const REPORTS_COLLECTION = "reports";
+
+
+/* =====================================================
+   PUBLIC ACCOUNT TYPES
+===================================================== */
+
+const PUBLIC_ACCOUNT_TYPES = [
+    "buyer",
+    "seller"
+];
+
+
+/* =====================================================
+   CONTROLLED ROLES
+===================================================== */
+
+const CONTROLLED_ROLES = [
+    "owner",
+    "agent"
+];
+
+
+/* =====================================================
+   DOM HELPERS
+===================================================== */
+
+const $ = (id) => document.getElementById(id);
 
 
 /* =====================================================
    DOM ELEMENTS
 ===================================================== */
 
-let ownerSidebar;
-let sidebarToggle;
-let ownerLogoutBtn;
-let ownerNavLinks;
-let quickActionButtons;
+const ownerNameElement =
+    $("ownerName");
 
-let notificationBtn;
+const welcomeOwnerNameElement =
+    $("welcomeOwnerName");
 
-let ownerNameElement;
-let totalUsersElement;
-let totalListingsElement;
-let pendingListingsElement;
-let approvedListingsElement;
-let totalAgentsElement;
-let totalReportsElement;
+const ownerAvatarElement =
+    $("ownerAvatar");
 
-let recentUsersElement;
-let recentListingsElement;
-let activityListElement;
-let notificationCountElement;
+const totalUsersElement =
+    $("totalUsers");
 
+const totalListingsElement =
+    $("totalListings");
 
-/* =====================================================
-   FIREBASE MODULE REFERENCES
-===================================================== */
+const pendingListingsElement =
+    $("pendingListings");
 
-let tipecoAuth = null;
-let tipecoDb = null;
+const approvedListingsElement =
+    $("approvedListings");
 
-let firestoreCollection = null;
-let firestoreGetDocs = null;
-let firestoreQuery = null;
-let firestoreOrderBy = null;
-let firestoreLimit = null;
+const totalAgentsElement =
+    $("totalAgents");
 
+const totalReportsElement =
+    $("totalReports");
 
-/* =====================================================
-   INITIALIZE FIREBASE REFERENCES
-===================================================== */
+const recentUsersElement =
+    $("recentUsers");
 
-async function initializeFirebaseDashboard() {
+const recentListingsElement =
+    $("recentListings");
 
-    try {
+const activityListElement =
+    $("activityList");
 
-        /*
-         * auth.js and firebase-config.js are modules.
-         *
-         * We dynamically import firebase-config.js here
-         * so this dashboard can safely use the same Firebase
-         * project.
-         */
+const notificationCountElement =
+    $("notificationCount");
 
-        const firebaseConfigModule =
-            await import("./firebase-config.js");
+const logoutButton =
+    $("ownerLogoutBtn");
 
+const sidebar =
+    $("ownerSidebar");
 
-        tipecoAuth =
-            firebaseConfigModule.auth;
-
-        tipecoDb =
-            firebaseConfigModule.db;
-
-
-        /*
-         * Firestore functions
-         */
-
-        const firestoreModule =
-            await import(
-                "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js"
-            );
-
-
-        firestoreCollection =
-            firestoreModule.collection;
-
-        firestoreGetDocs =
-            firestoreModule.getDocs;
-
-        firestoreQuery =
-            firestoreModule.query;
-
-        firestoreOrderBy =
-            firestoreModule.orderBy;
-
-        firestoreLimit =
-            firestoreModule.limit;
-
-
-        console.log(
-            "TIPECO: Firebase Dashboard initialized."
-        );
-
-
-        return true;
-
-    } catch (error) {
-
-        console.error(
-            "TIPECO: Firebase Dashboard initialization failed.",
-            error
-        );
-
-
-        return false;
-
-    }
-
-}
+const sidebarToggle =
+    $("sidebarToggle");
 
 
 /* =====================================================
-   DOM INITIALIZATION
-===================================================== */
-
-function initializeOwnerDOM() {
-
-    ownerSidebar =
-        document.getElementById(
-            "ownerSidebar"
-        );
-
-    sidebarToggle =
-        document.getElementById(
-            "sidebarToggle"
-        );
-
-    ownerLogoutBtn =
-        document.getElementById(
-            "ownerLogoutBtn"
-        );
-
-    ownerNavLinks =
-        document.querySelectorAll(
-            ".owner-nav a"
-        );
-
-    quickActionButtons =
-        document.querySelectorAll(
-            ".quick-action"
-        );
-
-    notificationBtn =
-        document.getElementById(
-            "notificationBtn"
-        );
-
-    ownerNameElement =
-        document.getElementById(
-            "ownerName"
-        );
-
-    totalUsersElement =
-        document.getElementById(
-            "totalUsers"
-        );
-
-    totalListingsElement =
-        document.getElementById(
-            "totalListings"
-        );
-
-    pendingListingsElement =
-        document.getElementById(
-            "pendingListings"
-        );
-
-    approvedListingsElement =
-        document.getElementById(
-            "approvedListings"
-        );
-
-    totalAgentsElement =
-        document.getElementById(
-            "totalAgents"
-        );
-
-    totalReportsElement =
-        document.getElementById(
-            "totalReports"
-        );
-
-    recentUsersElement =
-        document.getElementById(
-            "recentUsers"
-        );
-
-    recentListingsElement =
-        document.getElementById(
-            "recentListings"
-        );
-
-    activityListElement =
-        document.getElementById(
-            "activityList"
-        );
-
-    notificationCountElement =
-        document.getElementById(
-            "notificationCount"
-        );
-
-}
-
-
-/* =====================================================
-   FIREBASE OWNER AUTHORIZATION
+   AUTHENTICATION
 ===================================================== */
 
 async function protectOwnerDashboard() {
 
     try {
 
-        /*
-         * auth.js V7.1 exposes this function globally.
-         */
-
         if (
             typeof window.tipecoRequireOwner !==
             "function"
         ) {
-
-            console.error(
-                "TIPECO: tipecoRequireOwner() is not available."
+            throw new Error(
+                "TIPECO Owner authentication helper is unavailable."
             );
-
-
-            window.location.href =
-                "../login.html";
-
-            return false;
-
         }
 
-
-        const authorized =
+        const owner =
             await window.tipecoRequireOwner();
 
-
-        if (!authorized) {
-
-            return false;
-
+        if (!owner) {
+            throw new Error(
+                "Owner authentication failed."
+            );
         }
-
-
-        console.log(
-            "TIPECO: Owner dashboard authorization successful."
-        );
-
 
         return true;
 
     } catch (error) {
 
         console.error(
-            "TIPECO: Owner protection error.",
+            "TIPECO OWNER AUTH ERROR:",
             error
         );
 
-
         window.location.href =
-            "../login.html";
+            "login.html";
 
         return false;
-
     }
-
 }
 
 
 /* =====================================================
-   GET CURRENT FIREBASE USER
+   CURRENT FIREBASE USER
 ===================================================== */
 
 function getFirebaseCurrentUser() {
 
     if (
-        typeof window.getTipecoCurrentUser ===
+        typeof window.tipecoGetCurrentUser ===
         "function"
     ) {
-
-        return window.getTipecoCurrentUser();
-
+        return window.tipecoGetCurrentUser();
     }
 
-
-    if (tipecoAuth) {
-
-        return tipecoAuth.currentUser;
-
-    }
-
-
-    return null;
-
+    return auth.currentUser || null;
 }
 
 
 /* =====================================================
-   GET OWNER FIRESTORE PROFILE
+   OWNER FIRESTORE PROFILE
 ===================================================== */
 
 async function getOwnerFirestoreProfile() {
 
-    try {
+    if (
+        typeof window.tipecoGetCurrentProfile ===
+        "function"
+    ) {
 
-        if (
-            typeof window.getTipecoUserProfile !==
-            "function"
-        ) {
-
-            return null;
-
-        }
-
-
-        const profile =
-            await window.getTipecoUserProfile();
-
-
-        if (!profile) {
-
-            return null;
-
-        }
-
-
-        return profile;
-
-    } catch (error) {
-
-        console.error(
-            "TIPECO: Failed to load Owner profile.",
-            error
-        );
-
-
-        return null;
-
+        return await
+            window.tipecoGetCurrentProfile();
     }
 
+    return null;
 }
 
 
 /* =====================================================
-   OWNER PROFILE
+   LOAD OWNER PROFILE
 ===================================================== */
 
 async function loadOwnerProfile() {
@@ -384,393 +225,164 @@ async function loadOwnerProfile() {
         const profile =
             await getOwnerFirestoreProfile();
 
-
-        if (!profile) {
-
-            console.warn(
-                "TIPECO: Owner profile not available."
-            );
-
-            return;
-
-        }
-
+        const currentUser =
+            getFirebaseCurrentUser();
 
         const name =
-            profile.name ||
-            profile.fullName ||
-            profile.username ||
-            profile.email ||
-            "Owner";
+            profile?.name ||
+            profile?.fullName ||
+            profile?.displayName ||
+            profile?.username ||
+            currentUser?.displayName ||
+            currentUser?.email ||
+            "TIPECO OWNER";
 
+
+        /* ---------------------------------------------
+           OWNER NAME
+        --------------------------------------------- */
 
         if (ownerNameElement) {
-
             ownerNameElement.textContent =
                 name;
-
         }
 
 
-        /*
-         * Owner avatar
-         */
+        /* ---------------------------------------------
+           WELCOME NAME
+        --------------------------------------------- */
 
-        const avatar =
-            document.querySelector(
-                ".owner-avatar"
-            );
+        if (welcomeOwnerNameElement) {
+            welcomeOwnerNameElement.textContent =
+                name;
+        }
 
 
-        if (avatar) {
+        /* ---------------------------------------------
+           AVATAR INITIAL
+        --------------------------------------------- */
 
-            avatar.textContent =
+        if (ownerAvatarElement) {
+
+            const firstLetter =
                 name
                     .trim()
                     .charAt(0)
-                    .toUpperCase() ||
-                "O";
+                    .toUpperCase();
 
+            ownerAvatarElement.textContent =
+                firstLetter || "O";
         }
 
 
-        /*
-         * Optional email fields
-         */
-
-        const ownerEmailElements =
-            document.querySelectorAll(
-                "[data-owner-email]"
-            );
-
-
-        ownerEmailElements.forEach(
-            function (element) {
-
-                element.textContent =
-                    profile.email ||
-                    "—";
-
-            }
-        );
-
-
         console.log(
-            "TIPECO: Owner profile loaded.",
+            "TIPECO OWNER PROFILE:",
             profile
         );
 
+        return profile;
 
     } catch (error) {
 
         console.error(
-            "TIPECO: Owner profile loading error.",
+            "OWNER PROFILE ERROR:",
             error
         );
 
+        return null;
     }
-
 }
 
 
 /* =====================================================
-   SIDEBAR TOGGLE
-===================================================== */
-
-function initializeSidebar() {
-
-    if (
-        !sidebarToggle ||
-        !ownerSidebar
-    ) {
-
-        return;
-
-    }
-
-
-    sidebarToggle.addEventListener(
-        "click",
-        function () {
-
-            ownerSidebar.classList.toggle(
-                "open"
-            );
-
-        }
-    );
-
-
-    ownerNavLinks.forEach(
-        function (link) {
-
-            link.addEventListener(
-                "click",
-                function () {
-
-                    if (
-                        window.innerWidth <= 768
-                    ) {
-
-                        ownerSidebar.classList.remove(
-                            "open"
-                        );
-
-                    }
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   ACTIVE NAVIGATION
-===================================================== */
-
-function initializeNavigation() {
-
-    ownerNavLinks.forEach(
-        function (link) {
-
-            link.addEventListener(
-                "click",
-                function () {
-
-                    ownerNavLinks.forEach(
-                        function (item) {
-
-                            if (
-                                item.parentElement
-                            ) {
-
-                                item.parentElement.classList.remove(
-                                    "active"
-                                );
-
-                            }
-
-                        }
-                    );
-
-
-                    if (
-                        link.parentElement
-                    ) {
-
-                        link.parentElement.classList.add(
-                            "active"
-                        );
-
-                    }
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   QUICK ACTIONS
-===================================================== */
-
-function initializeQuickActions() {
-
-    quickActionButtons.forEach(
-        function (button) {
-
-            button.addEventListener(
-                "click",
-                function () {
-
-                    const action =
-                        button.dataset.action;
-
-
-                    if (!action) {
-
-                        return;
-
-                    }
-
-
-                    const target =
-                        document.getElementById(
-                            action
-                        );
-
-
-                    if (target) {
-
-                        target.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start"
-                        });
-
-                    }
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   LOAD USERS FROM FIRESTORE
+   LOAD USERS
 ===================================================== */
 
 async function loadOwnerUsers() {
 
     try {
 
-        if (
-            !tipecoDb ||
-            !firestoreCollection ||
-            !firestoreGetDocs
-        ) {
-
-            console.warn(
-                "TIPECO: Firestore is not ready."
+        const usersSnapshot =
+            await getDocs(
+                collection(
+                    db,
+                    USERS_COLLECTION
+                )
             );
-
-            return [];
-
-        }
-
-
-        const usersCollection =
-            firestoreCollection(
-                tipecoDb,
-                FIRESTORE_USERS_COLLECTION
-            );
-
-
-        const snapshot =
-            await firestoreGetDocs(
-                usersCollection
-            );
-
 
         const users = [];
 
-
-        snapshot.forEach(
-            function (documentSnapshot) {
+        usersSnapshot.forEach(
+            (documentSnapshot) => {
 
                 users.push({
-
-                    id:
-                        documentSnapshot.id,
-
+                    id: documentSnapshot.id,
                     ...documentSnapshot.data()
-
                 });
 
             }
         );
-
 
         return users;
 
     } catch (error) {
 
         console.error(
-            "TIPECO: Failed to load Firestore users.",
+            "LOAD USERS ERROR:",
             error
         );
 
-
         return [];
-
     }
-
 }
 
 
 /* =====================================================
-   LOAD REPORTS FROM FIRESTORE
+   LOAD REPORTS
 ===================================================== */
 
 async function loadOwnerReports() {
 
     try {
 
-        if (
-            !tipecoDb ||
-            !firestoreCollection ||
-            !firestoreGetDocs
-        ) {
-
-            return [];
-
-        }
-
-
-        const reportsCollection =
-            firestoreCollection(
-                tipecoDb,
-                FIRESTORE_REPORTS_COLLECTION
+        const reportsSnapshot =
+            await getDocs(
+                collection(
+                    db,
+                    REPORTS_COLLECTION
+                )
             );
-
-
-        const snapshot =
-            await firestoreGetDocs(
-                reportsCollection
-            );
-
 
         const reports = [];
 
-
-        snapshot.forEach(
-            function (documentSnapshot) {
+        reportsSnapshot.forEach(
+            (documentSnapshot) => {
 
                 reports.push({
-
-                    id:
-                        documentSnapshot.id,
-
+                    id: documentSnapshot.id,
                     ...documentSnapshot.data()
-
                 });
 
             }
         );
 
-
         return reports;
 
     } catch (error) {
 
-        /*
-         * Reports collection may not exist yet.
-         * In that case dashboard simply shows 0.
-         */
-
         console.warn(
-            "TIPECO: Reports could not be loaded.",
+            "REPORTS COLLECTION ERROR:",
             error
         );
 
-
         return [];
-
     }
-
 }
 
 
 /* =====================================================
-   LOAD LISTINGS FROM INDEXEDDB
+   LOAD LISTINGS
+   IndexedDB / storage.js V2.0
 ===================================================== */
 
 async function loadOwnerListings() {
@@ -778,45 +390,70 @@ async function loadOwnerListings() {
     try {
 
         if (
-            typeof getTipecoListings !==
+            typeof window.getTipecoListings ===
             "function"
         ) {
 
-            console.warn(
-                "TIPECO: getTipecoListings() not found."
-            );
+            const listings =
+                await window.getTipecoListings();
 
-
-            return [];
-
+            return Array.isArray(listings)
+                ? listings
+                : [];
         }
 
 
-        const listings =
-            await getTipecoListings();
+        /* ---------------------------------------------
+           Fallback for global function
+        --------------------------------------------- */
 
+        if (
+            typeof getTipecoListings ===
+            "function"
+        ) {
 
-        if (!Array.isArray(listings)) {
+            const listings =
+                await getTipecoListings();
 
-            return [];
-
+            return Array.isArray(listings)
+                ? listings
+                : [];
         }
 
 
-        return listings;
+        console.warn(
+            "TIPECO storage.js: getTipecoListings() unavailable."
+        );
+
+        return [];
 
     } catch (error) {
 
         console.error(
-            "TIPECO: Failed to load listings.",
+            "LOAD LISTINGS ERROR:",
             error
         );
 
-
         return [];
-
     }
+}
 
+
+/* =====================================================
+   NORMALIZE ROLE
+===================================================== */
+
+function normalizeRole(user) {
+
+    return String(
+        user?.role ||
+        user?.userRole ||
+        user?.accountType ||
+        user?.type ||
+        ""
+    )
+        .trim()
+        .toLowerCase();
 }
 
 
@@ -826,64 +463,135 @@ async function loadOwnerListings() {
 
 function normalizeStatus(listing) {
 
-    return String(
-        listing.status ||
-        listing.verificationStatus ||
-        listing.approvalStatus ||
-        "pending"
-    )
-    .trim()
-    .toLowerCase();
+    const rawStatus =
+        listing?.status ||
+        listing?.verificationStatus ||
+        listing?.approvalStatus ||
+        "pending";
 
+    return String(rawStatus)
+        .trim()
+        .toLowerCase();
 }
 
 
 /* =====================================================
-   GET LISTING TITLE
+   PENDING STATUS
+===================================================== */
+
+function isPendingListing(listing) {
+
+    const status =
+        normalizeStatus(listing);
+
+    return [
+        "pending",
+        "submitted",
+        "pending_verification",
+        "pending_review",
+        "under_review",
+        "awaiting_verification"
+    ].includes(status);
+}
+
+
+/* =====================================================
+   APPROVED STATUS
+===================================================== */
+
+function isApprovedListing(listing) {
+
+    const status =
+        normalizeStatus(listing);
+
+    return [
+        "approved",
+        "verified",
+        "published",
+        "active"
+    ].includes(status);
+}
+
+
+/* =====================================================
+   LISTING TITLE
 ===================================================== */
 
 function getListingTitle(listing) {
 
     return (
-        listing.title ||
-        listing.listingTitle ||
-        listing.name ||
+        listing?.title ||
+        listing?.name ||
+        listing?.propertyTitle ||
+        listing?.vehicleTitle ||
         "Untitled Listing"
     );
-
 }
 
 
 /* =====================================================
-   GET LISTING CATEGORY
+   LISTING CATEGORY
 ===================================================== */
 
 function getListingCategory(listing) {
 
     return (
-        listing.category ||
-        listing.listingCategory ||
+        listing?.category ||
+        listing?.listingCategory ||
+        listing?.type ||
         "Other"
     );
-
 }
 
 
 /* =====================================================
-   GET LISTING OWNER
+   USER NAME
 ===================================================== */
 
-function getListingOwner(listing) {
+function getUserName(user) {
 
     return (
-        listing.ownerName ||
-        listing.sellerName ||
-        listing.ownerEmail ||
-        listing.email ||
-        listing.userName ||
-        "Unknown"
+        user?.name ||
+        user?.fullName ||
+        user?.displayName ||
+        user?.username ||
+        user?.email ||
+        "Unknown User"
     );
+}
 
+
+/* =====================================================
+   DATE VALUE
+===================================================== */
+
+function getDateValue(value) {
+
+    if (!value) {
+        return 0;
+    }
+
+    if (
+        typeof value.toMillis ===
+        "function"
+    ) {
+        return value.toMillis();
+    }
+
+    if (
+        value instanceof Date
+    ) {
+        return value.getTime();
+    }
+
+    const date =
+        new Date(value);
+
+    return isNaN(
+        date.getTime()
+    )
+        ? 0
+        : date.getTime();
 }
 
 
@@ -893,300 +601,184 @@ function getListingOwner(listing) {
 
 function formatTipecoDate(value) {
 
-    if (!value) {
+    const timestamp =
+        getDateValue(value);
 
+    if (!timestamp) {
         return "—";
-
     }
 
-
-    /*
-     * Firestore Timestamp support
-     */
-
-    if (
-        value &&
-        typeof value.toDate ===
-        "function"
-    ) {
-
-        const firestoreDate =
-            value.toDate();
-
-
-        return firestoreDate.toLocaleDateString(
-            "en-GB",
-            {
-                day: "2-digit",
-                month: "short",
-                year: "numeric"
-            }
-        );
-
-    }
-
-
-    const date =
-        new Date(value);
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return "—";
-
-    }
-
-
-    return date.toLocaleDateString(
+    return new Intl.DateTimeFormat(
         "en-GB",
         {
             day: "2-digit",
             month: "short",
             year: "numeric"
         }
+    ).format(
+        new Date(timestamp)
     );
-
 }
 
 
 /* =====================================================
-   DATE VALUE FOR SORTING
+   DASHBOARD STATISTICS
 ===================================================== */
 
-function getDateValue(value) {
+async function loadDashboardStatistics(
+    users,
+    listings,
+    reports
+) {
 
-    if (
-        value &&
-        typeof value.toDate ===
-        "function"
-    ) {
-
-        return value.toDate();
-
-    }
-
-
-    const date =
-        new Date(
-            value || 0
-        );
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return new Date(0);
-
-    }
-
-
-    return date;
-
-}
-
-
-/* =====================================================
-   LOAD DASHBOARD STATISTICS
-===================================================== */
-
-async function loadDashboardStatistics() {
-
-    const usersPromise =
-        loadOwnerUsers();
-
-
-    const listingsPromise =
-        loadOwnerListings();
-
-
-    const reportsPromise =
-        loadOwnerReports();
-
-
-    const [
-        users,
-        listings,
-        reports
-    ] =
-        await Promise.all([
-            usersPromise,
-            listingsPromise,
-            reportsPromise
-        ]);
-
-
-    /* =================================================
+    /* ---------------------------------------------
        USERS
-    ================================================= */
+    --------------------------------------------- */
 
     const totalUsers =
         users.length;
 
 
-    /* =================================================
+    /* ---------------------------------------------
+       SELLERS
+    --------------------------------------------- */
+
+    const sellers =
+        users.filter(
+            (user) =>
+                normalizeRole(user) ===
+                "seller"
+        );
+
+
+    /* ---------------------------------------------
+       BUYERS
+    --------------------------------------------- */
+
+    const buyers =
+        users.filter(
+            (user) =>
+                normalizeRole(user) ===
+                "buyer"
+        );
+
+
+    /* ---------------------------------------------
+       AGENTS
+    --------------------------------------------- */
+
+    const agents =
+        users.filter(
+            (user) =>
+                normalizeRole(user) ===
+                "agent"
+        );
+
+
+    /* ---------------------------------------------
        LISTINGS
-    ================================================= */
+    --------------------------------------------- */
 
     const totalListings =
         listings.length;
 
 
-    let pendingCount = 0;
-    let approvedCount = 0;
+    /* ---------------------------------------------
+       PENDING
+    --------------------------------------------- */
 
-
-    listings.forEach(
-        function (listing) {
-
-            const status =
-                normalizeStatus(
-                    listing
-                );
-
-
-            if (
-                status === "approved" ||
-                status === "published" ||
-                status === "active" ||
-                status === "verified"
-            ) {
-
-                approvedCount++;
-
-            } else {
-
-                pendingCount++;
-
-            }
-
-        }
-    );
-
-
-    /* =================================================
-       AGENTS
-    ================================================= */
-
-    const totalAgents =
-        users.filter(
-            function (user) {
-
-                const role =
-                    String(
-                        user.role ||
-                        user.userRole ||
-                        user.accountType ||
-                        user.type ||
-                        ""
-                    )
-                    .trim()
-                    .toLowerCase();
-
-
-                return role === "agent";
-
-            }
+    const pendingListings =
+        listings.filter(
+            isPendingListing
         ).length;
 
 
-    /* =================================================
-       REPORTS
-    ================================================= */
+    /* ---------------------------------------------
+       APPROVED
+    --------------------------------------------- */
 
-    const reportsCount =
+    const approvedListings =
+        listings.filter(
+            isApprovedListing
+        ).length;
+
+
+    /* ---------------------------------------------
+       REPORTS
+    --------------------------------------------- */
+
+    const totalReports =
         reports.length;
 
 
-    /* =================================================
+    /* ---------------------------------------------
        UPDATE DOM
-    ================================================= */
+    --------------------------------------------- */
 
     if (totalUsersElement) {
-
         totalUsersElement.textContent =
             totalUsers;
-
     }
-
 
     if (totalListingsElement) {
-
         totalListingsElement.textContent =
             totalListings;
-
     }
-
 
     if (pendingListingsElement) {
-
         pendingListingsElement.textContent =
-            pendingCount;
-
+            pendingListings;
     }
-
 
     if (approvedListingsElement) {
-
         approvedListingsElement.textContent =
-            approvedCount;
-
+            approvedListings;
     }
-
 
     if (totalAgentsElement) {
-
         totalAgentsElement.textContent =
-            totalAgents;
-
+            agents.length;
     }
-
 
     if (totalReportsElement) {
-
         totalReportsElement.textContent =
-            reportsCount;
-
+            totalReports;
     }
 
 
-    /* =================================================
+    /* ---------------------------------------------
        NOTIFICATIONS
-    ================================================= */
+    --------------------------------------------- */
 
     const notifications =
-        pendingCount +
-        reportsCount;
-
+        pendingListings +
+        totalReports;
 
     if (notificationCountElement) {
 
         notificationCountElement.textContent =
             notifications;
 
+        notificationCountElement.style.display =
+            notifications > 0
+                ? ""
+                : "none";
     }
 
 
-    return {
-
-        users,
-        listings,
-        reports,
-
-        pendingCount,
-        approvedCount,
-
-        totalAgents,
-        reportsCount
-
-    };
-
+    console.log(
+        "TIPECO DASHBOARD STATISTICS:",
+        {
+            totalUsers,
+            buyers: buyers.length,
+            sellers: sellers.length,
+            agents: agents.length,
+            totalListings,
+            pendingListings,
+            approvedListings,
+            totalReports
+        }
+    );
 }
 
 
@@ -1197,145 +789,82 @@ async function loadDashboardStatistics() {
 function renderRecentUsers(users) {
 
     if (!recentUsersElement) {
-
         return;
-
     }
 
+    const sortedUsers =
+        [...users].sort(
+            (a, b) =>
+                getDateValue(
+                    b.createdAt
+                ) -
+                getDateValue(
+                    a.createdAt
+                )
+        );
 
-    recentUsersElement.innerHTML = "";
+
+    const recent =
+        sortedUsers.slice(0, 5);
 
 
-    if (
-        !Array.isArray(users) ||
-        users.length === 0
-    ) {
+    if (!recent.length) {
 
         recentUsersElement.innerHTML = `
             <tr>
-                <td colspan="5" class="empty-state">
-                    No users available yet.
+                <td colspan="4">
+                    No users found.
                 </td>
             </tr>
         `;
 
         return;
-
     }
 
 
-    const sortedUsers =
-        [...users].sort(
-            function (a, b) {
+    recentUsersElement.innerHTML =
+        recent
+            .map(
+                (user) => {
 
-                const dateA =
-                    getDateValue(
-                        a.createdAt ||
-                        a.joinedAt ||
-                        a.registeredAt
-                    );
+                    const role =
+                        normalizeRole(
+                            user
+                        );
 
+                    const displayRole =
+                        role || "unknown";
 
-                const dateB =
-                    getDateValue(
-                        b.createdAt ||
-                        b.joinedAt ||
-                        b.registeredAt
-                    );
+                    return `
+                        <tr>
+                            <td>
+                                ${escapeTipecoHTML(
+                                    getUserName(user)
+                                )}
+                            </td>
 
+                            <td>
+                                ${escapeTipecoHTML(
+                                    user.email || "—"
+                                )}
+                            </td>
 
-                return dateB - dateA;
+                            <td>
+                                ${escapeTipecoHTML(
+                                    displayRole
+                                )}
+                            </td>
 
-            }
-        );
-
-
-    const recent =
-        sortedUsers.slice(
-            0,
-            10
-        );
-
-
-    recent.forEach(
-        function (user) {
-
-            const name =
-                user.name ||
-                user.fullName ||
-                user.username ||
-                "User";
-
-
-            const email =
-                user.email ||
-                user.phone ||
-                user.phoneNumber ||
-                "—";
-
-
-            const role =
-                user.role ||
-                user.userRole ||
-                user.accountType ||
-                user.type ||
-                "User";
-
-
-            const status =
-                user.status ||
-                user.accountStatus ||
-                "Active";
-
-
-            const joined =
-                formatTipecoDate(
-                    user.createdAt ||
-                    user.joinedAt ||
-                    user.registeredAt
-                );
-
-
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-
-            row.innerHTML = `
-                <td>
-                    <strong>
-                        ${escapeTipecoHTML(name)}
-                    </strong>
-                </td>
-
-                <td>
-                    ${escapeTipecoHTML(email)}
-                </td>
-
-                <td>
-                    ${escapeTipecoHTML(role)}
-                </td>
-
-                <td>
-                    <span class="status-badge">
-                        ${escapeTipecoHTML(status)}
-                    </span>
-                </td>
-
-                <td>
-                    ${joined}
-                </td>
-            `;
-
-
-            recentUsersElement.appendChild(
-                row
-            );
-
-        }
-    );
-
+                            <td>
+                                ${formatTipecoDate(
+                                    user.createdAt
+                                )}
+                            </td>
+                        </tr>
+                    `;
+                }
+            )
+            .join("");
 }
 
 
@@ -1343,141 +872,91 @@ function renderRecentUsers(users) {
    RENDER RECENT LISTINGS
 ===================================================== */
 
-function renderRecentListings(listings) {
+function renderRecentListings(
+    listings
+) {
 
     if (!recentListingsElement) {
-
         return;
-
     }
 
+    const sortedListings =
+        [...listings].sort(
+            (a, b) =>
+                getDateValue(
+                    b.createdAt ||
+                    b.updatedAt
+                ) -
+                getDateValue(
+                    a.createdAt ||
+                    a.updatedAt
+                )
+        );
 
-    recentListingsElement.innerHTML = "";
+
+    const recent =
+        sortedListings.slice(0, 5);
 
 
-    if (
-        !Array.isArray(listings) ||
-        listings.length === 0
-    ) {
+    if (!recent.length) {
 
         recentListingsElement.innerHTML = `
             <tr>
-                <td colspan="5" class="empty-state">
-                    No listings available yet.
+                <td colspan="4">
+                    No listings found.
                 </td>
             </tr>
         `;
 
         return;
-
     }
 
 
-    const sortedListings =
-        [...listings].sort(
-            function (a, b) {
+    recentListingsElement.innerHTML =
+        recent
+            .map(
+                (listing) => {
 
-                const dateA =
-                    getDateValue(
-                        a.createdAt ||
-                        a.date
-                    );
+                    const status =
+                        normalizeStatus(
+                            listing
+                        );
 
+                    return `
+                        <tr>
+                            <td>
+                                ${escapeTipecoHTML(
+                                    getListingTitle(
+                                        listing
+                                    )
+                                )}
+                            </td>
 
-                const dateB =
-                    getDateValue(
-                        b.createdAt ||
-                        b.date
-                    );
+                            <td>
+                                ${escapeTipecoHTML(
+                                    getListingCategory(
+                                        listing
+                                    )
+                                )}
+                            </td>
 
+                            <td>
+                                ${escapeTipecoHTML(
+                                    status
+                                )}
+                            </td>
 
-                return dateB - dateA;
-
-            }
-        );
-
-
-    const recent =
-        sortedListings.slice(
-            0,
-            10
-        );
-
-
-    recent.forEach(
-        function (listing) {
-
-            const title =
-                getListingTitle(
-                    listing
-                );
-
-
-            const owner =
-                getListingOwner(
-                    listing
-                );
-
-
-            const category =
-                getListingCategory(
-                    listing
-                );
-
-
-            const status =
-                normalizeStatus(
-                    listing
-                );
-
-
-            const date =
-                formatTipecoDate(
-                    listing.createdAt ||
-                    listing.date
-                );
-
-
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-
-            row.innerHTML = `
-                <td>
-                    <strong>
-                        ${escapeTipecoHTML(title)}
-                    </strong>
-                </td>
-
-                <td>
-                    ${escapeTipecoHTML(owner)}
-                </td>
-
-                <td>
-                    ${escapeTipecoHTML(category)}
-                </td>
-
-                <td>
-                    <span class="status-badge status-${escapeTipecoHTML(status)}">
-                        ${escapeTipecoHTML(status)}
-                    </span>
-                </td>
-
-                <td>
-                    ${date}
-                </td>
-            `;
-
-
-            recentListingsElement.appendChild(
-                row
-            );
-
-        }
-    );
-
+                            <td>
+                                ${formatTipecoDate(
+                                    listing.createdAt ||
+                                    listing.updatedAt
+                                )}
+                            </td>
+                        </tr>
+                    `;
+                }
+            )
+            .join("");
 }
 
 
@@ -1492,223 +971,121 @@ function renderActivity(
 ) {
 
     if (!activityListElement) {
-
         return;
-
     }
 
 
     const activities = [];
 
 
-    /* =================================================
+    /* ---------------------------------------------
        USERS
-    ================================================= */
+    --------------------------------------------- */
 
     users.forEach(
-        function (user) {
+        (user) => {
 
             activities.push({
 
-                type:
-                    "user",
-
                 date:
-                    user.createdAt ||
-                    user.joinedAt ||
-                    user.registeredAt ||
-                    0,
+                    getDateValue(
+                        user.createdAt
+                    ),
 
                 text:
-                    "New user registered: " +
-                    (
-                        user.name ||
-                        user.fullName ||
-                        user.email ||
-                        "User"
-                    )
-
+                    `New ${normalizeRole(user) || "user"} account: ${getUserName(user)}`
             });
 
         }
     );
 
 
-    /* =================================================
+    /* ---------------------------------------------
        LISTINGS
-    ================================================= */
+    --------------------------------------------- */
 
     listings.forEach(
-        function (listing) {
+        (listing) => {
 
             activities.push({
 
-                type:
-                    "listing",
-
                 date:
-                    listing.createdAt ||
-                    listing.date ||
-                    0,
+                    getDateValue(
+                        listing.createdAt ||
+                        listing.updatedAt
+                    ),
 
                 text:
-                    "New listing submitted: " +
-                    getListingTitle(
-                        listing
-                    )
-
+                    `Listing added: ${getListingTitle(listing)}`
             });
 
         }
     );
 
 
-    /* =================================================
+    /* ---------------------------------------------
        REPORTS
-    ================================================= */
+    --------------------------------------------- */
 
-    if (Array.isArray(reports)) {
+    reports.forEach(
+        (report) => {
 
-        reports.forEach(
-            function (report) {
+            activities.push({
 
-                activities.push({
-
-                    type:
-                        "report",
-
-                    date:
+                date:
+                    getDateValue(
                         report.createdAt ||
-                        report.date ||
-                        0,
+                        report.updatedAt
+                    ),
 
-                    text:
-                        "New report submitted"
-
-                });
-
-            }
-        );
-
-    }
-
-
-    /* =================================================
-       SORT
-    ================================================= */
-
-    activities.sort(
-        function (a, b) {
-
-            return (
-                getDateValue(b.date) -
-                getDateValue(a.date)
-            );
+                text:
+                    "New report received"
+            });
 
         }
+    );
+
+
+    activities.sort(
+        (a, b) =>
+            b.date -
+            a.date
     );
 
 
     const recentActivities =
-        activities.slice(
-            0,
-            10
-        );
+        activities.slice(0, 8);
 
 
-    if (
-        recentActivities.length === 0
-    ) {
+    if (!recentActivities.length) {
 
         activityListElement.innerHTML = `
-            <div class="activity-empty">
-                <span>📝</span>
-                <p>No recent activity.</p>
-            </div>
+            <li>
+                No recent activity.
+            </li>
         `;
 
         return;
-
     }
 
 
-    activityListElement.innerHTML = "";
-
-
-    recentActivities.forEach(
-        function (activity) {
-
-            const item =
-                document.createElement(
-                    "div"
-                );
-
-
-            item.className =
-                "activity-item";
-
-
-            let icon =
-                "📝";
-
-
-            if (
-                activity.type ===
-                "user"
-            ) {
-
-                icon = "👤";
-
-            } else if (
-                activity.type ===
-                "listing"
-            ) {
-
-                icon = "📋";
-
-            } else if (
-                activity.type ===
-                "report"
-            ) {
-
-                icon = "⚠️";
-
-            }
-
-
-            item.innerHTML = `
-                <span class="activity-icon">
-                    ${icon}
-                </span>
-
-                <div>
-                    <p>
+    activityListElement.innerHTML =
+        recentActivities
+            .map(
+                (activity) => `
+                    <li>
                         ${escapeTipecoHTML(
                             activity.text
                         )}
-                    </p>
-
-                    <small>
-                        ${formatTipecoDate(
-                            activity.date
-                        )}
-                    </small>
-                </div>
-            `;
-
-
-            activityListElement.appendChild(
-                item
-            );
-
-        }
-    );
-
+                    </li>
+                `
+            )
+            .join("");
 }
 
 
 /* =====================================================
-   HTML SECURITY
+   ESCAPE HTML
 ===================================================== */
 
 function escapeTipecoHTML(value) {
@@ -1716,115 +1093,89 @@ function escapeTipecoHTML(value) {
     return String(
         value ?? ""
     )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
-
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 }
 
 
 /* =====================================================
-   NOTIFICATIONS
+   SIDEBAR
 ===================================================== */
 
-function initializeNotifications() {
+function initializeSidebar() {
 
-    if (!notificationBtn) {
-
+    if (
+        !sidebarToggle ||
+        !sidebar
+    ) {
         return;
-
     }
 
-
-    notificationBtn.addEventListener(
+    sidebarToggle.addEventListener(
         "click",
-        async function () {
+        () => {
 
-            try {
-
-                const data =
-                    await loadDashboardStatistics();
-
-
-                if (
-                    data.pendingCount > 0
-                ) {
-
-                    showDashboardMessage(
-                        "You have " +
-                        data.pendingCount +
-                        " listing(s) waiting for verification."
-                    );
-
-
-                    return;
-
-                }
-
-
-                if (
-                    data.reportsCount > 0
-                ) {
-
-                    showDashboardMessage(
-                        "You have " +
-                        data.reportsCount +
-                        " report(s) to review."
-                    );
-
-
-                    return;
-
-                }
-
-
-                showDashboardMessage(
-                    "No new notifications."
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "TIPECO notification error:",
-                    error
-                );
-
-            }
+            sidebar.classList.toggle(
+                "active"
+            );
 
         }
     );
-
 }
 
 
 /* =====================================================
-   SAFE DASHBOARD MESSAGE
+   NAVIGATION
 ===================================================== */
 
-function showDashboardMessage(message) {
+function initializeNavigation() {
 
-    alert(
-        message
+    const navLinks =
+        document.querySelectorAll(
+            "[data-section]"
+        );
+
+    navLinks.forEach(
+        (link) => {
+
+            link.addEventListener(
+                "click",
+                () => {
+
+                    navLinks.forEach(
+                        (item) =>
+                            item.classList.remove(
+                                "active"
+                            )
+                    );
+
+                    link.classList.add(
+                        "active"
+                    );
+
+                }
+            );
+
+        }
     );
-
 }
 
 
@@ -1832,37 +1183,17 @@ function showDashboardMessage(message) {
    LOGOUT
 ===================================================== */
 
-function initializeOwnerLogout() {
+function initializeLogout() {
 
-    if (!ownerLogoutBtn) {
-
+    if (!logoutButton) {
         return;
-
     }
 
-
-    ownerLogoutBtn.addEventListener(
+    logoutButton.addEventListener(
         "click",
-        async function () {
-
-            const confirmLogout =
-                window.confirm(
-                    "Are you sure you want to logout?"
-                );
-
-
-            if (!confirmLogout) {
-
-                return;
-
-            }
-
+        async () => {
 
             try {
-
-                /*
-                 * Use Firebase logout from auth.js V7.1
-                 */
 
                 if (
                     typeof window.tipecoLogout ===
@@ -1871,39 +1202,25 @@ function initializeOwnerLogout() {
 
                     await window.tipecoLogout();
 
-                    return;
+                } else {
 
+                    await auth.signOut();
+
+                    window.location.href =
+                        "login.html";
                 }
-
-
-                /*
-                 * Emergency fallback
-                 */
-
-                sessionStorage.clear();
-
-
-                window.location.href =
-                    "../index.html";
-
 
             } catch (error) {
 
                 console.error(
-                    "TIPECO logout error:",
+                    "LOGOUT ERROR:",
                     error
-                );
-
-
-                showDashboardMessage(
-                    "Logout failed. Please try again."
                 );
 
             }
 
         }
     );
-
 }
 
 
@@ -1915,177 +1232,126 @@ async function refreshOwnerDashboard() {
 
     try {
 
-        const data =
-            await loadDashboardStatistics();
+        const [
+            users,
+            listings,
+            reports
+        ] =
+            await Promise.all([
+                loadOwnerUsers(),
+                loadOwnerListings(),
+                loadOwnerReports()
+            ]);
+
+
+        await loadDashboardStatistics(
+            users,
+            listings,
+            reports
+        );
 
 
         renderRecentUsers(
-            data.users
+            users
         );
 
 
         renderRecentListings(
-            data.listings
+            listings
         );
 
 
         renderActivity(
-            data.users,
-            data.listings,
-            data.reports
+            users,
+            listings,
+            reports
         );
 
 
         console.log(
-            "TIPECO Owner Dashboard refreshed."
+            "TIPECO OWNER DASHBOARD DATA:",
+            {
+                users,
+                listings,
+                reports
+            }
         );
-
-
-        return data;
 
     } catch (error) {
 
         console.error(
-            "TIPECO Dashboard refresh error:",
+            "DASHBOARD DATA ERROR:",
             error
         );
-
-
-        return {
-
-            users: [],
-            listings: [],
-            reports: [],
-
-            pendingCount: 0,
-            approvedCount: 0,
-
-            totalAgents: 0,
-            reportsCount: 0
-
-        };
-
     }
-
 }
 
 
 /* =====================================================
-   AUTO REFRESH
-===================================================== */
-
-function initializeAutoRefresh() {
-
-    /*
-     * Refresh every 10 seconds.
-     */
-
-    setInterval(
-        function () {
-
-            refreshOwnerDashboard();
-
-        },
-        10000
-    );
-
-}
-
-
-/* =====================================================
-   INITIAL DASHBOARD
+   INITIALIZE
 ===================================================== */
 
 async function initializeOwnerDashboard() {
 
     console.log(
-        "TIPECO GROUP Owner Dashboard Version",
-        TIPECO_OWNER_DASHBOARD_VERSION
+        `TIPECO OWNER DASHBOARD V${TIPECO_OWNER_DASHBOARD_VERSION}`
     );
 
 
-    /* =================================================
-       DOM
-    ================================================= */
-
-    initializeOwnerDOM();
-
-
-    /* =================================================
-       FIREBASE
-    ================================================= */
-
-    const firebaseReady =
-        await initializeFirebaseDashboard();
-
-
-    if (!firebaseReady) {
-
-        console.error(
-            "TIPECO: Firebase Dashboard could not initialize."
-        );
-
-
-        return;
-
-    }
-
-
-    /* =================================================
-       OWNER PROTECTION
-    ================================================= */
+    /* ---------------------------------------------
+       OWNER AUTH
+    --------------------------------------------- */
 
     const authorized =
         await protectOwnerDashboard();
 
-
     if (!authorized) {
-
         return;
-
     }
 
 
-    /* =================================================
+    /* ---------------------------------------------
        OWNER PROFILE
-    ================================================= */
+    --------------------------------------------- */
 
     await loadOwnerProfile();
 
 
-    /* =================================================
+    /* ---------------------------------------------
        UI
-    ================================================= */
+    --------------------------------------------- */
 
     initializeSidebar();
 
     initializeNavigation();
 
-    initializeQuickActions();
-
-    initializeNotifications();
-
-    initializeOwnerLogout();
+    initializeLogout();
 
 
-    /* =================================================
-       DASHBOARD DATA
-    ================================================= */
+    /* ---------------------------------------------
+       SHOW DASHBOARD
+    --------------------------------------------- */
+
+    document.body.classList.add(
+        "owner-authenticated"
+    );
+
+
+    /* ---------------------------------------------
+       LOAD DATA
+    --------------------------------------------- */
 
     await refreshOwnerDashboard();
 
 
-    /* =================================================
+    /* ---------------------------------------------
        AUTO REFRESH
-    ================================================= */
+    --------------------------------------------- */
 
-    initializeAutoRefresh();
-
-
-    console.log(
-        "TIPECO GROUP Owner Dashboard V3.0 is ready."
+    setInterval(
+        refreshOwnerDashboard,
+        10000
     );
-
 }
 
 
@@ -2106,5 +1372,4 @@ if (
 } else {
 
     initializeOwnerDashboard();
-
 }
