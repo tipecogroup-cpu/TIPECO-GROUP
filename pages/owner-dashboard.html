@@ -29,18 +29,91 @@
 
 
     <!-- =====================================================
-         SECURITY PRELOAD
-         Hide dashboard until Owner authentication succeeds
+         OWNER DASHBOARD SECURITY / LOADING
     ====================================================== -->
 
     <style>
 
+        /*
+         * Do not hide the entire body.
+         * The previous visibility:hidden approach could
+         * leave the page completely blank if a module failed.
+         */
+
         body {
-            visibility: hidden;
+            margin: 0;
         }
 
-        body.owner-authenticated {
-            visibility: visible;
+
+        /* ---------------------------------------------
+           AUTH LOADING SCREEN
+        --------------------------------------------- */
+
+        #ownerAuthLoading {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+
+        #ownerAuthLoading .loading-logo {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 22px;
+            background: #0D47A1;
+            color: #ffffff;
+        }
+
+
+        #ownerAuthLoading strong {
+            font-size: 20px;
+        }
+
+
+        #ownerAuthLoading span {
+            opacity: 0.7;
+        }
+
+
+        /*
+         * Dashboard is hidden while authentication
+         * is being checked.
+         */
+
+        .owner-dashboard {
+            display: none;
+        }
+
+
+        /*
+         * owner-dashboard.js adds this class only
+         * after successful Owner authentication.
+         */
+
+        body.owner-authenticated .owner-dashboard {
+            display: flex;
+        }
+
+
+        /*
+         * Loading screen disappears after successful
+         * authentication.
+         */
+
+        body.owner-authenticated #ownerAuthLoading {
+            display: none;
         }
 
     </style>
@@ -49,6 +122,28 @@
 
 
 <body>
+
+
+    <!-- =====================================================
+         OWNER AUTHENTICATION LOADING
+    ====================================================== -->
+
+    <div id="ownerAuthLoading">
+
+        <div class="loading-logo">
+            TG
+        </div>
+
+        <strong>
+            TIPECO GROUP
+        </strong>
+
+        <span>
+            Checking Owner authorization...
+        </span>
+
+    </div>
+
 
 
     <!-- =====================================================
@@ -93,9 +188,9 @@
 
             <nav class="owner-navigation">
 
-
                 <a href="#dashboard"
-                   class="owner-nav-link active">
+                   class="owner-nav-link active"
+                   data-section="dashboard">
 
                     <span class="owner-nav-icon">
                         🏠
@@ -109,7 +204,8 @@
 
 
                 <a href="#users"
-                   class="owner-nav-link">
+                   class="owner-nav-link"
+                   data-section="users">
 
                     <span class="owner-nav-icon">
                         👥
@@ -123,7 +219,8 @@
 
 
                 <a href="#listings"
-                   class="owner-nav-link">
+                   class="owner-nav-link"
+                   data-section="listings">
 
                     <span class="owner-nav-icon">
                         📋
@@ -137,7 +234,8 @@
 
 
                 <a href="#agents"
-                   class="owner-nav-link">
+                   class="owner-nav-link"
+                   data-section="agents">
 
                     <span class="owner-nav-icon">
                         🤝
@@ -151,7 +249,8 @@
 
 
                 <a href="#verification"
-                   class="owner-nav-link">
+                   class="owner-nav-link"
+                   data-section="verification">
 
                     <span class="owner-nav-icon">
                         ✅
@@ -165,7 +264,8 @@
 
 
                 <a href="#reports"
-                   class="owner-nav-link">
+                   class="owner-nav-link"
+                   data-section="reports">
 
                     <span class="owner-nav-icon">
                         🚨
@@ -179,7 +279,8 @@
 
 
                 <a href="#activity"
-                   class="owner-nav-link">
+                   class="owner-nav-link"
+                   data-section="activity">
 
                     <span class="owner-nav-icon">
                         📊
@@ -193,7 +294,8 @@
 
 
                 <a href="#settings"
-                   class="owner-nav-link">
+                   class="owner-nav-link"
+                   data-section="settings">
 
                     <span class="owner-nav-icon">
                         ⚙️
@@ -213,7 +315,7 @@
             <div class="owner-sidebar-footer">
 
                 <button type="button"
-                        id="logoutBtn"
+                        id="ownerLogoutBtn"
                         class="owner-logout-btn">
 
                     <span>
@@ -338,9 +440,7 @@
                      id="dashboard">
 
 
-                <!-- =================================================
-                     WELCOME
-                ================================================== -->
+                <!-- WELCOME -->
 
                 <div class="owner-welcome">
 
@@ -371,8 +471,6 @@
                 <div class="owner-stats-grid">
 
 
-                    <!-- USERS -->
-
                     <div class="owner-stat-card">
 
                         <div class="owner-stat-icon">
@@ -393,9 +491,6 @@
 
                     </div>
 
-
-
-                    <!-- LISTINGS -->
 
                     <div class="owner-stat-card">
 
@@ -418,9 +513,6 @@
                     </div>
 
 
-
-                    <!-- PENDING -->
-
                     <div class="owner-stat-card">
 
                         <div class="owner-stat-icon">
@@ -441,9 +533,6 @@
 
                     </div>
 
-
-
-                    <!-- APPROVED -->
 
                     <div class="owner-stat-card">
 
@@ -466,9 +555,6 @@
                     </div>
 
 
-
-                    <!-- AGENTS -->
-
                     <div class="owner-stat-card">
 
                         <div class="owner-stat-icon">
@@ -489,9 +575,6 @@
 
                     </div>
 
-
-
-                    <!-- REPORTS -->
 
                     <div class="owner-stat-card">
 
@@ -514,9 +597,6 @@
                     </div>
 
 
-
-                    <!-- BUYERS -->
-
                     <div class="owner-stat-card">
 
                         <div class="owner-stat-icon">
@@ -537,9 +617,6 @@
 
                     </div>
 
-
-
-                    <!-- SELLERS -->
 
                     <div class="owner-stat-card">
 
@@ -572,7 +649,6 @@
 
                 <section class="owner-section"
                          id="listings">
-
 
                     <div class="owner-section-header">
 
@@ -640,7 +716,6 @@
 
                     </div>
 
-
                 </section>
 
 
@@ -651,7 +726,6 @@
 
                 <section class="owner-section"
                          id="users">
-
 
                     <div class="owner-section-header">
 
@@ -719,18 +793,16 @@
 
                     </div>
 
-
                 </section>
 
 
 
                 <!-- =================================================
-                     AGENT MANAGEMENT
+                     AGENTS
                 ================================================== -->
 
                 <section class="owner-section"
                          id="agents">
-
 
                     <div class="owner-section-header">
 
@@ -766,7 +838,6 @@
 
                     </div>
 
-
                 </section>
 
 
@@ -777,7 +848,6 @@
 
                 <section class="owner-section"
                          id="verification">
-
 
                     <div class="owner-section-header">
 
@@ -813,7 +883,6 @@
 
                     </div>
 
-
                 </section>
 
 
@@ -824,7 +893,6 @@
 
                 <section class="owner-section"
                          id="reports">
-
 
                     <div class="owner-section-header">
 
@@ -859,7 +927,6 @@
 
                     </div>
 
-
                 </section>
 
 
@@ -870,7 +937,6 @@
 
                 <section class="owner-section"
                          id="activity">
-
 
                     <div class="owner-section-header">
 
@@ -889,29 +955,14 @@
                     </div>
 
 
-                    <div id="recentActivity"
-                         class="owner-activity-list">
+                    <ul id="activityList"
+                        class="owner-activity-list">
 
+                        <li>
+                            No recent activity.
+                        </li>
 
-                        <div class="owner-empty-state">
-
-                            <div>
-                                📊
-                            </div>
-
-                            <h3>
-                                No Recent Activity
-                            </h3>
-
-                            <p>
-                                Platform activity will appear here.
-                            </p>
-
-                        </div>
-
-
-                    </div>
-
+                    </ul>
 
                 </section>
 
@@ -923,7 +974,6 @@
 
                 <section class="owner-section"
                          id="settings">
-
 
                     <div class="owner-section-header">
 
@@ -959,7 +1009,6 @@
 
                     </div>
 
-
                 </section>
 
 
@@ -975,7 +1024,6 @@
 
     <!-- =====================================================
          INDEXEDDB STORAGE
-         Must remain available globally for owner-dashboard.js
     ====================================================== -->
 
     <script src="../assets/js/storage.js"></script>
@@ -984,12 +1032,7 @@
 
     <!-- =====================================================
          OWNER DASHBOARD DATA ENGINE
-         Version 4.0
-
-         IMPORTANT:
-         This is the ONLY dashboard initialization script.
-         Do NOT add another inline Firebase authentication
-         script here.
+         ONLY INITIALIZATION SCRIPT
     ====================================================== -->
 
     <script type="module"
