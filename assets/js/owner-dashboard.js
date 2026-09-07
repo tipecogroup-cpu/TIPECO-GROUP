@@ -1,16 +1,22 @@
 /* =====================================================
    TIPECO GROUP - OWNER DASHBOARD
-   Version: 5.0
+   Version: 6.0
    Firebase Owner Dashboard
-   Fully Connected Dashboard Engine
+   Listing Review + Verification Engine
+   IndexedDB Media Support
 ===================================================== */
 
 
 /* =====================================================
-   IMPORTS
+   AUTH
 ===================================================== */
 
 import "./auth.js";
+
+
+/* =====================================================
+   FIREBASE
+===================================================== */
 
 import {
     collection,
@@ -27,12 +33,14 @@ import {
    CONFIGURATION
 ===================================================== */
 
-const DASHBOARD_VERSION = "5.0";
+const DASHBOARD_VERSION = "6.0";
 
 const USERS_COLLECTION = "users";
 const REPORTS_COLLECTION = "reports";
 
 const OWNER_ROLE = "owner";
+
+const REFRESH_INTERVAL = 10000;
 
 const PUBLIC_ACCOUNT_TYPES = [
     "buyer",
@@ -44,57 +52,6 @@ const CONTROLLED_ROLES = [
     "agent"
 ];
 
-const REFRESH_INTERVAL = 10000;
-
-
-/* =====================================================
-   DOM HELPER
-===================================================== */
-
-function $(id) {
-    return document.getElementById(id);
-}
-
-
-/* =====================================================
-   DOM REFERENCES
-===================================================== */
-
-const ownerNameElement = $("ownerName");
-const welcomeOwnerNameElement = $("welcomeOwnerName");
-const ownerAvatarElement = $("ownerAvatar");
-
-const totalUsersElement = $("totalUsers");
-const totalListingsElement = $("totalListings");
-const pendingListingsElement = $("pendingListings");
-const approvedListingsElement = $("approvedListings");
-
-const totalAgentsElement = $("totalAgents");
-const totalReportsElement = $("totalReports");
-
-const totalBuyersElement = $("totalBuyers");
-const totalSellersElement = $("totalSellers");
-
-const recentUsersElement = $("recentUsers");
-const recentListingsElement = $("recentListings");
-
-const activityListElement =
-    $("activityList") ||
-    $("recentActivity");
-
-const notificationCountElement =
-    $("notificationCount");
-
-const sidebarElement =
-    $("ownerSidebar");
-
-const sidebarToggleElement =
-    $("sidebarToggle");
-
-const logoutButtonElement =
-    $("ownerLogoutBtn") ||
-    $("logoutBtn");
-
 
 /* =====================================================
    DASHBOARD STATE
@@ -103,14 +60,19 @@ const logoutButtonElement =
 let dashboardState = {
 
     users: [],
+
     listings: [],
+
     reports: [],
 
     sellers: [],
+
     buyers: [],
+
     agents: [],
 
     pendingListings: [],
+
     approvedListings: [],
 
     lastRefresh: null
@@ -119,26 +81,30 @@ let dashboardState = {
 
 
 /* =====================================================
-   SAFE TEXT
+   DOM HELPERS
 ===================================================== */
+
+function getElement(id) {
+
+    return document.getElementById(id);
+
+}
+
 
 function safeText(value, fallback = "—") {
 
     if (
-        value === null ||
         value === undefined ||
-        value === ""
+        value === null ||
+        String(value).trim() === ""
     ) {
         return fallback;
     }
 
     return String(value);
+
 }
 
-
-/* =====================================================
-   NORMALIZE VALUE
-===================================================== */
 
 function normalize(value) {
 
@@ -150,15 +116,29 @@ function normalize(value) {
 
 
 /* =====================================================
-   GET CURRENT USER
+   CURRENT FIREBASE USER
 ===================================================== */
 
 function getFirebaseCurrentUser() {
 
-    if (
-        typeof window.tipecoGetCurrentUser === "function"
-    ) {
-        return window.tipecoGetCurrentUser();
+    try {
+
+        if (
+            typeof window.tipecoGetCurrentUser ===
+            "function"
+        ) {
+
+            return window.tipecoGetCurrentUser();
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Unable to read TIPECO current user.",
+            error
+        );
+
     }
 
     return auth.currentUser || null;
@@ -167,61 +147,99 @@ function getFirebaseCurrentUser() {
 
 
 /* =====================================================
-   GET CURRENT OWNER PROFILE
+   OWNER PROFILE
 ===================================================== */
 
 async function getOwnerFirestoreProfile() {
-
-    if (
-        typeof window.tipecoGetCurrentProfile === "function"
-    ) {
-        return await window.tipecoGetCurrentProfile();
-    }
 
     const currentUser =
         getFirebaseCurrentUser();
 
     if (!currentUser) {
+
         return null;
+
     }
+
 
     try {
 
-        const profileSnapshot =
-            await getDocs(
-                collection(db, USERS_COLLECTION)
-            );
+        if (
+            typeof window.tipecoGetCurrentProfile ===
+            "function"
+        ) {
 
-        const matchingDocument =
-            profileSnapshot.docs.find(
-                docSnapshot =>
-                    docSnapshot.id === currentUser.uid
-            );
+            const profile =
+                await window.tipecoGetCurrentProfile();
 
-        if (!matchingDocument) {
-            return null;
+            if (profile) {
+
+                return profile;
+
+            }
+
         }
 
-        return {
-            id: matchingDocument.id,
-            ...matchingDocument.data()
-        };
+    } catch (error) {
+
+        console.warn(
+            "TIPECO profile helper failed.",
+            error
+        );
+
+    }
+
+
+    try {
+
+        const usersSnapshot =
+            await getDocs(
+                collection(
+                    db,
+                    USERS_COLLECTION
+                )
+            );
+
+
+        for (
+            const document
+            of usersSnapshot.docs
+        ) {
+
+            if (
+                document.id ===
+                currentUser.uid
+            ) {
+
+                return {
+
+                    id: document.id,
+
+                    ...document.data()
+
+                };
+
+            }
+
+        }
 
     } catch (error) {
 
         console.error(
-            "TIPECO: Unable to load owner profile:",
+            "Unable to load Owner profile.",
             error
         );
 
-        return null;
     }
+
+
+    return null;
 
 }
 
 
 /* =====================================================
-   OWNER PROTECTION
+   PROTECT OWNER DASHBOARD
 ===================================================== */
 
 async function protectOwnerDashboard() {
@@ -233,13 +251,11 @@ async function protectOwnerDashboard() {
             "function"
         ) {
 
-            console.error(
-                "TIPECO: tipecoRequireOwner() is not available."
-            );
-
-            window.location.href = "login.html";
+            window.location.href =
+                "login.html";
 
             return false;
+
         }
 
 
@@ -249,10 +265,8 @@ async function protectOwnerDashboard() {
 
         if (!authorized) {
 
-            window.location.href =
-                "login.html";
-
             return false;
+
         }
 
 
@@ -266,6 +280,7 @@ async function protectOwnerDashboard() {
                 "login.html";
 
             return false;
+
         }
 
 
@@ -275,14 +290,11 @@ async function protectOwnerDashboard() {
 
         if (!profile) {
 
-            console.error(
-                "TIPECO: Owner Firestore profile not found."
-            );
-
             window.location.href =
                 "login.html";
 
             return false;
+
         }
 
 
@@ -295,16 +307,15 @@ async function protectOwnerDashboard() {
             );
 
 
-        if (role !== OWNER_ROLE) {
-
-            console.error(
-                "TIPECO: User is not an Owner."
-            );
+        if (
+            role !== OWNER_ROLE
+        ) {
 
             window.location.href =
                 "login.html";
 
             return false;
+
         }
 
 
@@ -313,7 +324,7 @@ async function protectOwnerDashboard() {
     } catch (error) {
 
         console.error(
-            "TIPECO: Owner protection failed:",
+            "Owner authorization failed.",
             error
         );
 
@@ -321,6 +332,7 @@ async function protectOwnerDashboard() {
             "login.html";
 
         return false;
+
     }
 
 }
@@ -332,16 +344,22 @@ async function protectOwnerDashboard() {
 
 async function loadOwnerProfile() {
 
-    try {
+    const currentUser =
+        getFirebaseCurrentUser();
 
-        const currentUser =
-            getFirebaseCurrentUser();
+    if (!currentUser) {
 
-        const profile =
-            await getOwnerFirestoreProfile();
+        return;
+
+    }
 
 
-        const name = safeText(
+    const profile =
+        await getOwnerFirestoreProfile();
+
+
+    const name =
+        safeText(
 
             profile?.name ||
 
@@ -351,58 +369,55 @@ async function loadOwnerProfile() {
 
             profile?.username ||
 
-            currentUser?.displayName ||
+            currentUser.displayName ||
 
-            currentUser?.email ||
-
-            "TIPECO OWNER",
+            currentUser.email,
 
             "TIPECO OWNER"
 
         );
 
 
-        if (ownerNameElement) {
-            ownerNameElement.textContent = name;
-        }
+    const ownerName =
+        getElement("ownerName");
+
+    const welcomeOwnerName =
+        getElement("welcomeOwnerName");
+
+    const ownerAvatar =
+        getElement("ownerAvatar");
 
 
-        if (welcomeOwnerNameElement) {
-            welcomeOwnerNameElement.textContent =
-                name;
-        }
+    if (ownerName) {
+
+        ownerName.textContent =
+            name;
+
+    }
 
 
-        if (ownerAvatarElement) {
+    if (welcomeOwnerName) {
 
-            const firstLetter =
-                name
-                    .trim()
-                    .charAt(0)
-                    .toUpperCase();
+        welcomeOwnerName.textContent =
+            name;
 
-            ownerAvatarElement.textContent =
-                firstLetter || "T";
-        }
+    }
 
 
-        return profile;
+    if (ownerAvatar) {
 
-    } catch (error) {
+        ownerAvatar.textContent =
+            name
+                .charAt(0)
+                .toUpperCase();
 
-        console.error(
-            "TIPECO: Owner profile loading error:",
-            error
-        );
-
-        return null;
     }
 
 }
 
 
 /* =====================================================
-   LOAD FIRESTORE USERS
+   LOAD USERS
 ===================================================== */
 
 async function loadOwnerUsers() {
@@ -411,38 +426,38 @@ async function loadOwnerUsers() {
 
         const snapshot =
             await getDocs(
-                collection(db, USERS_COLLECTION)
+                collection(
+                    db,
+                    USERS_COLLECTION
+                )
             );
 
 
-        const users =
+        dashboardState.users =
             snapshot.docs.map(
-                documentSnapshot => ({
+                document => ({
 
-                    id: documentSnapshot.id,
+                    id: document.id,
 
-                    ...documentSnapshot.data()
+                    ...document.data()
 
                 })
             );
 
 
-        dashboardState.users =
-            users;
-
-
-        return users;
+        return dashboardState.users;
 
     } catch (error) {
 
         console.error(
-            "TIPECO: Users loading failed:",
+            "Unable to load Owner users.",
             error
         );
 
         dashboardState.users = [];
 
         return [];
+
     }
 
 }
@@ -458,45 +473,45 @@ async function loadOwnerReports() {
 
         const snapshot =
             await getDocs(
-                collection(db, REPORTS_COLLECTION)
+                collection(
+                    db,
+                    REPORTS_COLLECTION
+                )
             );
 
 
-        const reports =
+        dashboardState.reports =
             snapshot.docs.map(
-                documentSnapshot => ({
+                document => ({
 
-                    id: documentSnapshot.id,
+                    id: document.id,
 
-                    ...documentSnapshot.data()
+                    ...document.data()
 
                 })
             );
 
 
-        dashboardState.reports =
-            reports;
-
-
-        return reports;
+        return dashboardState.reports;
 
     } catch (error) {
 
         console.warn(
-            "TIPECO: Reports collection unavailable:",
+            "Reports collection unavailable.",
             error
         );
 
         dashboardState.reports = [];
 
         return [];
+
     }
 
 }
 
 
 /* =====================================================
-   LOAD INDEXEDDB LISTINGS
+   LOAD LISTINGS
 ===================================================== */
 
 async function loadOwnerListings() {
@@ -526,17 +541,13 @@ async function loadOwnerListings() {
 
         }
 
-        else {
 
-            console.warn(
-                "TIPECO: Listing storage function not found."
-            );
+        if (
+            !Array.isArray(listings)
+        ) {
 
-        }
-
-
-        if (!Array.isArray(listings)) {
             listings = [];
+
         }
 
 
@@ -549,13 +560,14 @@ async function loadOwnerListings() {
     } catch (error) {
 
         console.error(
-            "TIPECO: Listings loading failed:",
+            "Unable to load IndexedDB listings.",
             error
         );
 
         dashboardState.listings = [];
 
         return [];
+
     }
 
 }
@@ -584,18 +596,22 @@ function getUserRole(user) {
     if (
         PUBLIC_ACCOUNT_TYPES.includes(role)
     ) {
+
         return role;
+
     }
 
 
     if (
         CONTROLLED_ROLES.includes(role)
     ) {
+
         return role;
+
     }
 
 
-    return "unknown";
+    return "";
 
 }
 
@@ -606,33 +622,22 @@ function getUserRole(user) {
 
 function getListingStatus(listing) {
 
-    const rawStatus =
-        normalize(
+    return normalize(
 
-            listing?.status ||
+        listing?.status ||
 
-            listing?.verificationStatus ||
+        listing?.verificationStatus ||
 
-            listing?.approvalStatus ||
+        listing?.approvalStatus ||
 
-            listing?.listingStatus
+        listing?.listingStatus ||
 
-        );
+        "pending"
 
-
-    if (!rawStatus) {
-        return "pending";
-    }
-
-
-    return rawStatus;
+    );
 
 }
 
-
-/* =====================================================
-   PENDING STATUS
-===================================================== */
 
 function isPendingListing(listing) {
 
@@ -643,20 +648,23 @@ function isPendingListing(listing) {
     return [
 
         "pending",
+
         "submitted",
+
         "pending_verification",
+
         "pending_review",
+
         "under_review",
-        "awaiting_verification"
+
+        "awaiting_verification",
+
+        "needs_changes"
 
     ].includes(status);
 
 }
 
-
-/* =====================================================
-   APPROVED STATUS
-===================================================== */
 
 function isApprovedListing(listing) {
 
@@ -667,8 +675,11 @@ function isApprovedListing(listing) {
     return [
 
         "approved",
+
         "verified",
+
         "published",
+
         "active"
 
     ].includes(status);
@@ -677,7 +688,7 @@ function isApprovedListing(listing) {
 
 
 /* =====================================================
-   LISTING TITLE
+   LISTING DATA HELPERS
 ===================================================== */
 
 function getListingTitle(listing) {
@@ -690,9 +701,7 @@ function getListingTitle(listing) {
 
         listing?.listingTitle ||
 
-        listing?.productName ||
-
-        "Untitled Listing",
+        listing?.productName,
 
         "Untitled Listing"
 
@@ -700,10 +709,6 @@ function getListingTitle(listing) {
 
 }
 
-
-/* =====================================================
-   LISTING CATEGORY
-===================================================== */
 
 function getListingCategory(listing) {
 
@@ -715,9 +720,7 @@ function getListingCategory(listing) {
 
         listing?.type ||
 
-        listing?.propertyType ||
-
-        "Other",
+        listing?.propertyType,
 
         "Other"
 
@@ -725,10 +728,6 @@ function getListingCategory(listing) {
 
 }
 
-
-/* =====================================================
-   LISTING OWNER
-===================================================== */
 
 function getListingOwner(listing) {
 
@@ -746,61 +745,43 @@ function getListingOwner(listing) {
 
         listing?.email ||
 
-        listing?.userEmail ||
+        listing?.userEmail,
 
-        "Unknown",
-
-        "Unknown"
+        "Unknown Seller"
 
     );
 
 }
 
 
-/* =====================================================
-   USER NAME
-===================================================== */
-
-function getUserName(user) {
+function getListingOwnerEmail(listing) {
 
     return safeText(
 
-        user?.name ||
+        listing?.ownerEmail ||
 
-        user?.fullName ||
+        listing?.sellerEmail ||
 
-        user?.displayName ||
+        listing?.userEmail,
 
-        user?.username ||
-
-        user?.email ||
-
-        "Unknown User",
-
-        "Unknown User"
+        "—"
 
     );
 
 }
 
 
-/* =====================================================
-   USER CONTACT
-===================================================== */
-
-function getUserContact(user) {
+function getListingOwnerPhone(listing) {
 
     return safeText(
 
-        user?.email ||
+        listing?.ownerPhone ||
 
-        user?.phone ||
+        listing?.contactPhone ||
 
-        user?.telephone ||
+        listing?.sellerPhone ||
 
-        user?.phoneNumber ||
-
-        "—",
+        listing?.phone,
 
         "—"
 
@@ -810,81 +791,70 @@ function getUserContact(user) {
 
 
 /* =====================================================
-   USER STATUS
-===================================================== */
-
-function getUserStatus(user) {
-
-    return safeText(
-
-        user?.accountStatus ||
-
-        user?.status ||
-
-        "active",
-
-        "active"
-
-    );
-
-}
-
-
-/* =====================================================
-   DATE CONVERTER
+   DATE HELPERS
 ===================================================== */
 
 function convertDate(value) {
 
     if (!value) {
+
         return null;
-    }
-
-
-    if (
-        typeof value?.toDate ===
-        "function"
-    ) {
-
-        return value.toDate();
 
     }
 
 
-    if (
-        typeof value === "object" &&
-        value.seconds
-    ) {
+    try {
 
-        return new Date(
-            value.seconds * 1000
+        if (
+            typeof value.toDate ===
+            "function"
+        ) {
+
+            return value.toDate();
+
+        }
+
+
+        if (
+            typeof value === "object" &&
+            value.seconds
+        ) {
+
+            return new Date(
+                value.seconds * 1000
+            );
+
+        }
+
+
+        const date =
+            new Date(value);
+
+
+        if (
+            !Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            return date;
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Date conversion failed.",
+            error
         );
 
     }
 
 
-    const date =
-        new Date(value);
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return null;
-    }
-
-
-    return date;
+    return null;
 
 }
 
-
-/* =====================================================
-   FORMAT DATE
-===================================================== */
 
 function formatDate(value) {
 
@@ -893,7 +863,9 @@ function formatDate(value) {
 
 
     if (!date) {
+
         return "—";
+
     }
 
 
@@ -909,9 +881,22 @@ function formatDate(value) {
 }
 
 
-/* =====================================================
-   SORT BY DATE
-===================================================== */
+function getListingDate(listing) {
+
+    return (
+
+        listing?.updatedAt ||
+
+        listing?.createdAt ||
+
+        listing?.date ||
+
+        null
+
+    );
+
+}
+
 
 function sortByDateDescending(items) {
 
@@ -920,21 +905,17 @@ function sortByDateDescending(items) {
 
             const dateA =
                 convertDate(
-                    a?.createdAt ||
-                    a?.updatedAt ||
-                    a?.date
+                    getListingDate(a)
                 )?.getTime() || 0;
-
 
             const dateB =
                 convertDate(
-                    b?.createdAt ||
-                    b?.updatedAt ||
-                    b?.date
+                    getListingDate(b)
                 )?.getTime() || 0;
 
 
             return dateB - dateA;
+
         }
     );
 
@@ -942,7 +923,63 @@ function sortByDateDescending(items) {
 
 
 /* =====================================================
-   LOAD DASHBOARD STATISTICS
+   USER HELPERS
+===================================================== */
+
+function getUserName(user) {
+
+    return safeText(
+
+        user?.fullName ||
+
+        user?.name ||
+
+        user?.displayName ||
+
+        user?.username ||
+
+        user?.email,
+
+        "Unknown User"
+
+    );
+
+}
+
+
+function getUserContact(user) {
+
+    return safeText(
+
+        user?.phone ||
+
+        user?.email,
+
+        "—"
+
+    );
+
+
+}
+
+
+function getUserStatus(user) {
+
+    return safeText(
+
+        user?.accountStatus ||
+
+        user?.status,
+
+        "active"
+
+    );
+
+}
+
+
+/* =====================================================
+   DASHBOARD STATISTICS
 ===================================================== */
 
 function loadDashboardStatistics() {
@@ -950,115 +987,100 @@ function loadDashboardStatistics() {
     const users =
         dashboardState.users;
 
+
     const listings =
         dashboardState.listings;
 
-    const reports =
-        dashboardState.reports;
-
-
-    const buyers =
-        users.filter(
-            user =>
-                getUserRole(user) === "buyer"
-        );
-
-
-    const sellers =
-        users.filter(
-            user =>
-                getUserRole(user) === "seller"
-        );
-
-
-    const agents =
-        users.filter(
-            user =>
-                getUserRole(user) === "agent"
-        );
-
-
-    const pendingListings =
-        listings.filter(
-            listing =>
-                isPendingListing(listing)
-        );
-
-
-    const approvedListings =
-        listings.filter(
-            listing =>
-                isApprovedListing(listing)
-        );
-
 
     dashboardState.buyers =
-        buyers;
+        users.filter(
+            user =>
+                getUserRole(user) ===
+                "buyer"
+        );
+
 
     dashboardState.sellers =
-        sellers;
+        users.filter(
+            user =>
+                getUserRole(user) ===
+                "seller"
+        );
+
 
     dashboardState.agents =
-        agents;
+        users.filter(
+            user =>
+                getUserRole(user) ===
+                "agent"
+        );
+
 
     dashboardState.pendingListings =
-        pendingListings;
+        listings.filter(
+            isPendingListing
+        );
+
 
     dashboardState.approvedListings =
-        approvedListings;
+        listings.filter(
+            isApprovedListing
+        );
 
 
-    if (totalUsersElement) {
-        totalUsersElement.textContent =
-            users.length;
-    }
+    const stats = {
+
+        totalUsers:
+            users.length,
+
+        totalListings:
+            listings.length,
+
+        pendingListings:
+            dashboardState.pendingListings.length,
+
+        approvedListings:
+            dashboardState.approvedListings.length,
+
+        totalAgents:
+            dashboardState.agents.length,
+
+        totalReports:
+            dashboardState.reports.length,
+
+        totalBuyers:
+            dashboardState.buyers.length,
+
+        totalSellers:
+            dashboardState.sellers.length
+
+    };
 
 
-    if (totalListingsElement) {
-        totalListingsElement.textContent =
-            listings.length;
-    }
+    Object.entries(stats)
+        .forEach(
+            ([id, value]) => {
+
+                const element =
+                    getElement(id);
 
 
-    if (pendingListingsElement) {
-        pendingListingsElement.textContent =
-            pendingListings.length;
-    }
+                if (element) {
 
+                    element.textContent =
+                        value;
 
-    if (approvedListingsElement) {
-        approvedListingsElement.textContent =
-            approvedListings.length;
-    }
+                }
 
-
-    if (totalAgentsElement) {
-        totalAgentsElement.textContent =
-            agents.length;
-    }
-
-
-    if (totalReportsElement) {
-        totalReportsElement.textContent =
-            reports.length;
-    }
-
-
-    if (totalBuyersElement) {
-        totalBuyersElement.textContent =
-            buyers.length;
-    }
-
-
-    if (totalSellersElement) {
-        totalSellersElement.textContent =
-            sellers.length;
-    }
+            }
+        );
 
 
     updateNotificationCount(
-        pendingListings.length +
-        reports.length
+
+        dashboardState.pendingListings.length +
+        dashboardState.reports.length
+
     );
 
 }
@@ -1070,33 +1092,60 @@ function loadDashboardStatistics() {
 
 function updateNotificationCount(count) {
 
-    if (!notificationCountElement) {
+    const element =
+        getElement(
+            "notificationCount"
+        );
+
+
+    if (!element) {
+
         return;
+
     }
 
 
-    notificationCountElement.textContent =
+    if (count <= 0) {
+
+        element.textContent =
+            "";
+
+        element.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    element.textContent =
         count > 99
             ? "99+"
             : String(count);
 
 
-    notificationCountElement.style.display =
-        count > 0
-            ? ""
-            : "none";
+    element.style.display =
+        "";
 
 }
 
 
 /* =====================================================
-   RENDER RECENT USERS
+   RECENT USERS
 ===================================================== */
 
 function renderRecentUsers() {
 
-    if (!recentUsersElement) {
+    const container =
+        getElement(
+            "recentUsers"
+        );
+
+
+    if (!container) {
+
         return;
+
     }
 
 
@@ -1108,34 +1157,38 @@ function renderRecentUsers() {
 
     if (!users.length) {
 
-        recentUsersElement.innerHTML = `
+        container.innerHTML = `
+
             <tr>
+
                 <td colspan="5">
                     No users found.
                 </td>
+
             </tr>
+
         `;
 
         return;
+
     }
 
 
-    recentUsersElement.innerHTML =
-        users.map(user => {
+    container.innerHTML =
+        users.map(
+            user => `
 
-            const role =
-                getUserRole(user);
-
-            const status =
-                getUserStatus(user);
-
-
-            return `
                 <tr>
 
                     <td>
                         ${safeText(
                             getUserName(user)
+                        )}
+                    </td>
+
+                    <td>
+                        ${safeText(
+                            user.email
                         )}
                     </td>
 
@@ -1147,41 +1200,41 @@ function renderRecentUsers() {
 
                     <td>
                         ${safeText(
-                            role,
-                            "unknown"
+                            getUserRole(user),
+                            "user"
                         )}
                     </td>
 
                     <td>
                         ${safeText(
-                            status,
-                            "active"
-                        )}
-                    </td>
-
-                    <td>
-                        ${formatDate(
-                            user.createdAt ||
-                            user.updatedAt
+                            getUserStatus(user)
                         )}
                     </td>
 
                 </tr>
-            `;
 
-        }).join("");
+            `
+        ).join("");
 
 }
 
 
 /* =====================================================
-   RENDER RECENT LISTINGS
+   RECENT LISTINGS
 ===================================================== */
 
 function renderRecentListings() {
 
-    if (!recentListingsElement) {
+    const container =
+        getElement(
+            "recentListings"
+        );
+
+
+    if (!container) {
+
         return;
+
     }
 
 
@@ -1193,203 +1246,1843 @@ function renderRecentListings() {
 
     if (!listings.length) {
 
-        recentListingsElement.innerHTML = `
+        container.innerHTML = `
+
             <tr>
-                <td colspan="5">
+
+                <td colspan="6">
                     No listings found.
                 </td>
+
             </tr>
+
         `;
 
         return;
+
     }
 
 
-    recentListingsElement.innerHTML =
-        listings.map(listing => {
+    container.innerHTML =
+        listings.map(
+            listing => {
 
-            const status =
-                getListingStatus(listing);
+                const status =
+                    getListingStatus(
+                        listing
+                    );
 
 
-            return `
-                <tr>
+                return `
 
-                    <td>
-                        ${safeText(
-                            getListingTitle(listing)
-                        )}
-                    </td>
+                    <tr>
 
-                    <td>
-                        ${safeText(
-                            getListingOwner(listing)
-                        )}
-                    </td>
+                        <td>
+                            ${safeText(
+                                getListingTitle(
+                                    listing
+                                )
+                            )}
+                        </td>
 
-                    <td>
-                        ${safeText(
-                            getListingCategory(listing)
-                        )}
-                    </td>
+                        <td>
+                            ${safeText(
+                                getListingCategory(
+                                    listing
+                                )
+                            )}
+                        </td>
 
-                    <td>
-                        ${safeText(
-                            status
-                        )}
-                    </td>
+                        <td>
+                            ${safeText(
+                                getListingOwner(
+                                    listing
+                                )
+                            )}
+                        </td>
 
-                    <td>
-                        ${formatDate(
-                            listing.createdAt ||
-                            listing.updatedAt ||
-                            listing.date
-                        )}
-                    </td>
+                        <td>
+                            ${safeText(
+                                listing.price,
+                                "—"
+                            )}
+                        </td>
 
-                </tr>
-            `;
+                        <td>
+                            ${safeText(
+                                status
+                            )}
+                        </td>
 
-        }).join("");
+                        <td>
+
+                            <button
+                                type="button"
+                                class="tipeco-review-listing"
+                                data-listing-id="${safeText(
+                                    listing.id,
+                                    ""
+                                )}"
+                            >
+                                Review
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        ).join("");
+
+
+    container
+        .querySelectorAll(
+            ".tipeco-review-listing"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        const listingId =
+                            button.dataset.listingId;
+
+
+                        openListingReview(
+                            listingId
+                        );
+
+                    }
+                );
+
+            }
+        );
 
 }
 
 
 /* =====================================================
-   RENDER ACTIVITY
+   ACTIVITY
 ===================================================== */
 
 function renderActivity() {
 
-    if (!activityListElement) {
+    const container =
+        getElement(
+            "activityList"
+        ) ||
+        getElement(
+            "recentActivity"
+        );
+
+
+    if (!container) {
+
         return;
+
     }
 
 
     const activities = [];
 
 
-    const recentUsers =
-        sortByDateDescending(
-            dashboardState.users
-        ).slice(0, 3);
+    sortByDateDescending(
+        dashboardState.users
+    )
+        .slice(0, 3)
+        .forEach(
+            user => {
+
+                activities.push({
+
+                    date:
+                        getListingDate(user),
+
+                    text:
+                        `New user registered: ${getUserName(user)}`
+
+                });
+
+            }
+        );
 
 
-    recentUsers.forEach(user => {
+    sortByDateDescending(
+        dashboardState.listings
+    )
+        .slice(0, 3)
+        .forEach(
+            listing => {
 
-        activities.push({
+                activities.push({
 
-            date:
-                convertDate(
-                    user.createdAt ||
-                    user.updatedAt
-                ),
+                    date:
+                        getListingDate(listing),
 
-            text:
-                `${getUserName(user)} joined TIPECO GROUP.`
+                    text:
+                        `Listing submitted: ${getListingTitle(listing)}`
 
-        });
+                });
 
-    });
-
-
-    const recentListings =
-        sortByDateDescending(
-            dashboardState.listings
-        ).slice(0, 3);
+            }
+        );
 
 
-    recentListings.forEach(listing => {
+    sortByDateDescending(
+        dashboardState.reports
+    )
+        .slice(0, 2)
+        .forEach(
+            report => {
 
-        activities.push({
+                activities.push({
 
-            date:
-                convertDate(
-                    listing.createdAt ||
-                    listing.updatedAt ||
-                    listing.date
-                ),
+                    date:
+                        getListingDate(report),
 
-            text:
-                `New listing: ${getListingTitle(listing)}.`
+                    text:
+                        "A new report requires Owner attention."
 
-        });
+                });
 
-    });
-
-
-    const recentReports =
-        sortByDateDescending(
-            dashboardState.reports
-        ).slice(0, 2);
-
-
-    recentReports.forEach(report => {
-
-        activities.push({
-
-            date:
-                convertDate(
-                    report.createdAt ||
-                    report.updatedAt ||
-                    report.date
-                ),
-
-            text:
-                "A new report requires Owner attention."
-
-        });
-
-    });
+            }
+        );
 
 
     activities.sort(
-        (a, b) =>
-            (b.date?.getTime() || 0) -
-            (a.date?.getTime() || 0)
+        (a, b) => {
+
+            const dateA =
+                convertDate(
+                    a.date
+                )?.getTime() || 0;
+
+            const dateB =
+                convertDate(
+                    b.date
+                )?.getTime() || 0;
+
+
+            return dateB - dateA;
+
+        }
     );
 
 
-    const visibleActivities =
+    const finalActivities =
         activities.slice(0, 8);
 
 
-    if (!visibleActivities.length) {
+    if (!finalActivities.length) {
 
-        activityListElement.innerHTML = `
-            <li>
+        container.innerHTML = `
+
+            <div class="empty-state">
                 No recent activity.
-            </li>
+            </div>
+
         `;
 
         return;
+
     }
 
 
-    activityListElement.innerHTML =
-        visibleActivities.map(
-            activity => {
+    container.innerHTML =
+        finalActivities.map(
+            activity => `
 
-                return `
-                    <li>
+                <div class="activity-item">
 
-                        <span>
-                            ${safeText(
-                                activity.text
-                            )}
-                        </span>
+                    <div>
+                        ${safeText(
+                            activity.text
+                        )}
+                    </div>
 
-                        <small>
-                            ${formatDate(
-                                activity.date
-                            )}
-                        </small>
+                    <small>
+                        ${formatDate(
+                            activity.date
+                        )}
+                    </small>
 
-                    </li>
-                `;
+                </div>
+
+            `
+        ).join("");
+
+}
+
+
+/* =====================================================
+   INDEXEDDB MEDIA
+===================================================== */
+
+function openTipecoMediaDB() {
+
+    return new Promise(
+        (resolve, reject) => {
+
+            if (!window.indexedDB) {
+
+                reject(
+                    new Error(
+                        "IndexedDB is not supported."
+                    )
+                );
+
+                return;
 
             }
-        ).join("");
+
+
+            const request =
+                indexedDB.open(
+                    "tipecoMediaDB",
+                    1
+                );
+
+
+            request.onsuccess =
+                () => {
+
+                    resolve(
+                        request.result
+                    );
+
+                };
+
+
+            request.onerror =
+                () => {
+
+                    reject(
+                        request.error
+                    );
+
+                };
+
+        }
+    );
+
+}
+
+
+async function getIndexedDBMedia(
+    mediaId
+) {
+
+    if (!mediaId) {
+
+        return null;
+
+    }
+
+
+    const db =
+        await openTipecoMediaDB();
+
+
+    return new Promise(
+        (resolve, reject) => {
+
+            try {
+
+                const transaction =
+                    db.transaction(
+                        "media",
+                        "readonly"
+                    );
+
+
+                const store =
+                    transaction.objectStore(
+                        "media"
+                    );
+
+
+                const request =
+                    store.get(
+                        mediaId
+                    );
+
+
+                request.onsuccess =
+                    () => {
+
+                        resolve(
+                            request.result ||
+                            null
+                        );
+
+                    };
+
+
+                request.onerror =
+                    () => {
+
+                        reject(
+                            request.error
+                        );
+
+                    };
+
+
+                transaction.oncomplete =
+                    () => {
+
+                        db.close();
+
+                    };
+
+
+            } catch (error) {
+
+                try {
+
+                    db.close();
+
+                } catch (_) {}
+
+
+                reject(error);
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   CREATE MEDIA URL
+===================================================== */
+
+function createMediaURL(
+    media
+) {
+
+    if (
+        !media ||
+        !media.blob
+    ) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        return URL.createObjectURL(
+            media.blob
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Unable to create media URL.",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+
+/* =====================================================
+   LOAD LISTING MEDIA
+===================================================== */
+
+async function loadListingMedia(
+    listing
+) {
+
+    const media = {
+
+        photos: [],
+
+        video: null
+
+    };
+
+
+    const mediaIds =
+        Array.isArray(
+            listing.mediaIds
+        )
+            ? listing.mediaIds
+            : [];
+
+
+    for (
+        const mediaId
+        of mediaIds
+    ) {
+
+        try {
+
+            const record =
+                await getIndexedDBMedia(
+                    mediaId
+                );
+
+
+            if (
+                !record
+            ) {
+
+                continue;
+
+            }
+
+
+            if (
+                normalize(
+                    record.kind
+                ) === "photo"
+            ) {
+
+                const url =
+                    createMediaURL(
+                        record
+                    );
+
+
+                if (url) {
+
+                    media.photos.push({
+
+                        id:
+                            record.id,
+
+                        name:
+                            record.name,
+
+                        type:
+                            record.type,
+
+                        url
+
+                    });
+
+                }
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Unable to load listing photo.",
+                mediaId,
+                error
+            );
+
+        }
+
+    }
+
+
+    if (
+        listing.videoMediaId
+    ) {
+
+        try {
+
+            const record =
+                await getIndexedDBMedia(
+                    listing.videoMediaId
+                );
+
+
+            if (record) {
+
+                const url =
+                    createMediaURL(
+                        record
+                    );
+
+
+                if (url) {
+
+                    media.video = {
+
+                        id:
+                            record.id,
+
+                        name:
+                            record.name,
+
+                        type:
+                            record.type,
+
+                        url
+
+                    };
+
+                }
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Unable to load listing video.",
+                error
+            );
+
+        }
+
+    }
+
+
+    return media;
+
+}
+
+
+/* =====================================================
+   DYNAMIC REVIEW MODAL
+===================================================== */
+
+function ensureReviewModal() {
+
+    let modal =
+        getElement(
+            "tipecoOwnerListingReviewModal"
+        );
+
+
+    if (modal) {
+
+        return modal;
+
+    }
+
+
+    modal =
+        document.createElement(
+            "div"
+        );
+
+
+    modal.id =
+        "tipecoOwnerListingReviewModal";
+
+
+    modal.innerHTML = `
+
+        <div
+            class="tipeco-review-overlay"
+            data-review-close="true"
+        >
+
+            <div
+                class="tipeco-review-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="tipecoReviewTitle"
+            >
+
+                <div class="tipeco-review-header">
+
+                    <div>
+
+                        <h2 id="tipecoReviewTitle">
+                            Listing Review
+                        </h2>
+
+                        <p id="tipecoReviewStatus">
+                            Pending verification
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        id="tipecoReviewClose"
+                        aria-label="Close"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="tipecoReviewBody"
+                    class="tipeco-review-body"
+                >
+
+                    <div class="tipeco-review-loading">
+                        Loading listing...
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="tipecoReviewActions"
+                    class="tipeco-review-actions"
+                ></div>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        modal
+    );
+
+
+    const style =
+        document.createElement(
+            "style"
+        );
+
+
+    style.textContent = `
+
+        #tipecoOwnerListingReviewModal {
+
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            display: none;
+
+        }
+
+        #tipecoOwnerListingReviewModal.is-open {
+
+            display: block;
+
+        }
+
+        .tipeco-review-overlay {
+
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,.72);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+
+        }
+
+        .tipeco-review-modal {
+
+            width: min(1050px, 100%);
+            max-height: 92vh;
+            overflow-y: auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 25px 80px rgba(0,0,0,.3);
+
+        }
+
+        .tipeco-review-header {
+
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 22px;
+            border-bottom: 1px solid #e5e7eb;
+
+        }
+
+        .tipeco-review-header h2 {
+
+            margin: 0 0 6px;
+
+        }
+
+        .tipeco-review-header p {
+
+            margin: 0;
+            text-transform: capitalize;
+
+        }
+
+        #tipecoReviewClose {
+
+            border: 0;
+            background: transparent;
+            font-size: 32px;
+            line-height: 1;
+            cursor: pointer;
+
+        }
+
+        .tipeco-review-body {
+
+            padding: 22px;
+
+        }
+
+        .tipeco-review-grid {
+
+            display: grid;
+            grid-template-columns:
+                minmax(0, 1.4fr)
+                minmax(280px, 1fr);
+
+            gap: 24px;
+
+        }
+
+        .tipeco-review-section {
+
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
+
+        }
+
+        .tipeco-review-section h3 {
+
+            margin-top: 0;
+
+        }
+
+        .tipeco-review-field {
+
+            margin-bottom: 12px;
+
+        }
+
+        .tipeco-review-field strong {
+
+            display: block;
+            margin-bottom: 3px;
+
+        }
+
+        .tipeco-review-description {
+
+            white-space: pre-wrap;
+            line-height: 1.6;
+
+        }
+
+        .tipeco-media-grid {
+
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fill, minmax(130px, 1fr));
+
+            gap: 10px;
+
+        }
+
+        .tipeco-media-grid img {
+
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 10px;
+            display: block;
+
+        }
+
+        .tipeco-video {
+
+            width: 100%;
+            max-height: 420px;
+            border-radius: 10px;
+
+        }
+
+        .tipeco-review-actions {
+
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 18px 22px;
+            border-top: 1px solid #e5e7eb;
+
+        }
+
+        .tipeco-review-action {
+
+            border: 0;
+            border-radius: 9px;
+            padding: 11px 17px;
+            cursor: pointer;
+            font-weight: 600;
+
+        }
+
+        .tipeco-review-approve {
+
+            background: #198754;
+            color: #fff;
+
+        }
+
+        .tipeco-review-reject {
+
+            background: #dc3545;
+            color: #fff;
+
+        }
+
+        .tipeco-review-changes {
+
+            background: #ffc107;
+            color: #111;
+
+        }
+
+        .tipeco-review-cancel {
+
+            background: #e5e7eb;
+            color: #111;
+
+        }
+
+        .tipeco-review-loading {
+
+            padding: 40px 10px;
+            text-align: center;
+
+        }
+
+        @media (max-width: 750px) {
+
+            .tipeco-review-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .tipeco-review-overlay {
+
+                padding: 10px;
+
+            }
+
+            .tipeco-review-modal {
+
+                max-height: 96vh;
+
+            }
+
+        }
+
+    `;
+
+
+    document.head.appendChild(
+        style
+    );
+
+
+    const closeButton =
+        getElement(
+            "tipecoReviewClose"
+        );
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeListingReview
+        );
+
+    }
+
+
+    const overlay =
+        modal.querySelector(
+            ".tipeco-review-overlay"
+        );
+
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target ===
+                    overlay
+                ) {
+
+                    closeListingReview();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    return modal;
+
+}
+
+
+/* =====================================================
+   OPEN LISTING REVIEW
+===================================================== */
+
+async function openListingReview(
+    listingId
+) {
+
+    const listing =
+        dashboardState.listings.find(
+            item =>
+                String(item.id) ===
+                String(listingId)
+        );
+
+
+    if (!listing) {
+
+        alert(
+            "Listing could not be found."
+        );
+
+        return;
+
+    }
+
+
+    const modal =
+        ensureReviewModal();
+
+
+    const body =
+        getElement(
+            "tipecoReviewBody"
+        );
+
+
+    const status =
+        getElement(
+            "tipecoReviewStatus"
+        );
+
+
+    const actions =
+        getElement(
+            "tipecoReviewActions"
+        );
+
+
+    modal.classList.add(
+        "is-open"
+    );
+
+
+    document.body.style.overflow =
+        "hidden";
+
+
+    if (status) {
+
+        status.textContent =
+            getListingStatus(
+                listing
+            );
+
+    }
+
+
+    if (body) {
+
+        body.innerHTML = `
+
+            <div class="tipeco-review-loading">
+
+                Loading listing details and media...
+
+            </div>
+
+        `;
+
+    }
+
+
+    if (actions) {
+
+        actions.innerHTML =
+            "";
+
+    }
+
+
+    const media =
+        await loadListingMedia(
+            listing
+        );
+
+
+    const photosHtml =
+        media.photos.length
+
+            ? `
+
+                <div class="tipeco-media-grid">
+
+                    ${media.photos.map(
+                        photo => `
+
+                            <img
+                                src="${photo.url}"
+                                alt="${safeText(
+                                    photo.name,
+                                    "Listing photo"
+                                )}"
+                            >
+
+                        `
+                    ).join("")}
+
+                </div>
+
+            `
+
+            : `
+
+                <p>
+                    No photos available in IndexedDB.
+                </p>
+
+            `;
+
+
+    const videoHtml =
+        media.video
+
+            ? `
+
+                <video
+                    class="tipeco-video"
+                    controls
+                    preload="metadata"
+                >
+
+                    <source
+                        src="${media.video.url}"
+                        type="${safeText(
+                            media.video.type,
+                            "video/mp4"
+                        )}"
+                    >
+
+                    Your browser does not support video playback.
+
+                </video>
+
+            `
+
+            : `
+
+                <p>
+                    No video attached.
+                </p>
+
+            `;
+
+
+    if (body) {
+
+        body.innerHTML = `
+
+            <div class="tipeco-review-grid">
+
+                <div>
+
+                    <section class="tipeco-review-section">
+
+                        <h3>
+                            Listing Information
+                        </h3>
+
+                        <div class="tipeco-review-field">
+
+                            <strong>
+                                Title
+                            </strong>
+
+                            <div>
+                                ${safeText(
+                                    getListingTitle(
+                                        listing
+                                    )
+                                )}
+                            </div>
+
+                        </div>
+
+
+                        <div class="tipeco-review-field">
+
+                            <strong>
+                                Category
+                            </strong>
+
+                            <div>
+                                ${safeText(
+                                    getListingCategory(
+                                        listing
+                                    )
+                                )}
+                            </div>
+
+                        </div>
+
+
+                        <div class="tipeco-review-field">
+
+                            <strong>
+                                Type
+                            </strong>
+
+                            <div>
+                                ${safeText(
+                                    listing.type
+                                )}
+                            </div>
+
+                        </div>
+
+
+                        <div class="tipeco-review-field">
+
+                            <strong>
+                                Price
+                            </strong>
+
+                            <div>
+                                ${safeText(
+                                    listing.price
+                                )}
+                            </div>
+
+                        </div>
+
+
+                        <div class="tipeco-review-field">
+
+                            <strong>
+                                Location
+                            </strong>
+
+                            <div>
+                                ${safeText(
+                                    listing.location
+                                )}
+                            </div>
+
+                        </div>
+
+
+                        <div class="tipeco-review-field">
+
+                            <strong>
+                                Submitted
+                            </strong>
+
+                            <div>
+                                ${formatDate(
+                                    listing.createdAt
+                                )}
+                            </div>
+
+                        </div>
+
+
+                        <div class="tipeco-review-field">
+
+                            <strong>
+                                Status
+                            </strong>
+
+                            <div>
+                                ${safeText(
+                                    getListingStatus(
+                                        listing
+                                    )
+                                )}
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <section class="tipeco-review-section">
+
+                        <h3>
+                            Description
+                        </h3>
+
+                        <div class="tipeco-review-description">
+
+                            ${safeText(
+                                listing.description,
+                                "No description provided."
+                            )}
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+
+                <div>
+
+                    <section class="tipeco-review-section">
+
+                        <h3>
+                            Seller Information
+                        </h3>
+
+                        <div class="tipeco-review-field">
+
+                            <strong>
+                                Name
+                            </strong>
+
+                            <div>
+                                ${safeText(
+                                    getListingOwner(
+                                        listing
+                                    )
+                                )}
+                            </div>
+
+                        </div>
+
+
+                        <div class="tipeco-review-field">
+
+                            <strong>
+                                Email
+                            </strong>
+
+                            <div>
+                                ${safeText(
+                                    getListingOwnerEmail(
+                                        listing
+                                    )
+                                )}
+                            </div>
+
+                        </div>
+
+
+                        <div class="tipeco-review-field">
+
+                            <strong>
+                                Phone
+                            </strong>
+
+                            <div>
+                                ${safeText(
+                                    getListingOwnerPhone(
+                                        listing
+                                    )
+                                )}
+                            </div>
+
+                        </div>
+
+                    </section>
+
+
+                    <section class="tipeco-review-section">
+
+                        <h3>
+                            Photos
+                        </h3>
+
+                        ${photosHtml}
+
+                    </section>
+
+
+                    <section class="tipeco-review-section">
+
+                        <h3>
+                            Video
+                        </h3>
+
+                        ${videoHtml}
+
+                    </section>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    renderReviewActions(
+        listing
+    );
+
+}
+
+
+/* =====================================================
+   REVIEW ACTIONS
+===================================================== */
+
+function renderReviewActions(
+    listing
+) {
+
+    const actions =
+        getElement(
+            "tipecoReviewActions"
+        );
+
+
+    if (!actions) {
+
+        return;
+
+    }
+
+
+    const status =
+        getListingStatus(
+            listing
+        );
+
+
+    const canReview =
+        ![
+            "approved",
+            "verified",
+            "published",
+            "active"
+        ].includes(status);
+
+
+    actions.innerHTML = `
+
+        <button
+            type="button"
+            class="tipeco-review-action tipeco-review-cancel"
+            id="tipecoReviewCancel"
+        >
+            Close
+        </button>
+
+    `;
+
+
+    if (!canReview) {
+
+        return;
+
+    }
+
+
+    actions.innerHTML += `
+
+        <button
+            type="button"
+            class="tipeco-review-action tipeco-review-changes"
+            id="tipecoReviewChanges"
+        >
+            Request Changes
+        </button>
+
+
+        <button
+            type="button"
+            class="tipeco-review-action tipeco-review-reject"
+            id="tipecoReviewReject"
+        >
+            Reject
+        </button>
+
+
+        <button
+            type="button"
+            class="tipeco-review-action tipeco-review-approve"
+            id="tipecoReviewApprove"
+        >
+            Approve
+        </button>
+
+    `;
+
+
+    const cancel =
+        getElement(
+            "tipecoReviewCancel"
+        );
+
+
+    const changes =
+        getElement(
+            "tipecoReviewChanges"
+        );
+
+
+    const reject =
+        getElement(
+            "tipecoReviewReject"
+        );
+
+
+    const approve =
+        getElement(
+            "tipecoReviewApprove"
+        );
+
+
+    if (cancel) {
+
+        cancel.addEventListener(
+            "click",
+            closeListingReview
+        );
+
+    }
+
+
+    if (changes) {
+
+        changes.addEventListener(
+            "click",
+            () => {
+
+                processListingDecision(
+                    listing.id,
+                    "needs_changes"
+                );
+
+            }
+        );
+
+    }
+
+
+    if (reject) {
+
+        reject.addEventListener(
+            "click",
+            () => {
+
+                processListingDecision(
+                    listing.id,
+                    "rejected"
+                );
+
+            }
+        );
+
+    }
+
+
+    if (approve) {
+
+        approve.addEventListener(
+            "click",
+            () => {
+
+                processListingDecision(
+                    listing.id,
+                    "approved"
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   UPDATE INDEXEDDB LISTING
+===================================================== */
+
+async function updateListingInIndexedDB(
+    listing
+) {
+
+    if (
+        typeof window.updateTipecoListing ===
+        "function"
+    ) {
+
+        return window.updateTipecoListing(
+            listing
+        );
+
+    }
+
+
+    if (
+        typeof window.saveTipecoListing ===
+        "function"
+    ) {
+
+        return window.saveTipecoListing(
+            listing
+        );
+
+    }
+
+
+    throw new Error(
+        "TIPECO IndexedDB update function is unavailable."
+    );
+
+}
+
+
+/* =====================================================
+   LISTING DECISION
+===================================================== */
+
+async function processListingDecision(
+    listingId,
+    decision
+) {
+
+    const listing =
+        dashboardState.listings.find(
+            item =>
+                String(item.id) ===
+                String(listingId)
+        );
+
+
+    if (!listing) {
+
+        alert(
+            "Listing could not be found."
+        );
+
+        return;
+
+    }
+
+
+    const labels = {
+
+        approved:
+            "approve",
+
+        rejected:
+            "reject",
+
+        needs_changes:
+            "request changes"
+
+    };
+
+
+    const label =
+        labels[decision] ||
+        decision;
+
+
+    const confirmed =
+        window.confirm(
+
+            `Are you sure you want to ${label} this listing?`
+
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const now =
+            new Date().toISOString();
+
+
+        const updatedListing = {
+
+            ...listing,
+
+            status:
+                decision,
+
+            verificationStatus:
+                decision,
+
+            approvalStatus:
+                decision,
+
+            updatedAt:
+                now,
+
+            reviewedAt:
+                now,
+
+            reviewedBy:
+                getFirebaseCurrentUser()?.uid ||
+                "owner"
+
+        };
+
+
+        await updateListingInIndexedDB(
+            updatedListing
+        );
+
+
+        const index =
+            dashboardState.listings.findIndex(
+                item =>
+                    String(item.id) ===
+                    String(listingId)
+            );
+
+
+        if (index !== -1) {
+
+            dashboardState.listings[
+                index
+            ] =
+                updatedListing;
+
+        }
+
+
+        loadDashboardStatistics();
+
+        renderRecentListings();
+
+        renderActivity();
+
+
+        closeListingReview();
+
+
+        const messages = {
+
+            approved:
+                "Listing approved successfully.",
+
+            rejected:
+                "Listing rejected successfully.",
+
+            needs_changes:
+                "Listing marked as needing changes."
+
+        };
+
+
+        alert(
+            messages[decision] ||
+            "Listing updated successfully."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Listing decision failed.",
+            error
+        );
+
+
+        alert(
+
+            "The listing could not be updated. " +
+            "Please check that IndexedDB storage.js is loaded."
+
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   CLOSE REVIEW
+===================================================== */
+
+function closeListingReview() {
+
+    const modal =
+        getElement(
+            "tipecoOwnerListingReviewModal"
+        );
+
+
+    if (!modal) {
+
+        return;
+
+    }
+
+
+    modal.classList.remove(
+        "is-open"
+    );
+
+
+    document.body.style.overflow =
+        "";
+
+
+    const body =
+        getElement(
+            "tipecoReviewBody"
+        );
+
+
+    if (body) {
+
+        body.innerHTML =
+            "";
+
+    }
+
+
+    const actions =
+        getElement(
+            "tipecoReviewActions"
+        );
+
+
+    if (actions) {
+
+        actions.innerHTML =
+            "";
+
+    }
 
 }
 
@@ -1398,22 +3091,105 @@ function renderActivity() {
    SIDEBAR
 ===================================================== */
 
-function initializeSidebar() {
+function initSidebar() {
+
+    const sidebar =
+        getElement(
+            "ownerSidebar"
+        );
+
+
+    const toggle =
+        getElement(
+            "sidebarToggle"
+        );
+
 
     if (
-        !sidebarElement ||
-        !sidebarToggleElement
+        sidebar &&
+        toggle
     ) {
-        return;
+
+        toggle.addEventListener(
+            "click",
+            () => {
+
+                sidebar.classList.toggle(
+                    "active"
+                );
+
+            }
+        );
+
     }
 
 
-    sidebarToggleElement.addEventListener(
-        "click",
-        () => {
+    const sectionLinks =
+        document.querySelectorAll(
+            "[data-section]"
+        );
 
-            sidebarElement.classList.toggle(
-                "active"
+
+    sectionLinks.forEach(
+        link => {
+
+            link.addEventListener(
+                "click",
+                event => {
+
+                    event.preventDefault();
+
+
+                    sectionLinks.forEach(
+                        item =>
+                            item.classList.remove(
+                                "active"
+                            )
+                    );
+
+
+                    link.classList.add(
+                        "active"
+                    );
+
+
+                    const sectionId =
+                        link.dataset.section;
+
+
+                    const target =
+                        getElement(
+                            sectionId
+                        );
+
+
+                    if (target) {
+
+                        target.scrollIntoView({
+
+                            behavior:
+                                "smooth",
+
+                            block:
+                                "start"
+
+                        });
+
+                    }
+
+
+                    if (
+                        sidebar &&
+                        window.innerWidth <= 900
+                    ) {
+
+                        sidebar.classList.remove(
+                            "active"
+                        );
+
+                    }
+
+                }
             );
 
         }
@@ -1423,129 +3199,63 @@ function initializeSidebar() {
 
 
 /* =====================================================
-   NAVIGATION
-===================================================== */
-
-function initializeNavigation() {
-
-    const navigationLinks =
-        document.querySelectorAll(
-            "[data-section]"
-        );
-
-
-    navigationLinks.forEach(link => {
-
-        link.addEventListener(
-            "click",
-            event => {
-
-                const sectionId =
-                    link.getAttribute(
-                        "data-section"
-                    );
-
-
-                if (!sectionId) {
-                    return;
-                }
-
-
-                event.preventDefault();
-
-
-                navigationLinks.forEach(
-                    item =>
-                        item.classList.remove(
-                            "active"
-                        )
-                );
-
-
-                link.classList.add(
-                    "active"
-                );
-
-
-                const section =
-                    document.getElementById(
-                        sectionId
-                    );
-
-
-                if (section) {
-
-                    section.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
-                    });
-
-                }
-
-
-                if (
-                    sidebarElement &&
-                    window.innerWidth <= 900
-                ) {
-
-                    sidebarElement.classList.remove(
-                        "active"
-                    );
-
-                }
-
-            }
-        );
-
-    });
-
-}
-
-
-/* =====================================================
    LOGOUT
 ===================================================== */
 
-function initializeLogout() {
+function initLogout() {
 
-    if (!logoutButtonElement) {
-        return;
-    }
+    const buttons =
+        document.querySelectorAll(
 
+            "#ownerLogoutBtn, " +
+            "#logoutBtn, " +
+            '[data-action="logout"]'
 
-    logoutButtonElement.addEventListener(
-        "click",
-        async event => {
-
-            event.preventDefault();
+        );
 
 
-            try {
+    buttons.forEach(
+        button => {
 
-                if (
-                    typeof window.tipecoLogout ===
-                    "function"
-                ) {
+            button.addEventListener(
+                "click",
+                async event => {
 
-                    await window.tipecoLogout();
+                    event.preventDefault();
 
-                } else {
 
-                    window.location.href =
-                        "login.html";
+                    try {
+
+                        if (
+                            typeof window.tipecoLogout ===
+                            "function"
+                        ) {
+
+                            await window.tipecoLogout();
+
+                        }
+
+                        else {
+
+                            window.location.href =
+                                "login.html";
+
+                        }
+
+                    } catch (error) {
+
+                        console.error(
+                            "Owner logout failed.",
+                            error
+                        );
+
+                        window.location.href =
+                            "login.html";
+
+                    }
 
                 }
-
-            } catch (error) {
-
-                console.error(
-                    "TIPECO: Logout failed:",
-                    error
-                );
-
-                window.location.href =
-                    "login.html";
-            }
+            );
 
         }
     );
@@ -1554,38 +3264,22 @@ function initializeLogout() {
 
 
 /* =====================================================
-   DASHBOARD DATA REFRESH
+   REFRESH DASHBOARD
 ===================================================== */
 
 async function refreshOwnerDashboard() {
 
     try {
 
-        console.log(
-            "TIPECO: Refreshing Owner Dashboard..."
-        );
+        await Promise.all([
 
+            loadOwnerUsers(),
 
-        const results =
-            await Promise.all([
+            loadOwnerListings(),
 
-                loadOwnerUsers(),
+            loadOwnerReports()
 
-                loadOwnerListings(),
-
-                loadOwnerReports()
-
-            ]);
-
-
-        dashboardState.users =
-            results[0] || [];
-
-        dashboardState.listings =
-            results[1] || [];
-
-        dashboardState.reports =
-            results[2] || [];
+        ]);
 
 
         loadDashboardStatistics();
@@ -1602,7 +3296,7 @@ async function refreshOwnerDashboard() {
 
 
         console.log(
-            "TIPECO: Owner Dashboard refreshed.",
+            `TIPECO Owner Dashboard ${DASHBOARD_VERSION} refreshed.`,
             dashboardState.lastRefresh
         );
 
@@ -1610,7 +3304,7 @@ async function refreshOwnerDashboard() {
     } catch (error) {
 
         console.error(
-            "TIPECO: Dashboard refresh failed:",
+            "Owner dashboard refresh failed.",
             error
         );
 
@@ -1623,7 +3317,7 @@ async function refreshOwnerDashboard() {
    AUTO REFRESH
 ===================================================== */
 
-function initializeAutoRefresh() {
+function initAutoRefresh() {
 
     setInterval(
         async () => {
@@ -1633,7 +3327,9 @@ function initializeAutoRefresh() {
 
 
             if (!currentUser) {
+
                 return;
+
             }
 
 
@@ -1671,15 +3367,15 @@ function showOwnerDashboard() {
     }
 
 
-    const loadingScreen =
-        document.getElementById(
+    const loading =
+        getElement(
             "ownerAuthLoading"
         );
 
 
-    if (loadingScreen) {
+    if (loading) {
 
-        loadingScreen.style.display =
+        loading.style.display =
             "none";
 
     }
@@ -1688,13 +3384,24 @@ function showOwnerDashboard() {
 
 
 /* =====================================================
-   INITIALIZE OWNER DASHBOARD
+   GLOBAL OWNER REVIEW API
+===================================================== */
+
+window.tipecoOpenListingReview =
+    openListingReview;
+
+window.tipecoRefreshOwnerDashboard =
+    refreshOwnerDashboard;
+
+
+/* =====================================================
+   INITIALIZATION
 ===================================================== */
 
 async function initializeOwnerDashboard() {
 
     console.log(
-        `TIPECO GROUP Owner Dashboard V${DASHBOARD_VERSION} starting...`
+        `TIPECO GROUP Owner Dashboard ${DASHBOARD_VERSION} initializing...`
     );
 
 
@@ -1703,19 +3410,18 @@ async function initializeOwnerDashboard() {
 
 
     if (!authorized) {
+
         return;
+
     }
 
 
     await loadOwnerProfile();
 
 
-    initializeSidebar();
+    initSidebar();
 
-    initializeNavigation();
-
-    initializeLogout();
-
+    initLogout();
 
     showOwnerDashboard();
 
@@ -1723,11 +3429,11 @@ async function initializeOwnerDashboard() {
     await refreshOwnerDashboard();
 
 
-    initializeAutoRefresh();
+    initAutoRefresh();
 
 
     console.log(
-        `TIPECO GROUP Owner Dashboard V${DASHBOARD_VERSION} loaded successfully.`
+        `TIPECO GROUP Owner Dashboard ${DASHBOARD_VERSION} ready.`
     );
 
 }
@@ -1747,7 +3453,9 @@ if (
         initializeOwnerDashboard
     );
 
-} else {
+}
+
+else {
 
     initializeOwnerDashboard();
 
