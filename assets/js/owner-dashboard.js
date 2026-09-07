@@ -3285,7 +3285,1080 @@ async function refreshOwnerDashboard() {
         loadDashboardStatistics();
 
         renderRecentUsers();
+/* =====================================================
+   USERS MANAGEMENT
+===================================================== */
 
+let ownerUserSearchTerm = "";
+let ownerUserRoleFilter = "all";
+let ownerUserStatusFilter = "all";
+
+
+function normalizeUserStatus(user) {
+
+    return normalize(
+        user?.accountStatus ||
+        user?.status ||
+        "active"
+    );
+
+}
+
+
+function getUserJoinedDate(user) {
+
+    return (
+
+        user?.createdAt ||
+
+        user?.registeredAt ||
+
+        user?.joinedAt ||
+
+        user?.dateCreated ||
+
+        null
+
+    );
+
+}
+
+
+function getFilteredOwnerUsers() {
+
+    const search =
+        normalize(
+            ownerUserSearchTerm
+        );
+
+
+    return dashboardState.users.filter(
+        user => {
+
+            const name =
+                normalize(
+                    getUserName(user)
+                );
+
+
+            const email =
+                normalize(
+                    user?.email
+                );
+
+
+            const phone =
+                normalize(
+                    user?.phone
+                );
+
+
+            const role =
+                getUserRole(user);
+
+
+            const status =
+                normalizeUserStatus(
+                    user
+                );
+
+
+            const matchesSearch =
+                !search ||
+
+                name.includes(search) ||
+
+                email.includes(search) ||
+
+                phone.includes(search);
+
+
+            const matchesRole =
+                ownerUserRoleFilter ===
+                "all" ||
+
+                role ===
+                ownerUserRoleFilter;
+
+
+            const matchesStatus =
+                ownerUserStatusFilter ===
+                "all" ||
+
+                status ===
+                ownerUserStatusFilter;
+
+
+            return (
+                matchesSearch &&
+                matchesRole &&
+                matchesStatus
+            );
+
+        }
+    );
+
+}
+
+
+function formatUserRole(role) {
+
+    const value =
+        normalize(role);
+
+
+    if (!value) {
+
+        return "User";
+
+    }
+
+
+    return value
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, letter =>
+            letter.toUpperCase()
+        );
+
+}
+
+
+function formatUserStatus(status) {
+
+    const value =
+        normalize(status);
+
+
+    if (!value) {
+
+        return "Active";
+
+    }
+
+
+    return value
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, letter =>
+            letter.toUpperCase()
+        );
+
+}
+
+
+function renderOwnerUsersManagement() {
+
+    const container =
+        getElement(
+            "ownerUsersTable"
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    const users =
+        sortByDateDescending(
+            getFilteredOwnerUsers()
+        );
+
+
+    if (!users.length) {
+
+        container.innerHTML = `
+
+            <tr>
+
+                <td colspan="7">
+
+                    No users match your search or filters.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        users.map(
+            user => {
+
+                const role =
+                    getUserRole(user);
+
+
+                const status =
+                    normalizeUserStatus(
+                        user
+                    );
+
+
+                return `
+
+                    <tr>
+
+                        <td>
+
+                            ${safeText(
+                                getUserName(user)
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${safeText(
+                                user?.email
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${safeText(
+                                user?.phone
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${formatUserRole(
+                                role
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${formatUserStatus(
+                                status
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            ${formatDate(
+                                getUserJoinedDate(
+                                    user
+                                )
+                            )}
+
+                        </td>
+
+
+                        <td>
+
+                            <button
+                                type="button"
+                                class="tipeco-view-user"
+                                data-user-id="${safeText(
+                                    user.id,
+                                    ""
+                                )}"
+                            >
+                                View Details
+                            </button>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        ).join("");
+
+
+    container
+        .querySelectorAll(
+            ".tipeco-view-user"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        openOwnerUserDetails(
+                            button.dataset.userId
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+}
+
+
+/* =====================================================
+   USER DETAILS MODAL
+===================================================== */
+
+function ensureUserDetailsModal() {
+
+    let modal =
+        getElement(
+            "tipecoOwnerUserDetailsModal"
+        );
+
+
+    if (modal) {
+
+        return modal;
+
+    }
+
+
+    modal =
+        document.createElement(
+            "div"
+        );
+
+
+    modal.id =
+        "tipecoOwnerUserDetailsModal";
+
+
+    modal.innerHTML = `
+
+        <div
+            class="tipeco-user-modal-overlay"
+            data-user-modal-close="true"
+        >
+
+            <div
+                class="tipeco-user-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="tipecoUserDetailsTitle"
+            >
+
+                <div class="tipeco-user-modal-header">
+
+                    <div>
+
+                        <h2 id="tipecoUserDetailsTitle">
+                            User Details
+                        </h2>
+
+                        <p>
+                            TIPECO GROUP account information
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="tipecoUserDetailsClose"
+                        aria-label="Close"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="tipecoUserDetailsBody"
+                    class="tipeco-user-modal-body"
+                ></div>
+
+
+                <div class="tipeco-user-modal-actions">
+
+                    <button
+                        type="button"
+                        id="tipecoUserDetailsCloseBottom"
+                        class="tipeco-user-close-btn"
+                    >
+                        Close
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document.body.appendChild(
+        modal
+    );
+
+
+    const style =
+        document.createElement(
+            "style"
+        );
+
+
+    style.textContent = `
+
+        #tipecoOwnerUserDetailsModal {
+
+            position: fixed;
+            inset: 0;
+            z-index: 99998;
+            display: none;
+
+        }
+
+
+        #tipecoOwnerUserDetailsModal.is-open {
+
+            display: block;
+
+        }
+
+
+        .tipeco-user-modal-overlay {
+
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,.72);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            overflow-y: auto;
+
+        }
+
+
+        .tipeco-user-modal {
+
+            width: min(650px, 100%);
+
+            max-height: 92vh;
+
+            overflow-y: auto;
+
+            background: #fff;
+
+            border-radius: 16px;
+
+            box-shadow:
+                0 25px 80px rgba(0,0,0,.3);
+
+        }
+
+
+        .tipeco-user-modal-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: flex-start;
+
+            gap: 20px;
+
+            padding: 22px;
+
+            border-bottom:
+                1px solid #e5e7eb;
+
+        }
+
+
+        .tipeco-user-modal-header h2 {
+
+            margin:
+                0 0 6px;
+
+        }
+
+
+        .tipeco-user-modal-header p {
+
+            margin: 0;
+
+            opacity: .7;
+
+        }
+
+
+        #tipecoUserDetailsClose {
+
+            border: 0;
+
+            background: transparent;
+
+            font-size: 32px;
+
+            line-height: 1;
+
+            cursor: pointer;
+
+        }
+
+
+        .tipeco-user-modal-body {
+
+            padding: 22px;
+
+        }
+
+
+        .tipeco-user-detail {
+
+            padding:
+                13px 0;
+
+            border-bottom:
+                1px solid #eeeeee;
+
+        }
+
+
+        .tipeco-user-detail:last-child {
+
+            border-bottom: 0;
+
+        }
+
+
+        .tipeco-user-detail strong {
+
+            display: block;
+
+            margin-bottom: 4px;
+
+        }
+
+
+        .tipeco-user-modal-actions {
+
+            padding:
+                16px 22px;
+
+            border-top:
+                1px solid #e5e7eb;
+
+            display: flex;
+
+            justify-content: flex-end;
+
+        }
+
+
+        .tipeco-user-close-btn {
+
+            border: 0;
+
+            border-radius: 9px;
+
+            padding:
+                10px 18px;
+
+            cursor: pointer;
+
+            font-weight: 600;
+
+            background: #e5e7eb;
+
+        }
+
+
+        .tipeco-users-toolbar {
+
+            display: flex;
+
+            gap: 12px;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            flex-wrap: wrap;
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .tipeco-users-search {
+
+            flex:
+                1 1 280px;
+
+        }
+
+
+        .tipeco-users-search input {
+
+            width: 100%;
+
+            box-sizing: border-box;
+
+            padding:
+                12px 14px;
+
+            border:
+                1px solid #d1d5db;
+
+            border-radius: 9px;
+
+            font-size: 14px;
+
+        }
+
+
+        .tipeco-users-filter {
+
+            display: flex;
+
+            gap: 10px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .tipeco-users-filter select {
+
+            padding:
+                12px 14px;
+
+            border:
+                1px solid #d1d5db;
+
+            border-radius: 9px;
+
+            background: #fff;
+
+        }
+
+
+        .tipeco-view-user {
+
+            border: 0;
+
+            border-radius: 8px;
+
+            padding:
+                8px 12px;
+
+            cursor: pointer;
+
+            font-weight: 600;
+
+            background: #0D47A1;
+
+            color: #fff;
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .tipeco-users-filter {
+
+                width: 100%;
+
+            }
+
+
+            .tipeco-users-filter select {
+
+                flex: 1;
+
+            }
+
+        }
+
+    `;
+
+
+    document.head.appendChild(
+        style
+    );
+
+
+    const closeTop =
+        getElement(
+            "tipecoUserDetailsClose"
+        );
+
+
+    const closeBottom =
+        getElement(
+            "tipecoUserDetailsCloseBottom"
+        );
+
+
+    if (closeTop) {
+
+        closeTop.addEventListener(
+            "click",
+            closeOwnerUserDetails
+        );
+
+    }
+
+
+    if (closeBottom) {
+
+        closeBottom.addEventListener(
+            "click",
+            closeOwnerUserDetails
+        );
+
+    }
+
+
+    const overlay =
+        modal.querySelector(
+            ".tipeco-user-modal-overlay"
+        );
+
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target ===
+                    overlay
+                ) {
+
+                    closeOwnerUserDetails();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    return modal;
+
+}
+
+
+/* =====================================================
+   OPEN USER DETAILS
+===================================================== */
+
+function openOwnerUserDetails(
+    userId
+) {
+
+    const user =
+        dashboardState.users.find(
+            item =>
+                String(item.id) ===
+                String(userId)
+        );
+
+
+    if (!user) {
+
+        alert(
+            "User could not be found."
+        );
+
+        return;
+
+    }
+
+
+    const modal =
+        ensureUserDetailsModal();
+
+
+    const body =
+        getElement(
+            "tipecoUserDetailsBody"
+        );
+
+
+    if (!body) {
+
+        return;
+
+    }
+
+
+    const role =
+        getUserRole(user);
+
+
+    const status =
+        normalizeUserStatus(
+            user
+        );
+
+
+    body.innerHTML = `
+
+        <div class="tipeco-user-detail">
+
+            <strong>
+                Full Name
+            </strong>
+
+            <div>
+                ${safeText(
+                    getUserName(user)
+                )}
+            </div>
+
+        </div>
+
+
+        <div class="tipeco-user-detail">
+
+            <strong>
+                Email
+            </strong>
+
+            <div>
+                ${safeText(
+                    user.email
+                )}
+            </div>
+
+        </div>
+
+
+        <div class="tipeco-user-detail">
+
+            <strong>
+                Phone
+            </strong>
+
+            <div>
+                ${safeText(
+                    user.phone
+                )}
+            </div>
+
+        </div>
+
+
+        <div class="tipeco-user-detail">
+
+            <strong>
+                Role
+            </strong>
+
+            <div>
+                ${formatUserRole(
+                    role
+                )}
+            </div>
+
+        </div>
+
+
+        <div class="tipeco-user-detail">
+
+            <strong>
+                Account Status
+            </strong>
+
+            <div>
+                ${formatUserStatus(
+                    status
+                )}
+            </div>
+
+        </div>
+
+
+        <div class="tipeco-user-detail">
+
+            <strong>
+                Joined
+            </strong>
+
+            <div>
+                ${formatDate(
+                    getUserJoinedDate(
+                        user
+                    )
+                )}
+            </div>
+
+        </div>
+
+
+        <div class="tipeco-user-detail">
+
+            <strong>
+                Email Verified
+            </strong>
+
+            <div>
+                ${user.emailVerified === true
+                    ? "Yes"
+                    : "No"}
+            </div>
+
+        </div>
+
+
+        <div class="tipeco-user-detail">
+
+            <strong>
+                User ID
+            </strong>
+
+            <div>
+                ${safeText(
+                    user.uid ||
+                    user.id
+                )}
+            </div>
+
+        </div>
+
+    `;
+
+
+    modal.classList.add(
+        "is-open"
+    );
+
+
+    document.body.style.overflow =
+        "hidden";
+
+}
+
+
+function closeOwnerUserDetails() {
+
+    const modal =
+        getElement(
+            "tipecoOwnerUserDetailsModal"
+        );
+
+
+    if (!modal) {
+
+        return;
+
+    }
+
+
+    modal.classList.remove(
+        "is-open"
+    );
+
+
+    document.body.style.overflow =
+        "";
+
+}
+
+
+/* =====================================================
+   USERS MANAGEMENT EVENTS
+===================================================== */
+
+function initUsersManagement() {
+
+    const searchInput =
+        getElement(
+            "ownerUserSearch"
+        );
+
+
+    const roleFilter =
+        getElement(
+            "ownerUserRoleFilter"
+        );
+
+
+    const statusFilter =
+        getElement(
+            "ownerUserStatusFilter"
+        );
+
+
+    if (searchInput) {
+
+        searchInput.addEventListener(
+            "input",
+            () => {
+
+                ownerUserSearchTerm =
+                    searchInput.value;
+
+                renderOwnerUsersManagement();
+
+            }
+        );
+
+    }
+
+
+    if (roleFilter) {
+
+        roleFilter.addEventListener(
+            "change",
+            () => {
+
+                ownerUserRoleFilter =
+                    roleFilter.value;
+
+                renderOwnerUsersManagement();
+
+            }
+        );
+
+    }
+
+
+    if (statusFilter) {
+
+        statusFilter.addEventListener(
+            "change",
+            () => {
+
+                ownerUserStatusFilter =
+                    statusFilter.value;
+
+                renderOwnerUsersManagement();
+
+            }
+        );
+
+    }
+
+
+    renderOwnerUsersManagement();
+
+}
         renderRecentListings();
 
         renderActivity();
