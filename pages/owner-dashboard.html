@@ -644,79 +644,161 @@
 
 
                 <!-- =================================================
-                     RECENT LISTINGS
-                ================================================== -->
+     USERS MANAGEMENT
+================================================== -->
 
-                <section class="owner-section"
-                         id="listings">
+<section class="owner-section"
+         id="users">
 
-                    <div class="owner-section-header">
+    <div class="owner-section-header">
 
-                        <div>
+        <div>
 
-                            <h2>
-                                Recent Listings
-                            </h2>
+            <h2>
+                Users Management
+            </h2>
 
-                            <p>
-                                Latest listings submitted to TIPECO GROUP.
-                            </p>
+            <p>
+                Manage and review TIPECO GROUP users.
+            </p>
 
-                        </div>
+        </div>
 
-                    </div>
-
-
-                    <div class="owner-table-wrapper">
-
-                        <table class="owner-table">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>
-                                        Listing
-                                    </th>
-
-                                    <th>
-                                        Owner
-                                    </th>
-
-                                    <th>
-                                        Category
-                                    </th>
-
-                                    <th>
-                                        Status
-                                    </th>
-
-                                    <th>
-                                        Date
-                                    </th>
-
-                                </tr>
-
-                            </thead>
+    </div>
 
 
-                            <tbody id="recentListings">
+    <!-- USERS TOOLBAR -->
 
-                                <tr>
+    <div class="tipeco-users-toolbar">
 
-                                    <td colspan="5">
-                                        No listings available yet.
-                                    </td>
+        <div class="tipeco-users-search">
 
-                                </tr>
+            <input
+                type="search"
+                id="ownerUserSearch"
+                placeholder="Search by name, email or phone..."
+                autocomplete="off"
+            >
 
-                            </tbody>
+        </div>
 
-                        </table>
 
-                    </div>
+        <div class="tipeco-users-filter">
 
-                </section>
+            <select id="ownerUserRoleFilter">
+
+                <option value="all">
+                    All Roles
+                </option>
+
+                <option value="buyer">
+                    Buyers
+                </option>
+
+                <option value="seller">
+                    Sellers
+                </option>
+
+                <option value="agent">
+                    Agents
+                </option>
+
+                <option value="owner">
+                    Owners
+                </option>
+
+            </select>
+
+
+            <select id="ownerUserStatusFilter">
+
+                <option value="all">
+                    All Statuses
+                </option>
+
+                <option value="active">
+                    Active
+                </option>
+
+                <option value="pending_verification">
+                    Pending Verification
+                </option>
+
+                <option value="suspended">
+                    Suspended
+                </option>
+
+                <option value="blocked">
+                    Blocked
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <!-- USERS TABLE -->
+
+    <div class="owner-table-wrapper">
+
+        <table class="owner-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        User
+                    </th>
+
+                    <th>
+                        Email
+                    </th>
+
+                    <th>
+                        Phone
+                    </th>
+
+                    <th>
+                        Role
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Joined
+                    </th>
+
+                    <th>
+                        Action
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="ownerUsersTable">
+
+                <tr>
+
+                    <td colspan="7">
+                        Loading users...
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
 
 
 
