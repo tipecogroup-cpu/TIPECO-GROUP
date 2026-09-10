@@ -9,7 +9,7 @@
    - Mandatory Email Verification
    - Mandatory Phone Verification (SMS OTP)
    - Firebase Phone Auth + reCAPTCHA
-   - Phone linked to the SAME Firebase account
+   - 
    - Account active ONLY when:
        emailVerified === true
        AND
