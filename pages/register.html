@@ -1,1107 +1,1189 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en"><head><!-- =====================================================
+     TIPECO GROUP - REGISTER PAGE
+     REAL PROJECT
+     Version: 5.1
+     General Account Architecture
+     Firebase Email + Real Phone Verification
+     Compatible with auth.js V8.0
+====================================================== -->
 
-<head>
+<meta charset="UTF-8">
 
-    <!-- =====================================================
-         TIPECO GROUP - REGISTER PAGE
-         REAL PROJECT
-         Version: 5.0
-         General Account Architecture
-         Email + Real Phone Verification
-    ====================================================== -->
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
-    <meta charset="UTF-8">
+<meta name="description"
+      content="Create your TIPECO GROUP account">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+<meta name="author"
+      content="TIPECO GROUP">
 
-    <meta name="description"
-          content="Create your TIPECO GROUP account">
+<meta name="theme-color"
+      content="#0D47A1">
 
-    <meta name="author"
-          content="TIPECO GROUP">
+<title>Sign Up | TIPECO GROUP</title>
 
-    <meta name="theme-color"
-          content="#0D47A1">
-
-    <title>Sign Up | TIPECO GROUP</title>
-
-    <link rel="stylesheet"
-          href="../assets/css/auth.css">
-
-    <style>
-
-        /* =====================================================
-           REGISTER BUTTON
-        ===================================================== */
-
-        #registerButton {
-            opacity: 0.55;
-            cursor: not-allowed;
-            pointer-events: none;
-            transition:
-                opacity 0.2s ease,
-                transform 0.2s ease;
-        }
-
-        #registerButton.is-ready {
-            opacity: 1;
-            cursor: pointer;
-            pointer-events: auto;
-        }
-
-        #registerButton.is-ready:hover {
-            transform: translateY(-1px);
-        }
+<link rel="stylesheet"
+      href="../assets/css/auth.css">
 
 
-        /* =====================================================
-           PHONE VERIFICATION
-        ===================================================== */
+<style>
+
+    /* =====================================================
+       REGISTER BUTTON
+    ===================================================== */
+
+    #registerButton {
+        opacity: 0.55;
+        cursor: not-allowed;
+        pointer-events: none;
+        transition:
+            opacity 0.2s ease,
+            transform 0.2s ease;
+    }
+
+    #registerButton.is-ready {
+        opacity: 1;
+        cursor: pointer;
+        pointer-events: auto;
+    }
+
+    #registerButton.is-ready:hover {
+        transform: translateY(-1px);
+    }
+
+
+    /* =====================================================
+       PHONE VERIFICATION
+    ===================================================== */
+
+    .phone-row {
+        display: flex;
+        gap: 8px;
+        align-items: stretch;
+    }
+
+    .country-select {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .phone-input {
+        flex: 1;
+        min-width: 0;
+    }
+
+    #sendPhoneCode,
+    #verifyPhoneButton {
+        width: 100%;
+        margin-top: 10px;
+        padding: 12px 18px;
+        border: none;
+        border-radius: 6px;
+        background: #0D47A1;
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+            background 0.2s ease,
+            transform 0.2s ease,
+            opacity 0.2s ease;
+    }
+
+    #sendPhoneCode:hover,
+    #verifyPhoneButton:hover {
+        background: #1976D2;
+        transform: translateY(-1px);
+    }
+
+    #sendPhoneCode:disabled,
+    #verifyPhoneButton:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+
+    /* =====================================================
+       OTP SECTION
+    ===================================================== */
+
+    #otpSection {
+        display: none;
+        margin-top: 15px;
+    }
+
+    #otp {
+        width: 100%;
+        box-sizing: border-box;
+        letter-spacing: 4px;
+        text-align: center;
+        font-size: 18px;
+    }
+
+
+    /* =====================================================
+       RECAPTCHA
+    ===================================================== */
+
+    #recaptcha-container {
+        margin-top: 15px;
+    }
+
+
+    /* =====================================================
+       PHONE STATUS
+    ===================================================== */
+
+    #phoneVerificationStatus,
+    #phoneStatus {
+        display: none;
+        margin-top: 10px;
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+
+    /* =====================================================
+       EMAIL VERIFICATION
+    ===================================================== */
+
+    #emailVerificationSection {
+        display: none;
+        margin-top: 20px;
+    }
+
+    #verifyEmailButton {
+        width: 100%;
+        margin-top: 15px;
+        padding: 12px 18px;
+        border: none;
+        border-radius: 6px;
+        background: #0D47A1;
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+            background 0.2s ease,
+            transform 0.2s ease;
+    }
+
+    #verifyEmailButton:hover {
+        background: #1976D2;
+        transform: translateY(-1px);
+    }
+
+    #verifyEmailButton:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+
+    /* =====================================================
+       PASSWORD MESSAGE
+    ===================================================== */
+
+    #passwordMessage {
+        display: none;
+        margin-top: 6px;
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+       REGISTER STATUS
+    ===================================================== */
+
+    #registerStatus {
+        display: none;
+        margin-bottom: 15px;
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+
+    /* =====================================================
+       RESPONSIVE PHONE LAYOUT
+    ===================================================== */
+
+    @media (max-width: 480px) {
 
         .phone-row {
-            display: flex;
-            gap: 8px;
-            align-items: stretch;
+            flex-direction: column;
         }
 
-        .country-select {
-            flex: 0 0 145px;
-        }
+    }
 
-        .phone-input {
-            flex: 1;
-            min-width: 0;
-        }
+</style>
 
-        #sendPhoneCodeButton,
-        #verifyPhoneButton {
-            width: 100%;
-            margin-top: 10px;
-            padding: 12px 18px;
-            border: none;
-            border-radius: 6px;
-            background: #0D47A1;
-            color: #ffffff;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition:
-                background 0.2s ease,
-                transform 0.2s ease,
-                opacity 0.2s ease;
-        }
+</head><body><main class="auth-page">
 
-        #sendPhoneCodeButton:hover,
-        #verifyPhoneButton:hover {
-            background: #1976D2;
-            transform: translateY(-1px);
-        }
-
-        #sendPhoneCodeButton:disabled,
-        #verifyPhoneButton:disabled {
-            opacity: 0.55;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        #otpSection {
-            display: none;
-            margin-top: 15px;
-        }
-
-        #phoneVerificationStatus {
-            display: none;
-            margin-top: 10px;
-            padding: 10px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        #recaptcha-container {
-            margin-top: 15px;
-        }
+    <div class="auth-container">
 
 
-        /* =====================================================
-           EMAIL VERIFICATION
-        ===================================================== */
+        <!-- =================================================
+             HEADER
+        ================================================= -->
 
-        #verifyEmailButton {
-            width: 100%;
-            margin-top: 15px;
-            padding: 12px 18px;
-            border: none;
-            border-radius: 6px;
-            background: #0D47A1;
-            color: #ffffff;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition:
-                background 0.2s ease,
-                transform 0.2s ease;
-        }
+        <div class="auth-header">
 
-        #verifyEmailButton:hover {
-            background: #1976D2;
-            transform: translateY(-1px);
-        }
+            <a href="../index.html"
+               class="auth-logo">
 
-        #verifyEmailButton:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+                TIPECO GROUP
+
+            </a>
+
+            <h1>
+                Create Your Account
+            </h1>
+
+            <p>
+                Join TIPECO GROUP and explore new opportunities
+            </p>
+
+        </div>
 
 
-        /* =====================================================
-           PASSWORD MESSAGE
-        ===================================================== */
+        <!-- =================================================
+             AUTH CARD
+        ================================================= -->
 
-        #passwordMessage {
-            display: none;
-            margin-top: 6px;
-            font-size: 13px;
-        }
+        <div class="auth-card">
 
 
-        /* =====================================================
-           REGISTER STATUS
-        ===================================================== */
-
-        #registerStatus {
-            display: none;
-            margin-bottom: 15px;
-            padding: 10px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-        }
+            <form id="registerForm"
+                  novalidate>
 
 
-        /* =====================================================
-           RESPONSIVE PHONE LAYOUT
-        ===================================================== */
+                <!-- =========================================
+                     REGISTER STATUS
+                ========================================== -->
 
-        @media (max-width: 480px) {
-
-            .phone-row {
-                flex-direction: column;
-            }
-
-            .country-select {
-                flex: 1;
-                width: 100%;
-            }
-
-        }
-
-    </style>
-
-</head>
+                <div id="registerStatus"
+                     role="alert"
+                     aria-live="polite">
+                </div>
 
 
-<body>
+                <!-- =========================================
+                     FULL NAME
+                ========================================== -->
 
-    <main class="auth-page">
+                <div class="form-group">
 
-        <div class="auth-container">
+                    <label for="fullName">
+                        Full Name
+                    </label>
 
+                    <input
+                        type="text"
+                        id="fullName"
+                        name="fullName"
+                        placeholder="Enter your full name"
+                        autocomplete="name"
+                        minlength="2"
+                        required>
 
-            <!-- =================================================
-                 HEADER
-            ================================================= -->
-
-            <div class="auth-header">
-
-                <a href="../index.html"
-                   class="auth-logo">
-                    TIPECO GROUP
-                </a>
-
-                <h1>
-                    Create Your Account
-                </h1>
-
-                <p>
-                    Join TIPECO GROUP and explore new opportunities
-                </p>
-
-            </div>
+                </div>
 
 
-            <!-- =================================================
-                 AUTH CARD
-            ================================================= -->
+                <!-- =========================================
+                     EMAIL
+                ========================================== -->
 
-            <div class="auth-card">
+                <div class="form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                        required>
+
+                </div>
 
 
-                <form id="registerForm"
-                      novalidate>
+                <!-- =========================================
+                     COUNTRY
+                ========================================== -->
+
+                <div class="form-group">
+
+                    <label for="country">
+                        Country
+                    </label>
+
+                    <select
+                        id="country"
+                        name="country"
+                        class="country-select"
+                        required>
+
+                        <option value="+250"
+                                selected>
+                            🇷🇼 Rwanda (+250)
+                        </option>
+
+                        <option value="+257">
+                            🇧🇮 Burundi (+257)
+                        </option>
+
+                        <option value="+255">
+                            🇹🇿 Tanzania (+255)
+                        </option>
+
+                        <option value="+256">
+                            🇺🇬 Uganda (+256)
+                        </option>
+
+                        <option value="+254">
+                            🇰🇪 Kenya (+254)
+                        </option>
+
+                        <option value="+243">
+                            🇨🇩 DR Congo (+243)
+                        </option>
+
+                        <option value="+1">
+                            🇺🇸 United States (+1)
+                        </option>
+
+                        <option value="+44">
+                            🇬🇧 United Kingdom (+44)
+                        </option>
+
+                        <option value="+33">
+                            🇫🇷 France (+33)
+                        </option>
+
+                        <option value="+49">
+                            🇩🇪 Germany (+49)
+                        </option>
+
+                        <option value="+27">
+                            🇿🇦 South Africa (+27)
+                        </option>
+
+                        <option value="+91">
+                            🇮🇳 India (+91)
+                        </option>
+
+                        <option value="+86">
+                            🇨🇳 China (+86)
+                        </option>
+
+                        <option value="+81">
+                            🇯🇵 Japan (+81)
+                        </option>
+
+                        <option value="+971">
+                            🇦🇪 United Arab Emirates (+971)
+                        </option>
+
+                        <option value="+966">
+                            🇸🇦 Saudi Arabia (+966)
+                        </option>
+
+                    </select>
+
+                </div>
 
 
-                    <!-- =========================================
-                         STATUS
-                    ========================================== -->
+                <!-- =========================================
+                     PHONE
+                ========================================== -->
 
-                    <div id="registerStatus"
-                         role="alert"
-                         aria-live="polite">
+                <div class="form-group">
+
+                    <label for="phone">
+                        Phone Number
+                    </label>
+
+                    <div class="phone-row">
+
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            class="phone-input"
+                            placeholder="Enter phone number"
+                            autocomplete="tel"
+                            required>
+
                     </div>
 
 
-                    <!-- =========================================
-                         FULL NAME
-                    ========================================== -->
+                    <!-- =====================================
+                         SEND PHONE CODE
+                    ====================================== -->
 
-                    <div class="form-group">
+                    <button
+                        type="button"
+                        id="sendPhoneCode"
+                        disabled>
 
-                        <label for="fullName">
-                            Full Name
+                        Send Verification Code
+
+                    </button>
+
+
+                    <!-- =====================================
+                         FIREBASE RECAPTCHA
+                    ====================================== -->
+
+                    <div id="recaptcha-container"></div>
+
+
+                    <!-- =====================================
+                         PHONE STATUS
+                    ====================================== -->
+
+                    <div
+                        id="phoneStatus"
+                        role="status"
+                        aria-live="polite">
+                    </div>
+
+                    <div
+                        id="phoneVerificationStatus"
+                        role="status"
+                        aria-live="polite">
+                    </div>
+
+
+                    <!-- =====================================
+                         OTP SECTION
+                    ====================================== -->
+
+                    <div id="otpSection">
+
+                        <label for="otp">
+                            SMS Verification Code
                         </label>
 
                         <input
                             type="text"
-                            id="fullName"
-                            name="fullName"
-                            placeholder="Enter your full name"
-                            autocomplete="name"
-                            minlength="2"
-                            required>
-
-                    </div>
-
-
-                    <!-- =========================================
-                         EMAIL
-                    ========================================== -->
-
-                    <div class="form-group">
-
-                        <label for="email">
-                            Email Address
-                        </label>
-
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            placeholder="Enter your email"
-                            autocomplete="email"
-                            required>
-
-                    </div>
-
-
-                    <!-- =========================================
-                         COUNTRY
-                    ========================================== -->
-
-                    <div class="form-group">
-
-                        <label for="country">
-                            Country
-                        </label>
-
-                        <select
-                            id="country"
-                            name="country"
-                            class="country-select"
-                            required>
-
-                            <option value="+250"
-                                    selected>
-                                🇷🇼 Rwanda (+250)
-                            </option>
-
-                            <option value="+257">
-                                🇧🇮 Burundi (+257)
-                            </option>
-
-                            <option value="+255">
-                                🇹🇿 Tanzania (+255)
-                            </option>
-
-                            <option value="+256">
-                                🇺🇬 Uganda (+256)
-                            </option>
-
-                            <option value="+254">
-                                🇰🇪 Kenya (+254)
-                            </option>
-
-                            <option value="+243">
-                                🇨🇩 DR Congo (+243)
-                            </option>
-
-                            <option value="+1">
-                                🇺🇸 United States (+1)
-                            </option>
-
-                            <option value="+44">
-                                🇬🇧 United Kingdom (+44)
-                            </option>
-
-                            <option value="+33">
-                                🇫🇷 France (+33)
-                            </option>
-
-                            <option value="+49">
-                                🇩🇪 Germany (+49)
-                            </option>
-
-                            <option value="+27">
-                                🇿🇦 South Africa (+27)
-                            </option>
-
-                            <option value="+91">
-                                🇮🇳 India (+91)
-                            </option>
-
-                            <option value="+86">
-                                🇨🇳 China (+86)
-                            </option>
-
-                            <option value="+81">
-                                🇯🇵 Japan (+81)
-                            </option>
-
-                            <option value="+971">
-                                🇦🇪 United Arab Emirates (+971)
-                            </option>
-
-                            <option value="+966">
-                                🇸🇦 Saudi Arabia (+966)
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- =========================================
-                         PHONE
-                    ========================================== -->
-
-                    <div class="form-group">
-
-                        <label for="phone">
-                            Phone Number
-                        </label>
-
-                        <div class="phone-row">
-
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                class="phone-input"
-                                placeholder="Enter phone number"
-                                autocomplete="tel"
-                                required>
-
-                        </div>
-
+                            id="otp"
+                            name="otp"
+                            inputmode="numeric"
+                            autocomplete="one-time-code"
+                            placeholder="Enter 6-digit code"
+                            maxlength="6"
+                            pattern="[0-9]{6}">
 
                         <button
                             type="button"
-                            id="sendPhoneCodeButton"
+                            id="verifyPhoneButton"
                             disabled>
 
-                            Send Verification Code
+                            Verify Phone Number
 
                         </button>
 
-
-                        <div id="recaptcha-container"></div>
-
-
-                        <!-- =====================================
-                             OTP SECTION
-                        ====================================== -->
-
-                        <div id="otpSection">
-
-                            <label for="phoneCode">
-                                SMS Verification Code
-                            </label>
-
-                            <input
-                                type="text"
-                                id="phoneCode"
-                                name="phoneCode"
-                                inputmode="numeric"
-                                autocomplete="one-time-code"
-                                placeholder="Enter 6-digit code"
-                                maxlength="6">
-
-                            <button
-                                type="button"
-                                id="verifyPhoneButton"
-                                disabled>
-
-                                Verify Phone Number
-
-                            </button>
-
-                        </div>
-
-
-                        <div
-                            id="phoneVerificationStatus"
-                            role="status"
-                            aria-live="polite">
-                        </div>
-
                     </div>
 
+                </div>
 
-                    <!-- =========================================
-                         PASSWORD
-                    ========================================== -->
 
-                    <div class="form-group">
+                <!-- =========================================
+                     PASSWORD
+                ========================================== -->
 
-                        <label for="password">
-                            Password
-                        </label>
+                <div class="form-group">
 
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Create a password"
-                            autocomplete="new-password"
-                            minlength="6"
-                            required>
+                    <label for="password">
+                        Password
+                    </label>
 
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Create a password"
+                        autocomplete="new-password"
+                        minlength="6"
+                        required>
+
+                </div>
+
+
+                <!-- =========================================
+                     CONFIRM PASSWORD
+                ========================================== -->
+
+                <div class="form-group">
+
+                    <label for="confirmPassword">
+                        Confirm Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        placeholder="Confirm your password"
+                        autocomplete="new-password"
+                        minlength="6"
+                        required>
+
+                    <div
+                        id="passwordMessage"
+                        aria-live="polite">
                     </div>
 
-
-                    <!-- =========================================
-                         CONFIRM PASSWORD
-                    ========================================== -->
-
-                    <div class="form-group">
-
-                        <label for="confirmPassword">
-                            Confirm Password
-                        </label>
-
-                        <input
-                            type="password"
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            placeholder="Confirm your password"
-                            autocomplete="new-password"
-                            minlength="6"
-                            required>
-
-                        <div id="passwordMessage"
-                             aria-live="polite">
-                        </div>
-
-                    </div>
+                </div>
 
 
-                    <!-- =========================================
-                         ACCOUNT ARCHITECTURE
-                    ========================================== -->
+                <!-- =========================================
+                     ACCOUNT ARCHITECTURE
+                ========================================== -->
 
-                    <div class="account-type-info">
-
-                        <p>
-
-                            <strong>
-                                One TIPECO GROUP Account:
-                            </strong>
-
-                            Your account gives you access to
-                            TIPECO GROUP services and opportunities.
-
-                        </p>
-
-                        <p>
-
-                            You can browse and discover available
-                            content for free.
-
-                            Certain actions such as posting or
-                            applying for jobs may require an active
-                            subscription and TIPECO GROUP approval
-                            where applicable.
-
-                        </p>
-
-                        <p>
-
-                            <strong>
-                                Verification Required:
-                            </strong>
-
-                            Your email address and phone number
-                            must both be verified before your
-                            account becomes active.
-
-                        </p>
-
-                    </div>
-
-
-                    <!-- =========================================
-                         TERMS
-                    ========================================== -->
-
-                    <div class="auth-options">
-
-                        <label class="remember-me">
-
-                            <input
-                                type="checkbox"
-                                id="terms"
-                                name="terms"
-                                required>
-
-                            <span>
-
-                                I agree to the
-
-                                <a href="#">
-                                    Terms &amp; Conditions
-                                </a>
-
-                            </span>
-
-                        </label>
-
-                    </div>
-
-
-                    <!-- =========================================
-                         CREATE ACCOUNT
-                    ========================================== -->
-
-                    <button
-                        type="submit"
-                        class="auth-btn"
-                        id="registerButton"
-                        disabled
-                        aria-disabled="true">
-
-                        Create Account
-
-                    </button>
-
-
-                    <!-- =========================================
-                         GOOGLE
-                    ========================================== -->
-
-                    <div class="auth-divider">
-
-                        <span>
-                            OR
-                        </span>
-
-                    </div>
-
-
-                    <button
-                        type="button"
-                        class="google-btn"
-                        id="googleSignUpButton">
-
-                        <span class="google-icon">
-                            G
-                        </span>
-
-                        <span>
-                            Continue with Google
-                        </span>
-
-                    </button>
-
-                </form>
-
-
-                <!-- =================================================
-                     EMAIL VERIFICATION
-                ================================================== -->
-
-                <div
-                    id="verificationMessage"
-                    class="account-type-info"
-                    style="display:none;"
-                    aria-live="polite">
+                <div class="account-type-info">
 
                     <p>
 
                         <strong>
-                            Verify Your Email
+                            One TIPECO GROUP Account:
                         </strong>
 
-                    </p>
-
-                    <p>
-
-                        We have sent a verification email
-                        to your email address.
+                        Your account gives you access to
+                        TIPECO GROUP services and opportunities.
 
                     </p>
 
                     <p>
 
-                        Open your email inbox, complete the
-                        verification, then return here and
-                        press the button below.
+                        You can browse and discover available
+                        content for free.
+
+                        Certain actions such as posting or
+                        applying for jobs may require an active
+                        subscription and TIPECO GROUP approval
+                        where applicable.
 
                     </p>
 
-                    <button
-                        type="button"
-                        id="verifyEmailButton">
-
-                        Verify Email
-
-                    </button>
-
-                </div>
-
-
-                <!-- =================================================
-                     LOGIN LINK
-                ================================================== -->
-
-                <div class="auth-register">
-
                     <p>
 
-                        Already have an account?
+                        <strong>
+                            Verification Required:
+                        </strong>
 
-                        <a href="login.html">
-                            Login
-                        </a>
+                        Your email address and phone number
+                        must both be verified before your
+                        account becomes active.
 
                     </p>
 
                 </div>
 
+
+                <!-- =========================================
+                     TERMS
+                ========================================== -->
+
+                <div class="auth-options">
+
+                    <label class="remember-me">
+
+                        <input
+                            type="checkbox"
+                            id="terms"
+                            name="terms"
+                            required>
+
+                        <span>
+
+                            I agree to the
+
+                            <a href="#">
+                                Terms &amp; Conditions
+                            </a>
+
+                        </span>
+
+                    </label>
+
+                </div>
+
+
+                <!-- =========================================
+                     CREATE ACCOUNT
+                ========================================== -->
+
+                <button
+                    type="submit"
+                    class="auth-btn"
+                    id="registerButton"
+                    disabled
+                    aria-disabled="true">
+
+                    Create Account
+
+                </button>
+
+
+                <!-- =========================================
+                     GOOGLE
+                ========================================== -->
+
+                <div class="auth-divider">
+
+                    <span>
+                        OR
+                    </span>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="google-btn"
+                    id="googleSignUpButton">
+
+                    <span class="google-icon">
+                        G
+                    </span>
+
+                    <span>
+                        Continue with Google
+                    </span>
+
+                </button>
+
+            </form>
+
+
+            <!-- =================================================
+                 EMAIL VERIFICATION
+            ================================================== -->
+
+            <div
+                id="emailVerificationSection"
+                class="account-type-info"
+                aria-live="polite">
+
+                <p>
+
+                    <strong>
+                        Verify Your Email
+                    </strong>
+
+                </p>
+
+                <p>
+
+                    We have sent a verification email
+                    to your email address.
+
+                </p>
+
+                <p>
+
+                    Open your email inbox, complete the
+                    verification, then return here and
+                    press the button below.
+
+                </p>
+
+                <div
+                    id="emailVerificationStatus"
+                    role="status"
+                    aria-live="polite">
+                </div>
+
+                <button
+                    type="button"
+                    id="verifyEmailButton">
+
+                    Verify Email
+
+                </button>
 
             </div>
 
 
             <!-- =================================================
-                 BACK HOME
+                 LOGIN LINK
             ================================================== -->
 
-            <div class="back-home">
+            <div class="auth-register">
 
-                <a href="../index.html">
-                    ← Back to TIPECO GROUP
-                </a>
+                <p>
+
+                    Already have an account?
+
+                    <a href="login.html">
+                        Login
+                    </a>
+
+                </p>
 
             </div>
 
 
         </div>
 
-    </main>
 
+        <!-- =================================================
+             BACK HOME
+        ================================================= -->
 
-    <!-- =====================================================
-         REAL TIPECO AUTHENTICATION
-    ====================================================== -->
+        <div class="back-home">
 
-    <script
-        type="module"
-        src="../assets/js/auth.js">
-    </script>
+            <a href="../index.html">
+                ← Back to TIPECO GROUP
+            </a>
 
+        </div>
 
-    <!-- =====================================================
-         REGISTER PAGE UI VALIDATION
-    ====================================================== -->
 
-    <script>
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            () => {
-
-                const form =
-                    document.getElementById(
-                        "registerForm"
-                    );
+    </div>
 
-                const fullName =
-                    document.getElementById(
-                        "fullName"
-                    );
+</main>
 
-                const email =
-                    document.getElementById(
-                        "email"
-                    );
 
-                const country =
-                    document.getElementById(
-                        "country"
-                    );
+<!-- =====================================================
+     REAL TIPECO AUTHENTICATION
+     Firebase Authentication
+     auth.js V8.0
+====================================================== -->
 
-                const phone =
-                    document.getElementById(
-                        "phone"
-                    );
+<script
+    type="module"
+    src="../assets/js/auth.js">
+</script>
 
-                const password =
-                    document.getElementById(
-                        "password"
-                    );
 
-                const confirmPassword =
-                    document.getElementById(
-                        "confirmPassword"
-                    );
+<!-- =====================================================
+     REGISTER PAGE UI
+     Compatible with auth.js V8.0
+====================================================== -->
 
-                const terms =
-                    document.getElementById(
-                        "terms"
-                    );
+<script>
 
-                const registerButton =
-                    document.getElementById(
-                        "registerButton"
-                    );
+    document.addEventListener(
+        "DOMContentLoaded",
+        () => {
 
-                const sendPhoneCodeButton =
-                    document.getElementById(
-                        "sendPhoneCodeButton"
-                    );
+            /* =============================================
+               ELEMENTS
+            ============================================== */
 
-                const verifyPhoneButton =
-                    document.getElementById(
-                        "verifyPhoneButton"
-                    );
+            const form =
+                document.getElementById(
+                    "registerForm"
+                );
 
-                const phoneCode =
-                    document.getElementById(
-                        "phoneCode"
-                    );
+            const fullName =
+                document.getElementById(
+                    "fullName"
+                );
 
-                const passwordMessage =
-                    document.getElementById(
-                        "passwordMessage"
-                    );
+            const email =
+                document.getElementById(
+                    "email"
+                );
 
+            const country =
+                document.getElementById(
+                    "country"
+                );
 
-                /* =============================================
-                   PHONE VERIFICATION STATE
+            const phone =
+                document.getElementById(
+                    "phone"
+                );
 
-                   Real verification is controlled by auth.js.
-                   This page only reflects the UI state.
-                ============================================== */
+            const password =
+                document.getElementById(
+                    "password"
+                );
 
-                let phoneVerified = false;
+            const confirmPassword =
+                document.getElementById(
+                    "confirmPassword"
+                );
 
+            const terms =
+                document.getElementById(
+                    "terms"
+                );
 
-                /* =============================================
-                   BASIC FORM CHECK
-                ============================================== */
+            const registerButton =
+                document.getElementById(
+                    "registerButton"
+                );
 
-                function basicFormReady() {
+            const sendPhoneCode =
+                document.getElementById(
+                    "sendPhoneCode"
+                );
 
-                    const passwordsMatch =
-                        password.value.length >= 6 &&
-                        confirmPassword.value.length >= 6 &&
-                        password.value ===
-                            confirmPassword.value;
+            const verifyPhoneButton =
+                document.getElementById(
+                    "verifyPhoneButton"
+                );
 
-                    return (
-                        fullName.value.trim().length >= 2 &&
-                        email.validity.valid &&
-                        country.value !== "" &&
-                        phone.value.trim().length > 0 &&
-                        password.value.length >= 6 &&
-                        passwordsMatch &&
-                        terms.checked
-                    );
-
-                }
-
-
-                /* =============================================
-                   UPDATE REGISTER BUTTON
-                ============================================== */
-
-                function updateRegisterButton() {
-
-                    const ready =
-                        basicFormReady() &&
-                        phoneVerified;
-
-                    if (ready) {
-
-                        registerButton.disabled = false;
-
-                        registerButton.classList.add(
-                            "is-ready"
-                        );
-
-                        registerButton.setAttribute(
-                            "aria-disabled",
-                            "false"
-                        );
-
-                    } else {
-
-                        registerButton.disabled = true;
-
-                        registerButton.classList.remove(
-                            "is-ready"
-                        );
-
-                        registerButton.setAttribute(
-                            "aria-disabled",
-                            "true"
-                        );
-
-                    }
-
-
-                    /* Password message */
-
-                    if (
-                        confirmPassword.value.length > 0 &&
-                        password.value !==
-                            confirmPassword.value
-                    ) {
-
-                        passwordMessage.style.display =
-                            "block";
-
-                        passwordMessage.textContent =
-                            "Passwords do not match.";
-
-                    } else if (
-                        confirmPassword.value.length > 0 &&
-                        password.value ===
-                            confirmPassword.value &&
-                        password.value.length >= 6
-                    ) {
-
-                        passwordMessage.style.display =
-                            "block";
-
-                        passwordMessage.textContent =
-                            "Passwords match.";
-
-                    } else {
-
-                        passwordMessage.style.display =
-                            "none";
-
-                        passwordMessage.textContent =
-                            "";
-
-                    }
-
-                }
-
-
-                /* =============================================
-                   PHONE INPUT
-                ============================================== */
-
-                phone.addEventListener(
-                    "input",
-                    () => {
-
-                        phoneVerified = false;
-
-                        const hasPhone =
-                            phone.value.trim().length > 0;
-
-                        sendPhoneCodeButton.disabled =
-                            !hasPhone;
-
-                        updateRegisterButton();
-
-                    }
+            const otp =
+                document.getElementById(
+                    "otp"
+                );
+
+            const passwordMessage =
+                document.getElementById(
+                    "passwordMessage"
                 );
 
 
-                /* =============================================
-                   COUNTRY CHANGE
-                ============================================== */
+            /* =============================================
+               PHONE VERIFICATION STATE
+            ============================================== */
 
-                country.addEventListener(
-                    "change",
-                    () => {
+            let phoneVerified = false;
 
-                        phoneVerified = false;
 
-                        updateRegisterButton();
+            /* =============================================
+               BASIC FORM CHECK
+            ============================================== */
 
-                    }
+            function basicFormReady() {
+
+                const passwordsMatch =
+                    password.value.length >= 6 &&
+                    confirmPassword.value.length >= 6 &&
+                    password.value ===
+                        confirmPassword.value;
+
+                return (
+                    fullName.value.trim().length >= 2 &&
+                    email.validity.valid &&
+                    country.value !== "" &&
+                    phone.value.trim().length > 0 &&
+                    password.value.length >= 6 &&
+                    passwordsMatch &&
+                    terms.checked
                 );
-
-
-                /* =============================================
-                   OTP INPUT
-                ============================================== */
-
-                phoneCode.addEventListener(
-                    "input",
-                    () => {
-
-                        const code =
-                            phoneCode.value
-                                .replace(/\D/g, "")
-                                .slice(0, 6);
-
-                        phoneCode.value = code;
-
-                        verifyPhoneButton.disabled =
-                            code.length !== 6;
-
-                    }
-                );
-
-
-                /* =============================================
-                   VERIFY BUTTON BRIDGE
-
-                   auth.js will perform the real Firebase
-                   phone verification.
-                ============================================== */
-
-                window.tipecoPhoneVerificationComplete =
-                    () => {
-
-                        phoneVerified = true;
-
-                        sendPhoneCodeButton.disabled =
-                            true;
-
-                        phone.disabled = true;
-
-                        country.disabled = true;
-
-                        verifyPhoneButton.disabled =
-                            true;
-
-                        updateRegisterButton();
-
-                    };
-
-
-                /* =============================================
-                   BASIC FIELD LISTENERS
-                ============================================== */
-
-                [
-                    fullName,
-                    email,
-                    password,
-                    confirmPassword,
-                    terms
-                ].forEach(
-                    (field) => {
-
-                        field.addEventListener(
-                            "input",
-                            updateRegisterButton
-                        );
-
-                        field.addEventListener(
-                            "change",
-                            updateRegisterButton
-                        );
-
-                    }
-                );
-
-
-                /* =============================================
-                   SEND PHONE CODE BUTTON
-
-                   auth.js owns the Firebase action.
-                ============================================== */
-
-                sendPhoneCodeButton.addEventListener(
-                    "click",
-                    () => {
-
-                        if (
-                            typeof window
-                                .tipecoSendPhoneCode ===
-                            "function"
-                        ) {
-
-                            window.tipecoSendPhoneCode();
-
-                        }
-
-                    }
-                );
-
-
-                /* =============================================
-                   VERIFY PHONE BUTTON
-
-                   auth.js owns the Firebase action.
-                ============================================== */
-
-                verifyPhoneButton.addEventListener(
-                    "click",
-                    () => {
-
-                        if (
-                            typeof window
-                                .tipecoVerifyPhoneCode ===
-                            "function"
-                        ) {
-
-                            window.tipecoVerifyPhoneCode();
-
-                        }
-
-                    }
-                );
-
-
-                /* =============================================
-                   FORM SUBMIT SAFETY
-                ============================================== */
-
-                form.addEventListener(
-                    "submit",
-                    (event) => {
-
-                        if (
-                            !basicFormReady() ||
-                            !phoneVerified
-                        ) {
-
-                            event.preventDefault();
-
-                            updateRegisterButton();
-
-                        }
-
-                    }
-                );
-
-
-                updateRegisterButton();
 
             }
-        );
 
-    </script>
 
-</body>
+            /* =============================================
+               UPDATE REGISTER BUTTON
+            ============================================== */
 
-</html>
+            function updateRegisterButton() {
+
+                const ready =
+                    basicFormReady() &&
+                    phoneVerified;
+
+                if (ready) {
+
+                    registerButton.disabled = false;
+
+                    registerButton.classList.add(
+                        "is-ready"
+                    );
+
+                    registerButton.setAttribute(
+                        "aria-disabled",
+                        "false"
+                    );
+
+                } else {
+
+                    registerButton.disabled = true;
+
+                    registerButton.classList.remove(
+                        "is-ready"
+                    );
+
+                    registerButton.setAttribute(
+                        "aria-disabled",
+                        "true"
+                    );
+
+                }
+
+
+                /* =========================================
+                   PASSWORD MESSAGE
+                ========================================== */
+
+                if (
+                    confirmPassword.value.length > 0 &&
+                    password.value !==
+                        confirmPassword.value
+                ) {
+
+                    passwordMessage.style.display =
+                        "block";
+
+                    passwordMessage.textContent =
+                        "Passwords do not match.";
+
+                } else if (
+                    confirmPassword.value.length > 0 &&
+                    password.value ===
+                        confirmPassword.value &&
+                    password.value.length >= 6
+                ) {
+
+                    passwordMessage.style.display =
+                        "block";
+
+                    passwordMessage.textContent =
+                        "Passwords match.";
+
+                } else {
+
+                    passwordMessage.style.display =
+                        "none";
+
+                    passwordMessage.textContent =
+                        "";
+
+                }
+
+            }
+
+
+            /* =============================================
+               PHONE INPUT
+            ============================================== */
+
+            phone.addEventListener(
+                "input",
+                () => {
+
+                    phoneVerified = false;
+
+                    sendPhoneCode.disabled =
+                        phone.value.trim().length === 0;
+
+                    verifyPhoneButton.disabled = true;
+
+                    updateRegisterButton();
+
+                }
+            );
+
+
+            /* =============================================
+               COUNTRY CHANGE
+            ============================================== */
+
+            country.addEventListener(
+                "change",
+                () => {
+
+                    phoneVerified = false;
+
+                    verifyPhoneButton.disabled = true;
+
+                    updateRegisterButton();
+
+                }
+            );
+
+
+            /* =============================================
+               OTP INPUT
+            ============================================== */
+
+            otp.addEventListener(
+                "input",
+                () => {
+
+                    const code =
+                        otp.value
+                            .replace(/\D/g, "")
+                            .slice(0, 6);
+
+                    otp.value = code;
+
+                    verifyPhoneButton.disabled =
+                        code.length !== 6;
+
+                }
+            );
+
+
+            /* =============================================
+               PHONE VERIFICATION COMPLETE BRIDGE
+
+               auth.js V8.0 calls this after Firebase
+               phone verification succeeds.
+            ============================================== */
+
+            window.tipecoPhoneVerificationComplete =
+                () => {
+
+                    phoneVerified = true;
+
+                    sendPhoneCode.disabled =
+                        true;
+
+                    phone.disabled =
+                        true;
+
+                    country.disabled =
+                        true;
+
+                    verifyPhoneButton.disabled =
+                        true;
+
+                    updateRegisterButton();
+
+                };
+
+
+            /* =============================================
+               BASIC FIELD LISTENERS
+            ============================================== */
+
+            [
+                fullName,
+                email,
+                password,
+                confirmPassword,
+                terms
+            ].forEach(
+                (field) => {
+
+                    field.addEventListener(
+                        "input",
+                        updateRegisterButton
+                    );
+
+                    field.addEventListener(
+                        "change",
+                        updateRegisterButton
+                    );
+
+                }
+            );
+
+
+            /* =============================================
+               SEND PHONE CODE
+            ============================================== */
+
+            sendPhoneCode.addEventListener(
+                "click",
+                () => {
+
+                    if (
+                        typeof window
+                            .tipecoSendPhoneCode ===
+                        "function"
+                    ) {
+
+                        window.tipecoSendPhoneCode();
+
+                    } else {
+
+                        const status =
+                            document.getElementById(
+                                "registerStatus"
+                            );
+
+                        status.style.display =
+                            "block";
+
+                        status.textContent =
+                            "Authentication system is still loading. Please wait a moment and try again.";
+
+                    }
+
+                }
+            );
+
+
+            /* =============================================
+               VERIFY PHONE CODE
+            ============================================== */
+
+            verifyPhoneButton.addEventListener(
+                "click",
+                () => {
+
+                    if (
+                        typeof window
+                            .tipecoVerifyPhoneCode ===
+                        "function"
+                    ) {
+
+                        window.tipecoVerifyPhoneCode();
+
+                    } else {
+
+                        const status =
+                            document.getElementById(
+                                "registerStatus"
+                            );
+
+                        status.style.display =
+                            "block";
+
+                        status.textContent =
+                            "Authentication system is still loading. Please wait a moment and try again.";
+
+                    }
+
+                }
+            );
+
+
+            /* =============================================
+               FORM SUBMIT SAFETY
+            ============================================== */
+
+            form.addEventListener(
+                "submit",
+                (event) => {
+
+                    if (
+                        !basicFormReady() ||
+                        !phoneVerified
+                    ) {
+
+                        event.preventDefault();
+
+                        updateRegisterButton();
+
+                    }
+
+                }
+            );
+
+
+            /* =============================================
+               INITIAL UI STATE
+            ============================================== */
+
+            sendPhoneCode.disabled =
+                phone.value.trim().length === 0;
+
+            verifyPhoneButton.disabled = true;
+
+            updateRegisterButton();
+
+        }
+    );
+
+</script>
+
+</body></html>
