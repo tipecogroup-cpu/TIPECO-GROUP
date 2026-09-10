@@ -3,6 +3,11 @@
 
 <head>
 
+    <!-- =====================================================
+         TIPECO GROUP - OWNER DASHBOARD
+         REAL FIREBASE PROJECT
+    ====================================================== -->
+
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -14,106 +19,125 @@
     <meta name="description"
           content="TIPECO GROUP Owner Dashboard">
 
+    <meta name="theme-color"
+          content="#0D47A1">
+
     <title>TIPECO GROUP - Owner Dashboard</title>
 
 
     <!-- =====================================================
-         TIPECO GROUP - CSS
+         TIPECO GROUP - MAIN CSS
     ====================================================== -->
 
     <link rel="stylesheet"
           href="../assets/css/variables.css">
 
     <link rel="stylesheet"
+          href="../assets/css/style.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/responsive.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/animations.css">
+
+    <link rel="stylesheet"
+          href="../assets/css/dashboard.css">
+
+    <link rel="stylesheet"
           href="../assets/css/owner-dashboard.css">
 
 
     <!-- =====================================================
-         OWNER DASHBOARD SECURITY / LOADING
+         OWNER AUTH LOADING STYLE
     ====================================================== -->
 
     <style>
 
-        /*
-         * Do not hide the entire body.
-         * The previous visibility:hidden approach could
-         * leave the page completely blank if a module failed.
-         */
-
-        body {
-            margin: 0;
-        }
-
-
-        /* ---------------------------------------------
-           AUTH LOADING SCREEN
-        --------------------------------------------- */
-
         #ownerAuthLoading {
-            min-height: 100vh;
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 99999;
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             flex-direction: column;
-            gap: 12px;
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 24px;
-            box-sizing: border-box;
+
+            gap: 15px;
+
+            background: #ffffff;
+
+            color: #0D47A1;
+
+            font-family: "Segoe UI", Arial, sans-serif;
+
         }
 
 
-        #ownerAuthLoading .loading-logo {
-            width: 64px;
-            height: 64px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 22px;
-            background: #0D47A1;
-            color: #ffffff;
+        #ownerAuthLoading .loader {
+
+            width: 42px;
+
+            height: 42px;
+
+            border: 4px solid #e0e0e0;
+
+            border-top-color: #0D47A1;
+
+            border-radius: 50%;
+
+            animation: ownerSpin 0.9s linear infinite;
+
         }
 
 
-        #ownerAuthLoading strong {
-            font-size: 20px;
+        #ownerAuthLoading p {
+
+            margin: 0;
+
+            font-size: 15px;
+
+            font-weight: 600;
+
         }
 
 
-        #ownerAuthLoading span {
-            opacity: 0.7;
+        @keyframes ownerSpin {
+
+            to {
+
+                transform: rotate(360deg);
+
+            }
+
         }
 
-
-        /*
-         * Dashboard is hidden while authentication
-         * is being checked.
-         */
 
         .owner-dashboard {
+
             display: none;
+
         }
 
-
-        /*
-         * owner-dashboard.js adds this class only
-         * after successful Owner authentication.
-         */
 
         body.owner-authenticated .owner-dashboard {
+
             display: flex;
+
         }
 
 
-        /*
-         * Loading screen disappears after successful
-         * authentication.
-         */
-
         body.owner-authenticated #ownerAuthLoading {
+
             display: none;
+
         }
 
     </style>
@@ -125,22 +149,14 @@
 
 
     <!-- =====================================================
-         OWNER AUTHENTICATION LOADING
+         OWNER AUTH CHECKING
     ====================================================== -->
 
     <div id="ownerAuthLoading">
 
-        <div class="loading-logo">
-            TG
-        </div>
+        <div class="loader"></div>
 
-        <strong>
-            TIPECO GROUP
-        </strong>
-
-        <span>
-            Checking Owner authorization...
-        </span>
+        <p>Checking Owner authorization...</p>
 
     </div>
 
@@ -165,149 +181,117 @@
 
             <div class="owner-sidebar-brand">
 
-                <div class="owner-logo">
-                    TG
-                </div>
+                <a href="../index.html"
+                   class="owner-brand-link">
 
-                <div class="owner-brand-text">
+                    <strong>TIPECO</strong>
 
-                    <strong>
-                        TIPECO GROUP
-                    </strong>
+                    <span>GROUP</span>
 
-                    <span>
-                        OWNER PANEL
-                    </span>
+                </a>
 
-                </div>
+                <small>OWNER PANEL</small>
 
             </div>
 
 
+
             <!-- NAVIGATION -->
 
-            <nav class="owner-navigation">
-
-                <a href="#dashboard"
-                   class="owner-nav-link active"
-                   data-section="dashboard">
-
-                    <span class="owner-nav-icon">
-                        🏠
-                    </span>
-
-                    <span>
-                        Dashboard
-                    </span>
-
-                </a>
+            <nav class="owner-navigation"
+                 aria-label="Owner Dashboard Navigation">
 
 
-                <a href="#users"
-                   class="owner-nav-link"
-                   data-section="users">
+                <button type="button"
+                        class="owner-nav-item active"
+                        data-section-target="dashboard">
 
-                    <span class="owner-nav-icon">
-                        👥
-                    </span>
+                    <span>📊</span>
 
-                    <span>
-                        Users
-                    </span>
+                    <span>Dashboard</span>
 
-                </a>
+                </button>
 
 
-                <a href="#listings"
-                   class="owner-nav-link"
-                   data-section="listings">
+                <button type="button"
+                        class="owner-nav-item"
+                        data-section-target="users">
 
-                    <span class="owner-nav-icon">
-                        📋
-                    </span>
+                    <span>👥</span>
 
-                    <span>
-                        Listings
-                    </span>
+                    <span>Users</span>
 
-                </a>
+                </button>
 
 
-                <a href="#agents"
-                   class="owner-nav-link"
-                   data-section="agents">
+                <button type="button"
+                        class="owner-nav-item"
+                        data-section-target="listings">
 
-                    <span class="owner-nav-icon">
-                        🤝
-                    </span>
+                    <span>📋</span>
 
-                    <span>
-                        Agents
-                    </span>
+                    <span>Listings</span>
 
-                </a>
+                </button>
 
 
-                <a href="#verification"
-                   class="owner-nav-link"
-                   data-section="verification">
+                <button type="button"
+                        class="owner-nav-item"
+                        data-section-target="agents">
 
-                    <span class="owner-nav-icon">
-                        ✅
-                    </span>
+                    <span>🤝</span>
 
-                    <span>
-                        Verification
-                    </span>
+                    <span>Agents</span>
 
-                </a>
+                </button>
 
 
-                <a href="#reports"
-                   class="owner-nav-link"
-                   data-section="reports">
+                <button type="button"
+                        class="owner-nav-item"
+                        data-section-target="verification">
 
-                    <span class="owner-nav-icon">
-                        🚨
-                    </span>
+                    <span>✅</span>
 
-                    <span>
-                        Reports
-                    </span>
+                    <span>Verification</span>
 
-                </a>
+                </button>
 
 
-                <a href="#activity"
-                   class="owner-nav-link"
-                   data-section="activity">
+                <button type="button"
+                        class="owner-nav-item"
+                        data-section-target="reports">
 
-                    <span class="owner-nav-icon">
-                        📊
-                    </span>
+                    <span>🚨</span>
 
-                    <span>
-                        Activity
-                    </span>
+                    <span>Reports</span>
 
-                </a>
+                </button>
 
 
-                <a href="#settings"
-                   class="owner-nav-link"
-                   data-section="settings">
+                <button type="button"
+                        class="owner-nav-item"
+                        data-section-target="activity">
 
-                    <span class="owner-nav-icon">
-                        ⚙️
-                    </span>
+                    <span>📝</span>
 
-                    <span>
-                        Settings
-                    </span>
+                    <span>Activity</span>
 
-                </a>
+                </button>
+
+
+                <button type="button"
+                        class="owner-nav-item"
+                        data-section-target="settings">
+
+                    <span>⚙️</span>
+
+                    <span>Settings</span>
+
+                </button>
+
 
             </nav>
+
 
 
             <!-- SIDEBAR FOOTER -->
@@ -318,13 +302,9 @@
                         id="ownerLogoutBtn"
                         class="owner-logout-btn">
 
-                    <span>
-                        🚪
-                    </span>
+                    <span>🚪</span>
 
-                    <span>
-                        Logout
-                    </span>
+                    <span>Logout</span>
 
                 </button>
 
@@ -336,15 +316,15 @@
 
 
         <!-- =================================================
-             MAIN CONTENT
+             MAIN AREA
         ================================================== -->
 
         <main class="owner-main">
 
 
-            <!-- =================================================
+            <!-- =============================================
                  TOP HEADER
-            ================================================== -->
+            ============================================== -->
 
             <header class="owner-header">
 
@@ -352,8 +332,8 @@
                 <div class="owner-header-left">
 
                     <button type="button"
-                            id="sidebarToggle"
-                            class="sidebar-toggle"
+                            id="ownerSidebarToggle"
+                            class="owner-sidebar-toggle"
                             aria-label="Toggle sidebar">
 
                         ☰
@@ -363,13 +343,9 @@
 
                     <div>
 
-                        <h1>
-                            Owner Dashboard
-                        </h1>
+                        <h1>Owner Dashboard</h1>
 
-                        <p>
-                            TIPECO GROUP administration panel
-                        </p>
+                        <p>TIPECO GROUP Management Center</p>
 
                     </div>
 
@@ -380,26 +356,28 @@
                 <div class="owner-header-right">
 
 
-                    <!-- NOTIFICATION -->
+                    <!-- Notifications -->
 
-                    <div class="owner-notification">
+                    <button type="button"
+                            class="owner-notification-btn"
+                            aria-label="Notifications">
 
-                        <span>
-                            🔔
-                        </span>
+                        🔔
 
-                        <span id="notificationCount">
+                        <span id="ownerNotificationCount"
+                              class="notification-count">
+
                             0
+
                         </span>
 
-                    </div>
+                    </button>
 
 
-                    <!-- OWNER PROFILE -->
 
-                    <div class="owner-profile"
-                         id="ownerProfile">
+                    <!-- Owner -->
 
+                    <div class="owner-profile">
 
                         <div class="owner-avatar"
                              id="ownerAvatar">
@@ -412,15 +390,18 @@
                         <div class="owner-profile-info">
 
                             <strong id="ownerName">
+
                                 Owner
+
                             </strong>
 
-                            <span>
-                                Administrator
-                            </span>
+                            <small id="ownerEmail">
+
+                                Loading...
+
+                            </small>
 
                         </div>
-
 
                     </div>
 
@@ -436,337 +417,1159 @@
                  DASHBOARD CONTENT
             ================================================== -->
 
-            <section class="owner-content"
-                     id="dashboard">
-
-
-                <!-- WELCOME -->
-
-                <div class="owner-welcome">
-
-                    <div>
-
-                        <h2>
-                            Welcome,
-                            <span id="welcomeOwnerName">
-                                Owner
-                            </span>
-                        </h2>
-
-                        <p>
-                            Manage TIPECO GROUP users, listings,
-                            verification and platform activity.
-                        </p>
-
-                    </div>
-
-                </div>
+            <div class="owner-content">
 
 
 
                 <!-- =================================================
-                     STATISTICS
+                     DASHBOARD SECTION
                 ================================================== -->
 
-                <div class="owner-stats-grid">
+                <section id="dashboard"
+                         class="owner-section active">
 
 
-                    <div class="owner-stat-card">
-
-                        <div class="owner-stat-icon">
-                            👥
-                        </div>
+                    <div class="owner-section-header">
 
                         <div>
 
-                            <span>
-                                Total Users
-                            </span>
+                            <h2>Dashboard Overview</h2>
 
-                            <strong id="totalUsers">
-                                0
-                            </strong>
+                            <p>
+
+                                Welcome to the TIPECO GROUP administration center.
+
+                            </p>
 
                         </div>
 
                     </div>
 
 
-                    <div class="owner-stat-card">
 
-                        <div class="owner-stat-icon">
-                            📋
+                    <!-- =============================================
+                         STATISTICS
+                    ============================================== -->
+
+                    <div class="owner-stats-grid">
+
+
+                        <div class="owner-stat-card">
+
+                            <div class="owner-stat-icon">
+                                👥
+                            </div>
+
+                            <div>
+
+                                <span>Total Users</span>
+
+                                <strong id="totalUsers">
+                                    0
+                                </strong>
+
+                            </div>
+
                         </div>
 
-                        <div>
 
-                            <span>
-                                Total Listings
-                            </span>
 
-                            <strong id="totalListings">
-                                0
-                            </strong>
+                        <div class="owner-stat-card">
+
+                            <div class="owner-stat-icon">
+                                📋
+                            </div>
+
+                            <div>
+
+                                <span>Total Listings</span>
+
+                                <strong id="totalListings">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="owner-stat-card">
+
+                            <div class="owner-stat-icon">
+                                ⏳
+                            </div>
+
+                            <div>
+
+                                <span>Pending Listings</span>
+
+                                <strong id="pendingListings">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="owner-stat-card">
+
+                            <div class="owner-stat-icon">
+                                ✅
+                            </div>
+
+                            <div>
+
+                                <span>Approved Listings</span>
+
+                                <strong id="approvedListings">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="owner-stat-card">
+
+                            <div class="owner-stat-icon">
+                                🤝
+                            </div>
+
+                            <div>
+
+                                <span>Total Agents</span>
+
+                                <strong id="totalAgents">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="owner-stat-card">
+
+                            <div class="owner-stat-icon">
+                                🚨
+                            </div>
+
+                            <div>
+
+                                <span>Total Reports</span>
+
+                                <strong id="totalReports">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="owner-stat-card">
+
+                            <div class="owner-stat-icon">
+                                🛒
+                            </div>
+
+                            <div>
+
+                                <span>Total Buyers</span>
+
+                                <strong id="totalBuyers">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="owner-stat-card">
+
+                            <div class="owner-stat-icon">
+                                💼
+                            </div>
+
+                            <div>
+
+                                <span>Total Sellers</span>
+
+                                <strong id="totalSellers">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- QUICK ACTIONS -->
+
+                    <div class="owner-card">
+
+                        <div class="owner-card-header">
+
+                            <h3>Quick Actions</h3>
+
+                        </div>
+
+
+                        <div class="owner-quick-actions">
+
+
+                            <button type="button"
+                                    data-section-target="users">
+
+                                👥 Manage Users
+
+                            </button>
+
+
+                            <button type="button"
+                                    data-section-target="listings">
+
+                                📋 Manage Listings
+
+                            </button>
+
+
+                            <button type="button"
+                                    data-section-target="verification">
+
+                                ✅ Verification Center
+
+                            </button>
+
+
+                            <button type="button"
+                                    data-section-target="agents">
+
+                                🤝 Manage Agents
+
+                            </button>
+
 
                         </div>
 
                     </div>
 
 
-                    <div class="owner-stat-card">
-
-                        <div class="owner-stat-icon">
-                            ⏳
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Pending Verification
-                            </span>
-
-                            <strong id="pendingListings">
-                                0
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="owner-stat-card">
-
-                        <div class="owner-stat-icon">
-                            ✅
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Approved Listings
-                            </span>
-
-                            <strong id="approvedListings">
-                                0
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="owner-stat-card">
-
-                        <div class="owner-stat-icon">
-                            🤝
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Total Agents
-                            </span>
-
-                            <strong id="totalAgents">
-                                0
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="owner-stat-card">
-
-                        <div class="owner-stat-icon">
-                            🚨
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Reports
-                            </span>
-
-                            <strong id="totalReports">
-                                0
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="owner-stat-card">
-
-                        <div class="owner-stat-icon">
-                            🛒
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Buyers
-                            </span>
-
-                            <strong id="totalBuyers">
-                                0
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="owner-stat-card">
-
-                        <div class="owner-stat-icon">
-                            🏪
-                        </div>
-
-                        <div>
-
-                            <span>
-                                Sellers
-                            </span>
-
-                            <strong id="totalSellers">
-                                0
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                </div>
+                </section>
 
 
 
                 <!-- =================================================
-     USERS MANAGEMENT
-================================================== -->
+                     USERS MANAGEMENT
+                ================================================== -->
 
-<section class="owner-section"
-         id="users">
+                <section id="users"
+                         class="owner-section">
 
-    <div class="owner-section-header">
 
-        <div>
+                    <div class="owner-section-header">
 
-            <h2>
-                Users Management
-            </h2>
+                        <div>
 
-            <p>
-                Manage and review TIPECO GROUP users.
-            </p>
+                            <h2>Users Management</h2>
 
-        </div>
+                            <p>
+                                Manage registered TIPECO GROUP users.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- FILTERS -->
+
+                    <div class="owner-filter-bar">
+
+
+                        <input type="search"
+                               id="ownerUserSearch"
+                               placeholder="Search users...">
+
+
+
+                        <select id="ownerUserRoleFilter">
+
+                            <option value="all">
+                                All Roles
+                            </option>
+
+                            <option value="buyer">
+                                Buyer
+                            </option>
+
+                            <option value="seller">
+                                Seller
+                            </option>
+
+                            <option value="agent">
+                                Agent
+                            </option>
+
+                            <option value="owner">
+                                Owner
+                            </option>
+
+                        </select>
+
+
+
+                        <select id="ownerUserStatusFilter">
+
+                            <option value="all">
+                                All Status
+                            </option>
+
+                            <option value="active">
+                                Active
+                            </option>
+
+                            <option value="pending">
+                                Pending
+                            </option>
+
+                            <option value="suspended">
+                                Suspended
+                            </option>
+
+                            <option value="blocked">
+                                Blocked
+                            </option>
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <!-- TABLE -->
+
+                    <div class="owner-table-container">
+
+                        <table class="owner-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>User</th>
+
+                                    <th>Email</th>
+
+                                    <th>Phone</th>
+
+                                    <th>Role</th>
+
+                                    <th>Status</th>
+
+                                    <th>Actions</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="ownerUsersTableBody">
+
+                                <tr>
+
+                                    <td colspan="6">
+
+                                        Loading users...
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- =================================================
+                     LISTINGS MANAGEMENT
+                ================================================== -->
+
+                <section id="listings"
+                         class="owner-section">
+
+
+                    <div class="owner-section-header">
+
+                        <div>
+
+                            <h2>Listings Management</h2>
+
+                            <p>
+                                Review, verify and manage marketplace listings.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- FILTERS -->
+
+                    <div class="owner-filter-bar">
+
+
+                        <input type="search"
+                               id="ownerListingSearch"
+                               placeholder="Search listings...">
+
+
+
+                        <select id="ownerListingStatusFilter">
+
+                            <option value="all">
+                                All Status
+                            </option>
+
+                            <option value="pending">
+                                Pending
+                            </option>
+
+                            <option value="approved">
+                                Approved
+                            </option>
+
+                            <option value="rejected">
+                                Rejected
+                            </option>
+
+                            <option value="sold">
+                                Sold
+                            </option>
+
+                            <option value="rented">
+                                Rented
+                            </option>
+
+                        </select>
+
+
+
+                        <select id="ownerListingCategoryFilter">
+
+                            <option value="all">
+                                All Categories
+                            </option>
+
+                            <option value="vehicles">
+                                Vehicles
+                            </option>
+
+                            <option value="real-estate">
+                                Real Estate
+                            </option>
+
+                            <option value="electronics">
+                                Electronics
+                            </option>
+
+                            <option value="home-furniture">
+                                Home & Furniture
+                            </option>
+
+                            <option value="services">
+                                Services
+                            </option>
+
+                            <option value="other">
+                                Other Products
+                            </option>
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <!-- LISTINGS TABLE -->
+
+                    <div class="owner-table-container">
+
+                        <table class="owner-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Listing</th>
+
+                                    <th>Seller</th>
+
+                                    <th>Category</th>
+
+                                    <th>Price</th>
+
+                                    <th>Status</th>
+
+                                    <th>Actions</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="ownerListingsTableBody">
+
+                                <tr>
+
+                                    <td colspan="6">
+
+                                        Loading listings...
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- =================================================
+                     AGENTS MANAGEMENT
+                ================================================== -->
+
+                <section id="agents"
+                         class="owner-section">
+
+
+                    <div class="owner-section-header">
+
+                        <div>
+
+                            <h2>Agents Management</h2>
+
+                            <p>
+                                Review and manage approved TIPECO GROUP Agents.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- FILTERS -->
+
+                    <div class="owner-filter-bar">
+
+
+                        <input type="search"
+                               id="ownerAgentSearch"
+                               placeholder="Search agents...">
+
+
+
+                        <select id="ownerAgentStatusFilter">
+
+                            <option value="all">
+                                All Status
+                            </option>
+
+                            <option value="pending">
+                                Pending
+                            </option>
+
+                            <option value="approved">
+                                Approved
+                            </option>
+
+                            <option value="rejected">
+                                Rejected
+                            </option>
+
+                            <option value="suspended">
+                                Suspended
+                            </option>
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <!-- AGENTS TABLE -->
+
+                    <div class="owner-table-container">
+
+                        <table class="owner-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Agent</th>
+
+                                    <th>Email</th>
+
+                                    <th>Phone</th>
+
+                                    <th>Status</th>
+
+                                    <th>Joined</th>
+
+                                    <th>Actions</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="ownerAgentsTableBody">
+
+                                <tr>
+
+                                    <td colspan="6">
+
+                                        Loading agents...
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- =================================================
+                     VERIFICATION CENTER
+                ================================================== -->
+
+                <section id="verification"
+                         class="owner-section">
+
+
+                    <div class="owner-section-header">
+
+                        <div>
+
+                            <h2>Verification Center</h2>
+
+                            <p>
+                                Verify marketplace listings and Agent applications.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="owner-verification-grid">
+
+
+                        <!-- LISTING VERIFICATION -->
+
+                        <div class="owner-card">
+
+                            <div class="owner-card-header">
+
+                                <h3>Listing Verification</h3>
+
+                            </div>
+
+
+                            <p>
+
+                                Review marketplace listings before they become
+                                publicly visible.
+
+                            </p>
+
+
+                            <button type="button"
+                                    class="owner-primary-btn"
+                                    data-section-target="listings">
+
+                                Review Listings
+
+                            </button>
+
+                        </div>
+
+
+
+                        <!-- AGENT VERIFICATION -->
+
+                        <div class="owner-card">
+
+                            <div class="owner-card-header">
+
+                                <h3>Agent Verification</h3>
+
+                            </div>
+
+
+                            <p>
+
+                                Review applicants who want to become
+                                TIPECO GROUP Agents.
+
+                            </p>
+
+
+                            <button type="button"
+                                    class="owner-primary-btn"
+                                    data-section-target="agents">
+
+                                Review Agents
+
+                            </button>
+
+                        </div>
+
+
+
+                        <!-- VERIFICATION QUEUE -->
+
+                        <div class="owner-card">
+
+                            <div class="owner-card-header">
+
+                                <h3>Verification Queue</h3>
+
+                            </div>
+
+
+                            <p>
+
+                                View all items waiting for TIPECO GROUP review.
+
+                            </p>
+
+
+                            <button type="button"
+                                    id="openVerificationQueueBtn"
+                                    class="owner-primary-btn">
+
+                                Open Queue
+
+                            </button>
+
+                        </div>
+
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- =================================================
+                     REPORTS
+                ================================================== -->
+
+                <section id="reports"
+                         class="owner-section">
+
+
+                    <div class="owner-section-header">
+
+                        <div>
+
+                            <h2>Reports</h2>
+
+                            <p>
+                                Monitor reports submitted by users.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="owner-filter-bar">
+
+
+                        <input type="search"
+                               id="ownerReportSearch"
+                               placeholder="Search reports...">
+
+
+
+                        <select id="ownerReportStatusFilter">
+
+                            <option value="all">
+                                All Status
+                            </option>
+
+                            <option value="open">
+                                Open
+                            </option>
+
+                            <option value="reviewing">
+                                Reviewing
+                            </option>
+
+                            <option value="resolved">
+                                Resolved
+                            </option>
+
+                            <option value="closed">
+                                Closed
+                            </option>
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <div class="owner-table-container">
+
+                        <table class="owner-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Report</th>
+
+                                    <th>Reporter</th>
+
+                                    <th>Target</th>
+
+                                    <th>Reason</th>
+
+                                    <th>Status</th>
+
+                                    <th>Actions</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="ownerReportsTableBody">
+
+                                <tr>
+
+                                    <td colspan="6">
+
+                                        Loading reports...
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- =================================================
+                     ACTIVITY
+                ================================================== -->
+
+                <section id="activity"
+                         class="owner-section">
+
+
+                    <div class="owner-section-header">
+
+                        <div>
+
+                            <h2>Activity Log</h2>
+
+                            <p>
+                                Recent activity across TIPECO GROUP.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="owner-card">
+
+                        <div id="ownerActivityList">
+
+                            <div class="owner-empty-state">
+
+                                Loading activity...
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- =================================================
+                     SETTINGS
+                ================================================== -->
+
+                <section id="settings"
+                         class="owner-section">
+
+
+                    <div class="owner-section-header">
+
+                        <div>
+
+                            <h2>Owner Settings</h2>
+
+                            <p>
+                                View your owner account and platform settings.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- OWNER ACCOUNT -->
+
+                    <div class="owner-card">
+
+                        <div class="owner-card-header">
+
+                            <h3>Owner Account</h3>
+
+                        </div>
+
+
+
+                        <div class="owner-settings-grid">
+
+
+                            <div class="owner-setting-item">
+
+                                <span>Owner Name</span>
+
+                                <strong id="settingsOwnerName">
+
+                                    Loading...
+
+                                </strong>
+
+                            </div>
+
+
+
+                            <div class="owner-setting-item">
+
+                                <span>Owner Email</span>
+
+                                <strong id="settingsOwnerEmail">
+
+                                    Loading...
+
+                                </strong>
+
+                            </div>
+
+
+
+                            <div class="owner-setting-item">
+
+                                <span>Account Status</span>
+
+                                <strong id="settingsOwnerStatus">
+
+                                    Loading...
+
+                                </strong>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- PLATFORM -->
+
+                    <div class="owner-card">
+
+                        <div class="owner-card-header">
+
+                            <h3>Platform Settings</h3>
+
+                        </div>
+
+
+                        <p>
+
+                            TIPECO GROUP marketplace and business configuration
+                            will be managed here as the platform grows.
+
+                        </p>
+
+
+                        <div class="owner-settings-grid">
+
+
+                            <div class="owner-setting-item">
+
+                                <span>Marketplace</span>
+
+                                <strong>
+                                    Active
+                                </strong>
+
+                            </div>
+
+
+                            <div class="owner-setting-item">
+
+                                <span>Listing Verification</span>
+
+                                <strong>
+                                    Required
+                                </strong>
+
+                            </div>
+
+
+                            <div class="owner-setting-item">
+
+                                <span>Agent Approval</span>
+
+                                <strong>
+                                    Required
+                                </strong>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- SECURITY -->
+
+                    <div class="owner-card">
+
+                        <div class="owner-card-header">
+
+                            <h3>Security</h3>
+
+                        </div>
+
+
+                        <p>
+
+                            Owner access is controlled through Firebase
+                            Authentication and the owner's Firestore role.
+
+                        </p>
+
+
+                        <div class="owner-security-status">
+
+                            🔐 Firebase Authentication Enabled
+
+                        </div>
+
+                    </div>
+
+
+                </section>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 FOOTER
+            ================================================== -->
+
+            <footer class="owner-footer">
+
+                <p>
+
+                    © <span id="ownerFooterYear"></span>
+                    TIPECO GROUP.
+
+                    INNOVATION • BUSINESS • TECHNOLOGY
+
+                </p>
+
+            </footer>
+
+
+        </main>
 
     </div>
 
 
-    <!-- USERS TOOLBAR -->
 
-    <div class="tipeco-users-toolbar">
+    <!-- =====================================================
+         REAL FIREBASE OWNER DASHBOARD JAVASCRIPT
+    ====================================================== -->
 
-        <div class="tipeco-users-search">
-
-            <input
-                type="search"
-                id="ownerUserSearch"
-                placeholder="Search by name, email or phone..."
-                autocomplete="off"
-            >
-
-        </div>
+    <script type="module"
+            src="../assets/js/owner-dashboard.js"></script>
 
 
-        <div class="tipeco-users-filter">
+</body>
 
-            <select id="ownerUserRoleFilter">
-
-                <option value="all">
-                    All Roles
-                </option>
-
-                <option value="buyer">
-                    Buyers
-                </option>
-
-                <option value="seller">
-                    Sellers
-                </option>
-
-                <option value="agent">
-                    Agents
-                </option>
-
-                <option value="owner">
-                    Owners
-                </option>
-
-            </select>
-
-
-            <select id="ownerUserStatusFilter">
-
-                <option value="all">
-                    All Statuses
-                </option>
-
-                <option value="active">
-                    Active
-                </option>
-
-                <option value="pending_verification">
-                    Pending Verification
-                </option>
-
-                <option value="suspended">
-                    Suspended
-                </option>
-
-                <option value="blocked">
-                    Blocked
-                </option>
-
-            </select>
-
-        </div>
-
-    </div>
-
-
-    <!-- USERS TABLE -->
-
-    <div class="owner-table-wrapper">
-
-        <table class="owner-table">
-
-            <thead>
-
-                <tr>
-
-                    <th>
-                        User
-                    </th>
-
-                    <th>
-                        Email
-                    </th>
-
-                    <th>
-                        Phone
-                    </th>
-
-                    <th>
-                        Role
-                    </th>
-
-                    <th>
-                        Status
-                    </th>
-
-                    
+</html>
