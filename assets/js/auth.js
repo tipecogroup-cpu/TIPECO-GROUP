@@ -1,34 +1,30 @@
 /* =====================================================
    TIPECO GROUP - FIREBASE AUTHENTICATION
    REAL PROJECT
-   Version: 7.3
+   Version: 8.0
 
-   ARCHITECTURE
-   -----------------------------------------------------
+   GENERAL ACCOUNT ARCHITECTURE
    - One General TIPECO GROUP Account
-   - No public Buyer/Seller/Employer/Job Seeker roles
-   - Email/Password Authentication
-   - Email Verification
-   - Firestore User Profiles
-   - Owner Role Authentication
-   - Owner Dashboard Protection
-   - Blocked / Suspended Account Protection
-   - Safe Auth State Check
-   - Forgot Password
-   - Secure Logout
-   - Public Owner Registration Prevention
+   - Email + Password
+   - Mandatory Email Verification
+   - Mandatory Phone Verification (SMS OTP)
+   - Firebase Phone Auth + reCAPTCHA
+   - Phone linked to the SAME Firebase account
+   - Account active ONLY when:
+       emailVerified === true
+       AND
+       phoneVerified === true
 
-   IMPORTANT
-   -----------------------------------------------------
-   login.html              -> pages/login.html
-   register.html           -> pages/register.html
-   owner-dashboard.html    -> pages/owner-dashboard.html
-   auth.js                 -> assets/js/auth.js
+   SECURITY PRINCIPLE
+   - Firebase Auth + Firestore are the source of truth.
+   - No localStorage authentication.
+   - Subscription != Approval.
+   - Owner role is never created from public registration.
 ===================================================== */
 
 
 /* =====================================================
-   FIREBASE CONFIG
+   FIREBASE IMPORTS
 ===================================================== */
 
 import {
@@ -48,7 +44,9 @@ import {
     onAuthStateChanged,
     sendEmailVerification,
     sendPasswordResetEmail,
-    reload
+    reload,
+    RecaptchaVerifier,
+    linkWithPhoneNumber
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 
@@ -65,1788 +63,1688 @@ import {
 
 
 /* =====================================================
-   TIPECO CONSTANTS
+   CONSTANTS
 ===================================================== */
 
 const OWNER_ROLE = "owner";
-
-/*
-   Internal role for normal registered accounts.
-
-   IMPORTANT:
-   This is NOT a role selected by the user.
-
-   The public registration page does not allow users
-   to choose Buyer, Seller, Employer, Job Seeker, etc.
-
-   "user" simply identifies a normal TIPECO account
-   internally.
-*/
 const GENERAL_USER_ROLE = "user";
 
-const OWNER_DASHBOARD =
-    "owner-dashboard.html";
-
-const DEFAULT_HOME =
-    "../index.html";
-
-const LOGIN_PAGE =
-    "login.html";
-
-
-/* =====================================================
-   PUBLIC OWNER REGISTRATION RULE
-   -----------------------------------------------------
-   Owner account MUST NEVER be created through the
-   public registration page.
-
-   Owner authorization is controlled separately by
-   TIPECO GROUP / Owner administration.
-
-   Firestore Owner profile:
-
-       role: "owner"
-===================================================== */
+const OWNER_DASHBOARD = "owner-dashboard.html";
+const DEFAULT_HOME = "../index.html";
+const LOGIN_PAGE = "login.html";
 
 const PUBLIC_OWNER_FORBIDDEN = true;
 
 
 /* =====================================================
-   SESSION KEYS
-   -----------------------------------------------------
-   IMPORTANT:
-   sessionStorage is ONLY a convenience layer.
-
-   Firebase Authentication + Firestore Security Rules
-   remain the real security source of truth.
+   SESSION CONVENIENCE KEYS
+   Firebase Auth remains the real source of truth.
 ===================================================== */
 
-const AUTH_SESSION_KEY =
-    "tipecoAuthenticated";
-
-const USER_ID_SESSION_KEY =
-    "tipecoUserId";
-
-const ROLE_SESSION_KEY =
-    "tipecoRole";
+const SESSION_AUTHENTICATED = "tipecoAuthenticated";
+const SESSION_USER_ID = "tipecoUserId";
+const SESSION_ROLE = "tipecoRole";
 
 
 /* =====================================================
-   MESSAGE HELPER
+   PHONE VERIFICATION STATE
 ===================================================== */
 
-function showMessage(message) {
+let recaptchaVerifier = null;
+let confirmationResult = null;
 
-    alert(message);
+let phoneVerificationInProgress = false;
+let phoneVerified = false;
 
+let pendingRegistrationUser = null;
+
+
+/* =====================================================
+   BASIC UI HELPERS
+===================================================== */
+
+function showMessage(element, message, type = "info") {
+
+    if (!element) return;
+
+    element.textContent = message;
+
+    element.dataset.type = type;
+
+    element.style.display = "block";
+}
+
+
+function hideMessage(element) {
+
+    if (!element) return;
+
+    element.textContent = "";
+    element.style.display = "none";
 }
 
 
 /* =====================================================
-   CLEAR TIPECO SESSION
+   SESSION HELPERS
 ===================================================== */
 
 function clearTipecoSession() {
 
     try {
-
-        sessionStorage.removeItem(
-            AUTH_SESSION_KEY
-        );
-
-        sessionStorage.removeItem(
-            USER_ID_SESSION_KEY
-        );
-
-        sessionStorage.removeItem(
-            ROLE_SESSION_KEY
-        );
-
+        sessionStorage.removeItem(SESSION_AUTHENTICATED);
+        sessionStorage.removeItem(SESSION_USER_ID);
+        sessionStorage.removeItem(SESSION_ROLE);
     } catch (error) {
-
-        console.error(
-            "TIPECO session cleanup error:",
+        console.warn(
+            "TIPECO session cleanup warning:",
             error
         );
-
     }
-
 }
 
 
-/* =====================================================
-   SAVE TIPECO SESSION
-===================================================== */
-
-function saveTipecoSession(
-    user,
-    profile
-) {
+function saveTipecoSession(user, profile) {
 
     try {
 
         sessionStorage.setItem(
-            AUTH_SESSION_KEY,
+            SESSION_AUTHENTICATED,
             "true"
         );
 
         sessionStorage.setItem(
-            USER_ID_SESSION_KEY,
+            SESSION_USER_ID,
             user.uid
         );
 
         sessionStorage.setItem(
-            ROLE_SESSION_KEY,
-            profile?.role || ""
+            SESSION_ROLE,
+            profile?.role || GENERAL_USER_ROLE
         );
 
     } catch (error) {
 
-        console.error(
-            "TIPECO session save error:",
+        console.warn(
+            "TIPECO session save warning:",
             error
         );
-
     }
-
 }
 
 
 /* =====================================================
-   GET USER PROFILE
-   -----------------------------------------------------
-   Reads:
-
-       users/{uid}
-
-   from Firestore.
+   FIRESTORE USER PROFILE
 ===================================================== */
 
-async function getUserProfile(user) {
+async function getUserProfile(uid) {
 
-    if (!user) {
+    if (!uid) return null;
 
-        return null;
-
-    }
-
-    try {
-
-        const userRef =
-            doc(
-                db,
-                "users",
-                user.uid
-            );
-
-        const snapshot =
-            await getDoc(
-                userRef
-            );
-
-        if (!snapshot.exists()) {
-
-            return null;
-
-        }
-
-        return {
-
-            id:
-                snapshot.id,
-
-            ...snapshot.data()
-
-        };
-
-    } catch (error) {
-
-        console.error(
-            "Error loading user profile:",
-            error
-        );
-
-        throw error;
-
-    }
-
-}
-
-
-/* =====================================================
-   CHECK TIPECO OWNER
-===================================================== */
-
-async function isTipecoOwner(user) {
-
-    if (!user) {
-
-        return false;
-
-    }
-
-    const profile =
-        await getUserProfile(user);
-
-    if (!profile) {
-
-        return false;
-
-    }
-
-    return (
-        String(
-            profile.role || ""
-        )
-            .trim()
-            .toLowerCase()
-        === OWNER_ROLE
+    const userRef = doc(
+        db,
+        "users",
+        uid
     );
 
+    const snapshot = await getDoc(userRef);
+
+    if (!snapshot.exists()) {
+        return null;
+    }
+
+    return snapshot.data();
 }
 
 
 /* =====================================================
-   CHECK ACCOUNT STATUS
+   OWNER CHECK
+===================================================== */
+
+function isTipecoOwner(profile) {
+
+    return (
+        profile &&
+        profile.role === OWNER_ROLE
+    );
+}
+
+
+/* =====================================================
+   ACCOUNT STATUS
 ===================================================== */
 
 function getAccountStatus(profile) {
 
-    if (!profile) {
-
-        return "unknown";
-
-    }
-
-    return String(
-
-        profile.accountStatus
-        ??
-        profile.status
-        ??
-        "active"
-
-    )
-        .trim()
-        .toLowerCase();
-
+    return profile?.accountStatus || "unknown";
 }
 
 
 /* =====================================================
    UPDATE USER PROFILE
-   -----------------------------------------------------
-   Small helper used by registration / verification.
 ===================================================== */
 
 async function updateUserProfile(
-    user,
+    uid,
     data
 ) {
 
-    if (!user) {
+    if (!uid) {
+        throw new Error(
+            "User UID is required."
+        );
+    }
 
-        return;
+    const userRef = doc(
+        db,
+        "users",
+        uid
+    );
+
+    await setDoc(
+        userRef,
+        data,
+        {
+            merge: true
+        }
+    );
+}
+
+
+/* =====================================================
+   PHONE NORMALIZATION
+===================================================== */
+
+function normalizePhoneNumber(
+    countryCode,
+    phone
+) {
+
+    if (!countryCode || !phone) {
+        throw new Error(
+            "Country code and phone number are required."
+        );
+    }
+
+    let cleaned = String(phone)
+        .trim()
+        .replace(/[^\d+]/g, "");
+
+    /*
+       If user enters:
+       078xxxxxxx
+       and country code is +250
+
+       convert to:
+       +25078xxxxxxx
+    */
+
+    if (cleaned.startsWith("+")) {
+
+        return cleaned;
 
     }
 
-    const userRef =
+    if (cleaned.startsWith("00")) {
+
+        return "+" + cleaned.substring(2);
+
+    }
+
+    cleaned = cleaned.replace(/^0+/, "");
+
+    return (
+        String(countryCode) +
+        cleaned
+    );
+}
+
+
+/* =====================================================
+   PHONE VALIDATION
+===================================================== */
+
+function validateE164Phone(
+    phone
+) {
+
+    return /^\+[1-9]\d{7,14}$/.test(
+        phone
+    );
+}
+
+
+/* =====================================================
+   FIREBASE ERROR MESSAGE
+===================================================== */
+
+function getFirebaseErrorMessage(
+    error
+) {
+
+    const code =
+        error?.code || "";
+
+    switch (code) {
+
+        case "auth/invalid-email":
+            return "The email address is invalid.";
+
+        case "auth/email-already-in-use":
+            return "This email address is already registered.";
+
+        case "auth/weak-password":
+            return "Password is too weak.";
+
+        case "auth/wrong-password":
+            return "Incorrect password.";
+
+        case "auth/user-not-found":
+            return "Account not found.";
+
+        case "auth/user-disabled":
+            return "This account has been disabled.";
+
+        case "auth/invalid-credential":
+            return "Invalid email or password.";
+
+        case "auth/invalid-phone-number":
+            return "The phone number is invalid. Use a valid international number.";
+
+        case "auth/missing-phone-number":
+            return "Phone number is required.";
+
+        case "auth/too-many-requests":
+            return "Too many requests. Please wait and try again later.";
+
+        case "auth/quota-exceeded":
+            return "SMS verification quota has been exceeded. Please try again later.";
+
+        case "auth/captcha-check-failed":
+            return "reCAPTCHA verification failed. Please try again.";
+
+        case "auth/network-request-failed":
+            return "Network error. Please check your internet connection.";
+
+        case "auth/operation-not-allowed":
+            return "This authentication method is not enabled in Firebase.";
+
+        case "auth/provider-already-linked":
+            return "A phone number is already linked to this account.";
+
+        case "auth/credential-already-in-use":
+            return "This phone number is already linked to another account.";
+
+        case "auth/code-expired":
+            return "The verification code has expired. Please request a new code.";
+
+        case "auth/invalid-verification-code":
+            return "The verification code is incorrect.";
+
+        case "auth/requires-recent-login":
+            return "Please log in again and retry.";
+
+        default:
+            return (
+                error?.message ||
+                "An unexpected authentication error occurred."
+            );
+    }
+}
+
+
+/* =====================================================
+   reCAPTCHA INITIALIZATION
+===================================================== */
+
+function initializeRecaptcha() {
+
+    const container =
+        document.getElementById(
+            "recaptcha-container"
+        );
+
+    if (!container) {
+
+        console.error(
+            "TIPECO: recaptcha-container not found."
+        );
+
+        return null;
+    }
+
+    if (recaptchaVerifier) {
+        return recaptchaVerifier;
+    }
+
+    try {
+
+        recaptchaVerifier =
+            new RecaptchaVerifier(
+                auth,
+                "recaptcha-container",
+                {
+                    size: "normal",
+
+                    callback: () => {
+
+                        console.log(
+                            "TIPECO reCAPTCHA completed."
+                        );
+
+                    },
+
+                    "expired-callback": () => {
+
+                        console.warn(
+                            "TIPECO reCAPTCHA expired."
+                        );
+
+                    }
+                }
+            );
+
+        return recaptchaVerifier;
+
+    } catch (error) {
+
+        console.error(
+            "TIPECO reCAPTCHA initialization error:",
+            error
+        );
+
+        return null;
+    }
+}
+
+
+/* =====================================================
+   CLEAR reCAPTCHA
+===================================================== */
+
+function clearRecaptcha() {
+
+    if (!recaptchaVerifier) {
+        return;
+    }
+
+    try {
+
+        recaptchaVerifier.clear();
+
+    } catch (error) {
+
+        console.warn(
+            "TIPECO reCAPTCHA cleanup warning:",
+            error
+        );
+
+    } finally {
+
+        recaptchaVerifier = null;
+    }
+}
+
+
+/* =====================================================
+   CREATE PENDING REGISTRATION ACCOUNT
+===================================================== */
+
+async function createPendingRegistrationAccount(
+    registrationData
+) {
+
+    const {
+        fullName,
+        email,
+        phone,
+        password
+    } = registrationData;
+
+    /*
+       If account was already created during
+       phone verification preparation, reuse it.
+    */
+
+    if (
+        auth.currentUser &&
+        auth.currentUser.email === email
+    ) {
+
+        pendingRegistrationUser =
+            auth.currentUser;
+
+        return auth.currentUser;
+    }
+
+
+    const credential =
+        await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+        );
+
+    const user =
+        credential.user;
+
+    pendingRegistrationUser = user;
+
+    await setDoc(
         doc(
             db,
             "users",
             user.uid
-        );
-
-    await setDoc(
-        userRef,
+        ),
         {
+            uid: user.uid,
 
-            ...data,
+            fullName: fullName,
+
+            email: email,
+
+            phone: phone,
+
+            role: GENERAL_USER_ROLE,
+
+            accountStatus:
+                "pending_verification",
+
+            emailVerified:
+                false,
+
+            phoneVerified:
+                false,
+
+            createdAt:
+                serverTimestamp(),
 
             updatedAt:
                 serverTimestamp()
-
         },
         {
             merge: true
         }
     );
 
+    return user;
+}
+
+
+/* =====================================================
+   SEND PHONE VERIFICATION CODE
+===================================================== */
+
+async function sendPhoneVerificationCode() {
+
+    if (phoneVerificationInProgress) {
+        return;
+    }
+
+    const fullNameInput =
+        document.getElementById("fullName");
+
+    const emailInput =
+        document.getElementById("email");
+
+    const countryInput =
+        document.getElementById("country");
+
+    const phoneInput =
+        document.getElementById("phone");
+
+    const passwordInput =
+        document.getElementById("password");
+
+    const statusElement =
+        document.getElementById(
+            "phoneVerificationStatus"
+        );
+
+    const country =
+        countryInput?.value || "+250";
+
+    const phoneRaw =
+        phoneInput?.value?.trim() || "";
+
+    const email =
+        emailInput?.value?.trim().toLowerCase() || "";
+
+    const fullName =
+        fullNameInput?.value?.trim() || "";
+
+    const password =
+        passwordInput?.value || "";
+
+    if (!fullName) {
+
+        showMessage(
+            statusElement,
+            "Please enter your full name.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (!email) {
+
+        showMessage(
+            statusElement,
+            "Please enter your email address.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (!phoneRaw) {
+
+        showMessage(
+            statusElement,
+            "Please enter your phone number.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (!password || password.length < 6) {
+
+        showMessage(
+            statusElement,
+            "Please enter a password of at least 6 characters.",
+            "error"
+        );
+
+        return;
+    }
+
+    let phoneNumber;
+
+    try {
+
+        phoneNumber =
+            normalizePhoneNumber(
+                country,
+                phoneRaw
+            );
+
+    } catch (error) {
+
+        showMessage(
+            statusElement,
+            error.message,
+            "error"
+        );
+
+        return;
+    }
+
+    if (!validateE164Phone(phoneNumber)) {
+
+        showMessage(
+            statusElement,
+            "Please enter a valid international phone number.",
+            "error"
+        );
+
+        return;
+    }
+
+    phoneVerificationInProgress =
+        true;
+
+    try {
+
+        /*
+           Firebase email/password account is created first
+           so the phone number can be linked to the SAME account.
+        */
+
+        const user =
+            await createPendingRegistrationAccount(
+                {
+                    fullName,
+                    email,
+                    phone: phoneNumber,
+                    password
+                }
+            );
+
+        const verifier =
+            initializeRecaptcha();
+
+        if (!verifier) {
+
+            throw new Error(
+                "reCAPTCHA could not be initialized."
+            );
+        }
+
+        showMessage(
+            statusElement,
+            "Sending verification code...",
+            "info"
+        );
+
+        confirmationResult =
+            await linkWithPhoneNumber(
+                user,
+                phoneNumber,
+                verifier
+            );
+
+        await updateUserProfile(
+            user.uid,
+            {
+                phone: phoneNumber,
+
+                phoneVerified:
+                    false,
+
+                accountStatus:
+                    "pending_verification",
+
+                updatedAt:
+                    serverTimestamp()
+            }
+        );
+
+        showMessage(
+            statusElement,
+            "Verification code sent by SMS. Enter the 6-digit code.",
+            "success"
+        );
+
+        const otpSection =
+            document.getElementById(
+                "otpSection"
+            );
+
+        if (otpSection) {
+            otpSection.style.display =
+                "block";
+        }
+
+        const otpInput =
+            document.getElementById(
+                "otp"
+            );
+
+        if (otpInput) {
+            otpInput.focus();
+        }
+
+    } catch (error) {
+
+        console.error(
+            "TIPECO phone verification error:",
+            error
+        );
+
+        showMessage(
+            statusElement,
+            getFirebaseErrorMessage(error),
+            "error"
+        );
+
+    } finally {
+
+        phoneVerificationInProgress =
+            false;
+    }
+}
+
+
+/* =====================================================
+   VERIFY PHONE OTP
+===================================================== */
+
+async function verifyPhoneVerificationCode() {
+
+    const otpInput =
+        document.getElementById("otp");
+
+    const statusElement =
+        document.getElementById(
+            "phoneVerificationStatus"
+        );
+
+    const code =
+        otpInput?.value?.trim() || "";
+
+    if (!confirmationResult) {
+
+        showMessage(
+            statusElement,
+            "Please request a verification code first.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (!/^\d{6}$/.test(code)) {
+
+        showMessage(
+            statusElement,
+            "Please enter the 6-digit verification code.",
+            "error"
+        );
+
+        return;
+    }
+
+    try {
+
+        showMessage(
+            statusElement,
+            "Verifying phone number...",
+            "info"
+        );
+
+        const credential =
+            await confirmationResult.confirm(
+                code
+            );
+
+        const user =
+            credential.user;
+
+        pendingRegistrationUser =
+            user;
+
+        phoneVerified = true;
+
+        await updateUserProfile(
+            user.uid,
+            {
+                phone:
+                    user.phoneNumber || "",
+
+                phoneVerified:
+                    true,
+
+                accountStatus:
+                    "pending_verification",
+
+                updatedAt:
+                    serverTimestamp()
+            }
+        );
+
+        showMessage(
+            statusElement,
+            "Phone number verified successfully.",
+            "success"
+        );
+
+        const phoneStatus =
+            document.getElementById(
+                "phoneStatus"
+            );
+
+        if (phoneStatus) {
+
+            phoneStatus.textContent =
+                "✓ Phone number verified";
+
+            phoneStatus.dataset.status =
+                "verified";
+        }
+
+        const createButton =
+            document.getElementById(
+                "registerButton"
+            ) ||
+            document.getElementById(
+                "createAccountButton"
+            );
+
+        if (createButton) {
+
+            createButton.disabled =
+                false;
+        }
+
+        confirmationResult =
+            null;
+
+        clearRecaptcha();
+
+    } catch (error) {
+
+        console.error(
+            "TIPECO OTP verification error:",
+            error
+        );
+
+        showMessage(
+            statusElement,
+            getFirebaseErrorMessage(error),
+            "error"
+        );
+    }
 }
 
 
 /* =====================================================
    REGISTRATION
-   -----------------------------------------------------
-   GENERAL TIPECO GROUP ACCOUNT
-
-   IMPORTANT:
-   -----------------------------------------------------
-   There is NO account type selection.
-
-   Registration creates a normal General Account.
-
-   Subscription, posting permission, job application,
-   Agent approval, Owner authorization, etc. are separate
-   systems and are NOT registration roles.
 ===================================================== */
 
-const registerForm =
-    document.getElementById(
-        "registerForm"
-    );
+async function handleRegistration(
+    event
+) {
 
+    if (event) {
+        event.preventDefault();
+    }
 
-if (registerForm) {
+    const form =
+        event?.currentTarget ||
+        document.getElementById(
+            "registerForm"
+        );
 
-    registerForm.addEventListener(
-        "submit",
-        async function (event) {
+    if (!form) return;
 
-            event.preventDefault();
+    const fullName =
+        document.getElementById(
+            "fullName"
+        )?.value?.trim() || "";
 
+    const email =
+        document.getElementById(
+            "email"
+        )?.value?.trim().toLowerCase() || "";
 
-            /* =========================================
-               GET FORM ELEMENTS
-            ========================================= */
+    const country =
+        document.getElementById(
+            "country"
+        )?.value || "+250";
 
-            const fullName =
-                document.getElementById(
-                    "fullName"
-                )?.value
-                ?.trim();
+    const phoneRaw =
+        document.getElementById(
+            "phone"
+        )?.value?.trim() || "";
 
-            const email =
-                document.getElementById(
-                    "email"
-                )?.value
-                ?.trim()
-                ?.toLowerCase();
+    const password =
+        document.getElementById(
+            "password"
+        )?.value || "";
 
-            const phone =
-                document.getElementById(
-                    "phone"
-                )?.value
-                ?.trim();
+    const confirmPassword =
+        document.getElementById(
+            "confirmPassword"
+        )?.value || "";
 
-            const password =
-                document.getElementById(
-                    "password"
-                )?.value;
+    const terms =
+        document.getElementById(
+            "terms"
+        )?.checked || false;
 
-            const confirmPassword =
-                document.getElementById(
-                    "confirmPassword"
-                )?.value;
+    const statusElement =
+        document.getElementById(
+            "registerStatus"
+        );
 
-            const terms =
-                document.getElementById(
-                    "terms"
+    if (!fullName) {
+
+        showMessage(
+            statusElement,
+            "Please enter your full name.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (!email) {
+
+        showMessage(
+            statusElement,
+            "Please enter your email address.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (!phoneRaw) {
+
+        showMessage(
+            statusElement,
+            "Please enter your phone number.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (!password || password.length < 6) {
+
+        showMessage(
+            statusElement,
+            "Password must contain at least 6 characters.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (password !== confirmPassword) {
+
+        showMessage(
+            statusElement,
+            "Passwords do not match.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (!terms) {
+
+        showMessage(
+            statusElement,
+            "Please accept the Terms and Conditions.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (!phoneVerified) {
+
+        /*
+           Also check Firebase profile so the UI state
+           cannot be trusted by itself.
+        */
+
+        const currentUser =
+            auth.currentUser;
+
+        if (currentUser) {
+
+            const profile =
+                await getUserProfile(
+                    currentUser.uid
                 );
 
-            const registerButton =
-                document.getElementById(
-                    "registerButton"
-                );
+            phoneVerified =
+                profile?.phoneVerified === true;
+        }
+    }
 
-            const registerStatus =
-                document.getElementById(
-                    "registerStatus"
-                );
+    if (!phoneVerified) {
 
+        showMessage(
+            statusElement,
+            "Phone verification is required before creating the account.",
+            "error"
+        );
 
-            /* =========================================
-               BASIC VALIDATION
-            ========================================= */
+        return;
+    }
 
-            if (
-                !fullName ||
-                !email ||
-                !phone ||
-                !password ||
-                !confirmPassword
-            ) {
+    try {
 
-                showMessage(
-                    "Please fill in all required fields."
-                );
+        let user =
+            auth.currentUser;
 
-                return;
+        /*
+           If the user already exists because phone
+           verification created the pending account,
+           reuse that Firebase user.
+        */
 
-            }
+        if (!user) {
 
-
-            /* =========================================
-               EMAIL VALIDATION
-            ========================================= */
-
-            const emailPattern =
-                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if (
-                !emailPattern.test(email)
-            ) {
-
-                showMessage(
-                    "Please enter a valid email address."
-                );
-
-                return;
-
-            }
-
-
-            /* =========================================
-               PASSWORD CHECK
-            ========================================= */
-
-            if (
-                password !==
-                confirmPassword
-            ) {
-
-                showMessage(
-                    "Passwords do not match."
-                );
-
-                return;
-
-            }
-
-
-            /* =========================================
-               PASSWORD LENGTH
-            ========================================= */
-
-            if (
-                password.length < 6
-            ) {
-
-                showMessage(
-                    "Password must contain at least 6 characters."
-                );
-
-                return;
-
-            }
-
-
-            /* =========================================
-               TERMS CHECK
-            ========================================= */
-
-            if (
-                terms &&
-                !terms.checked
-            ) {
-
-                showMessage(
-                    "Please accept the Terms and Conditions."
-                );
-
-                return;
-
-            }
-
-
-            /* =========================================
-               OWNER SECURITY
-               -----------------------------------------
-               Public registration can NEVER create
-               an Owner account.
-            ========================================= */
-
-            if (
-                PUBLIC_OWNER_FORBIDDEN
-            ) {
-
-                /*
-                   No role/accountType is accepted from
-                   the registration form.
-
-                   The created public account is always
-                   a General TIPECO GROUP account.
-                */
-
-            }
-
-
-            /* =========================================
-               DISABLE BUTTON
-            ========================================= */
-
-            if (registerButton) {
-
-                registerButton.disabled =
-                    true;
-
-                registerButton.dataset.originalText =
-                    registerButton.textContent;
-
-                registerButton.textContent =
-                    "Creating account...";
-
-            }
-
-
-            if (registerStatus) {
-
-                registerStatus.textContent =
-                    "Creating your TIPECO GROUP account...";
-
-            }
-
-
-            try {
-
-                /* =====================================
-                   CREATE FIREBASE AUTH USER
-                ===================================== */
-
-                const userCredential =
-                    await createUserWithEmailAndPassword(
-                        auth,
+            user =
+                await createPendingRegistrationAccount(
+                    {
+                        fullName,
                         email,
-                        password
-                    );
-
-                const user =
-                    userCredential.user;
-
-
-                /* =====================================
-                   CREATE FIRESTORE PROFILE
-                   -------------------------------------
-                   General Account only.
-
-                   "role: user" is INTERNAL and is NOT
-                   a role selected by the registrant.
-
-                   Owner is assigned separately.
-                ===================================== */
-
-                const userRef =
-                    doc(
-                        db,
-                        "users",
-                        user.uid
-                    );
-
-
-                await setDoc(
-                    userRef,
-                    {
-
-                        uid:
-                            user.uid,
-
-                        fullName:
-                            fullName,
-
-                        email:
-                            email,
-
                         phone:
-                            phone,
-
-                        role:
-                            GENERAL_USER_ROLE,
-
-                        accountStatus:
-                            "pending_verification",
-
-                        emailVerified:
-                            false,
-
-                        createdAt:
-                            serverTimestamp(),
-
-                        updatedAt:
-                            serverTimestamp()
-
-                    },
-                    {
-                        merge: true
+                            normalizePhoneNumber(
+                                country,
+                                phoneRaw
+                            ),
+                        password
                     }
                 );
-
-
-                /* =====================================
-                   SEND EMAIL VERIFICATION
-                ===================================== */
-
-                await sendEmailVerification(
-                    user
-                );
-
-
-                /* =====================================
-                   SAVE TEMPORARY VERIFICATION STATE
-                   -------------------------------------
-                   Firebase Auth remains signed in here.
-
-                   This allows the Verify Email button
-                   on register.html to reload the current
-                   Firebase user and check verification.
-                ===================================== */
-
-                clearTipecoSession();
-
-
-                /* =====================================
-                   SHOW VERIFICATION MESSAGE
-                ===================================== */
-
-                const verificationMessage =
-                    document.getElementById(
-                        "verificationMessage"
-                    );
-
-                if (verificationMessage) {
-
-                    verificationMessage.style.display =
-                        "block";
-
-                }
-
-
-                const verifyEmailButton =
-                    document.getElementById(
-                        "verifyEmailButton"
-                    );
-
-                if (verifyEmailButton) {
-
-                    verifyEmailButton.style.display =
-                        "inline-block";
-
-                }
-
-
-                if (registerStatus) {
-
-                    registerStatus.textContent =
-                        "Account created. Please verify your email address.";
-
-                }
-
-
-                showMessage(
-                    "Account created successfully.\n\n" +
-                    "Please open the verification email sent to your inbox, " +
-                    "click the verification link, then return here and press " +
-                    "\"Verify Email\"."
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "TIPECO registration error:",
-                    error
-                );
-
-
-                let message =
-                    "Registration failed. Please try again.";
-
-
-                switch (error.code) {
-
-                    case "auth/email-already-in-use":
-
-                        message =
-                            "This email is already registered.";
-
-                        break;
-
-
-                    case "auth/invalid-email":
-
-                        message =
-                            "Please enter a valid email address.";
-
-                        break;
-
-
-                    case "auth/weak-password":
-
-                        message =
-                            "Password is too weak.";
-
-                        break;
-
-
-                    case "auth/network-request-failed":
-
-                        message =
-                            "Network error. Please check your internet connection.";
-
-                        break;
-
-
-                    case "auth/operation-not-allowed":
-
-                        message =
-                            "Email/password registration is currently disabled in Firebase Authentication.";
-
-                        break;
-
-
-                    default:
-
-                        message =
-                            error.message ||
-                            message;
-
-                }
-
-
-                showMessage(
-                    message
-                );
-
-
-                if (registerStatus) {
-
-                    registerStatus.textContent =
-                        message;
-
-                }
-
-
-            } finally {
-
-                if (registerButton) {
-
-                    registerButton.disabled =
-                        false;
-
-                    registerButton.textContent =
-                        registerButton.dataset.originalText ||
-                        "Create Account";
-
-                }
-
-            }
-
         }
-    );
 
+        await reload(user);
+
+        user =
+            auth.currentUser;
+
+        if (!user) {
+
+            throw new Error(
+                "Unable to access the Firebase account."
+            );
+        }
+
+        await updateUserProfile(
+            user.uid,
+            {
+                uid: user.uid,
+
+                fullName,
+
+                email: user.email,
+
+                phone:
+                    user.phoneNumber ||
+                    normalizePhoneNumber(
+                        country,
+                        phoneRaw
+                    ),
+
+                role:
+                    GENERAL_USER_ROLE,
+
+                emailVerified:
+                    user.emailVerified === true,
+
+                phoneVerified:
+                    true,
+
+                accountStatus:
+                    "pending_verification",
+
+                updatedAt:
+                    serverTimestamp()
+            }
+        );
+
+        /*
+           Email verification is sent only after
+           phone verification has succeeded.
+        */
+
+        if (!user.emailVerified) {
+
+            await sendEmailVerification(
+                user
+            );
+        }
+
+        showMessage(
+            statusElement,
+            "Account created. Please verify your email before logging in.",
+            "success"
+        );
+
+        const emailVerificationSection =
+            document.getElementById(
+                "emailVerificationSection"
+            );
+
+        if (emailVerificationSection) {
+
+            emailVerificationSection.style.display =
+                "block";
+        }
+
+        clearTipecoSession();
+
+    } catch (error) {
+
+        console.error(
+            "TIPECO registration error:",
+            error
+        );
+
+        showMessage(
+            statusElement,
+            getFirebaseErrorMessage(error),
+            "error"
+        );
+    }
 }
 
 
 /* =====================================================
-   VERIFY EMAIL BUTTON
-   -----------------------------------------------------
-   Used by:
-
-       register.html
-
-   Flow:
-
-       Create Account
-            ↓
-       Firebase sends email
-            ↓
-       User clicks verification link
-            ↓
-       Returns to TIPECO
-            ↓
-       Clicks "Verify Email"
-            ↓
-       Firebase user reload
-            ↓
-       Check emailVerified
+   EMAIL VERIFICATION
 ===================================================== */
 
-const verifyEmailButton =
-    document.getElementById(
-        "verifyEmailButton"
-    );
+async function verifyEmailAddress() {
 
+    const statusElement =
+        document.getElementById(
+            "emailVerificationStatus"
+        );
 
-if (verifyEmailButton) {
+    try {
 
-    verifyEmailButton.addEventListener(
-        "click",
-        async function () {
+        const user =
+            auth.currentUser;
 
-            const originalText =
-                verifyEmailButton.textContent;
+        if (!user) {
 
-            verifyEmailButton.disabled =
-                true;
+            showMessage(
+                statusElement,
+                "Please complete registration first.",
+                "error"
+            );
 
-            verifyEmailButton.textContent =
-                "Checking verification...";
+            return;
+        }
 
+        await reload(user);
 
-            try {
+        const currentUser =
+            auth.currentUser;
 
-                const user =
-                    auth.currentUser;
+        const profile =
+            await getUserProfile(
+                currentUser.uid
+            );
 
+        const emailVerified =
+            currentUser.emailVerified === true;
 
-                /* =====================================
-                   NO CURRENT FIREBASE USER
-                ===================================== */
+        const phoneIsVerified =
+            profile?.phoneVerified === true;
 
-                if (!user) {
+        if (!emailVerified) {
 
-                    showMessage(
-                        "Your registration session has expired. Please go to Login and sign in after verifying your email."
-                    );
+            showMessage(
+                statusElement,
+                "Your email is not verified yet. Open the verification email and click the verification link.",
+                "error"
+            );
 
-                    return;
+            return;
+        }
 
-                }
+        if (!phoneIsVerified) {
 
+            showMessage(
+                statusElement,
+                "Your phone number must also be verified.",
+                "error"
+            );
 
-                /* =====================================
-                   RELOAD FIREBASE USER
-                ===================================== */
+            return;
+        }
 
-                await reload(user);
+        await updateUserProfile(
+            currentUser.uid,
+            {
+                emailVerified: true,
 
+                phoneVerified: true,
 
-                /* =====================================
-                   CHECK VERIFICATION
-                ===================================== */
+                accountStatus:
+                    "active",
 
-                if (!user.emailVerified) {
+                updatedAt:
+                    serverTimestamp()
+            }
+        );
 
-                    showMessage(
-                        "Your email is not verified yet.\n\n" +
-                        "Please open the verification email, click the verification link, " +
-                        "then return here and press \"Verify Email\" again."
-                    );
+        showMessage(
+            statusElement,
+            "Email and phone are both verified. Your TIPECO GROUP account is now active.",
+            "success"
+        );
 
-                    return;
+        clearTipecoSession();
 
-                }
+        await signOut(auth);
 
-
-                /* =====================================
-                   LOAD PROFILE
-                ===================================== */
-
-                const profile =
-                    await getUserProfile(
-                        user
-                    );
-
-
-                if (!profile) {
-
-                    showMessage(
-                        "Your account profile could not be found. Please contact TIPECO GROUP support."
-                    );
-
-                    return;
-
-                }
-
-
-                /* =====================================
-                   CHECK ACCOUNT STATUS
-                ===================================== */
-
-                const accountStatus =
-                    getAccountStatus(
-                        profile
-                    );
-
-
-                if (
-                    accountStatus ===
-                        "blocked"
-                    ||
-                    accountStatus ===
-                        "suspended"
-                ) {
-
-                    await signOut(
-                        auth
-                    );
-
-                    clearTipecoSession();
-
-
-                    showMessage(
-                        "This account is currently " +
-                        accountStatus +
-                        ". Please contact TIPECO GROUP support."
-                    );
-
-                    return;
-
-                }
-
-
-                /* =====================================
-                   UPDATE VERIFIED PROFILE
-                ===================================== */
-
-                await updateUserProfile(
-                    user,
-                    {
-
-                        emailVerified:
-                            true,
-
-                        accountStatus:
-                            "active"
-
-                    }
-                );
-
-
-                /* =====================================
-                   CLEAR SESSION
-                ===================================== */
-
-                clearTipecoSession();
-
-
-                /* =====================================
-                   SIGN OUT
-                   -------------------------------------
-                   User will use the normal Login flow
-                   after successful verification.
-                ===================================== */
-
-                await signOut(
-                    auth
-                );
-
-
-                showMessage(
-                    "Email verified successfully.\n\n" +
-                    "Your TIPECO GROUP account is now active. " +
-                    "Please log in to continue."
-                );
-
-
-                /* =====================================
-                   REDIRECT TO LOGIN
-                ===================================== */
+        setTimeout(
+            () => {
 
                 window.location.href =
                     LOGIN_PAGE;
 
+            },
+            1200
+        );
 
-            } catch (error) {
+    } catch (error) {
 
-                console.error(
-                    "TIPECO email verification check error:",
-                    error
-                );
+        console.error(
+            "TIPECO email verification error:",
+            error
+        );
 
-
-                let message =
-                    "Unable to check email verification. Please try again.";
-
-
-                switch (error.code) {
-
-                    case "auth/network-request-failed":
-
-                        message =
-                            "Network error. Please check your internet connection.";
-
-                        break;
-
-
-                    case "auth/user-token-expired":
-
-                        message =
-                            "Your registration session has expired. Please log in again.";
-
-                        break;
-
-
-                    default:
-
-                        message =
-                            error.message ||
-                            message;
-
-                }
-
-
-                showMessage(
-                    message
-                );
-
-
-            } finally {
-
-                verifyEmailButton.disabled =
-                    false;
-
-                verifyEmailButton.textContent =
-                    originalText ||
-                    "Verify Email";
-
-            }
-
-        }
-    );
-
+        showMessage(
+            statusElement,
+            getFirebaseErrorMessage(error),
+            "error"
+        );
+    }
 }
 
 
 /* =====================================================
    LOGIN
-   -----------------------------------------------------
-   Compatible with:
-
-       id="loginForm"
-       id="login"
-       id="password"
-
-   NOTE:
-   -----------------------------------------------------
-   Current Firebase implementation is EMAIL/PASSWORD.
-
-   Phone-number login is NOT implemented here.
 ===================================================== */
 
-const loginForm =
-    document.getElementById(
-        "loginForm"
-    );
+async function handleLogin(
+    event
+) {
 
+    if (event) {
+        event.preventDefault();
+    }
 
-if (loginForm) {
+    const email =
+        document.getElementById(
+            "login"
+        )?.value?.trim().toLowerCase() || "";
 
-    loginForm.addEventListener(
-        "submit",
-        async function (event) {
+    const password =
+        document.getElementById(
+            "password"
+        )?.value || "";
 
-            event.preventDefault();
+    const statusElement =
+        document.getElementById(
+            "loginStatus"
+        );
 
+    if (!email || !password) {
 
-            /* =========================================
-               GET LOGIN DATA
-            ========================================= */
+        showMessage(
+            statusElement,
+            "Please enter your email and password.",
+            "error"
+        );
 
-            const loginInput =
-                document.getElementById(
-                    "login"
-                );
+        return;
+    }
 
-            const passwordInput =
-                document.getElementById(
-                    "password"
-                );
+    try {
 
+        const credential =
+            await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
 
-            const email =
-                loginInput
-                    ?.value
-                    ?.trim()
-                    ?.toLowerCase();
+        const user =
+            credential.user;
 
-            const password =
-                passwordInput
-                    ?.value;
+        await reload(user);
 
+        const currentUser =
+            auth.currentUser;
 
-            /* =========================================
-               VALIDATION
-            ========================================= */
+        /*
+           Email verification is mandatory.
+        */
+
+        if (!currentUser.emailVerified) {
+
+            showMessage(
+                statusElement,
+                "Please verify your email before logging in.",
+                "error"
+            );
+
+            await signOut(auth);
+
+            return;
+        }
+
+        const profile =
+            await getUserProfile(
+                currentUser.uid
+            );
+
+        if (!profile) {
+
+            await signOut(auth);
+
+            showMessage(
+                statusElement,
+                "Your TIPECO GROUP profile could not be found.",
+                "error"
+            );
+
+            return;
+        }
+
+        /*
+           Account blocking/suspension.
+        */
+
+        const status =
+            getAccountStatus(profile);
+
+        if (
+            status === "blocked" ||
+            status === "suspended"
+        ) {
+
+            await signOut(auth);
+
+            showMessage(
+                statusElement,
+                "Your TIPECO GROUP account is currently blocked or suspended.",
+                "error"
+            );
+
+            return;
+        }
+
+        /*
+           Mandatory phone verification.
+        */
+
+        if (profile.phoneVerified !== true) {
+
+            await signOut(auth);
+
+            showMessage(
+                statusElement,
+                "Please verify your phone number before logging in.",
+                "error"
+            );
+
+            return;
+        }
+
+        /*
+           Account becomes active ONLY when
+           BOTH verification requirements are true.
+        */
+
+        if (
+            currentUser.emailVerified === true &&
+            profile.phoneVerified === true
+        ) {
 
             if (
-                !email ||
-                !password
+                profile.accountStatus !== "active"
             ) {
 
-                showMessage(
-                    "Please enter your email and password."
-                );
-
-                return;
-
-            }
-
-
-            /* =========================================
-               LOGIN BUTTON
-            ========================================= */
-
-            const loginButton =
-                loginForm.querySelector(
-                    'button[type="submit"]'
-                );
-
-
-            if (loginButton) {
-
-                loginButton.disabled =
-                    true;
-
-                loginButton.dataset.originalText =
-                    loginButton.textContent;
-
-                loginButton.textContent =
-                    "Signing in...";
-
-            }
-
-
-            try {
-
-                /* =====================================
-                   FIREBASE LOGIN
-                ===================================== */
-
-                const userCredential =
-                    await signInWithEmailAndPassword(
-                        auth,
-                        email,
-                        password
-                    );
-
-
-                const user =
-                    userCredential.user;
-
-
-                /* =====================================
-                   REFRESH FIREBASE USER
-                ===================================== */
-
-                await reload(
-                    user
-                );
-
-
-                /* =====================================
-                   EMAIL VERIFICATION
-                ===================================== */
-
-                if (
-                    !user.emailVerified
-                ) {
-
-                    try {
-
-                        await sendEmailVerification(
-                            user
-                        );
-
-                    } catch (
-                        verificationError
-                    ) {
-
-                        console.warn(
-                            "Verification email could not be resent:",
-                            verificationError
-                        );
-
-                    }
-
-
-                    await signOut(
-                        auth
-                    );
-
-                    clearTipecoSession();
-
-
-                    showMessage(
-                        "Your email address is not verified yet.\n\n" +
-                        "A verification email has been sent. " +
-                        "Please verify your email and then log in again."
-                    );
-
-
-                    return;
-
-                }
-
-
-                /* =====================================
-                   GET FIRESTORE PROFILE
-                ===================================== */
-
-                const profile =
-                    await getUserProfile(
-                        user
-                    );
-
-
-                if (!profile) {
-
-                    await signOut(
-                        auth
-                    );
-
-                    clearTipecoSession();
-
-
-                    showMessage(
-                        "Your account profile could not be found. Please contact TIPECO GROUP support."
-                    );
-
-
-                    return;
-
-                }
-
-
-                /* =====================================
-                   ACCOUNT STATUS
-                ===================================== */
-
-                const accountStatus =
-                    getAccountStatus(
-                        profile
-                    );
-
-
-                if (
-                    accountStatus ===
-                        "blocked"
-                    ||
-                    accountStatus ===
-                        "suspended"
-                ) {
-
-                    await signOut(
-                        auth
-                    );
-
-                    clearTipecoSession();
-
-
-                    showMessage(
-                        "This account is currently " +
-                        accountStatus +
-                        ". Please contact TIPECO GROUP support."
-                    );
-
-
-                    return;
-
-                }
-
-
-                /* =====================================
-                   UPDATE VERIFIED STATUS
-                ===================================== */
-
                 await updateUserProfile(
-                    user,
+                    currentUser.uid,
                     {
+                        emailVerified: true,
 
-                        emailVerified:
-                            true,
+                        phoneVerified: true,
 
                         accountStatus:
-                            "active"
+                            "active",
 
+                        updatedAt:
+                            serverTimestamp()
                     }
                 );
 
-
-                /* =====================================
-                   SAVE SESSION
-                ===================================== */
-
-                /*
-                   Refresh profile after update so the
-                   session contains the current data.
-                */
-
-                const updatedProfile =
-                    await getUserProfile(
-                        user
-                    );
-
-
-                saveTipecoSession(
-                    user,
-                    updatedProfile ||
-                    profile
-                );
-
-
-                /* =====================================
-                   OWNER CHECK
-                   -------------------------------------
-                   Owner authorization is based on the
-                   Firestore profile role.
-
-                   Public users cannot assign themselves
-                   this role through registration.
-                ===================================== */
-
-                const userRole =
-                    String(
-                        (
-                            updatedProfile ||
-                            profile
-                        ).role || ""
-                    )
-                        .trim()
-                        .toLowerCase();
-
-
-                if (
-                    userRole ===
-                    OWNER_ROLE
-                ) {
-
-                    /* =================================
-                       OWNER DASHBOARD
-
-                       login.html and owner-dashboard.html
-                       are both inside /pages/
-                    ================================= */
-
-                    window.location.href =
-                        OWNER_DASHBOARD;
-
-                    return;
-
-                }
-
-
-                /* =====================================
-                   GENERAL TIPECO GROUP ACCOUNT
-                   -------------------------------------
-                   There is no Seller/Buyer redirect.
-
-                   All normal accounts return to the
-                   public TIPECO GROUP home page.
-                ===================================== */
-
-                window.location.href =
-                    DEFAULT_HOME;
-
-
-            } catch (error) {
-
-                console.error(
-                    "TIPECO login error:",
-                    error
-                );
-
-
-                clearTipecoSession();
-
-
-                let message =
-                    "Login failed. Please check your email and password.";
-
-
-                switch (error.code) {
-
-                    case "auth/invalid-credential":
-
-                        message =
-                            "Invalid email or password.";
-
-                        break;
-
-
-                    case "auth/user-not-found":
-
-                        message =
-                            "No account was found with this email.";
-
-                        break;
-
-
-                    case "auth/wrong-password":
-
-                        message =
-                            "Incorrect password.";
-
-                        break;
-
-
-                    case "auth/invalid-email":
-
-                        message =
-                            "Please enter a valid email address.";
-
-                        break;
-
-
-                    case "auth/too-many-requests":
-
-                        message =
-                            "Too many login attempts. Please wait and try again later.";
-
-                        break;
-
-
-                    case "auth/network-request-failed":
-
-                        message =
-                            "Network error. Please check your internet connection.";
-
-                        break;
-
-
-                    default:
-
-                        message =
-                            error.message ||
-                            message;
-
-                }
-
-
-                showMessage(
-                    message
-                );
-
-
-            } finally {
-
-                if (loginButton) {
-
-                    loginButton.disabled =
-                        false;
-
-                    loginButton.textContent =
-                        loginButton.dataset.originalText ||
-                        "Login";
-
-                }
-
+                profile.accountStatus =
+                    "active";
             }
-
         }
-    );
 
+        saveTipecoSession(
+            currentUser,
+            profile
+        );
+
+        /*
+           Owner dashboard.
+        */
+
+        if (
+            isTipecoOwner(profile)
+        ) {
+
+            window.location.href =
+                OWNER_DASHBOARD;
+
+            return;
+        }
+
+        /*
+           General users.
+        */
+
+        window.location.href =
+            DEFAULT_HOME;
+
+    } catch (error) {
+
+        console.error(
+            "TIPECO login error:",
+            error
+        );
+
+        showMessage(
+            statusElement,
+            getFirebaseErrorMessage(error),
+            "error"
+        );
+    }
 }
 
 
 /* =====================================================
-   OWNER DASHBOARD PROTECTION
-   -----------------------------------------------------
-   This function MUST be called by
-   owner-dashboard.html.
-
-   Example:
-
-       <script type="module">
-           await window.tipecoRequireOwner();
-       </script>
-
-   SECURITY:
-   -----------------------------------------------------
-   Firestore Security Rules MUST ALSO enforce Owner
-   access. Frontend JavaScript alone is NOT security.
+   OWNER AUTHORIZATION
 ===================================================== */
 
 window.tipecoRequireOwner =
-    async function () {
+async function () {
 
-        try {
+    return new Promise(
+        (resolve) => {
 
-            /* =========================================
-               WAIT FOR FIREBASE AUTH STATE
-            ========================================= */
+            let completed = false;
 
-            const user =
-                await new Promise(
-                    function (resolve) {
+            const finish = (
+                result
+            ) => {
 
-                        let finished =
-                            false;
+                if (completed) {
+                    return;
+                }
 
-                        const unsubscribe =
-                            onAuthStateChanged(
-                                auth,
-                                function (
-                                    currentUser
+                completed = true;
+
+                resolve(result);
+            };
+
+            const unsubscribe =
+                onAuthStateChanged(
+                    auth,
+                    async (user) => {
+
+                        if (!user) {
+
+                            unsubscribe();
+
+                            window.location.href =
+                                LOGIN_PAGE;
+
+                            finish(false);
+
+                            return;
+                        }
+
+                        try {
+
+                            await reload(user);
+
+                            const currentUser =
+                                auth.currentUser;
+
+                            if (
+                                !currentUser.emailVerified
+                            ) {
+
+                                await signOut(auth);
+
+                                unsubscribe();
+
+                                window.location.href =
+                                    LOGIN_PAGE;
+
+                                finish(false);
+
+                                return;
+                            }
+
+                            const profile =
+                                await getUserProfile(
+                                    currentUser.uid
+                                );
+
+                            if (!profile) {
+
+                                await signOut(auth);
+
+                                unsubscribe();
+
+                                window.location.href =
+                                    LOGIN_PAGE;
+
+                                finish(false);
+
+                                return;
+                            }
+
+                            if (
+                                profile.phoneVerified !== true
+                            ) {
+
+                                await signOut(auth);
+
+                                unsubscribe();
+
+                                window.location.href =
+                                    LOGIN_PAGE;
+
+                                finish(false);
+
+                                return;
+                            }
+
+                            if (
+                                !isTipecoOwner(
+                                    profile
+                                )
+                            {
+
+                                if (
+                                    PUBLIC_OWNER_FORBIDDEN
                                 ) {
 
-                                    if (
-                                        finished
-                                    ) {
-
-                                        return;
-
-                                    }
-
-                                    finished =
-                                        true;
+                                    await signOut(
+                                        auth
+                                    );
 
                                     unsubscribe();
 
-                                    resolve(
-                                        currentUser
+                                    window.location.href =
+                                        DEFAULT_HOME;
+
+                                    finish(false);
+
+                                    return;
+                                }
+                            }
+
+                            const status =
+                                getAccountStatus(
+                                    profile
+                                );
+
+                            if (
+                                status === "blocked" ||
+                                status === "suspended"
+                            ) {
+
+                                await signOut(
+                                    auth
+                                );
+
+                                unsubscribe();
+
+                                window.location.href =
+                                    LOGIN_PAGE;
+
+                                finish(false);
+
+                                return;
+                            }
+
+                            if (
+                                currentUser.emailVerified &&
+                                profile.phoneVerified === true
+                            ) {
+
+                                if (
+                                    profile.accountStatus !==
+                                    "active"
+                                ) {
+
+                                    await updateUserProfile(
+                                        currentUser.uid,
+                                        {
+                                            emailVerified: true,
+
+                                            phoneVerified: true,
+
+                                            accountStatus:
+                                                "active",
+
+                                            updatedAt:
+                                                serverTimestamp()
+                                        }
                                     );
 
+                                    profile.accountStatus =
+                                        "active";
                                 }
+                            }
+
+                            saveTipecoSession(
+                                currentUser,
+                                profile
                             );
 
+                            unsubscribe();
+
+                            finish({
+                                user:
+                                    currentUser,
+
+                                profile
+                            });
+
+                        } catch (error) {
+
+                            console.error(
+                                "TIPECO owner authorization error:",
+                                error
+                            );
+
+                            unsubscribe();
+
+                            await signOut(
+                                auth
+                            );
+
+                            window.location.href =
+                                LOGIN_PAGE;
+
+                            finish(false);
+                        }
                     }
                 );
-
-
-            /* =========================================
-               NO AUTH USER
-            ========================================= */
-
-            if (!user) {
-
-                clearTipecoSession();
-
-                window.location.href =
-                    LOGIN_PAGE;
-
-                return false;
-
-            }
-
-
-            /* =========================================
-               REFRESH AUTH USER
-            ========================================= */
-
-            await reload(
-                user
-            );
-
-
-            /* =========================================
-               EMAIL VERIFICATION REQUIRED
-            ========================================= */
-
-            if (
-                !user.emailVerified
-            ) {
-
-                clearTipecoSession();
-
-                try {
-
-                    await signOut(
-                        auth
-                    );
-
-                } catch (error) {
-
-                    console.warn(
-                        "Owner signout error:",
-                        error
-                    );
-
-                }
-
-                window.location.href =
-                    LOGIN_PAGE;
-
-                return false;
-
-            }
-
-
-            /* =========================================
-               LOAD FIRESTORE PROFILE
-            ========================================= */
-
-            const profile =
-                await getUserProfile(
-                    user
-                );
-
-
-            if (!profile) {
-
-                clearTipecoSession();
-
-                try {
-
-                    await signOut(
-                        auth
-                    );
-
-                } catch (error) {
-
-                    console.warn(
-                        "Owner signout error:",
-                        error
-                    );
-
-                }
-
-                showMessage(
-                    "Owner profile not found."
-                );
-
-
-                window.location.href =
-                    LOGIN_PAGE;
-
-                return false;
-
-            }
-
-
-            /* =========================================
-               VERIFY OWNER ROLE
-               -----------------------------------------
-               THIS IS THE IMPORTANT AUTHORIZATION CHECK.
-            ========================================= */
-
-            const role =
-                String(
-                    profile.role || ""
-                )
-                    .trim()
-                    .toLowerCase();
-
-
-            if (
-                role !== OWNER_ROLE
-            ) {
-
-                clearTipecoSession();
-
-
-                showMessage(
-                    "Access denied.\n\nOwner authorization is required."
-                );
-
-
-                try {
-
-                    await signOut(
-                        auth
-                    );
-
-                } catch (error) {
-
-                    console.warn(
-                        "Unauthorized signout error:",
-                        error
-                    );
-
-                }
-
-
-                window.location.href =
-                    "../index.html";
-
-                return false;
-
-            }
-
-
-            /* =========================================
-               CHECK OWNER ACCOUNT STATUS
-            ========================================= */
-
-            const accountStatus =
-                getAccountStatus(
-                    profile
-                );
-
-
-            if (
-                accountStatus ===
-                    "blocked"
-                ||
-                accountStatus ===
-                    "suspended"
-            ) {
-
-                clearTipecoSession();
-
-
-                showMessage(
-                    "This Owner account is currently " +
-                    accountStatus +
-                    "."
-                );
-
-
-                try {
-
-                    await signOut(
-                        auth
-                    );
-
-                } catch (error) {
-
-                    console.warn(
-                        "Owner status signout error:",
-                        error
-                    );
-
-                }
-
-
-                window.location.href =
-                    LOGIN_PAGE;
-
-                return false;
-
-            }
-
-
-            /* =========================================
-               SAVE VERIFIED OWNER SESSION
-            ========================================= */
-
-            saveTipecoSession(
-                user,
-                profile
-            );
-
-
-            /* =========================================
-               SUCCESS
-            ========================================= */
-
-            return true;
-
-
-        } catch (error) {
-
-            console.error(
-                "TIPECO Owner authorization error:",
-                error
-            );
-
-
-            clearTipecoSession();
-
-
-            try {
-
-                await signOut(
-                    auth
-                );
-
-            } catch (signOutError) {
-
-                console.warn(
-                    "Final Owner signout error:",
-                    signOutError
-                );
-
-            }
-
-
-            window.location.href =
-                LOGIN_PAGE;
-
-            return false;
-
         }
-
-    };
+    );
+};
 
 
 /* =====================================================
@@ -1854,228 +1752,322 @@ window.tipecoRequireOwner =
 ===================================================== */
 
 window.tipecoLogout =
-    async function () {
+async function () {
 
-        try {
+    try {
 
-            await signOut(
-                auth
-            );
+        clearTipecoSession();
 
-            clearTipecoSession();
+        await signOut(auth);
 
-            window.location.href =
-                "../index.html";
+        window.location.href =
+            LOGIN_PAGE;
 
+    } catch (error) {
 
-        } catch (error) {
-
-            console.error(
-                "TIPECO logout error:",
-                error
-            );
-
-
-            clearTipecoSession();
-
-
-            window.location.href =
-                "../index.html";
-
-        }
-
-    };
+        console.error(
+            "TIPECO logout error:",
+            error
+        );
+    }
+};
 
 
 /* =====================================================
-   FORGOT / RESET PASSWORD
+   RESET PASSWORD
 ===================================================== */
 
 window.tipecoResetPassword =
-    async function (email) {
+async function (
+    email
+) {
 
-        const cleanEmail =
-            String(
-                email || ""
-            )
-                .trim()
-                .toLowerCase();
+    const normalizedEmail =
+        String(email || "")
+            .trim()
+            .toLowerCase();
 
+    if (!normalizedEmail) {
 
-        if (!cleanEmail) {
+        throw new Error(
+            "Email address is required."
+        );
+    }
 
-            showMessage(
-                "Please enter your email address."
-            );
+    await sendPasswordResetEmail(
+        auth,
+        normalizedEmail
+    );
 
-            return false;
-
-        }
-
-
-        try {
-
-            await sendPasswordResetEmail(
-                auth,
-                cleanEmail
-            );
-
-
-            showMessage(
-                "Password reset email sent successfully. Please check your inbox."
-            );
-
-
-            return true;
-
-
-        } catch (error) {
-
-            console.error(
-                "TIPECO password reset error:",
-                error
-            );
-
-
-            let message =
-                "Unable to send password reset email.";
-
-
-            switch (error.code) {
-
-                case "auth/user-not-found":
-
-                    message =
-                        "No account was found with this email.";
-
-                    break;
-
-
-                case "auth/invalid-email":
-
-                    message =
-                        "Please enter a valid email address.";
-
-                    break;
-
-
-                case "auth/network-request-failed":
-
-                    message =
-                        "Network error. Please check your internet connection.";
-
-                    break;
-
-
-                default:
-
-                    message =
-                        error.message ||
-                        message;
-
-            }
-
-
-            showMessage(
-                message
-            );
-
-
-            return false;
-
-        }
-
-    };
+    return true;
+};
 
 
 /* =====================================================
-   CURRENT USER HELPER
+   CURRENT USER
 ===================================================== */
 
 window.tipecoGetCurrentUser =
-    function () {
+function () {
 
-        return auth.currentUser || null;
-
-    };
+    return auth.currentUser;
+};
 
 
 /* =====================================================
-   CURRENT PROFILE HELPER
+   CURRENT PROFILE
 ===================================================== */
 
 window.tipecoGetCurrentProfile =
-    async function () {
+async function () {
 
-        const user =
-            auth.currentUser;
+    const user =
+        auth.currentUser;
 
+    if (!user) {
+        return null;
+    }
 
-        if (!user) {
-
-            return null;
-
-        }
-
-
-        return await getUserProfile(
-            user
-        );
-
-    };
+    return await getUserProfile(
+        user.uid
+    );
+};
 
 
 /* =====================================================
-   OWNER CHECK HELPER
+   OWNER CHECK
 ===================================================== */
 
 window.tipecoIsOwner =
-    async function () {
+async function () {
 
-        const user =
-            auth.currentUser;
+    const user =
+        auth.currentUser;
 
+    if (!user) {
+        return false;
+    }
 
-        if (!user) {
-
-            return false;
-
-        }
-
-
-        return await isTipecoOwner(
-            user
+    const profile =
+        await getUserProfile(
+            user.uid
         );
 
-    };
+    return isTipecoOwner(
+        profile
+    );
+};
 
 
 /* =====================================================
-   FIREBASE AUTH STATE MONITOR
-   -----------------------------------------------------
-   Informational only.
+   PHONE VERIFICATION BRIDGES
+   Used by register.html v5.0
+===================================================== */
 
-   Actual authorization is handled separately.
+window.tipecoSendPhoneCode =
+async function () {
+
+    return await sendPhoneVerificationCode();
+};
+
+
+window.tipecoVerifyPhoneCode =
+async function () {
+
+    return await verifyPhoneVerificationCode();
+};
+
+
+/* =====================================================
+   EMAIL VERIFICATION BRIDGE
+===================================================== */
+
+window.tipecoVerifyEmail =
+async function () {
+
+    return await verifyEmailAddress();
+};
+
+
+/* =====================================================
+   REGISTRATION BRIDGE
+===================================================== */
+
+window.tipecoRegister =
+async function (
+    event
+) {
+
+    return await handleRegistration(
+        event
+    );
+};
+
+
+/* =====================================================
+   LOGIN BRIDGE
+===================================================== */
+
+window.tipecoLogin =
+async function (
+    event
+) {
+
+    return await handleLogin(
+        event
+    );
+};
+
+
+/* =====================================================
+   AUTO CONNECT REGISTER FORM
+===================================================== */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        const registerForm =
+            document.getElementById(
+                "registerForm"
+            );
+
+        if (registerForm) {
+
+            registerForm.addEventListener(
+                "submit",
+                handleRegistration
+            );
+        }
+
+        const loginForm =
+            document.getElementById(
+                "loginForm"
+            );
+
+        if (loginForm) {
+
+            loginForm.addEventListener(
+                "submit",
+                handleLogin
+            );
+        }
+
+        const sendPhoneButton =
+            document.getElementById(
+                "sendPhoneCode"
+            );
+
+        if (sendPhoneButton) {
+
+            sendPhoneButton.addEventListener(
+                "click",
+                sendPhoneVerificationCode
+            );
+        }
+
+        const verifyPhoneButton =
+            document.getElementById(
+                "verifyPhoneButton"
+            );
+
+        if (verifyPhoneButton) {
+
+            verifyPhoneButton.addEventListener(
+                "click",
+                verifyPhoneVerificationCode
+            );
+        }
+
+        const verifyEmailButton =
+            document.getElementById(
+                "verifyEmailButton"
+            );
+
+        if (verifyEmailButton) {
+
+            verifyEmailButton.addEventListener(
+                "click",
+                verifyEmailAddress
+            );
+        }
+    }
+);
+
+
+/* =====================================================
+   AUTH STATE INFORMATION
 ===================================================== */
 
 onAuthStateChanged(
     auth,
-    function (user) {
+    async (user) => {
 
-        if (user) {
+        if (!user) {
 
-            console.log(
-                "TIPECO Firebase Auth:",
-                user.uid
-            );
-
-        } else {
-
-            console.log(
-                "TIPECO Firebase Auth: No user signed in."
-            );
-
+            return;
         }
+
+        try {
+
+            await reload(user);
+
+            const profile =
+                await getUserProfile(
+                    user.uid
+                );
+
+            if (!profile) {
+
+                console.warn(
+                    "TIPECO: Authenticated user has no Firestore profile."
+                );
+
+                return;
+            }
+
+            console.log(
+                "TIPECO Auth State:",
+                {
+                    uid: user.uid,
+
+                    email:
+                        user.email,
+
+                    emailVerified:
+                        user.emailVerified,
+
+                    phoneVerified:
+                        profile.phoneVerified === true,
+
+                    accountStatus:
+                        profile.accountStatus,
+
+                    role:
+                        profile.role
+                }
+            );
+
+        } catch (error) {
+
+            console.error(
+                "TIPECO auth state error:",
+                error
+            );
+        }
+    }
+);
+
+
+/* =====================================================
+   CLEANUP
+===================================================== */
+
+window.addEventListener(
+    "beforeunload",
+    () => {
+
+        clearRecaptcha();
 
     }
 );
@@ -2086,5 +2078,5 @@ onAuthStateChanged(
 ===================================================== */
 
 console.log(
-    "TIPECO GROUP auth.js Version 7.3 loaded."
+    "TIPECO GROUP auth.js v8.0 loaded successfully."
 );
