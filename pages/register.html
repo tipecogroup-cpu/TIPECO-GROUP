@@ -6,7 +6,8 @@
     <!-- =====================================================
          TIPECO GROUP - REGISTER PAGE
          REAL PROJECT
-         Version: 3.0
+         Version: 4.0
+         General Account Architecture
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -32,6 +33,102 @@
 
     <link rel="stylesheet"
           href="../assets/css/auth.css">
+
+
+    <!-- =====================================================
+         REGISTER PAGE UI STATE
+    ====================================================== -->
+
+    <style>
+
+        /* =================================================
+           CREATE ACCOUNT BUTTON - DISABLED STATE
+        ================================================== */
+
+        #registerButton {
+            opacity: 0.55;
+            cursor: not-allowed;
+            pointer-events: none;
+            transition:
+                opacity 0.2s ease,
+                transform 0.2s ease;
+        }
+
+
+        /* =================================================
+           CREATE ACCOUNT BUTTON - READY STATE
+        ================================================== */
+
+        #registerButton.is-ready {
+            opacity: 1;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+
+        #registerButton.is-ready:hover {
+            transform: translateY(-1px);
+        }
+
+
+        /* =================================================
+           VERIFY EMAIL BUTTON
+        ================================================== */
+
+        #verifyEmailButton {
+            width: 100%;
+            margin-top: 15px;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 6px;
+            background: #0D47A1;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition:
+                background 0.2s ease,
+                transform 0.2s ease;
+        }
+
+
+        #verifyEmailButton:hover {
+            background: #1976D2;
+            transform: translateY(-1px);
+        }
+
+
+        #verifyEmailButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+
+        /* =================================================
+           PASSWORD MATCH MESSAGE
+        ================================================== */
+
+        #passwordMessage {
+            display: none;
+            margin-top: 6px;
+            font-size: 13px;
+        }
+
+
+        /* =================================================
+           FORM STATUS
+        ================================================== */
+
+        #registerStatus {
+            display: none;
+            margin-bottom: 15px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+    </style>
 
 </head>
 
@@ -81,7 +178,24 @@
 
             <div class="auth-card">
 
-                <form id="registerForm">
+
+                <!-- =================================================
+                     REGISTER FORM
+                ================================================== -->
+
+                <form id="registerForm"
+                      novalidate>
+
+
+                    <!-- =================================================
+                         FORM STATUS
+                    ================================================== -->
+
+                    <div id="registerStatus"
+                         role="alert"
+                         aria-live="polite">
+                    </div>
+
 
 
                     <!-- =================================================
@@ -101,6 +215,7 @@
                             name="fullName"
                             placeholder="Enter your full name"
                             autocomplete="name"
+                            minlength="2"
                             required>
 
                     </div>
@@ -197,50 +312,17 @@
                             minlength="6"
                             required>
 
-                    </div>
 
-
-
-                    <!-- =================================================
-                         ACCOUNT TYPE
-                    ================================================== -->
-
-                    <div class="form-group">
-
-                        <label for="accountType">
-                            Account Type
-                        </label>
-
-
-                        <select
-                            id="accountType"
-                            name="accountType"
-                            required>
-
-
-                            <option value="">
-                                Select account type
-                            </option>
-
-
-                            <option value="buyer">
-                                Buyer / Customer
-                            </option>
-
-
-                            <option value="seller">
-                                Seller / Agent / Service Provider
-                            </option>
-
-
-                        </select>
+                        <div id="passwordMessage"
+                             aria-live="polite">
+                        </div>
 
                     </div>
 
 
 
                     <!-- =================================================
-                         ACCOUNT TYPE INFORMATION
+                         ACCOUNT ARCHITECTURE INFORMATION
                     ================================================== -->
 
                     <div class="account-type-info">
@@ -248,23 +330,22 @@
                         <p>
 
                             <strong>
-                                Buyer / Customer:
+                                One TIPECO GROUP Account:
                             </strong>
 
-                            Browse products, request information,
-                            save listings and request viewings.
+                            Your account gives you access to
+                            TIPECO GROUP services and opportunities.
 
                         </p>
 
 
                         <p>
 
-                            <strong>
-                                Seller / Agent / Service Provider:
-                            </strong>
-
-                            Submit products or services and
-                            manage customer requests.
+                            You can browse and discover available
+                            content for free. Certain actions such as
+                            posting or applying for jobs may require
+                            an active subscription and TIPECO GROUP
+                            approval where applicable.
 
                         </p>
 
@@ -304,12 +385,15 @@
 
                     <!-- =================================================
                          CREATE ACCOUNT BUTTON
+                         DISABLED UNTIL FORM IS VALID
                     ================================================== -->
 
                     <button
                         type="submit"
                         class="auth-btn"
-                        id="registerButton">
+                        id="registerButton"
+                        disabled
+                        aria-disabled="true">
 
                         Create Account
 
@@ -365,12 +449,14 @@
                 <div
                     id="verificationMessage"
                     class="account-type-info"
-                    style="display:none;">
+                    style="display:none;"
+                    aria-live="polite">
+
 
                     <p>
 
                         <strong>
-                            Verify your email
+                            Verify Your Email
                         </strong>
 
                     </p>
@@ -381,10 +467,30 @@
                         We have sent a verification email
                         to your email address.
 
-                        Please open your inbox and verify
-                        your email before logging in.
+                    </p>
+
+
+                    <p>
+
+                        Open your email inbox, complete the
+                        verification, then return here and
+                        press the button below.
 
                     </p>
+
+
+                    <!-- =================================================
+                         VERIFY EMAIL BUTTON
+                    ================================================== -->
+
+                    <button
+                        type="button"
+                        id="verifyEmailButton">
+
+                        Verify Email
+
+                    </button>
+
 
                 </div>
 
@@ -445,6 +551,192 @@
     </script>
 
 
+
+    <!-- =====================================================
+         REGISTER FORM UI VALIDATION
+         REAL PROJECT
+    ====================================================== -->
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const form =
+                document.getElementById("registerForm");
+
+            const fullName =
+                document.getElementById("fullName");
+
+            const email =
+                document.getElementById("email");
+
+            const phone =
+                document.getElementById("phone");
+
+            const password =
+                document.getElementById("password");
+
+            const confirmPassword =
+                document.getElementById("confirmPassword");
+
+            const terms =
+                document.getElementById("terms");
+
+            const registerButton =
+                document.getElementById("registerButton");
+
+            const passwordMessage =
+                document.getElementById("passwordMessage");
+
+
+            /* =================================================
+               CHECK FORM STATE
+            ================================================== */
+
+            function updateRegisterButton() {
+
+                const passwordsMatch =
+                    password.value.length >= 6 &&
+                    confirmPassword.value.length >= 6 &&
+                    password.value === confirmPassword.value;
+
+
+                const formReady =
+                    fullName.value.trim().length >= 2 &&
+                    email.validity.valid &&
+                    phone.value.trim().length > 0 &&
+                    password.value.length >= 6 &&
+                    passwordsMatch &&
+                    terms.checked;
+
+
+                if (formReady) {
+
+                    registerButton.disabled = false;
+
+                    registerButton.classList.add("is-ready");
+
+                    registerButton.setAttribute(
+                        "aria-disabled",
+                        "false"
+                    );
+
+                } else {
+
+                    registerButton.disabled = true;
+
+                    registerButton.classList.remove(
+                        "is-ready"
+                    );
+
+                    registerButton.setAttribute(
+                        "aria-disabled",
+                        "true"
+                    );
+
+                }
+
+
+                /* =================================================
+                   PASSWORD MESSAGE
+                ================================================== */
+
+                if (
+                    confirmPassword.value.length > 0 &&
+                    password.value !== confirmPassword.value
+                ) {
+
+                    passwordMessage.style.display = "block";
+
+                    passwordMessage.textContent =
+                        "Passwords do not match.";
+
+                } else if (
+                    confirmPassword.value.length > 0 &&
+                    password.value === confirmPassword.value &&
+                    password.value.length >= 6
+                ) {
+
+                    passwordMessage.style.display = "block";
+
+                    passwordMessage.textContent =
+                        "Passwords match.";
+
+                } else {
+
+                    passwordMessage.style.display = "none";
+
+                    passwordMessage.textContent = "";
+
+                }
+
+            }
+
+
+            /* =================================================
+               WATCH FORM FIELDS
+            ================================================== */
+
+            [
+                fullName,
+                email,
+                phone,
+                password,
+                confirmPassword,
+                terms
+            ].forEach((field) => {
+
+                field.addEventListener(
+                    "input",
+                    updateRegisterButton
+                );
+
+                field.addEventListener(
+                    "change",
+                    updateRegisterButton
+                );
+
+            });
+
+
+            /* =================================================
+               PREVENT INVALID SUBMISSION
+            ================================================== */
+
+            form.addEventListener("submit", (event) => {
+
+                if (
+                    !fullName.value.trim() ||
+                    !email.validity.valid ||
+                    !phone.value.trim() ||
+                    password.value.length < 6 ||
+                    password.value !== confirmPassword.value ||
+                    !terms.checked
+                ) {
+
+                    event.preventDefault();
+
+                    updateRegisterButton();
+
+                    return;
+
+                }
+
+            });
+
+
+            /* =================================================
+               INITIAL STATE
+            ================================================== */
+
+            updateRegisterButton();
+
+        });
+
+    </script>
+
+
 </body>
 
 </html>
+l
