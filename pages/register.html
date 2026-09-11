@@ -1,726 +1,925 @@
-<!DOCTYPE html><html lang="en"><head><!-- =====================================================
-     TIPECO GROUP - REGISTER PAGE
-     REAL PROJECT
-     Version: 5.1
-     General Account Architecture
-     Firebase Email + Real Phone Verification
-     Compatible with auth.js V8.0
-====================================================== -->
+<!DOCTYPE html>
+<html lang="en">
 
-<meta charset="UTF-8">
+<head>
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 
-<meta name="description"
-      content="Create your TIPECO GROUP account">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-<meta name="author"
-      content="TIPECO GROUP">
+    <meta name="robots"
+          content="index, follow">
 
-<meta name="theme-color"
-      content="#0D47A1">
+    <meta name="description"
+          content="Create your TIPECO GROUP account">
 
-<title>Sign Up | TIPECO GROUP</title>
-
-<link rel="stylesheet"
-      href="../assets/css/auth.css">
+    <title>TIPECO GROUP - Create Account</title>
 
 
-<style>
+    <!-- =====================================================
+         TIPECO GROUP - CSS
+    ====================================================== -->
 
-    /* =====================================================
-       REGISTER BUTTON
-    ===================================================== */
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="../css/animations.css">
 
-    #registerButton {
-        opacity: 0.55;
-        cursor: not-allowed;
-        pointer-events: none;
-        transition:
-            opacity 0.2s ease,
-            transform 0.2s ease;
-    }
+    <style>
 
-    #registerButton.is-ready {
-        opacity: 1;
-        cursor: pointer;
-        pointer-events: auto;
-    }
+        /* =================================================
+           REGISTER PAGE
+        ================================================= */
 
-    #registerButton.is-ready:hover {
-        transform: translateY(-1px);
-    }
-
-
-    /* =====================================================
-       PHONE VERIFICATION
-    ===================================================== */
-
-    .phone-row {
-        display: flex;
-        gap: 8px;
-        align-items: stretch;
-    }
-
-    .country-select {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .phone-input {
-        flex: 1;
-        min-width: 0;
-    }
-
-    #sendPhoneCode,
-    #verifyPhoneButton {
-        width: 100%;
-        margin-top: 10px;
-        padding: 12px 18px;
-        border: none;
-        border-radius: 6px;
-        background: #0D47A1;
-        color: #ffffff;
-        font-size: 15px;
-        font-weight: 600;
-        cursor: pointer;
-        transition:
-            background 0.2s ease,
-            transform 0.2s ease,
-            opacity 0.2s ease;
-    }
-
-    #sendPhoneCode:hover,
-    #verifyPhoneButton:hover {
-        background: #1976D2;
-        transform: translateY(-1px);
-    }
-
-    #sendPhoneCode:disabled,
-    #verifyPhoneButton:disabled {
-        opacity: 0.55;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-
-    /* =====================================================
-       OTP SECTION
-    ===================================================== */
-
-    #otpSection {
-        display: none;
-        margin-top: 15px;
-    }
-
-    #otp {
-        width: 100%;
-        box-sizing: border-box;
-        letter-spacing: 4px;
-        text-align: center;
-        font-size: 18px;
-    }
-
-
-    /* =====================================================
-       RECAPTCHA
-    ===================================================== */
-
-    #recaptcha-container {
-        margin-top: 15px;
-    }
-
-
-    /* =====================================================
-       PHONE STATUS
-    ===================================================== */
-
-    #phoneVerificationStatus,
-    #phoneStatus {
-        display: none;
-        margin-top: 10px;
-        padding: 10px 12px;
-        border-radius: 6px;
-        font-size: 14px;
-    }
-
-
-    /* =====================================================
-       EMAIL VERIFICATION
-    ===================================================== */
-
-    #emailVerificationSection {
-        display: none;
-        margin-top: 20px;
-    }
-
-    #verifyEmailButton {
-        width: 100%;
-        margin-top: 15px;
-        padding: 12px 18px;
-        border: none;
-        border-radius: 6px;
-        background: #0D47A1;
-        color: #ffffff;
-        font-size: 15px;
-        font-weight: 600;
-        cursor: pointer;
-        transition:
-            background 0.2s ease,
-            transform 0.2s ease;
-    }
-
-    #verifyEmailButton:hover {
-        background: #1976D2;
-        transform: translateY(-1px);
-    }
-
-    #verifyEmailButton:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-
-    /* =====================================================
-       PASSWORD MESSAGE
-    ===================================================== */
-
-    #passwordMessage {
-        display: none;
-        margin-top: 6px;
-        font-size: 13px;
-    }
-
-
-    /* =====================================================
-       REGISTER STATUS
-    ===================================================== */
-
-    #registerStatus {
-        display: none;
-        margin-bottom: 15px;
-        padding: 10px 12px;
-        border-radius: 6px;
-        font-size: 14px;
-    }
-
-
-    /* =====================================================
-       RESPONSIVE PHONE LAYOUT
-    ===================================================== */
-
-    @media (max-width: 480px) {
-
-        .phone-row {
-            flex-direction: column;
+        .register-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: var(--light-gray, #f5f5f5);
         }
 
-    }
+        .register-container {
+            width: 100%;
+            max-width: 560px;
+        }
 
-</style>
+        .register-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 35px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.10);
+        }
 
-</head><body><main class="auth-page">
+        .register-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
 
-    <div class="auth-container">
+        .register-logo {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 15px;
+            border-radius: 50%;
+            background: var(--primary, #0D47A1);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 20px;
+        }
+
+        .register-header h1 {
+            margin: 0 0 8px;
+            color: var(--primary, #0D47A1);
+            font-size: 28px;
+        }
+
+        .register-header p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* =================================================
+           FORM
+        ================================================= */
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #d32f2f;
+        }
+
+        .optional {
+            color: #777;
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .form-control {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 13px 14px;
+            border: 1px solid #d5d5d5;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+            background: #ffffff;
+            transition: border-color 0.2s ease,
+                        box-shadow 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary, #0D47A1);
+            box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.10);
+        }
+
+        .form-help {
+            margin-top: 5px;
+            color: #777;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* =================================================
+           PASSWORD
+        ================================================= */
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper .form-control {
+            padding-right: 48px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: #666;
+            font-size: 13px;
+        }
+
+        /* =================================================
+           TERMS
+        ================================================= */
+
+        .terms-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 22px 0;
+        }
+
+        .terms-group input[type="checkbox"] {
+            margin-top: 4px;
+            width: 17px;
+            height: 17px;
+            cursor: pointer;
+        }
+
+        .terms-group label {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #555;
+            cursor: pointer;
+        }
+
+        .terms-group a {
+            color: var(--primary, #0D47A1);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .terms-group a:hover {
+            text-decoration: underline;
+        }
+
+        /* =================================================
+           BUTTON
+        ================================================= */
+
+        .register-button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary, #0D47A1);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s ease,
+                        transform 0.2s ease;
+        }
+
+        .register-button:hover {
+            opacity: 0.92;
+        }
+
+        .register-button:active {
+            transform: scale(0.99);
+        }
+
+        .register-button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* =================================================
+           MESSAGES
+        ================================================= */
+
+        .form-message {
+            display: none;
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .form-message.show {
+            display: block;
+        }
+
+        .form-message.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .form-message.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+
+        .form-message.info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #90caf9;
+        }
+
+        /* =================================================
+           EMAIL VERIFICATION
+        ================================================= */
+
+        .email-verification-section {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f5f9ff;
+            border: 1px solid #c9ddf5;
+        }
+
+        .email-verification-section.show {
+            display: block;
+        }
+
+        .email-verification-section h3 {
+            margin: 0 0 8px;
+            color: var(--primary, #0D47A1);
+            font-size: 18px;
+        }
+
+        .email-verification-section p {
+            margin: 0 0 15px;
+            color: #555;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .verify-email-button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 7px;
+            background: var(--secondary, #1976D2);
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* =================================================
+           FOOTER
+        ================================================= */
+
+        .register-footer {
+            text-align: center;
+            margin-top: 24px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .register-footer a {
+            color: var(--primary, #0D47A1);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .register-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* =================================================
+           SECURITY NOTE
+        ================================================= */
+
+        .security-note {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #fafafa;
+            border: 1px solid #eeeeee;
+            color: #777;
+            font-size: 12px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        /* =================================================
+           MOBILE
+        ================================================= */
+
+        @media (max-width: 600px) {
+
+            .register-page {
+                padding: 20px 12px;
+            }
+
+            .register-card {
+                padding: 24px 18px;
+                border-radius: 12px;
+            }
+
+            .register-header h1 {
+                font-size: 24px;
+            }
+
+        }
+
+    </style>
+
+</head>
 
 
-        <!-- =================================================
-             HEADER
-        ================================================= -->
+<body>
 
-        <div class="auth-header">
+    <!-- =====================================================
+         REGISTER PAGE
+    ====================================================== -->
 
-            <a href="../index.html"
-               class="auth-logo">
+    <main class="register-page">
 
-                TIPECO GROUP
+        <div class="register-container">
 
-            </a>
+            <section class="register-card">
 
-            <h1>
-                Create Your Account
-            </h1>
+                <!-- =========================================
+                     HEADER
+                ========================================== -->
 
-            <p>
-                Join TIPECO GROUP and explore new opportunities
-            </p>
+                <header class="register-header">
 
-        </div>
+                    <div class="register-logo">
+                        TG
+                    </div>
 
+                    <h1>Create Your Account</h1>
 
-        <!-- =================================================
-             AUTH CARD
-        ================================================= -->
+                    <p>
+                        Join TIPECO GROUP and access our trusted
+                        digital platform.
+                    </p>
 
-        <div class="auth-card">
-
-
-            <form id="registerForm"
-                  novalidate>
+                </header>
 
 
                 <!-- =========================================
-                     REGISTER STATUS
+                     MESSAGE
                 ========================================== -->
 
-                <div id="registerStatus"
+                <div id="registerMessage"
+                     class="form-message"
                      role="alert"
                      aria-live="polite">
                 </div>
 
 
                 <!-- =========================================
-                     FULL NAME
+                     REGISTER FORM
                 ========================================== -->
 
-                <div class="form-group">
+                <form id="registerForm"
+                      novalidate>
 
-                    <label for="fullName">
-                        Full Name
-                    </label>
+                    <!-- FULL NAME -->
 
-                    <input
-                        type="text"
-                        id="fullName"
-                        name="fullName"
-                        placeholder="Enter your full name"
-                        autocomplete="name"
-                        minlength="2"
-                        required>
+                    <div class="form-group">
 
-                </div>
+                        <label for="fullName">
+                            Full Name
+                            <span class="required">*</span>
+                        </label>
 
+                        <input
+                            type="text"
+                            id="fullName"
+                            name="fullName"
+                            class="form-control"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            required
+                        >
 
-                <!-- =========================================
-                     EMAIL
-                ========================================== -->
-
-                <div class="form-group">
-
-                    <label for="email">
-                        Email Address
-                    </label>
-
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="Enter your email"
-                        autocomplete="email"
-                        required>
-
-                </div>
+                    </div>
 
 
-                <!-- =========================================
-                     COUNTRY
-                ========================================== -->
+                    <!-- EMAIL -->
 
-                <div class="form-group">
+                    <div class="form-group">
 
-                    <label for="country">
-                        Country
-                    </label>
+                        <label for="email">
+                            Email Address
+                            <span class="required">*</span>
+                        </label>
 
-                    <select
-                        id="country"
-                        name="country"
-                        class="country-select"
-                        required>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="form-control"
+                            placeholder="you@example.com"
+                            autocomplete="email"
+                            required
+                        >
 
-                        <option value="+250"
-                                selected>
-                            🇷🇼 Rwanda (+250)
-                        </option>
+                        <div class="form-help">
+                            Your email will be used for account
+                            verification and password recovery.
+                        </div>
 
-                        <option value="+257">
-                            🇧🇮 Burundi (+257)
-                        </option>
-
-                        <option value="+255">
-                            🇹🇿 Tanzania (+255)
-                        </option>
-
-                        <option value="+256">
-                            🇺🇬 Uganda (+256)
-                        </option>
-
-                        <option value="+254">
-                            🇰🇪 Kenya (+254)
-                        </option>
-
-                        <option value="+243">
-                            🇨🇩 DR Congo (+243)
-                        </option>
-
-                        <option value="+1">
-                            🇺🇸 United States (+1)
-                        </option>
-
-                        <option value="+44">
-                            🇬🇧 United Kingdom (+44)
-                        </option>
-
-                        <option value="+33">
-                            🇫🇷 France (+33)
-                        </option>
-
-                        <option value="+49">
-                            🇩🇪 Germany (+49)
-                        </option>
-
-                        <option value="+27">
-                            🇿🇦 South Africa (+27)
-                        </option>
-
-                        <option value="+91">
-                            🇮🇳 India (+91)
-                        </option>
-
-                        <option value="+86">
-                            🇨🇳 China (+86)
-                        </option>
-
-                        <option value="+81">
-                            🇯🇵 Japan (+81)
-                        </option>
-
-                        <option value="+971">
-                            🇦🇪 United Arab Emirates (+971)
-                        </option>
-
-                        <option value="+966">
-                            🇸🇦 Saudi Arabia (+966)
-                        </option>
-
-                    </select>
-
-                </div>
+                    </div>
 
 
-                <!-- =========================================
-                     PHONE
-                ========================================== -->
+                    <!-- COUNTRY -->
 
-                <div class="form-group">
+                    <div class="form-group">
 
-                    <label for="phone">
-                        Phone Number
-                    </label>
+                        <label for="country">
+                            Country
+                            <span class="required">*</span>
+                        </label>
 
-                    <div class="phone-row">
+                        <select
+                            id="country"
+                            name="country"
+                            class="form-control"
+                            autocomplete="country-name"
+                            required
+                        >
+
+                            <option value="">
+                                Select your country
+                            </option>
+
+                            <option value="Afghanistan">Afghanistan</option>
+                            <option value="Albania">Albania</option>
+                            <option value="Algeria">Algeria</option>
+                            <option value="Andorra">Andorra</option>
+                            <option value="Angola">Angola</option>
+                            <option value="Antigua and Barbuda">Antigua and Barbuda</option>
+                            <option value="Argentina">Argentina</option>
+                            <option value="Armenia">Armenia</option>
+                            <option value="Australia">Australia</option>
+                            <option value="Austria">Austria</option>
+                            <option value="Azerbaijan">Azerbaijan</option>
+
+                            <option value="Bahamas">Bahamas</option>
+                            <option value="Bahrain">Bahrain</option>
+                            <option value="Bangladesh">Bangladesh</option>
+                            <option value="Barbados">Barbados</option>
+                            <option value="Belarus">Belarus</option>
+                            <option value="Belgium">Belgium</option>
+                            <option value="Belize">Belize</option>
+                            <option value="Benin">Benin</option>
+                            <option value="Bhutan">Bhutan</option>
+                            <option value="Bolivia">Bolivia</option>
+                            <option value="Bosnia and Herzegovina">Bosnia and Herzegovina</option>
+                            <option value="Botswana">Botswana</option>
+                            <option value="Brazil">Brazil</option>
+                            <option value="Brunei">Brunei</option>
+                            <option value="Bulgaria">Bulgaria</option>
+                            <option value="Burkina Faso">Burkina Faso</option>
+                            <option value="Burundi">Burundi</option>
+
+                            <option value="Cabo Verde">Cabo Verde</option>
+                            <option value="Cambodia">Cambodia</option>
+                            <option value="Cameroon">Cameroon</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Central African Republic">
+                                Central African Republic
+                            </option>
+                            <option value="Chad">Chad</option>
+                            <option value="Chile">Chile</option>
+                            <option value="China">China</option>
+                            <option value="Colombia">Colombia</option>
+                            <option value="Comoros">Comoros</option>
+                            <option value="Congo, Democratic Republic of the">
+                                Congo, Democratic Republic of the
+                            </option>
+                            <option value="Congo, Republic of the">
+                                Congo, Republic of the
+                            </option>
+                            <option value="Costa Rica">Costa Rica</option>
+                            <option value="Côte d’Ivoire">Côte d’Ivoire</option>
+                            <option value="Croatia">Croatia</option>
+                            <option value="Cuba">Cuba</option>
+                            <option value="Cyprus">Cyprus</option>
+                            <option value="Czechia">Czechia</option>
+
+                            <option value="Denmark">Denmark</option>
+                            <option value="Djibouti">Djibouti</option>
+                            <option value="Dominica">Dominica</option>
+                            <option value="Dominican Republic">
+                                Dominican Republic
+                            </option>
+
+                            <option value="Ecuador">Ecuador</option>
+                            <option value="Egypt">Egypt</option>
+                            <option value="El Salvador">El Salvador</option>
+                            <option value="Equatorial Guinea">
+                                Equatorial Guinea
+                            </option>
+                            <option value="Eritrea">Eritrea</option>
+                            <option value="Estonia">Estonia</option>
+                            <option value="Eswatini">Eswatini</option>
+                            <option value="Ethiopia">Ethiopia</option>
+
+                            <option value="Fiji">Fiji</option>
+                            <option value="Finland">Finland</option>
+                            <option value="France">France</option>
+
+                            <option value="Gabon">Gabon</option>
+                            <option value="Gambia">Gambia</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Germany">Germany</option>
+                            <option value="Ghana">Ghana</option>
+                            <option value="Greece">Greece</option>
+                            <option value="Grenada">Grenada</option>
+                            <option value="Guatemala">Guatemala</option>
+                            <option value="Guinea">Guinea</option>
+                            <option value="Guinea-Bissau">Guinea-Bissau</option>
+                            <option value="Guyana">Guyana</option>
+
+                            <option value="Haiti">Haiti</option>
+                            <option value="Honduras">Honduras</option>
+                            <option value="Hungary">Hungary</option>
+
+                            <option value="Iceland">Iceland</option>
+                            <option value="India">India</option>
+                            <option value="Indonesia">Indonesia</option>
+                            <option value="Iran">Iran</option>
+                            <option value="Iraq">Iraq</option>
+                            <option value="Ireland">Ireland</option>
+                            <option value="Israel">Israel</option>
+                            <option value="Italy">Italy</option>
+
+                            <option value="Jamaica">Jamaica</option>
+                            <option value="Japan">Japan</option>
+                            <option value="Jordan">Jordan</option>
+
+                            <option value="Kazakhstan">Kazakhstan</option>
+                            <option value="Kenya">Kenya</option>
+                            <option value="Kiribati">Kiribati</option>
+                            <option value="Kuwait">Kuwait</option>
+                            <option value="Kyrgyzstan">Kyrgyzstan</option>
+
+                            <option value="Laos">Laos</option>
+                            <option value="Latvia">Latvia</option>
+                            <option value="Lebanon">Lebanon</option>
+                            <option value="Lesotho">Lesotho</option>
+                            <option value="Liberia">Liberia</option>
+                            <option value="Libya">Libya</option>
+                            <option value="Liechtenstein">Liechtenstein</option>
+                            <option value="Lithuania">Lithuania</option>
+                            <option value="Luxembourg">Luxembourg</option>
+
+                            <option value="Madagascar">Madagascar</option>
+                            <option value="Malawi">Malawi</option>
+                            <option value="Malaysia">Malaysia</option>
+                            <option value="Maldives">Maldives</option>
+                            <option value="Mali">Mali</option>
+                            <option value="Malta">Malta</option>
+                            <option value="Marshall Islands">Marshall Islands</option>
+                            <option value="Mauritania">Mauritania</option>
+                            <option value="Mauritius">Mauritius</option>
+                            <option value="Mexico">Mexico</option>
+                            <option value="Micronesia">Micronesia</option>
+                            <option value="Moldova">Moldova</option>
+                            <option value="Monaco">Monaco</option>
+                            <option value="Mongolia">Mongolia</option>
+                            <option value="Montenegro">Montenegro</option>
+                            <option value="Morocco">Morocco</option>
+                            <option value="Mozambique">Mozambique</option>
+                            <option value="Myanmar">Myanmar</option>
+
+                            <option value="Namibia">Namibia</option>
+                            <option value="Nauru">Nauru</option>
+                            <option value="Nepal">Nepal</option>
+                            <option value="Netherlands">Netherlands</option>
+                            <option value="New Zealand">New Zealand</option>
+                            <option value="Nicaragua">Nicaragua</option>
+                            <option value="Niger">Niger</option>
+                            <option value="Nigeria">Nigeria</option>
+                            <option value="North Korea">North Korea</option>
+                            <option value="North Macedonia">North Macedonia</option>
+                            <option value="Norway">Norway</option>
+
+                            <option value="Oman">Oman</option>
+
+                            <option value="Pakistan">Pakistan</option>
+                            <option value="Palau">Palau</option>
+                            <option value="Palestine">Palestine</option>
+                            <option value="Panama">Panama</option>
+                            <option value="Papua New Guinea">
+                                Papua New Guinea
+                            </option>
+                            <option value="Paraguay">Paraguay</option>
+                            <option value="Peru">Peru</option>
+                            <option value="Philippines">Philippines</option>
+                            <option value="Poland">Poland</option>
+                            <option value="Portugal">Portugal</option>
+
+                            <option value="Qatar">Qatar</option>
+
+                            <option value="Romania">Romania</option>
+                            <option value="Russia">Russia</option>
+                            <option value="Rwanda">Rwanda</option>
+
+                            <option value="Saint Kitts and Nevis">
+                                Saint Kitts and Nevis
+                            </option>
+                            <option value="Saint Lucia">Saint Lucia</option>
+                            <option value="Saint Vincent and the Grenadines">
+                                Saint Vincent and the Grenadines
+                            </option>
+                            <option value="Samoa">Samoa</option>
+                            <option value="San Marino">San Marino</option>
+                            <option value="Sao Tome and Principe">
+                                Sao Tome and Principe
+                            </option>
+                            <option value="Saudi Arabia">Saudi Arabia</option>
+                            <option value="Senegal">Senegal</option>
+                            <option value="Serbia">Serbia</option>
+                            <option value="Seychelles">Seychelles</option>
+                            <option value="Sierra Leone">Sierra Leone</option>
+                            <option value="Singapore">Singapore</option>
+                            <option value="Slovakia">Slovakia</option>
+                            <option value="Slovenia">Slovenia</option>
+                            <option value="Solomon Islands">
+                                Solomon Islands
+                            </option>
+                            <option value="Somalia">Somalia</option>
+                            <option value="South Africa">South Africa</option>
+                            <option value="South Korea">South Korea</option>
+                            <option value="South Sudan">South Sudan</option>
+                            <option value="Spain">Spain</option>
+                            <option value="Sri Lanka">Sri Lanka</option>
+                            <option value="Sudan">Sudan</option>
+                            <option value="Suriname">Suriname</option>
+                            <option value="Sweden">Sweden</option>
+                            <option value="Switzerland">Switzerland</option>
+                            <option value="Syria">Syria</option>
+
+                            <option value="Tajikistan">Tajikistan</option>
+                            <option value="Tanzania">Tanzania</option>
+                            <option value="Thailand">Thailand</option>
+                            <option value="Timor-Leste">Timor-Leste</option>
+                            <option value="Togo">Togo</option>
+                            <option value="Tonga">Tonga</option>
+                            <option value="Trinidad and Tobago">
+                                Trinidad and Tobago
+                            </option>
+                            <option value="Tunisia">Tunisia</option>
+                            <option value="Turkey">Turkey</option>
+                            <option value="Turkmenistan">Turkmenistan</option>
+                            <option value="Tuvalu">Tuvalu</option>
+
+                            <option value="Uganda">Uganda</option>
+                            <option value="Ukraine">Ukraine</option>
+                            <option value="United Arab Emirates">
+                                United Arab Emirates
+                            </option>
+                            <option value="United Kingdom">
+                                United Kingdom
+                            </option>
+                            <option value="United States">
+                                United States
+                            </option>
+                            <option value="Uruguay">Uruguay</option>
+                            <option value="Uzbekistan">Uzbekistan</option>
+
+                            <option value="Vanuatu">Vanuatu</option>
+                            <option value="Vatican City">Vatican City</option>
+                            <option value="Venezuela">Venezuela</option>
+                            <option value="Vietnam">Vietnam</option>
+
+                            <option value="Yemen">Yemen</option>
+
+                            <option value="Zambia">Zambia</option>
+                            <option value="Zimbabwe">Zimbabwe</option>
+
+                        </select>
+
+                        <div class="form-help">
+                            Country is required and will be saved
+                            in your TIPECO GROUP profile.
+                        </div>
+
+                    </div>
+
+
+                    <!-- PHONE -->
+
+                    <div class="form-group">
+
+                        <label for="phone">
+                            Phone Number
+                            <span class="optional">(Optional)</span>
+                        </label>
 
                         <input
                             type="tel"
                             id="phone"
                             name="phone"
-                            class="phone-input"
-                            placeholder="Enter phone number"
+                            class="form-control"
+                            placeholder="e.g. +250 7XX XXX XXX"
                             autocomplete="tel"
-                            required>
+                        >
+
+                        <div class="form-help">
+                            Optional contact/recovery information.
+                            No SMS verification or OTP is required.
+                        </div>
 
                     </div>
 
 
-                    <!-- =====================================
-                         SEND PHONE CODE
-                    ====================================== -->
+                    <!-- PASSWORD -->
 
-                    <button
-                        type="button"
-                        id="sendPhoneCode"
-                        disabled>
+                    <div class="form-group">
 
-                        Send Verification Code
-
-                    </button>
-
-
-                    <!-- =====================================
-                         FIREBASE RECAPTCHA
-                    ====================================== -->
-
-                    <div id="recaptcha-container"></div>
-
-
-                    <!-- =====================================
-                         PHONE STATUS
-                    ====================================== -->
-
-                    <div
-                        id="phoneStatus"
-                        role="status"
-                        aria-live="polite">
-                    </div>
-
-                    <div
-                        id="phoneVerificationStatus"
-                        role="status"
-                        aria-live="polite">
-                    </div>
-
-
-                    <!-- =====================================
-                         OTP SECTION
-                    ====================================== -->
-
-                    <div id="otpSection">
-
-                        <label for="otp">
-                            SMS Verification Code
+                        <label for="password">
+                            Password
+                            <span class="required">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            id="otp"
-                            name="otp"
-                            inputmode="numeric"
-                            autocomplete="one-time-code"
-                            placeholder="Enter 6-digit code"
-                            maxlength="6"
-                            pattern="[0-9]{6}">
+                        <div class="password-wrapper">
 
-                        <button
-                            type="button"
-                            id="verifyPhoneButton"
-                            disabled>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                class="form-control"
+                                placeholder="Create a strong password"
+                                autocomplete="new-password"
+                                minlength="6"
+                                required
+                            >
 
-                            Verify Phone Number
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                data-target="password">
+                                Show
+                            </button>
 
-                        </button>
+                        </div>
+
+                        <div class="form-help">
+                            Use at least 6 characters.
+                        </div>
 
                     </div>
 
-                </div>
 
+                    <!-- CONFIRM PASSWORD -->
 
-                <!-- =========================================
-                     PASSWORD
-                ========================================== -->
+                    <div class="form-group">
 
-                <div class="form-group">
+                        <label for="confirmPassword">
+                            Confirm Password
+                            <span class="required">*</span>
+                        </label>
 
-                    <label for="password">
-                        Password
-                    </label>
+                        <div class="password-wrapper">
 
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Create a password"
-                        autocomplete="new-password"
-                        minlength="6"
-                        required>
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                class="form-control"
+                                placeholder="Confirm your password"
+                                autocomplete="new-password"
+                                minlength="6"
+                                required
+                            >
 
-                </div>
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                data-target="confirmPassword">
+                                Show
+                            </button>
 
+                        </div>
 
-                <!-- =========================================
-                     CONFIRM PASSWORD
-                ========================================== -->
-
-                <div class="form-group">
-
-                    <label for="confirmPassword">
-                        Confirm Password
-                    </label>
-
-                    <input
-                        type="password"
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        placeholder="Confirm your password"
-                        autocomplete="new-password"
-                        minlength="6"
-                        required>
-
-                    <div
-                        id="passwordMessage"
-                        aria-live="polite">
                     </div>
 
-                </div>
 
+                    <!-- TERMS -->
 
-                <!-- =========================================
-                     ACCOUNT ARCHITECTURE
-                ========================================== -->
-
-                <div class="account-type-info">
-
-                    <p>
-
-                        <strong>
-                            One TIPECO GROUP Account:
-                        </strong>
-
-                        Your account gives you access to
-                        TIPECO GROUP services and opportunities.
-
-                    </p>
-
-                    <p>
-
-                        You can browse and discover available
-                        content for free.
-
-                        Certain actions such as posting or
-                        applying for jobs may require an active
-                        subscription and TIPECO GROUP approval
-                        where applicable.
-
-                    </p>
-
-                    <p>
-
-                        <strong>
-                            Verification Required:
-                        </strong>
-
-                        Your email address and phone number
-                        must both be verified before your
-                        account becomes active.
-
-                    </p>
-
-                </div>
-
-
-                <!-- =========================================
-                     TERMS
-                ========================================== -->
-
-                <div class="auth-options">
-
-                    <label class="remember-me">
+                    <div class="terms-group">
 
                         <input
                             type="checkbox"
                             id="terms"
                             name="terms"
-                            required>
+                            required
+                        >
 
-                        <span>
+                        <label for="terms">
 
                             I agree to the
-
-                            <a href="#">
-                                Terms &amp; Conditions
+                            <a href="../terms.html"
+                               target="_blank"
+                               rel="noopener">
+                                TIPECO GROUP Terms & Conditions
                             </a>
+                            and understand the platform rules.
 
-                        </span>
+                            <span class="required">*</span>
 
-                    </label>
+                        </label>
 
-                </div>
+                    </div>
+
+
+                    <!-- REGISTER BUTTON -->
+
+                    <button
+                        type="submit"
+                        id="registerButton"
+                        class="register-button">
+
+                        Create Account
+
+                    </button>
+
+                </form>
 
 
                 <!-- =========================================
-                     CREATE ACCOUNT
+                     EMAIL VERIFICATION
                 ========================================== -->
 
-                <button
-                    type="submit"
-                    class="auth-btn"
-                    id="registerButton"
-                    disabled
-                    aria-disabled="true">
-
-                    Create Account
-
-                </button>
-
-
-                <!-- =========================================
-                     GOOGLE
-                ========================================== -->
-
-                <div class="auth-divider">
-
-                    <span>
-                        OR
-                    </span>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="google-btn"
-                    id="googleSignUpButton">
-
-                    <span class="google-icon">
-                        G
-                    </span>
-
-                    <span>
-                        Continue with Google
-                    </span>
-
-                </button>
-
-            </form>
-
-
-            <!-- =================================================
-                 EMAIL VERIFICATION
-            ================================================== -->
-
-            <div
-                id="emailVerificationSection"
-                class="account-type-info"
-                aria-live="polite">
-
-                <p>
-
-                    <strong>
-                        Verify Your Email
-                    </strong>
-
-                </p>
-
-                <p>
-
-                    We have sent a verification email
-                    to your email address.
-
-                </p>
-
-                <p>
-
-                    Open your email inbox, complete the
-                    verification, then return here and
-                    press the button below.
-
-                </p>
-
-                <div
-                    id="emailVerificationStatus"
-                    role="status"
+                <section
+                    id="emailVerificationSection"
+                    class="email-verification-section"
                     aria-live="polite">
-                </div>
 
-                <button
-                    type="button"
-                    id="verifyEmailButton">
+                    <h3>
+                        Verify Your Email
+                    </h3>
 
-                    Verify Email
+                    <p>
+                        Your account has been created.
+                        Please verify your email address before
+                        signing in to TIPECO GROUP.
+                    </p>
 
-                </button>
+                    <button
+                        type="button"
+                        id="verifyEmailButton"
+                        class="verify-email-button"
+                        onclick="window.tipecoVerifyEmail()">
 
-            </div>
+                        I Have Verified My Email
+
+                    </button>
+
+                </section>
 
 
-            <!-- =================================================
-                 LOGIN LINK
-            ================================================== -->
+                <!-- =========================================
+                     LOGIN LINK
+                ========================================== -->
 
-            <div class="auth-register">
-
-                <p>
+                <div class="register-footer">
 
                     Already have an account?
 
@@ -728,462 +927,173 @@
                         Login
                     </a>
 
-                </p>
+                </div>
 
-            </div>
 
+                <!-- =========================================
+                     SECURITY NOTE
+                ========================================== -->
+
+                <div class="security-note">
+
+                    🔒 Your password is securely handled by
+                    Firebase Authentication. TIPECO GROUP does
+                    not store your password in Firestore.
+
+                </div>
+
+            </section>
 
         </div>
 
-
-        <!-- =================================================
-             BACK HOME
-        ================================================= -->
-
-        <div class="back-home">
-
-            <a href="../index.html">
-                ← Back to TIPECO GROUP
-            </a>
-
-        </div>
+    </main>
 
 
-    </div>
+    <!-- =====================================================
+         FIREBASE AUTH
+    ====================================================== -->
 
-</main>
-
-
-<!-- =====================================================
-     REAL TIPECO AUTHENTICATION
-     Firebase Authentication
-     auth.js V8.0
-====================================================== -->
-
-<script
-    type="module"
-    src="../assets/js/auth.js">
-</script>
+    <script type="module"
+            src="../js/auth.js"></script>
 
 
-<!-- =====================================================
-     REGISTER PAGE UI
-     Compatible with auth.js V8.0
-====================================================== -->
+    <!-- =====================================================
+         REGISTER PAGE UI HELPERS
+         No authentication logic here.
+    ====================================================== -->
 
-<script>
+    <script>
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        () => {
+        document.addEventListener("DOMContentLoaded", () => {
 
             /* =============================================
-               ELEMENTS
+               PASSWORD SHOW / HIDE
             ============================================== */
 
-            const form =
-                document.getElementById(
-                    "registerForm"
-                );
+            const toggleButtons =
+                document.querySelectorAll(".password-toggle");
 
-            const fullName =
-                document.getElementById(
-                    "fullName"
-                );
+            toggleButtons.forEach(button => {
 
-            const email =
-                document.getElementById(
-                    "email"
-                );
+                button.addEventListener("click", () => {
 
-            const country =
-                document.getElementById(
-                    "country"
-                );
+                    const targetId =
+                        button.getAttribute("data-target");
 
-            const phone =
-                document.getElementById(
-                    "phone"
-                );
+                    const input =
+                        document.getElementById(targetId);
+
+                    if (!input) return;
+
+                    if (input.type === "password") {
+
+                        input.type = "text";
+                        button.textContent = "Hide";
+
+                    } else {
+
+                        input.type = "password";
+                        button.textContent = "Show";
+
+                    }
+
+                });
+
+            });
+
+
+            /* =============================================
+               PASSWORD MATCH VISUAL CHECK
+               Authentication logic remains in auth.js.
+            ============================================== */
 
             const password =
-                document.getElementById(
-                    "password"
-                );
+                document.getElementById("password");
 
             const confirmPassword =
-                document.getElementById(
-                    "confirmPassword"
-                );
+                document.getElementById("confirmPassword");
 
-            const terms =
-                document.getElementById(
-                    "terms"
-                );
-
-            const registerButton =
-                document.getElementById(
-                    "registerButton"
-                );
-
-            const sendPhoneCode =
-                document.getElementById(
-                    "sendPhoneCode"
-                );
-
-            const verifyPhoneButton =
-                document.getElementById(
-                    "verifyPhoneButton"
-                );
-
-            const otp =
-                document.getElementById(
-                    "otp"
-                );
-
-            const passwordMessage =
-                document.getElementById(
-                    "passwordMessage"
-                );
-
-
-            /* =============================================
-               PHONE VERIFICATION STATE
-            ============================================== */
-
-            let phoneVerified = false;
-
-
-            /* =============================================
-               BASIC FORM CHECK
-            ============================================== */
-
-            function basicFormReady() {
-
-                const passwordsMatch =
-                    password.value.length >= 6 &&
-                    confirmPassword.value.length >= 6 &&
-                    password.value ===
-                        confirmPassword.value;
-
-                return (
-                    fullName.value.trim().length >= 2 &&
-                    email.validity.valid &&
-                    country.value !== "" &&
-                    phone.value.trim().length > 0 &&
-                    password.value.length >= 6 &&
-                    passwordsMatch &&
-                    terms.checked
-                );
-
-            }
-
-
-            /* =============================================
-               UPDATE REGISTER BUTTON
-            ============================================== */
-
-            function updateRegisterButton() {
-
-                const ready =
-                    basicFormReady() &&
-                    phoneVerified;
-
-                if (ready) {
-
-                    registerButton.disabled = false;
-
-                    registerButton.classList.add(
-                        "is-ready"
-                    );
-
-                    registerButton.setAttribute(
-                        "aria-disabled",
-                        "false"
-                    );
-
-                } else {
-
-                    registerButton.disabled = true;
-
-                    registerButton.classList.remove(
-                        "is-ready"
-                    );
-
-                    registerButton.setAttribute(
-                        "aria-disabled",
-                        "true"
-                    );
-
-                }
-
-
-                /* =========================================
-                   PASSWORD MESSAGE
-                ========================================== */
+            function checkPasswordMatch() {
 
                 if (
-                    confirmPassword.value.length > 0 &&
-                    password.value !==
-                        confirmPassword.value
+                    confirmPassword.value &&
+                    password.value !== confirmPassword.value
                 ) {
 
-                    passwordMessage.style.display =
-                        "block";
-
-                    passwordMessage.textContent =
-                        "Passwords do not match.";
-
-                } else if (
-                    confirmPassword.value.length > 0 &&
-                    password.value ===
-                        confirmPassword.value &&
-                    password.value.length >= 6
-                ) {
-
-                    passwordMessage.style.display =
-                        "block";
-
-                    passwordMessage.textContent =
-                        "Passwords match.";
+                    confirmPassword.setCustomValidity(
+                        "Passwords do not match."
+                    );
 
                 } else {
 
-                    passwordMessage.style.display =
-                        "none";
-
-                    passwordMessage.textContent =
-                        "";
+                    confirmPassword.setCustomValidity("");
 
                 }
 
             }
 
-
-            /* =============================================
-               PHONE INPUT
-            ============================================== */
-
-            phone.addEventListener(
+            password.addEventListener(
                 "input",
-                () => {
-
-                    phoneVerified = false;
-
-                    sendPhoneCode.disabled =
-                        phone.value.trim().length === 0;
-
-                    verifyPhoneButton.disabled = true;
-
-                    updateRegisterButton();
-
-                }
+                checkPasswordMatch
             );
 
-
-            /* =============================================
-               COUNTRY CHANGE
-            ============================================== */
-
-            country.addEventListener(
-                "change",
-                () => {
-
-                    phoneVerified = false;
-
-                    verifyPhoneButton.disabled = true;
-
-                    updateRegisterButton();
-
-                }
-            );
-
-
-            /* =============================================
-               OTP INPUT
-            ============================================== */
-
-            otp.addEventListener(
+            confirmPassword.addEventListener(
                 "input",
-                () => {
-
-                    const code =
-                        otp.value
-                            .replace(/\D/g, "")
-                            .slice(0, 6);
-
-                    otp.value = code;
-
-                    verifyPhoneButton.disabled =
-                        code.length !== 6;
-
-                }
+                checkPasswordMatch
             );
 
 
             /* =============================================
-               PHONE VERIFICATION COMPLETE BRIDGE
-
-               auth.js V8.0 calls this after Firebase
-               phone verification succeeds.
+               COUNTRY REQUIRED VISUAL VALIDATION
             ============================================== */
 
-            window.tipecoPhoneVerificationComplete =
-                () => {
+            const country =
+                document.getElementById("country");
 
-                    phoneVerified = true;
+            country.addEventListener("change", () => {
 
-                    sendPhoneCode.disabled =
-                        true;
+                if (country.value) {
 
-                    phone.disabled =
-                        true;
+                    country.setCustomValidity("");
 
-                    country.disabled =
-                        true;
+                } else {
 
-                    verifyPhoneButton.disabled =
-                        true;
-
-                    updateRegisterButton();
-
-                };
-
-
-            /* =============================================
-               BASIC FIELD LISTENERS
-            ============================================== */
-
-            [
-                fullName,
-                email,
-                password,
-                confirmPassword,
-                terms
-            ].forEach(
-                (field) => {
-
-                    field.addEventListener(
-                        "input",
-                        updateRegisterButton
-                    );
-
-                    field.addEventListener(
-                        "change",
-                        updateRegisterButton
+                    country.setCustomValidity(
+                        "Please select your country."
                     );
 
                 }
-            );
+
+            });
 
 
             /* =============================================
-               SEND PHONE CODE
+               TERMS VALIDATION
             ============================================== */
 
-            sendPhoneCode.addEventListener(
-                "click",
-                () => {
+            const terms =
+                document.getElementById("terms");
 
-                    if (
-                        typeof window
-                            .tipecoSendPhoneCode ===
-                        "function"
-                    ) {
+            terms.addEventListener("change", () => {
 
-                        window.tipecoSendPhoneCode();
+                if (terms.checked) {
 
-                    } else {
+                    terms.setCustomValidity("");
 
-                        const status =
-                            document.getElementById(
-                                "registerStatus"
-                            );
+                } else {
 
-                        status.style.display =
-                            "block";
-
-                        status.textContent =
-                            "Authentication system is still loading. Please wait a moment and try again.";
-
-                    }
+                    terms.setCustomValidity(
+                        "You must accept the Terms & Conditions."
+                    );
 
                 }
-            );
 
+            });
 
-            /* =============================================
-               VERIFY PHONE CODE
-            ============================================== */
+        });
 
-            verifyPhoneButton.addEventListener(
-                "click",
-                () => {
+    </script>
 
-                    if (
-                        typeof window
-                            .tipecoVerifyPhoneCode ===
-                        "function"
-                    ) {
+</body>
 
-                        window.tipecoVerifyPhoneCode();
-
-                    } else {
-
-                        const status =
-                            document.getElementById(
-                                "registerStatus"
-                            );
-
-                        status.style.display =
-                            "block";
-
-                        status.textContent =
-                            "Authentication system is still loading. Please wait a moment and try again.";
-
-                    }
-
-                }
-            );
-
-
-            /* =============================================
-               FORM SUBMIT SAFETY
-            ============================================== */
-
-            form.addEventListener(
-                "submit",
-                (event) => {
-
-                    if (
-                        !basicFormReady() ||
-                        !phoneVerified
-                    ) {
-
-                        event.preventDefault();
-
-                        updateRegisterButton();
-
-                    }
-
-                }
-            );
-
-
-            /* =============================================
-               INITIAL UI STATE
-            ============================================== */
-
-            sendPhoneCode.disabled =
-                phone.value.trim().length === 0;
-
-            verifyPhoneButton.disabled = true;
-
-            updateRegisterButton();
-
-        }
-    );
-
-</script>
-
-</body></html>
+</html>
