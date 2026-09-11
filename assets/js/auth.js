@@ -1,25 +1,42 @@
 /* =====================================================
    TIPECO GROUP - FIREBASE AUTHENTICATION
    REAL PROJECT
-   Version: 8.0
+   Version: 9.0
 
    GENERAL ACCOUNT ARCHITECTURE
+
    - One General TIPECO GROUP Account
    - Email + Password
    - Mandatory Email Verification
-   - Mandatory Phone Verification (SMS OTP)
-   - Firebase Phone Auth + reCAPTCHA
-   - 
-   - Account active ONLY when:
-       emailVerified === true
-       AND
-       phoneVerified === true
+   - Country Required
+   - Phone Optional
+   - Phone is Contact / Recovery Information Only
+   - NO SMS OTP
+   - NO Firebase Phone Auth
+   - NO Phone reCAPTCHA
+   - NO phoneVerified requirement
+
+   ACCOUNT LIFECYCLE
+
+   Register
+      ↓
+   Firebase Auth Account
+      ↓
+   Firestore User Profile
+      ↓
+   Email Verification Required
+      ↓
+   Email Verified
+      ↓
+   Account ACTIVE
 
    SECURITY PRINCIPLE
+
    - Firebase Auth + Firestore are the source of truth.
    - No localStorage authentication.
    - Subscription != Approval.
    - Owner role is never created from public registration.
+   - Phone number is NOT treated as a verified authentication factor.
 ===================================================== */
 
 
@@ -44,9 +61,7 @@ import {
     onAuthStateChanged,
     sendEmailVerification,
     sendPasswordResetEmail,
-    reload,
-    RecaptchaVerifier,
-    linkWithPhoneNumber
+    reload
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 
@@ -78,49 +93,57 @@ const PUBLIC_OWNER_FORBIDDEN = true;
 
 /* =====================================================
    SESSION CONVENIENCE KEYS
+
    Firebase Auth remains the real source of truth.
+   sessionStorage is NOT used as authentication authority.
 ===================================================== */
 
-const SESSION_AUTHENTICATED = "tipecoAuthenticated";
-const SESSION_USER_ID = "tipecoUserId";
-const SESSION_ROLE = "tipecoRole";
+const SESSION_AUTHENTICATED =
+    "tipecoAuthenticated";
 
+const SESSION_USER_ID =
+    "tipecoUserId";
 
-/* =====================================================
-   PHONE VERIFICATION STATE
-===================================================== */
-
-let recaptchaVerifier = null;
-let confirmationResult = null;
-
-let phoneVerificationInProgress = false;
-let phoneVerified = false;
-
-let pendingRegistrationUser = null;
+const SESSION_ROLE =
+    "tipecoRole";
 
 
 /* =====================================================
    BASIC UI HELPERS
 ===================================================== */
 
-function showMessage(element, message, type = "info") {
+function showMessage(
+    element,
+    message,
+    type = "info"
+) {
 
-    if (!element) return;
+    if (!element) {
+        return;
+    }
 
-    element.textContent = message;
+    element.textContent =
+        message;
 
-    element.dataset.type = type;
+    element.dataset.type =
+        type;
 
-    element.style.display = "block";
+    element.style.display =
+        "block";
 }
 
 
 function hideMessage(element) {
 
-    if (!element) return;
+    if (!element) {
+        return;
+    }
 
-    element.textContent = "";
-    element.style.display = "none";
+    element.textContent =
+        "";
+
+    element.style.display =
+        "none";
 }
 
 
@@ -131,10 +154,21 @@ function hideMessage(element) {
 function clearTipecoSession() {
 
     try {
-        sessionStorage.removeItem(SESSION_AUTHENTICATED);
-        sessionStorage.removeItem(SESSION_USER_ID);
-        sessionStorage.removeItem(SESSION_ROLE);
+
+        sessionStorage.removeItem(
+            SESSION_AUTHENTICATED
+        );
+
+        sessionStorage.removeItem(
+            SESSION_USER_ID
+        );
+
+        sessionStorage.removeItem(
+            SESSION_ROLE
+        );
+
     } catch (error) {
+
         console.warn(
             "TIPECO session cleanup warning:",
             error
@@ -143,7 +177,10 @@ function clearTipecoSession() {
 }
 
 
-function saveTipecoSession(user, profile) {
+function saveTipecoSession(
+    user,
+    profile
+) {
 
     try {
 
@@ -159,7 +196,8 @@ function saveTipecoSession(user, profile) {
 
         sessionStorage.setItem(
             SESSION_ROLE,
-            profile?.role || GENERAL_USER_ROLE
+            profile?.role ||
+            GENERAL_USER_ROLE
         );
 
     } catch (error) {
@@ -178,15 +216,19 @@ function saveTipecoSession(user, profile) {
 
 async function getUserProfile(uid) {
 
-    if (!uid) return null;
+    if (!uid) {
+        return null;
+    }
 
-    const userRef = doc(
-        db,
-        "users",
-        uid
-    );
+    const userRef =
+        doc(
+            db,
+            "users",
+            uid
+        );
 
-    const snapshot = await getDoc(userRef);
+    const snapshot =
+        await getDoc(userRef);
 
     if (!snapshot.exists()) {
         return null;
@@ -200,7 +242,9 @@ async function getUserProfile(uid) {
    OWNER CHECK
 ===================================================== */
 
-function isTipecoOwner(profile) {
+function isTipecoOwner(
+    profile
+) {
 
     return (
         profile &&
@@ -213,9 +257,14 @@ function isTipecoOwner(profile) {
    ACCOUNT STATUS
 ===================================================== */
 
-function getAccountStatus(profile) {
+function getAccountStatus(
+    profile
+) {
 
-    return profile?.accountStatus || "unknown";
+    return (
+        profile?.accountStatus ||
+        "unknown"
+    );
 }
 
 
@@ -229,16 +278,18 @@ async function updateUserProfile(
 ) {
 
     if (!uid) {
+
         throw new Error(
             "User UID is required."
         );
     }
 
-    const userRef = doc(
-        db,
-        "users",
-        uid
-    );
+    const userRef =
+        doc(
+            db,
+            "users",
+            uid
+        );
 
     await setDoc(
         userRef,
@@ -252,6 +303,14 @@ async function updateUserProfile(
 
 /* =====================================================
    PHONE NORMALIZATION
+
+   IMPORTANT:
+   Phone is OPTIONAL.
+
+   This function is only used when a user chooses
+   to provide a phone number as contact information.
+
+   It does NOT verify the phone number.
 ===================================================== */
 
 function normalizePhoneNumber(
@@ -259,38 +318,45 @@ function normalizePhoneNumber(
     phone
 ) {
 
-    if (!countryCode || !phone) {
-        throw new Error(
-            "Country code and phone number are required."
+    if (!phone) {
+        return "";
+    }
+
+    let cleaned =
+        String(phone)
+            .trim()
+            .replace(/[^\d+]/g, "");
+
+    if (!cleaned) {
+        return "";
+    }
+
+    if (
+        cleaned.startsWith("+")
+    ) {
+
+        return cleaned;
+    }
+
+    if (
+        cleaned.startsWith("00")
+    ) {
+
+        return (
+            "+" +
+            cleaned.substring(2)
         );
     }
 
-    let cleaned = String(phone)
-        .trim()
-        .replace(/[^\d+]/g, "");
+    cleaned =
+        cleaned.replace(
+            /^0+/,
+            ""
+        );
 
-    /*
-       If user enters:
-       078xxxxxxx
-       and country code is +250
-
-       convert to:
-       +25078xxxxxxx
-    */
-
-    if (cleaned.startsWith("+")) {
-
+    if (!countryCode) {
         return cleaned;
-
     }
-
-    if (cleaned.startsWith("00")) {
-
-        return "+" + cleaned.substring(2);
-
-    }
-
-    cleaned = cleaned.replace(/^0+/, "");
 
     return (
         String(countryCode) +
@@ -300,12 +366,20 @@ function normalizePhoneNumber(
 
 
 /* =====================================================
-   PHONE VALIDATION
+   OPTIONAL PHONE VALIDATION
+
+   This validates format only.
+
+   It does NOT mean the phone is verified.
 ===================================================== */
 
 function validateE164Phone(
     phone
 ) {
+
+    if (!phone) {
+        return true;
+    }
 
     return /^\+[1-9]\d{7,14}$/.test(
         phone
@@ -347,38 +421,14 @@ function getFirebaseErrorMessage(
         case "auth/invalid-credential":
             return "Invalid email or password.";
 
-        case "auth/invalid-phone-number":
-            return "The phone number is invalid. Use a valid international number.";
-
-        case "auth/missing-phone-number":
-            return "Phone number is required.";
-
         case "auth/too-many-requests":
             return "Too many requests. Please wait and try again later.";
-
-        case "auth/quota-exceeded":
-            return "SMS verification quota has been exceeded. Please try again later.";
-
-        case "auth/captcha-check-failed":
-            return "reCAPTCHA verification failed. Please try again.";
 
         case "auth/network-request-failed":
             return "Network error. Please check your internet connection.";
 
         case "auth/operation-not-allowed":
             return "This authentication method is not enabled in Firebase.";
-
-        case "auth/provider-already-linked":
-            return "A phone number is already linked to this account.";
-
-        case "auth/credential-already-in-use":
-            return "This phone number is already linked to another account.";
-
-        case "auth/code-expired":
-            return "The verification code has expired. Please request a new code.";
-
-        case "auth/invalid-verification-code":
-            return "The verification code is incorrect.";
 
         case "auth/requires-recent-login":
             return "Please log in again and retry.";
@@ -393,129 +443,85 @@ function getFirebaseErrorMessage(
 
 
 /* =====================================================
-   reCAPTCHA INITIALIZATION
+   CREATE REGISTRATION ACCOUNT
 ===================================================== */
 
-function initializeRecaptcha() {
-
-    const container =
-        document.getElementById(
-            "recaptcha-container"
-        );
-
-    if (!container) {
-
-        console.error(
-            "TIPECO: recaptcha-container not found."
-        );
-
-        return null;
-    }
-
-    if (recaptchaVerifier) {
-        return recaptchaVerifier;
-    }
-
-    try {
-
-        recaptchaVerifier =
-            new RecaptchaVerifier(
-                auth,
-                "recaptcha-container",
-                {
-                    size: "normal",
-
-                    callback: () => {
-
-                        console.log(
-                            "TIPECO reCAPTCHA completed."
-                        );
-
-                    },
-
-                    "expired-callback": () => {
-
-                        console.warn(
-                            "TIPECO reCAPTCHA expired."
-                        );
-
-                    }
-                }
-            );
-
-        return recaptchaVerifier;
-
-    } catch (error) {
-
-        console.error(
-            "TIPECO reCAPTCHA initialization error:",
-            error
-        );
-
-        return null;
-    }
-}
-
-
-/* =====================================================
-   CLEAR reCAPTCHA
-===================================================== */
-
-function clearRecaptcha() {
-
-    if (!recaptchaVerifier) {
-        return;
-    }
-
-    try {
-
-        recaptchaVerifier.clear();
-
-    } catch (error) {
-
-        console.warn(
-            "TIPECO reCAPTCHA cleanup warning:",
-            error
-        );
-
-    } finally {
-
-        recaptchaVerifier = null;
-    }
-}
-
-
-/* =====================================================
-   CREATE PENDING REGISTRATION ACCOUNT
-===================================================== */
-
-async function createPendingRegistrationAccount(
+async function createRegistrationAccount(
     registrationData
 ) {
 
     const {
         fullName,
         email,
+        country,
         phone,
         password
     } = registrationData;
 
-    /*
-       If account was already created during
-       phone verification preparation, reuse it.
-    */
 
-    if (
-        auth.currentUser &&
-        auth.currentUser.email === email
-    ) {
+    /* =================================================
+       BASIC VALIDATION
+    ================================================= */
 
-        pendingRegistrationUser =
-            auth.currentUser;
+    if (!fullName) {
 
-        return auth.currentUser;
+        throw new Error(
+            "Full name is required."
+        );
     }
 
+    if (!email) {
+
+        throw new Error(
+            "Email address is required."
+        );
+    }
+
+    if (!country) {
+
+        throw new Error(
+            "Country is required."
+        );
+    }
+
+    if (!password) {
+
+        throw new Error(
+            "Password is required."
+        );
+    }
+
+
+    /* =================================================
+       OPTIONAL PHONE
+    ================================================= */
+
+    let normalizedPhone = "";
+
+    if (phone) {
+
+        normalizedPhone =
+            normalizePhoneNumber(
+                country,
+                phone
+            );
+
+        if (
+            !validateE164Phone(
+                normalizedPhone
+            )
+        ) {
+
+            throw new Error(
+                "Please enter a valid international phone number."
+            );
+        }
+    }
+
+
+    /* =================================================
+       CREATE FIREBASE AUTH USER
+    ================================================= */
 
     const credential =
         await createUserWithEmailAndPassword(
@@ -527,7 +533,68 @@ async function createPendingRegistrationAccount(
     const user =
         credential.user;
 
-    pendingRegistrationUser = user;
+
+    /* =================================================
+       CREATE FIRESTORE PROFILE
+
+       IMPORTANT:
+       Public registration can ONLY create
+       the GENERAL USER role.
+
+       It can NEVER create owner.
+    ================================================= */
+
+    const profileData = {
+
+        uid:
+            user.uid,
+
+        fullName:
+            fullName,
+
+        email:
+            email,
+
+        country:
+            country,
+
+        role:
+            GENERAL_USER_ROLE,
+
+        accountStatus:
+            "pending_verification",
+
+        emailVerified:
+            false,
+
+        createdAt:
+            serverTimestamp(),
+
+        updatedAt:
+            serverTimestamp()
+    };
+
+
+    /* =================================================
+       PHONE
+
+       Phone is optional.
+
+       We store it only when supplied.
+       There is NO phoneVerified field.
+    ================================================= */
+
+    if (normalizedPhone) {
+
+        profileData.phone =
+            normalizedPhone;
+
+    } else {
+
+        profileData.phone =
+            "";
+    }
+
 
     await setDoc(
         doc(
@@ -535,396 +602,14 @@ async function createPendingRegistrationAccount(
             "users",
             user.uid
         ),
-        {
-            uid: user.uid,
-
-            fullName: fullName,
-
-            email: email,
-
-            phone: phone,
-
-            role: GENERAL_USER_ROLE,
-
-            accountStatus:
-                "pending_verification",
-
-            emailVerified:
-                false,
-
-            phoneVerified:
-                false,
-
-            createdAt:
-                serverTimestamp(),
-
-            updatedAt:
-                serverTimestamp()
-        },
+        profileData,
         {
             merge: true
         }
     );
 
+
     return user;
-}
-
-
-/* =====================================================
-   SEND PHONE VERIFICATION CODE
-===================================================== */
-
-async function sendPhoneVerificationCode() {
-
-    if (phoneVerificationInProgress) {
-        return;
-    }
-
-    const fullNameInput =
-        document.getElementById("fullName");
-
-    const emailInput =
-        document.getElementById("email");
-
-    const countryInput =
-        document.getElementById("country");
-
-    const phoneInput =
-        document.getElementById("phone");
-
-    const passwordInput =
-        document.getElementById("password");
-
-    const statusElement =
-        document.getElementById(
-            "phoneVerificationStatus"
-        );
-
-    const country =
-        countryInput?.value || "+250";
-
-    const phoneRaw =
-        phoneInput?.value?.trim() || "";
-
-    const email =
-        emailInput?.value?.trim().toLowerCase() || "";
-
-    const fullName =
-        fullNameInput?.value?.trim() || "";
-
-    const password =
-        passwordInput?.value || "";
-
-    if (!fullName) {
-
-        showMessage(
-            statusElement,
-            "Please enter your full name.",
-            "error"
-        );
-
-        return;
-    }
-
-    if (!email) {
-
-        showMessage(
-            statusElement,
-            "Please enter your email address.",
-            "error"
-        );
-
-        return;
-    }
-
-    if (!phoneRaw) {
-
-        showMessage(
-            statusElement,
-            "Please enter your phone number.",
-            "error"
-        );
-
-        return;
-    }
-
-    if (!password || password.length < 6) {
-
-        showMessage(
-            statusElement,
-            "Please enter a password of at least 6 characters.",
-            "error"
-        );
-
-        return;
-    }
-
-    let phoneNumber;
-
-    try {
-
-        phoneNumber =
-            normalizePhoneNumber(
-                country,
-                phoneRaw
-            );
-
-    } catch (error) {
-
-        showMessage(
-            statusElement,
-            error.message,
-            "error"
-        );
-
-        return;
-    }
-
-    if (!validateE164Phone(phoneNumber)) {
-
-        showMessage(
-            statusElement,
-            "Please enter a valid international phone number.",
-            "error"
-        );
-
-        return;
-    }
-
-    phoneVerificationInProgress =
-        true;
-
-    try {
-
-        /*
-           Firebase email/password account is created first
-           so the phone number can be linked to the SAME account.
-        */
-
-        const user =
-            await createPendingRegistrationAccount(
-                {
-                    fullName,
-                    email,
-                    phone: phoneNumber,
-                    password
-                }
-            );
-
-        const verifier =
-            initializeRecaptcha();
-
-        if (!verifier) {
-
-            throw new Error(
-                "reCAPTCHA could not be initialized."
-            );
-        }
-
-        showMessage(
-            statusElement,
-            "Sending verification code...",
-            "info"
-        );
-
-        confirmationResult =
-            await linkWithPhoneNumber(
-                user,
-                phoneNumber,
-                verifier
-            );
-
-        await updateUserProfile(
-            user.uid,
-            {
-                phone: phoneNumber,
-
-                phoneVerified:
-                    false,
-
-                accountStatus:
-                    "pending_verification",
-
-                updatedAt:
-                    serverTimestamp()
-            }
-        );
-
-        showMessage(
-            statusElement,
-            "Verification code sent by SMS. Enter the 6-digit code.",
-            "success"
-        );
-
-        const otpSection =
-            document.getElementById(
-                "otpSection"
-            );
-
-        if (otpSection) {
-            otpSection.style.display =
-                "block";
-        }
-
-        const otpInput =
-            document.getElementById(
-                "otp"
-            );
-
-        if (otpInput) {
-            otpInput.focus();
-        }
-
-    } catch (error) {
-
-        console.error(
-            "TIPECO phone verification error:",
-            error
-        );
-
-        showMessage(
-            statusElement,
-            getFirebaseErrorMessage(error),
-            "error"
-        );
-
-    } finally {
-
-        phoneVerificationInProgress =
-            false;
-    }
-}
-
-
-/* =====================================================
-   VERIFY PHONE OTP
-===================================================== */
-
-async function verifyPhoneVerificationCode() {
-
-    const otpInput =
-        document.getElementById("otp");
-
-    const statusElement =
-        document.getElementById(
-            "phoneVerificationStatus"
-        );
-
-    const code =
-        otpInput?.value?.trim() || "";
-
-    if (!confirmationResult) {
-
-        showMessage(
-            statusElement,
-            "Please request a verification code first.",
-            "error"
-        );
-
-        return;
-    }
-
-    if (!/^\d{6}$/.test(code)) {
-
-        showMessage(
-            statusElement,
-            "Please enter the 6-digit verification code.",
-            "error"
-        );
-
-        return;
-    }
-
-    try {
-
-        showMessage(
-            statusElement,
-            "Verifying phone number...",
-            "info"
-        );
-
-        const credential =
-            await confirmationResult.confirm(
-                code
-            );
-
-        const user =
-            credential.user;
-
-        pendingRegistrationUser =
-            user;
-
-        phoneVerified = true;
-
-        await updateUserProfile(
-            user.uid,
-            {
-                phone:
-                    user.phoneNumber || "",
-
-                phoneVerified:
-                    true,
-
-                accountStatus:
-                    "pending_verification",
-
-                updatedAt:
-                    serverTimestamp()
-            }
-        );
-
-        showMessage(
-            statusElement,
-            "Phone number verified successfully.",
-            "success"
-        );
-
-        const phoneStatus =
-            document.getElementById(
-                "phoneStatus"
-            );
-
-        if (phoneStatus) {
-
-            phoneStatus.textContent =
-                "✓ Phone number verified";
-
-            phoneStatus.dataset.status =
-                "verified";
-        }
-
-        const createButton =
-            document.getElementById(
-                "registerButton"
-            ) ||
-            document.getElementById(
-                "createAccountButton"
-            );
-
-        if (createButton) {
-
-            createButton.disabled =
-                false;
-        }
-
-        confirmationResult =
-            null;
-
-        clearRecaptcha();
-
-    } catch (error) {
-
-        console.error(
-            "TIPECO OTP verification error:",
-            error
-        );
-
-        showMessage(
-            statusElement,
-            getFirebaseErrorMessage(error),
-            "error"
-        );
-    }
 }
 
 
@@ -946,47 +631,71 @@ async function handleRegistration(
             "registerForm"
         );
 
-    if (!form) return;
+    if (!form) {
+        return;
+    }
+
+
+    /* =================================================
+       INPUTS
+    ================================================= */
 
     const fullName =
         document.getElementById(
             "fullName"
-        )?.value?.trim() || "";
+        )?.value
+            ?.trim() || "";
+
 
     const email =
         document.getElementById(
             "email"
-        )?.value?.trim().toLowerCase() || "";
+        )?.value
+            ?.trim()
+            .toLowerCase() || "";
+
 
     const country =
         document.getElementById(
             "country"
-        )?.value || "+250";
+        )?.value
+            ?.trim() || "";
+
 
     const phoneRaw =
         document.getElementById(
             "phone"
-        )?.value?.trim() || "";
+        )?.value
+            ?.trim() || "";
+
 
     const password =
         document.getElementById(
             "password"
         )?.value || "";
 
+
     const confirmPassword =
         document.getElementById(
             "confirmPassword"
         )?.value || "";
+
 
     const terms =
         document.getElementById(
             "terms"
         )?.checked || false;
 
+
     const statusElement =
         document.getElementById(
             "registerStatus"
         );
+
+
+    /* =================================================
+       VALIDATION
+    ================================================= */
 
     if (!fullName) {
 
@@ -999,6 +708,7 @@ async function handleRegistration(
         return;
     }
 
+
     if (!email) {
 
         showMessage(
@@ -1010,18 +720,23 @@ async function handleRegistration(
         return;
     }
 
-    if (!phoneRaw) {
+
+    if (!country) {
 
         showMessage(
             statusElement,
-            "Please enter your phone number.",
+            "Please select your country.",
             "error"
         );
 
         return;
     }
 
-    if (!password || password.length < 6) {
+
+    if (
+        !password ||
+        password.length < 6
+    ) {
 
         showMessage(
             statusElement,
@@ -1032,7 +747,11 @@ async function handleRegistration(
         return;
     }
 
-    if (password !== confirmPassword) {
+
+    if (
+        password !==
+        confirmPassword
+    ) {
 
         showMessage(
             statusElement,
@@ -1042,6 +761,7 @@ async function handleRegistration(
 
         return;
     }
+
 
     if (!terms) {
 
@@ -1054,103 +774,133 @@ async function handleRegistration(
         return;
     }
 
-    if (!phoneVerified) {
 
-        /*
-           Also check Firebase profile so the UI state
-           cannot be trusted by itself.
-        */
+    /* =================================================
+       OPTIONAL PHONE VALIDATION
+    ================================================= */
 
-        const currentUser =
-            auth.currentUser;
+    let normalizedPhone = "";
 
-        if (currentUser) {
+    if (phoneRaw) {
 
-            const profile =
-                await getUserProfile(
-                    currentUser.uid
+        try {
+
+            normalizedPhone =
+                normalizePhoneNumber(
+                    country,
+                    phoneRaw
                 );
 
-            phoneVerified =
-                profile?.phoneVerified === true;
+        } catch (error) {
+
+            showMessage(
+                statusElement,
+                error.message,
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (
+            !validateE164Phone(
+                normalizedPhone
+            )
+        ) {
+
+            showMessage(
+                statusElement,
+                "Please enter a valid international phone number, or leave the phone field empty.",
+                "error"
+            );
+
+            return;
         }
     }
 
-    if (!phoneVerified) {
 
-        showMessage(
-            statusElement,
-            "Phone verification is required before creating the account.",
-            "error"
-        );
-
-        return;
-    }
+    /* =================================================
+       REGISTRATION
+    ================================================= */
 
     try {
 
-        let user =
-            auth.currentUser;
-
-        /*
-           If the user already exists because phone
-           verification created the pending account,
-           reuse that Firebase user.
-        */
-
-        if (!user) {
-
-            user =
-                await createPendingRegistrationAccount(
-                    {
-                        fullName,
-                        email,
-                        phone:
-                            normalizePhoneNumber(
-                                country,
-                                phoneRaw
-                            ),
-                        password
-                    }
-                );
-        }
-
-        await reload(user);
-
-        user =
-            auth.currentUser;
-
-        if (!user) {
-
-            throw new Error(
-                "Unable to access the Firebase account."
+        const registerButton =
+            document.getElementById(
+                "registerButton"
+            ) ||
+            document.getElementById(
+                "createAccountButton"
             );
+
+
+        if (registerButton) {
+
+            registerButton.disabled =
+                true;
         }
+
+
+        showMessage(
+            statusElement,
+            "Creating your TIPECO GROUP account...",
+            "info"
+        );
+
+
+        /* =============================================
+           CREATE FIREBASE ACCOUNT
+        ============================================= */
+
+        const user =
+            await createRegistrationAccount(
+                {
+                    fullName,
+                    email,
+                    country,
+                    phone:
+                        normalizedPhone,
+                    password
+                }
+            );
+
+
+        /* =============================================
+           EMAIL VERIFICATION
+        ============================================= */
+
+        await sendEmailVerification(
+            user
+        );
+
+
+        /* =============================================
+           FIRESTORE PROFILE
+
+           Keep emailVerified false until
+           Firebase confirms the email.
+        ============================================= */
 
         await updateUserProfile(
             user.uid,
             {
-                uid: user.uid,
+
+                uid:
+                    user.uid,
 
                 fullName,
 
-                email: user.email,
+                email:
+                    user.email,
 
-                phone:
-                    user.phoneNumber ||
-                    normalizePhoneNumber(
-                        country,
-                        phoneRaw
-                    ),
+                country,
 
                 role:
                     GENERAL_USER_ROLE,
 
                 emailVerified:
-                    user.emailVerified === true,
-
-                phoneVerified:
-                    true,
+                    false,
 
                 accountStatus:
                     "pending_verification",
@@ -1160,36 +910,67 @@ async function handleRegistration(
             }
         );
 
-        /*
-           Email verification is sent only after
-           phone verification has succeeded.
-        */
 
-        if (!user.emailVerified) {
+        /* =============================================
+           OPTIONAL PHONE
+        ============================================= */
 
-            await sendEmailVerification(
-                user
+        if (normalizedPhone) {
+
+            await updateUserProfile(
+                user.uid,
+                {
+                    phone:
+                        normalizedPhone,
+
+                    updatedAt:
+                        serverTimestamp()
+                }
+            );
+
+        } else {
+
+            await updateUserProfile(
+                user.uid,
+                {
+                    phone:
+                        "",
+
+                    updatedAt:
+                        serverTimestamp()
+                }
             );
         }
 
+
+        /* =============================================
+           SUCCESS
+        ============================================= */
+
         showMessage(
             statusElement,
-            "Account created. Please verify your email before logging in.",
+            "Account created successfully. Please check your email and click the verification link before logging in.",
             "success"
         );
+
 
         const emailVerificationSection =
             document.getElementById(
                 "emailVerificationSection"
             );
 
-        if (emailVerificationSection) {
+
+        if (
+            emailVerificationSection
+        ) {
 
             emailVerificationSection.style.display =
                 "block";
         }
 
+
         clearTipecoSession();
+
 
     } catch (error) {
 
@@ -1198,11 +979,32 @@ async function handleRegistration(
             error
         );
 
+
         showMessage(
             statusElement,
-            getFirebaseErrorMessage(error),
+            getFirebaseErrorMessage(
+                error
+            ),
             "error"
         );
+
+
+    } finally {
+
+        const registerButton =
+            document.getElementById(
+                "registerButton"
+            ) ||
+            document.getElementById(
+                "createAccountButton"
+            );
+
+
+        if (registerButton) {
+
+            registerButton.disabled =
+                false;
+        }
     }
 }
 
@@ -1223,6 +1025,7 @@ async function verifyEmailAddress() {
         const user =
             auth.currentUser;
 
+
         if (!user) {
 
             showMessage(
@@ -1234,21 +1037,41 @@ async function verifyEmailAddress() {
             return;
         }
 
-        await reload(user);
+
+        /* =============================================
+           Refresh Firebase Auth state
+        ============================================= */
+
+        await reload(
+            user
+        );
+
 
         const currentUser =
             auth.currentUser;
 
-        const profile =
-            await getUserProfile(
-                currentUser.uid
+
+        if (!currentUser) {
+
+            showMessage(
+                statusElement,
+                "Your Firebase session could not be found. Please register or log in again.",
+                "error"
             );
+
+            return;
+        }
+
+
+        /* =============================================
+           EMAIL CHECK ONLY
+
+           Phone verification is NOT required.
+        ============================================= */
 
         const emailVerified =
             currentUser.emailVerified === true;
 
-        const phoneIsVerified =
-            profile?.phoneVerified === true;
 
         if (!emailVerified) {
 
@@ -1261,23 +1084,20 @@ async function verifyEmailAddress() {
             return;
         }
 
-        if (!phoneIsVerified) {
 
-            showMessage(
-                statusElement,
-                "Your phone number must also be verified.",
-                "error"
-            );
+        /* =============================================
+           UPDATE FIRESTORE
 
-            return;
-        }
+           Email verification is now complete.
+           Account becomes ACTIVE.
+        ============================================= */
 
         await updateUserProfile(
             currentUser.uid,
             {
-                emailVerified: true,
 
-                phoneVerified: true,
+                emailVerified:
+                    true,
 
                 accountStatus:
                     "active",
@@ -1287,15 +1107,21 @@ async function verifyEmailAddress() {
             }
         );
 
+
         showMessage(
             statusElement,
-            "Email and phone are both verified. Your TIPECO GROUP account is now active.",
+            "Your email has been verified successfully. Your TIPECO GROUP account is now active.",
             "success"
         );
 
+
         clearTipecoSession();
 
-        await signOut(auth);
+
+        await signOut(
+            auth
+        );
+
 
         setTimeout(
             () => {
@@ -1307,6 +1133,7 @@ async function verifyEmailAddress() {
             1200
         );
 
+
     } catch (error) {
 
         console.error(
@@ -1314,9 +1141,12 @@ async function verifyEmailAddress() {
             error
         );
 
+
         showMessage(
             statusElement,
-            getFirebaseErrorMessage(error),
+            getFirebaseErrorMessage(
+                error
+            ),
             "error"
         );
     }
@@ -1335,22 +1165,31 @@ async function handleLogin(
         event.preventDefault();
     }
 
+
     const email =
         document.getElementById(
             "login"
-        )?.value?.trim().toLowerCase() || "";
+        )?.value
+            ?.trim()
+            .toLowerCase() || "";
+
 
     const password =
         document.getElementById(
             "password"
         )?.value || "";
 
+
     const statusElement =
         document.getElementById(
             "loginStatus"
         );
 
-    if (!email || !password) {
+
+    if (
+        !email ||
+        !password
+    ) {
 
         showMessage(
             statusElement,
@@ -1361,7 +1200,19 @@ async function handleLogin(
         return;
     }
 
+
     try {
+
+        showMessage(
+            statusElement,
+            "Signing you in...",
+            "info"
+        );
+
+
+        /* =============================================
+           FIREBASE LOGIN
+        ============================================= */
 
         const credential =
             await signInWithEmailAndPassword(
@@ -1370,19 +1221,35 @@ async function handleLogin(
                 password
             );
 
+
         const user =
             credential.user;
 
-        await reload(user);
+
+        await reload(
+            user
+        );
+
 
         const currentUser =
             auth.currentUser;
 
-        /*
-           Email verification is mandatory.
-        */
 
-        if (!currentUser.emailVerified) {
+        if (!currentUser) {
+
+            throw new Error(
+                "Unable to access the Firebase account."
+            );
+        }
+
+
+        /* =============================================
+           EMAIL VERIFICATION REQUIRED
+        ============================================= */
+
+        if (
+            currentUser.emailVerified !== true
+        ) {
 
             showMessage(
                 statusElement,
@@ -1390,19 +1257,32 @@ async function handleLogin(
                 "error"
             );
 
-            await signOut(auth);
+
+            await signOut(
+                auth
+            );
+
 
             return;
         }
+
+
+        /* =============================================
+           FIRESTORE PROFILE
+        ============================================= */
 
         const profile =
             await getUserProfile(
                 currentUser.uid
             );
 
+
         if (!profile) {
 
-            await signOut(auth);
+            await signOut(
+                auth
+            );
+
 
             showMessage(
                 statusElement,
@@ -1410,22 +1290,30 @@ async function handleLogin(
                 "error"
             );
 
+
             return;
         }
 
-        /*
-           Account blocking/suspension.
-        */
+
+        /* =============================================
+           BLOCKED / SUSPENDED
+        ============================================= */
 
         const status =
-            getAccountStatus(profile);
+            getAccountStatus(
+                profile
+            );
+
 
         if (
             status === "blocked" ||
             status === "suspended"
         ) {
 
-            await signOut(auth);
+            await signOut(
+                auth
+            );
+
 
             showMessage(
                 statusElement,
@@ -1433,46 +1321,33 @@ async function handleLogin(
                 "error"
             );
 
-            return;
-        }
-
-        /*
-           Mandatory phone verification.
-        */
-
-        if (profile.phoneVerified !== true) {
-
-            await signOut(auth);
-
-            showMessage(
-                statusElement,
-                "Please verify your phone number before logging in.",
-                "error"
-            );
 
             return;
         }
 
-        /*
-           Account becomes active ONLY when
-           BOTH verification requirements are true.
-        */
+
+        /* =============================================
+           ACCOUNT ACTIVE
+
+           Email verification is the only
+           verification requirement.
+        ============================================= */
 
         if (
-            currentUser.emailVerified === true &&
-            profile.phoneVerified === true
+            currentUser.emailVerified === true
         ) {
 
             if (
-                profile.accountStatus !== "active"
+                profile.accountStatus !==
+                "active"
             ) {
 
                 await updateUserProfile(
                     currentUser.uid,
                     {
-                        emailVerified: true,
 
-                        phoneVerified: true,
+                        emailVerified:
+                            true,
 
                         accountStatus:
                             "active",
@@ -1482,22 +1357,34 @@ async function handleLogin(
                     }
                 );
 
+
+                profile.emailVerified =
+                    true;
+
                 profile.accountStatus =
                     "active";
             }
         }
+
+
+        /* =============================================
+           SAVE SESSION CONVENIENCE DATA
+        ============================================= */
 
         saveTipecoSession(
             currentUser,
             profile
         );
 
-        /*
-           Owner dashboard.
-        */
+
+        /* =============================================
+           OWNER DASHBOARD
+        ============================================= */
 
         if (
-            isTipecoOwner(profile)
+            isTipecoOwner(
+                profile
+            )
         ) {
 
             window.location.href =
@@ -1506,12 +1393,14 @@ async function handleLogin(
             return;
         }
 
-        /*
-           General users.
-        */
+
+        /* =============================================
+           GENERAL USERS
+        ============================================= */
 
         window.location.href =
             DEFAULT_HOME;
+
 
     } catch (error) {
 
@@ -1520,9 +1409,12 @@ async function handleLogin(
             error
         );
 
+
         showMessage(
             statusElement,
-            getFirebaseErrorMessage(error),
+            getFirebaseErrorMessage(
+                error
+            ),
             "error"
         );
     }
@@ -1539,101 +1431,162 @@ async function () {
     return new Promise(
         (resolve) => {
 
-            let completed = false;
+            let completed =
+                false;
 
-            const finish = (
-                result
-            ) => {
 
-                if (completed) {
-                    return;
-                }
+            const finish =
+                (result) => {
 
-                completed = true;
+                    if (
+                        completed
+                    ) {
+                        return;
+                    }
 
-                resolve(result);
-            };
+
+                    completed =
+                        true;
+
+
+                    resolve(
+                        result
+                    );
+                };
+
 
             const unsubscribe =
                 onAuthStateChanged(
                     auth,
                     async (user) => {
 
+                        /* =================================
+                           NO USER
+                        ================================= */
+
                         if (!user) {
 
                             unsubscribe();
 
+
                             window.location.href =
                                 LOGIN_PAGE;
 
-                            finish(false);
+
+                            finish(
+                                false
+                            );
+
 
                             return;
                         }
 
+
                         try {
 
-                            await reload(user);
+                            /* =============================
+                               REFRESH AUTH STATE
+                            ============================= */
+
+                            await reload(
+                                user
+                            );
+
 
                             const currentUser =
                                 auth.currentUser;
 
-                            if (
-                                !currentUser.emailVerified
-                            ) {
 
-                                await signOut(auth);
+                            if (!currentUser) {
 
                                 unsubscribe();
+
 
                                 window.location.href =
                                     LOGIN_PAGE;
 
-                                finish(false);
+
+                                finish(
+                                    false
+                                );
+
 
                                 return;
                             }
+
+
+                            /* =============================
+                               EMAIL VERIFICATION
+                            ============================= */
+
+                            if (
+                                currentUser.emailVerified !==
+                                true
+                            ) {
+
+                                await signOut(
+                                    auth
+                                );
+
+
+                                unsubscribe();
+
+
+                                window.location.href =
+                                    LOGIN_PAGE;
+
+
+                                finish(
+                                    false
+                                );
+
+
+                                return;
+                            }
+
+
+                            /* =============================
+                               FIRESTORE PROFILE
+                            ============================= */
 
                             const profile =
                                 await getUserProfile(
                                     currentUser.uid
                                 );
 
+
                             if (!profile) {
 
-                                await signOut(auth);
+                                await signOut(
+                                    auth
+                                );
+
 
                                 unsubscribe();
+
 
                                 window.location.href =
                                     LOGIN_PAGE;
 
-                                finish(false);
+
+                                finish(
+                                    false
+                                );
+
 
                                 return;
                             }
 
+
+                            /* =============================
+                               OWNER ROLE
+                            ============================= */
+
                             if (
-                                profile.phoneVerified !== true
+                                !isTipecoOwner(
+                                    profile
+                                )
                             ) {
-
-                                await signOut(auth);
-
-                                unsubscribe();
-
-                                window.location.href =
-                                    LOGIN_PAGE;
-
-                                finish(false);
-
-                                return;
-                            }
-
-                            if (
-    !isTipecoOwner(
-        profile
-    )
-) {
 
                                 if (
                                     PUBLIC_OWNER_FORBIDDEN
@@ -1643,44 +1596,72 @@ async function () {
                                         auth
                                     );
 
+
                                     unsubscribe();
+
 
                                     window.location.href =
                                         DEFAULT_HOME;
 
-                                    finish(false);
+
+                                    finish(
+                                        false
+                                    );
+
 
                                     return;
                                 }
                             }
+
+
+                            /* =============================
+                               ACCOUNT STATUS
+                            ============================= */
 
                             const status =
                                 getAccountStatus(
                                     profile
                                 );
 
+
                             if (
-                                status === "blocked" ||
-                                status === "suspended"
+                                status ===
+                                    "blocked" ||
+                                status ===
+                                    "suspended"
                             ) {
 
                                 await signOut(
                                     auth
                                 );
 
+
                                 unsubscribe();
+
 
                                 window.location.href =
                                     LOGIN_PAGE;
 
-                                finish(false);
+
+                                finish(
+                                    false
+                                );
+
 
                                 return;
                             }
 
+
+                            /* =============================
+                               OWNER ACCOUNT ACTIVE
+
+                               IMPORTANT:
+                               No phone verification.
+                            ============================= */
+
                             if (
-                                currentUser.emailVerified &&
-                                profile.phoneVerified === true
+                                currentUser.emailVerified ===
+                                true
                             ) {
 
                                 if (
@@ -1691,9 +1672,9 @@ async function () {
                                     await updateUserProfile(
                                         currentUser.uid,
                                         {
-                                            emailVerified: true,
 
-                                            phoneVerified: true,
+                                            emailVerified:
+                                                true,
 
                                             accountStatus:
                                                 "active",
@@ -1703,24 +1684,39 @@ async function () {
                                         }
                                     );
 
+
+                                    profile.emailVerified =
+                                        true;
+
                                     profile.accountStatus =
                                         "active";
                                 }
                             }
+
+
+                            /* =============================
+                               SESSION
+                            ============================= */
 
                             saveTipecoSession(
                                 currentUser,
                                 profile
                             );
 
+
                             unsubscribe();
 
-                            finish({
-                                user:
-                                    currentUser,
 
-                                profile
-                            });
+                            finish(
+                                {
+                                    user:
+                                        currentUser,
+
+                                    profile:
+                                        profile
+                                }
+                            );
+
 
                         } catch (error) {
 
@@ -1729,16 +1725,34 @@ async function () {
                                 error
                             );
 
+
                             unsubscribe();
 
-                            await signOut(
-                                auth
-                            );
+
+                            try {
+
+                                await signOut(
+                                    auth
+                                );
+
+                            } catch (
+                                signOutError
+                            ) {
+
+                                console.warn(
+                                    "TIPECO owner sign-out warning:",
+                                    signOutError
+                                );
+                            }
+
 
                             window.location.href =
                                 LOGIN_PAGE;
 
-                            finish(false);
+
+                            finish(
+                                false
+                            );
                         }
                     }
                 );
@@ -1758,10 +1772,15 @@ async function () {
 
         clearTipecoSession();
 
-        await signOut(auth);
+
+        await signOut(
+            auth
+        );
+
 
         window.location.href =
             LOGIN_PAGE;
+
 
     } catch (error) {
 
@@ -1775,6 +1794,8 @@ async function () {
 
 /* =====================================================
    RESET PASSWORD
+
+   EMAIL ONLY
 ===================================================== */
 
 window.tipecoResetPassword =
@@ -1783,9 +1804,12 @@ async function (
 ) {
 
     const normalizedEmail =
-        String(email || "")
+        String(
+            email || ""
+        )
             .trim()
             .toLowerCase();
+
 
     if (!normalizedEmail) {
 
@@ -1794,10 +1818,12 @@ async function (
         );
     }
 
+
     await sendPasswordResetEmail(
         auth,
         normalizedEmail
     );
+
 
     return true;
 };
@@ -1824,9 +1850,11 @@ async function () {
     const user =
         auth.currentUser;
 
+
     if (!user) {
         return null;
     }
+
 
     return await getUserProfile(
         user.uid
@@ -1844,37 +1872,21 @@ async function () {
     const user =
         auth.currentUser;
 
+
     if (!user) {
         return false;
     }
+
 
     const profile =
         await getUserProfile(
             user.uid
         );
 
+
     return isTipecoOwner(
         profile
     );
-};
-
-
-/* =====================================================
-   PHONE VERIFICATION BRIDGES
-   Used by register.html v5.0
-===================================================== */
-
-window.tipecoSendPhoneCode =
-async function () {
-
-    return await sendPhoneVerificationCode();
-};
-
-
-window.tipecoVerifyPhoneCode =
-async function () {
-
-    return await verifyPhoneVerificationCode();
 };
 
 
@@ -1920,17 +1932,22 @@ async function (
 
 
 /* =====================================================
-   AUTO CONNECT REGISTER FORM
+   AUTO CONNECT FORMS
 ===================================================== */
 
 document.addEventListener(
     "DOMContentLoaded",
     () => {
 
+        /* =============================================
+           REGISTER FORM
+        ============================================= */
+
         const registerForm =
             document.getElementById(
                 "registerForm"
             );
+
 
         if (registerForm) {
 
@@ -1940,10 +1957,16 @@ document.addEventListener(
             );
         }
 
+
+        /* =============================================
+           LOGIN FORM
+        ============================================= */
+
         const loginForm =
             document.getElementById(
                 "loginForm"
             );
+
 
         if (loginForm) {
 
@@ -1953,36 +1976,16 @@ document.addEventListener(
             );
         }
 
-        const sendPhoneButton =
-            document.getElementById(
-                "sendPhoneCode"
-            );
 
-        if (sendPhoneButton) {
-
-            sendPhoneButton.addEventListener(
-                "click",
-                sendPhoneVerificationCode
-            );
-        }
-
-        const verifyPhoneButton =
-            document.getElementById(
-                "verifyPhoneButton"
-            );
-
-        if (verifyPhoneButton) {
-
-            verifyPhoneButton.addEventListener(
-                "click",
-                verifyPhoneVerificationCode
-            );
-        }
+        /* =============================================
+           EMAIL VERIFICATION BUTTON
+        ============================================= */
 
         const verifyEmailButton =
             document.getElementById(
                 "verifyEmailButton"
             );
+
 
         if (verifyEmailButton) {
 
@@ -2004,18 +2007,22 @@ onAuthStateChanged(
     async (user) => {
 
         if (!user) {
-
             return;
         }
 
+
         try {
 
-            await reload(user);
+            await reload(
+                user
+            );
+
 
             const profile =
                 await getUserProfile(
                     user.uid
                 );
+
 
             if (!profile) {
 
@@ -2023,13 +2030,17 @@ onAuthStateChanged(
                     "TIPECO: Authenticated user has no Firestore profile."
                 );
 
+
                 return;
             }
+
 
             console.log(
                 "TIPECO Auth State:",
                 {
-                    uid: user.uid,
+
+                    uid:
+                        user.uid,
 
                     email:
                         user.email,
@@ -2037,8 +2048,8 @@ onAuthStateChanged(
                     emailVerified:
                         user.emailVerified,
 
-                    phoneVerified:
-                        profile.phoneVerified === true,
+                    country:
+                        profile.country,
 
                     accountStatus:
                         profile.accountStatus,
@@ -2047,6 +2058,7 @@ onAuthStateChanged(
                         profile.role
                 }
             );
+
 
         } catch (error) {
 
@@ -2060,23 +2072,9 @@ onAuthStateChanged(
 
 
 /* =====================================================
-   CLEANUP
-===================================================== */
-
-window.addEventListener(
-    "beforeunload",
-    () => {
-
-        clearRecaptcha();
-
-    }
-);
-
-
-/* =====================================================
    VERSION
 ===================================================== */
 
 console.log(
-    "TIPECO GROUP auth.js v8.0 loaded successfully."
+    "TIPECO GROUP auth.js v9.0 loaded successfully."
 );
