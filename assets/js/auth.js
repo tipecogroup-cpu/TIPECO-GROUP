@@ -689,7 +689,7 @@ async function handleRegistration(
 
     const statusElement =
         document.getElementById(
-            "registerStatus"
+            "registerMessage"
         );
 
 
