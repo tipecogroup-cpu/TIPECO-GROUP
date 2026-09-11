@@ -1630,10 +1630,10 @@ async function () {
                             }
 
                             if (
-                                !isTipecoOwner(
-                                    profile
-                                )
-                            {
+    !isTipecoOwner(
+        profile
+    )
+) {
 
                                 if (
                                     PUBLIC_OWNER_FORBIDDEN
