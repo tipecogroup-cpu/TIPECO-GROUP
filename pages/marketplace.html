@@ -4,8 +4,9 @@
 <head>
 
     <!-- =====================================================
-         TIPECO GROUP - BUY & SELL
-         Marketplace Version 2.0
+         TIPECO GROUP - MARKETPLACE
+         REAL PROJECT
+         Marketplace Version 3.0
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -14,7 +15,7 @@
           content="width=device-width, initial-scale=1.0">
 
     <meta name="description"
-          content="TIPECO GROUP Buy & Sell - Discover verified products, vehicles, properties and more.">
+          content="TIPECO GROUP Marketplace - Buy, Sell, Rent and Jobs through a controlled and trusted marketplace.">
 
     <meta name="author"
           content="TIPECO GROUP">
@@ -22,7 +23,7 @@
     <meta name="theme-color"
           content="#0D47A1">
 
-    <title>Buy & Sell | TIPECO GROUP</title>
+    <title>TIPECO MARKETPLACE | TIPECO GROUP</title>
 
 
     <!-- =====================================================
@@ -43,6 +44,163 @@
 
     <link rel="stylesheet"
           href="../assets/css/marketplace.css">
+
+
+    <style>
+
+        /* =================================================
+           TIPECO MARKETPLACE - CONNECTION LAYER
+           ================================================= */
+
+        .marketplace-mode-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .marketplace-mode-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 100px;
+            padding: 11px 18px;
+            border-radius: 8px;
+            border: 1px solid rgba(13, 71, 161, 0.18);
+            background: #ffffff;
+            color: #0D47A1;
+            text-decoration: none;
+            font-weight: 700;
+            transition: 0.2s ease;
+        }
+
+        .marketplace-mode-btn:hover,
+        .marketplace-mode-btn.active {
+            background: #0D47A1;
+            color: #ffffff;
+        }
+
+        .marketplace-mode-panel {
+            display: none;
+        }
+
+        .marketplace-mode-panel.active {
+            display: block;
+        }
+
+        .marketplace-job-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .marketplace-job-action {
+            display: block;
+            padding: 22px;
+            border-radius: 12px;
+            border: 1px solid rgba(13, 71, 161, 0.12);
+            background: #ffffff;
+            color: inherit;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+        .marketplace-job-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(13, 71, 161, 0.10);
+        }
+
+        .marketplace-job-action strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #0D47A1;
+        }
+
+        .marketplace-category-note {
+            margin-top: 12px;
+            font-size: 0.92rem;
+            opacity: 0.75;
+        }
+
+        .marketplace-listing-status {
+            margin-bottom: 18px;
+            font-size: 0.92rem;
+        }
+
+        .listing-empty {
+            padding: 45px 20px;
+            text-align: center;
+        }
+
+        .listing-empty h3 {
+            margin-bottom: 8px;
+        }
+
+        .marketplace-protected-note {
+            margin-top: 18px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: rgba(255, 193, 7, 0.10);
+            border: 1px solid rgba(255, 193, 7, 0.30);
+        }
+
+        .marketplace-loading {
+            padding: 35px 20px;
+            text-align: center;
+        }
+
+        .marketplace-error {
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(198, 40, 40, 0.08);
+            border: 1px solid rgba(198, 40, 40, 0.20);
+            color: #8b1e1e;
+        }
+
+        .marketplace-category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .marketplace-category-link {
+            display: block;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(13, 71, 161, 0.12);
+            background: #ffffff;
+            color: inherit;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+        .marketplace-category-link:hover {
+            border-color: #1976D2;
+            transform: translateY(-1px);
+        }
+
+        .marketplace-category-link strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #0D47A1;
+        }
+
+        @media (max-width: 700px) {
+
+            .marketplace-mode-nav {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .marketplace-mode-btn {
+                min-width: 0;
+            }
+
+        }
+
+    </style>
 
 </head>
 
@@ -84,7 +242,7 @@
                 <a href="marketplace.html"
                    class="active">
 
-                    Buy &amp; Sell
+                    Marketplace
 
                 </a>
 
@@ -149,14 +307,15 @@
                 <div class="marketplace-hero-content">
 
 
-                    <p class="marketplace-label">
+                    <p class="marketplace-label"
+                       id="marketplaceModeLabel">
 
-                        TIPECO GROUP BUY &amp; SELL
+                        TIPECO MARKETPLACE
 
                     </p>
 
 
-                    <h1>
+                    <h1 id="marketplaceHeroTitle">
 
                         Discover What You Need.
                         <span>Buy With Confidence.</span>
@@ -164,10 +323,11 @@
                     </h1>
 
 
-                    <p>
+                    <p id="marketplaceHeroDescription">
 
-                        Explore products, vehicles, properties
-                        and more through TIPECO GROUP.
+                        Browse approved listings, rentals,
+                        products, vehicles, properties and
+                        opportunities through TIPECO GROUP.
 
                     </p>
 
@@ -207,6 +367,48 @@
                     </form>
 
 
+                    <!-- BUY / SELL / RENT / JOBS -->
+
+                    <div class="marketplace-mode-nav">
+
+                        <a href="marketplace.html?type=buy"
+                           class="marketplace-mode-btn"
+                           data-marketplace-type="buy">
+
+                            BUY
+
+                        </a>
+
+
+                        <a href="marketplace.html?type=sell"
+                           class="marketplace-mode-btn"
+                           data-marketplace-type="sell">
+
+                            SELL
+
+                        </a>
+
+
+                        <a href="marketplace.html?type=rent"
+                           class="marketplace-mode-btn"
+                           data-marketplace-type="rent">
+
+                            RENT
+
+                        </a>
+
+
+                        <a href="marketplace.html?type=job"
+                           class="marketplace-mode-btn"
+                           data-marketplace-type="job">
+
+                            JOBS
+
+                        </a>
+
+                    </div>
+
+
                 </div>
 
             </div>
@@ -216,7 +418,7 @@
 
 
         <!-- =================================================
-             CATEGORIES
+             MARKETPLACE CATEGORIES
         ================================================== -->
 
         <section class="marketplace-categories">
@@ -231,11 +433,11 @@
                     </p>
 
                     <h2>
-                        Browse Categories
+                        Marketplace Categories
                     </h2>
 
                     <p>
-                        Find what you are looking for quickly.
+                        Browse approved TIPECO GROUP categories.
                     </p>
 
                 </div>
@@ -244,10 +446,9 @@
                 <div class="category-grid">
 
 
-                    <button
-                        type="button"
-                        class="category-card active"
-                        data-category="all">
+                    <button type="button"
+                            class="category-card active"
+                            data-category="all">
 
                         <span class="category-icon">
                             🛍️
@@ -264,10 +465,9 @@
                     </button>
 
 
-                    <button
-                        type="button"
-                        class="category-card"
-                        data-category="vehicles">
+                    <button type="button"
+                            class="category-card"
+                            data-category="vehicles">
 
                         <span class="category-icon">
                             🚗
@@ -284,10 +484,9 @@
                     </button>
 
 
-                    <button
-                        type="button"
-                        class="category-card"
-                        data-category="real-estate">
+                    <button type="button"
+                            class="category-card"
+                            data-category="real-estate">
 
                         <span class="category-icon">
                             🏠
@@ -304,10 +503,9 @@
                     </button>
 
 
-                    <button
-                        type="button"
-                        class="category-card"
-                        data-category="electronics">
+                    <button type="button"
+                            class="category-card"
+                            data-category="electronics">
 
                         <span class="category-icon">
                             📱
@@ -324,10 +522,9 @@
                     </button>
 
 
-                    <button
-                        type="button"
-                        class="category-card"
-                        data-category="home-furniture">
+                    <button type="button"
+                            class="category-card"
+                            data-category="home-furniture">
 
                         <span class="category-icon">
                             🛋️
@@ -344,25 +541,527 @@
                     </button>
 
 
-                    <button
-                        type="button"
-                        class="category-card"
-                        data-category="other">
+                    <button type="button"
+                            class="category-card"
+                            data-category="construction-products">
+
+                        <span class="category-icon">
+                            🧱
+                        </span>
+
+                        <strong>
+                            Construction Products
+                        </strong>
+
+                        <small>
+                            Building materials &amp; products
+                        </small>
+
+                    </button>
+
+
+                    <button type="button"
+                            class="category-card"
+                            data-category="paint-construction">
+
+                        <span class="category-icon">
+                            🎨
+                        </span>
+
+                        <strong>
+                            Paint &amp; Construction
+                        </strong>
+
+                        <small>
+                            Paints, coatings &amp; supplies
+                        </small>
+
+                    </button>
+
+
+                    <button type="button"
+                            class="category-card"
+                            data-category="services">
+
+                        <span class="category-icon">
+                            🛠️
+                        </span>
+
+                        <strong>
+                            Services
+                        </strong>
+
+                        <small>
+                            Professional services
+                        </small>
+
+                    </button>
+
+
+                    <button type="button"
+                            class="category-card"
+                            data-category="other">
 
                         <span class="category-icon">
                             📦
                         </span>
 
                         <strong>
-                            Other Products
+                            Other
                         </strong>
 
                         <small>
-                            Discover more products
+                            Other approved listings
                         </small>
 
                     </button>
 
+
+                </div>
+
+
+                <p class="marketplace-category-note">
+
+                    Browsing is free. Publication and protected
+                    marketplace actions are subject to TIPECO
+                    GROUP subscription and approval rules.
+
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             BUY MODE
+        ================================================== -->
+
+        <section class="marketplace-mode-panel"
+                 id="buyModePanel">
+
+            <div class="marketplace-container">
+
+
+                <div class="marketplace-section-header">
+
+                    <p class="marketplace-section-label">
+                        BUY
+                    </p>
+
+                    <h2>
+                        Find What You Need
+                    </h2>
+
+                    <p>
+                        Browse approved listings available
+                        through TIPECO GROUP.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             SELL MODE
+        ================================================== -->
+
+        <section class="marketplace-mode-panel"
+                 id="sellModePanel">
+
+            <div class="marketplace-container">
+
+                <div class="sell-content">
+
+
+                    <div>
+
+                        <p class="marketplace-section-label">
+                            SELL WITH TIPECO GROUP
+                        </p>
+
+
+                        <h2>
+                            Have Something to Sell?
+                        </h2>
+
+
+                        <p>
+
+                            Posting a listing requires the
+                            applicable TIPECO GROUP subscription.
+                            Subscription does not automatically
+                            approve a listing.
+
+                        </p>
+
+
+                        <div class="marketplace-protected-note">
+
+                            <strong>
+                                Subscription ≠ Approval
+                            </strong>
+
+                            <br>
+
+                            Every applicable listing remains
+                            subject to TIPECO GROUP review,
+                            verification and approval before
+                            becoming publicly available.
+
+                        </div>
+
+                    </div>
+
+
+                    <a href="dashboard.html#sell"
+                       class="marketplace-primary-btn">
+
+                        Create Listing →
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             RENT MODE
+        ================================================== -->
+
+        <section class="marketplace-mode-panel"
+                 id="rentModePanel">
+
+            <div class="marketplace-container">
+
+
+                <div class="marketplace-section-header">
+
+                    <p class="marketplace-section-label">
+                        RENT
+                    </p>
+
+                    <h2>
+                        Find Rental Opportunities
+                    </h2>
+
+                    <p>
+                        Browse approved rental listings.
+                    </p>
+
+                </div>
+
+
+                <div class="marketplace-category-grid">
+
+                    <a href="marketplace.html?type=rent&category=real-estate"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            🏠 Houses &amp; Apartments
+                        </strong>
+
+                        Residential rental opportunities.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=rent&category=real-estate"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            🏢 Commercial Property
+                        </strong>
+
+                        Shops, offices and commercial spaces.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=rent&category=vehicles"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            🚗 Vehicles
+                        </strong>
+
+                        Vehicles available for rent.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=rent&category=other"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            🛠️ Equipment
+                        </strong>
+
+                        Equipment and other rental opportunities.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=rent&category=home-furniture"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            🛋️ Furniture
+                        </strong>
+
+                        Furniture available for rent.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=rent&category=other"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            📦 Other
+                        </strong>
+
+                        Other approved rental listings.
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             JOBS MODE
+        ================================================== -->
+
+        <section class="marketplace-mode-panel"
+                 id="jobsModePanel">
+
+            <div class="marketplace-container">
+
+
+                <div class="marketplace-section-header">
+
+                    <p class="marketplace-section-label">
+                        JOBS
+                    </p>
+
+                    <h2>
+                        TIPECO GROUP Jobs
+                    </h2>
+
+                    <p>
+                        Find a job or find an employee through
+                        the controlled TIPECO GROUP platform.
+                    </p>
+
+                </div>
+
+
+                <div class="marketplace-job-actions">
+
+
+                    <a href="marketplace.html?type=job&jobAction=find-job"
+                       class="marketplace-job-action">
+
+                        <strong>
+                            🔎 Find a Job
+                        </strong>
+
+                        <span>
+                            Browse approved job opportunities
+                            by category.
+                        </span>
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=job&jobAction=find-employee"
+                       class="marketplace-job-action">
+
+                        <strong>
+                            👤 Find an Employee
+                        </strong>
+
+                        <span>
+                            Search approved employee profiles
+                            by skills, experience and category.
+                        </span>
+
+                    </a>
+
+                </div>
+
+
+                <div class="marketplace-category-grid">
+
+
+                    <a href="marketplace.html?type=job&jobCategory=construction"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            🏗️ Construction
+                        </strong>
+
+                        Construction opportunities.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=job&jobCategory=technology"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            💻 Technology / IT
+                        </strong>
+
+                        Technology and digital jobs.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=job&jobCategory=business-finance"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            💼 Business &amp; Finance
+                        </strong>
+
+                        Business and finance opportunities.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=job&jobCategory=sales-marketing"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            📣 Sales &amp; Marketing
+                        </strong>
+
+                        Sales and marketing opportunities.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=job&jobCategory=transport"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            🚚 Transport
+                        </strong>
+
+                        Driving and transport opportunities.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=job&jobCategory=hospitality"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            🏨 Hospitality
+                        </strong>
+
+                        Hotel, restaurant and hospitality jobs.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=job&jobCategory=security"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            🛡️ Security
+                        </strong>
+
+                        Security opportunities.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=job&jobCategory=domestic-work"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            🏠 Domestic Work
+                        </strong>
+
+                        Domestic work opportunities.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=job&jobCategory=skilled-trades"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            🔧 Skilled Trades
+                        </strong>
+
+                        Skilled and technical trades.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=job&jobCategory=agriculture"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            🌱 Agriculture
+                        </strong>
+
+                        Agriculture opportunities.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=job&jobCategory=healthcare"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            🏥 Healthcare
+                        </strong>
+
+                        Healthcare opportunities.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=job&jobCategory=education"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            🎓 Education
+                        </strong>
+
+                        Education opportunities.
+
+                    </a>
+
+
+                    <a href="marketplace.html?type=job&jobCategory=other"
+                       class="marketplace-category-link">
+
+                        <strong>
+                            📦 Other
+                        </strong>
+
+                        Other approved job opportunities.
+
+                    </a>
 
                 </div>
 
@@ -376,7 +1075,8 @@
              LISTINGS
         ================================================== -->
 
-        <section class="marketplace-listings">
+        <section class="marketplace-listings"
+                 id="listingsSection">
 
             <div class="marketplace-container">
 
@@ -390,13 +1090,13 @@
                             TRUSTED MARKETPLACE
                         </p>
 
-                        <h2>
-                            Verified Listings
+                        <h2 id="listingSectionTitle">
+                            Approved Listings
                         </h2>
 
-                        <p>
-                            Discover products and services from
-                            TIPECO GROUP users.
+                        <p id="listingSectionDescription">
+                            Only listings approved for public
+                            marketplace visibility should appear here.
                         </p>
 
                     </div>
@@ -432,6 +1132,14 @@
                 </div>
 
 
+                <div class="marketplace-listing-status"
+                     id="listingStatus">
+
+                    Loading approved listings...
+
+                </div>
+
+
 
                 <!-- =================================================
                      LISTING GRID
@@ -439,412 +1147,6 @@
 
                 <div class="listing-grid"
                      id="listingGrid">
-
-
-                    <!-- LISTING 1 -->
-
-                    <article
-                        class="listing-card"
-                        data-category="vehicles"
-                        data-title="Toyota RAV4"
-                        data-price="18500000"
-                        data-date="4">
-
-
-                        <div class="listing-image">
-
-                            <div class="listing-placeholder">
-                                🚗
-                            </div>
-
-
-                            <span class="verified-badge">
-                                ✓ Verified
-                            </span>
-
-
-                            <button
-                                type="button"
-                                class="save-listing"
-                                data-listing-id="rav4"
-                                aria-label="Save listing">
-
-                                ♡
-
-                            </button>
-
-                        </div>
-
-
-                        <div class="listing-content">
-
-                            <span class="listing-category">
-                                Vehicles
-                            </span>
-
-
-                            <h3>
-                                Toyota RAV4
-                            </h3>
-
-
-                            <p class="listing-location">
-                                📍 Kigali, Rwanda
-                            </p>
-
-
-                            <div class="listing-price">
-                                18,500,000 RWF
-                            </div>
-
-
-                            <div class="listing-footer">
-
-                                <span>
-                                    TIPECO Verified
-                                </span>
-
-
-                                <button
-                                    type="button"
-                                    class="view-listing-btn"
-                                    data-title="Toyota RAV4">
-
-                                    View Details →
-
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </article>
-
-
-
-                    <!-- LISTING 2 -->
-
-                    <article
-                        class="listing-card"
-                        data-category="real-estate"
-                        data-title="Modern Family House"
-                        data-price="85000000"
-                        data-date="3">
-
-
-                        <div class="listing-image">
-
-                            <div class="listing-placeholder">
-                                🏠
-                            </div>
-
-
-                            <span class="verified-badge">
-                                ✓ Verified
-                            </span>
-
-
-                            <button
-                                type="button"
-                                class="save-listing"
-                                data-listing-id="modern-house"
-                                aria-label="Save listing">
-
-                                ♡
-
-                            </button>
-
-                        </div>
-
-
-                        <div class="listing-content">
-
-                            <span class="listing-category">
-                                Real Estate
-                            </span>
-
-
-                            <h3>
-                                Modern Family House
-                            </h3>
-
-
-                            <p class="listing-location">
-                                📍 Kigali, Rwanda
-                            </p>
-
-
-                            <div class="listing-price">
-                                85,000,000 RWF
-                            </div>
-
-
-                            <div class="listing-footer">
-
-                                <span>
-                                    TIPECO Verified
-                                </span>
-
-
-                                <button
-                                    type="button"
-                                    class="view-listing-btn"
-                                    data-title="Modern Family House">
-
-                                    View Details →
-
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </article>
-
-
-
-                    <!-- LISTING 3 -->
-
-                    <article
-                        class="listing-card"
-                        data-category="electronics"
-                        data-title="Premium Smartphone"
-                        data-price="650000"
-                        data-date="2">
-
-
-                        <div class="listing-image">
-
-                            <div class="listing-placeholder">
-                                📱
-                            </div>
-
-
-                            <span class="verified-badge">
-                                ✓ Verified
-                            </span>
-
-
-                            <button
-                                type="button"
-                                class="save-listing"
-                                data-listing-id="smartphone"
-                                aria-label="Save listing">
-
-                                ♡
-
-                            </button>
-
-                        </div>
-
-
-                        <div class="listing-content">
-
-                            <span class="listing-category">
-                                Electronics
-                            </span>
-
-
-                            <h3>
-                                Premium Smartphone
-                            </h3>
-
-
-                            <p class="listing-location">
-                                📍 Kigali, Rwanda
-                            </p>
-
-
-                            <div class="listing-price">
-                                650,000 RWF
-                            </div>
-
-
-                            <div class="listing-footer">
-
-                                <span>
-                                    TIPECO Verified
-                                </span>
-
-
-                                <button
-                                    type="button"
-                                    class="view-listing-btn"
-                                    data-title="Premium Smartphone">
-
-                                    View Details →
-
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </article>
-
-
-
-                    <!-- LISTING 4 -->
-
-                    <article
-                        class="listing-card"
-                        data-category="home-furniture"
-                        data-title="Modern Sofa Set"
-                        data-price="850000"
-                        data-date="1">
-
-
-                        <div class="listing-image">
-
-                            <div class="listing-placeholder">
-                                🛋️
-                            </div>
-
-
-                            <span class="verified-badge">
-                                ✓ Verified
-                            </span>
-
-
-                            <button
-                                type="button"
-                                class="save-listing"
-                                data-listing-id="modern-sofa"
-                                aria-label="Save listing">
-
-                                ♡
-
-                            </button>
-
-                        </div>
-
-
-                        <div class="listing-content">
-
-                            <span class="listing-category">
-                                Home &amp; Furniture
-                            </span>
-
-
-                            <h3>
-                                Modern Sofa Set
-                            </h3>
-
-
-                            <p class="listing-location">
-                                📍 Kigali, Rwanda
-                            </p>
-
-
-                            <div class="listing-price">
-                                850,000 RWF
-                            </div>
-
-
-                            <div class="listing-footer">
-
-                                <span>
-                                    TIPECO Verified
-                                </span>
-
-
-                                <button
-                                    type="button"
-                                    class="view-listing-btn"
-                                    data-title="Modern Sofa Set">
-
-                                    View Details →
-
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </article>
-
-
-
-                    <!-- LISTING 5 -->
-
-                    <article
-                        class="listing-card"
-                        data-category="other"
-                        data-title="Office Equipment"
-                        data-price="350000"
-                        data-date="0">
-
-
-                        <div class="listing-image">
-
-                            <div class="listing-placeholder">
-                                📦
-                            </div>
-
-
-                            <span class="verified-badge">
-                                ✓ Verified
-                            </span>
-
-
-                            <button
-                                type="button"
-                                class="save-listing"
-                                data-listing-id="office-equipment"
-                                aria-label="Save listing">
-
-                                ♡
-
-                            </button>
-
-                        </div>
-
-
-                        <div class="listing-content">
-
-                            <span class="listing-category">
-                                Other Products
-                            </span>
-
-
-                            <h3>
-                                Office Equipment
-                            </h3>
-
-
-                            <p class="listing-location">
-                                📍 Kigali, Rwanda
-                            </p>
-
-
-                            <div class="listing-price">
-                                350,000 RWF
-                            </div>
-
-
-                            <div class="listing-footer">
-
-                                <span>
-                                    TIPECO Verified
-                                </span>
-
-
-                                <button
-                                    type="button"
-                                    class="view-listing-btn"
-                                    data-title="Office Equipment">
-
-                                    View Details →
-
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </article>
-
-
                 </div>
 
 
@@ -859,67 +1161,40 @@
                         🔎
                     </div>
 
-                    <h3>
-                        No listings found
+                    <h3 id="listingEmptyTitle">
+                        No approved listings found
                     </h3>
 
-                    <p>
+                    <p id="listingEmptyText">
                         Try another search or category.
                     </p>
 
                 </div>
 
 
-            </div>
+                <!-- LOADING -->
 
-        </section>
+                <div class="marketplace-loading"
+                     id="listingLoading"
+                     style="display:none;">
 
-
-
-        <!-- =================================================
-             SELL SECTION
-        ================================================== -->
-
-        <section class="sell-section">
-
-            <div class="marketplace-container">
-
-                <div class="sell-content">
-
-
-                    <div>
-
-                        <p class="marketplace-section-label">
-                            SELL WITH TIPECO GROUP
-                        </p>
-
-
-                        <h2>
-                            Have Something to Sell?
-                        </h2>
-
-
-                        <p>
-
-                            Create your listing and connect
-                            with potential buyers through
-                            TIPECO GROUP.
-
-                        </p>
-
-                    </div>
-
-
-                    <a href="dashboard.html"
-                       class="marketplace-primary-btn">
-
-                        Start Selling →
-
-                    </a>
-
+                    Loading...
 
                 </div>
 
+
+                <!-- ERROR -->
+
+                <div class="marketplace-error"
+                     id="listingError"
+                     style="display:none;">
+
+                    Unable to load marketplace listings
+                    right now.
+
+                </div>
+
+
             </div>
 
         </section>
@@ -927,7 +1202,7 @@
 
 
         <!-- =================================================
-             VERIFICATION
+             PROTECTION / VERIFICATION
         ================================================== -->
 
         <section class="verification-section">
@@ -950,17 +1225,18 @@
 
 
                         <h2>
-                            Buy With More Confidence
+                            Controlled Marketplace
                         </h2>
 
 
                         <p>
 
-                            TIPECO GROUP is designed to help
-                            buyers discover reliable listings.
-                            Verified listings may go through
-                            a review process before receiving
-                            the TIPECO Verified status.
+                            TIPECO GROUP is designed around
+                            controlled publication, review and
+                            verification. A subscription does
+                            not automatically authorize a
+                            listing, job post or public
+                            publication.
 
                         </p>
 
@@ -1042,249 +1318,782 @@
 
 
     <!-- =====================================================
-         AUTH JAVASCRIPT
+         FIREBASE MARKETPLACE
     ====================================================== -->
 
-    <script src="../assets/js/auth.js"></script>
+    <script type="module">
+
+        import {
+            auth
+        } from "../assets/js/firebase-config.js";
 
 
-
-    <!-- =====================================================
-         MARKETPLACE JAVASCRIPT
-    ====================================================== -->
-
-    <script>
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        function () {
+        import {
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 
-            /* =================================================
-               LOGIN CHECK
-            ================================================== */
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            doc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-            const loggedIn =
-                localStorage.getItem("tipecoLoggedIn") ||
-                sessionStorage.getItem("tipecoLoggedIn");
+
+        /* =================================================
+           FIRESTORE
+        ================================================== */
+
+        const db = getFirestore();
 
 
-            if (loggedIn !== "true") {
+        /* =================================================
+           DOM
+        ================================================== */
 
-                alert(
-                    "Please login to access TIPECO GROUP Buy & Sell."
-                );
+        const searchForm =
+            document.getElementById(
+                "marketplaceSearchForm"
+            );
 
-                window.location.href =
-                    "login.html";
 
-                return;
+        const searchInput =
+            document.getElementById(
+                "marketplaceSearch"
+            );
+
+
+        const listingGrid =
+            document.getElementById(
+                "listingGrid"
+            );
+
+
+        const listingEmpty =
+            document.getElementById(
+                "listingEmpty"
+            );
+
+
+        const listingEmptyTitle =
+            document.getElementById(
+                "listingEmptyTitle"
+            );
+
+
+        const listingEmptyText =
+            document.getElementById(
+                "listingEmptyText"
+            );
+
+
+        const listingLoading =
+            document.getElementById(
+                "listingLoading"
+            );
+
+
+        const listingError =
+            document.getElementById(
+                "listingError"
+            );
+
+
+        const listingStatus =
+            document.getElementById(
+                "listingStatus"
+            );
+
+
+        const listingSort =
+            document.getElementById(
+                "listingSort"
+            );
+
+
+        const listingSectionTitle =
+            document.getElementById(
+                "listingSectionTitle"
+            );
+
+
+        const listingSectionDescription =
+            document.getElementById(
+                "listingSectionDescription"
+            );
+
+
+        const categoryButtons =
+            document.querySelectorAll(
+                ".category-card"
+            );
+
+
+        const modeButtons =
+            document.querySelectorAll(
+                "[data-marketplace-type]"
+            );
+
+
+        const userNameElements =
+            document.querySelectorAll(
+                "[data-user-name]"
+            );
+
+
+        const modePanels = {
+
+            buy:
+                document.getElementById(
+                    "buyModePanel"
+                ),
+
+            sell:
+                document.getElementById(
+                    "sellModePanel"
+                ),
+
+            rent:
+                document.getElementById(
+                    "rentModePanel"
+                ),
+
+            job:
+                document.getElementById(
+                    "jobsModePanel"
+                )
+
+        };
+
+
+        const heroTitle =
+            document.getElementById(
+                "marketplaceHeroTitle"
+            );
+
+
+        const heroDescription =
+            document.getElementById(
+                "marketplaceHeroDescription"
+            );
+
+
+        const heroLabel =
+            document.getElementById(
+                "marketplaceModeLabel"
+            );
+
+
+        /* =================================================
+           URL STATE
+        ================================================== */
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+
+        let activeType =
+            normalizeType(
+                params.get("type") || "buy"
+            );
+
+
+        let activeCategory =
+            normalizeCategory(
+                params.get("category") || "all"
+            );
+
+
+        let activeSearch =
+            (
+                params.get("search") || ""
+            ).trim();
+
+
+        const jobAction =
+            (
+                params.get("jobAction") || ""
+            ).trim();
+
+
+        const jobCategory =
+            normalizeJobCategory(
+                params.get("jobCategory") || ""
+            );
+
+
+        let allListings = [];
+
+
+        /* =================================================
+           NORMALIZATION
+        ================================================== */
+
+        function normalizeType(value) {
+
+            const type =
+                String(value || "")
+                    .trim()
+                    .toLowerCase();
+
+
+            if (type === "jobs") {
+                return "job";
+            }
+
+
+            if (type === "rentals") {
+                return "rent";
+            }
+
+
+            if (
+                type === "buy" ||
+                type === "sell" ||
+                type === "rent" ||
+                type === "job"
+            ) {
+
+                return type;
 
             }
 
 
+            return "buy";
 
-            /* =================================================
-               USER DATA
-            ================================================== */
-
-            const storedUser =
-                localStorage.getItem("tipecoUser");
+        }
 
 
-            if (storedUser) {
+        function normalizeCategory(value) {
 
-                try {
-
-                    const user =
-                        JSON.parse(storedUser);
-
-
-                    const userNameElements =
-                        document.querySelectorAll(
-                            "[data-user-name]"
-                        );
+            const category =
+                String(value || "")
+                    .trim()
+                    .toLowerCase();
 
 
-                    userNameElements.forEach(
-                        function (element) {
+            const allowed = [
 
-                            element.textContent =
-                                user.fullName || "User";
+                "all",
+                "vehicles",
+                "real-estate",
+                "electronics",
+                "home-furniture",
+                "construction-products",
+                "paint-construction",
+                "services",
+                "other"
 
-                        }
+            ];
+
+
+            return allowed.includes(category)
+                ? category
+                : "all";
+
+        }
+
+
+        function normalizeJobCategory(value) {
+
+            const category =
+                String(value || "")
+                    .trim()
+                    .toLowerCase();
+
+
+            const allowed = [
+
+                "construction",
+                "technology",
+                "business-finance",
+                "sales-marketing",
+                "transport",
+                "hospitality",
+                "security",
+                "domestic-work",
+                "skilled-trades",
+                "agriculture",
+                "healthcare",
+                "education",
+                "other"
+
+            ];
+
+
+            return allowed.includes(category)
+                ? category
+                : "";
+
+        }
+
+
+        /* =================================================
+           CATEGORY LABEL
+        ================================================== */
+
+        function categoryLabel(category) {
+
+            const labels = {
+
+                "all":
+                    "All",
+
+                "vehicles":
+                    "Vehicles",
+
+                "real-estate":
+                    "Real Estate",
+
+                "electronics":
+                    "Electronics",
+
+                "home-furniture":
+                    "Home & Furniture",
+
+                "construction-products":
+                    "Construction Products",
+
+                "paint-construction":
+                    "Paint & Construction",
+
+                "services":
+                    "Services",
+
+                "other":
+                    "Other"
+
+            };
+
+
+            return labels[category] || category;
+
+        }
+
+
+        /* =================================================
+           TYPE LABEL
+        ================================================== */
+
+        function typeLabel(type) {
+
+            const labels = {
+
+                buy:
+                    "BUY",
+
+                sell:
+                    "SELL",
+
+                rent:
+                    "RENT",
+
+                job:
+                    "JOBS"
+
+            };
+
+
+            return labels[type] || "MARKETPLACE";
+
+        }
+
+
+        /* =================================================
+           USER PROFILE
+        ================================================== */
+
+        async function loadUserProfile(user) {
+
+            try {
+
+                const profileRef =
+                    doc(
+                        db,
+                        "users",
+                        user.uid
                     );
 
 
-                } catch (error) {
-
-                    console.error(
-                        "Unable to read user data.",
-                        error
+                const profileSnap =
+                    await getDoc(
+                        profileRef
                     );
+
+
+                let profile = {};
+
+
+                if (profileSnap.exists()) {
+
+                    profile =
+                        profileSnap.data() || {};
 
                 }
 
-            }
+
+                const displayName =
+                    profile.fullName ||
+                    profile.name ||
+                    profile.displayName ||
+                    user.displayName ||
+                    "User";
 
 
+                userNameElements.forEach(
+                    function (element) {
 
-            /* =================================================
-               SEARCH ELEMENTS
-            ================================================== */
-
-            const searchForm =
-                document.getElementById(
-                    "marketplaceSearchForm"
-                );
-
-
-            const searchInput =
-                document.getElementById(
-                    "marketplaceSearch"
-                );
-
-
-            const listingGrid =
-                document.getElementById(
-                    "listingGrid"
-                );
-
-
-            const listingEmpty =
-                document.getElementById(
-                    "listingEmpty"
-                );
-
-
-            const categoryButtons =
-                document.querySelectorAll(
-                    ".category-card"
-                );
-
-
-            const listingSort =
-                document.getElementById(
-                    "listingSort"
-                );
-
-
-            const listingCards =
-                Array.from(
-                    document.querySelectorAll(
-                        ".listing-card"
-                    )
-                );
-
-
-            let activeCategory = "all";
-
-
-
-            /* =================================================
-               FILTER LISTINGS
-            ================================================== */
-
-            function filterListings() {
-
-
-                const searchTerm =
-                    searchInput.value
-                        .trim()
-                        .toLowerCase();
-
-
-                let visibleCount = 0;
-
-
-                listingCards.forEach(
-                    function (card) {
-
-
-                        const title =
-                            (
-                                card.dataset.title || ""
-                            ).toLowerCase();
-
-
-                        const category =
-                            (
-                                card.dataset.category || ""
-                            ).toLowerCase();
-
-
-                        const location =
-                            (
-                                card.querySelector(
-                                    ".listing-location"
-                                )?.textContent || ""
-                            ).toLowerCase();
-
-
-                        const matchesSearch =
-
-                            !searchTerm ||
-
-                            title.includes(
-                                searchTerm
-                            ) ||
-
-                            category.includes(
-                                searchTerm
-                            ) ||
-
-                            location.includes(
-                                searchTerm
-                            );
-
-
-                        const matchesCategory =
-
-                            activeCategory === "all" ||
-
-                            category ===
-                            activeCategory;
-
-
-                        if (
-                            matchesSearch &&
-                            matchesCategory
-                        ) {
-
-                            card.style.display = "";
-
-                            visibleCount++;
-
-                        } else {
-
-                            card.style.display =
-                                "none";
-
-                        }
+                        element.textContent =
+                            displayName;
 
                     }
                 );
 
 
-                if (visibleCount === 0) {
+            } catch (error) {
 
-                    listingEmpty.style.display =
-                        "block";
+                console.error(
+                    "Unable to load user profile:",
+                    error
+                );
 
-                } else {
 
-                    listingEmpty.style.display =
-                        "none";
+                userNameElements.forEach(
+                    function (element) {
+
+                        element.textContent =
+                            user.displayName ||
+                            "User";
+
+                    }
+                );
+
+            }
+
+        }
+
+
+        /* =================================================
+           AUTHENTICATION
+        ================================================== */
+
+        onAuthStateChanged(
+            auth,
+            async function (user) {
+
+
+                if (!user) {
+
+                    window.location.href =
+                        "login.html";
+
+                    return;
 
                 }
+
+
+                /*
+                 * TIPECO uses Firebase Auth as the
+                 * authentication source of truth.
+                 *
+                 * Public marketplace access remains
+                 * protected behind authenticated access.
+                 */
+
+                if (!user.emailVerified) {
+
+                    alert(
+                        "Please verify your email before accessing TIPECO GROUP Marketplace."
+                    );
+
+
+                    window.location.href =
+                        "login.html";
+
+                    return;
+
+                }
+
+
+                await loadUserProfile(
+                    user
+                );
+
+
+                initializeMarketplace();
+
+            }
+        );
+
+
+        /* =================================================
+           INITIALIZE
+        ================================================== */
+
+        async function initializeMarketplace() {
+
+            searchInput.value =
+                activeSearch;
+
+
+            applyModeUI();
+
+
+            applyCategoryUI();
+
+
+            setupSearch();
+
+
+            setupCategoryButtons();
+
+
+            setupModeButtons();
+
+
+            setupLogout();
+
+
+            setupSort();
+
+
+            await loadApprovedListings();
+
+
+            filterAndRenderListings();
+
+        }
+
+
+        /* =================================================
+           MODE UI
+        ================================================== */
+
+        function applyModeUI() {
+
+            modeButtons.forEach(
+                function (button) {
+
+                    const buttonType =
+                        normalizeType(
+                            button.dataset.marketplaceType
+                        );
+
+
+                    button.classList.toggle(
+                        "active",
+                        buttonType === activeType
+                    );
+
+                }
+            );
+
+
+            Object.keys(modePanels).forEach(
+                function (type) {
+
+                    const panel =
+                        modePanels[type];
+
+
+                    if (!panel) {
+                        return;
+                    }
+
+
+                    panel.classList.toggle(
+                        "active",
+                        type === activeType
+                    );
+
+                }
+            );
+
+
+            if (activeType === "buy") {
+
+                heroLabel.textContent =
+                    "TIPECO MARKETPLACE • BUY";
+
+
+                heroTitle.innerHTML =
+                    'Discover What You Need. <span>Buy With Confidence.</span>';
+
+
+                heroDescription.textContent =
+                    "Browse approved listings through TIPECO GROUP. Browsing is free.";
+
+                listingSectionTitle.textContent =
+                    "Approved Listings";
+
+                listingSectionDescription.textContent =
+                    "Discover listings that have been approved for public marketplace visibility.";
+
+                listingStatus.textContent =
+                    "Showing approved BUY listings.";
+
+                listingSort.style.display =
+                    "";
 
             }
 
 
+            else if (activeType === "sell") {
 
-            /* =================================================
-               SEARCH SUBMIT
-            ================================================== */
+                heroLabel.textContent =
+                    "TIPECO MARKETPLACE • SELL";
+
+
+                heroTitle.innerHTML =
+                    'Sell Through TIPECO GROUP. <span>Build With Trust.</span>';
+
+
+                heroDescription.textContent =
+                    "Create a listing through the TIPECO GROUP subscription and review process.";
+
+
+                listingSectionTitle.textContent =
+                    "Approved Listings";
+
+                listingSectionDescription.textContent =
+                    "Approved marketplace listings remain visible to buyers after TIPECO GROUP review.";
+
+                listingStatus.textContent =
+                    "Showing approved SELL listings.";
+
+                listingSort.style.display =
+                    "";
+
+            }
+
+
+            else if (activeType === "rent") {
+
+                heroLabel.textContent =
+                    "TIPECO MARKETPLACE • RENT";
+
+
+                heroTitle.innerHTML =
+                    'Find Rental Opportunities. <span>With Confidence.</span>';
+
+
+                heroDescription.textContent =
+                    "Browse approved rental opportunities through TIPECO GROUP.";
+
+
+                listingSectionTitle.textContent =
+                    "Approved Rental Listings";
+
+                listingSectionDescription.textContent =
+                    "Only approved rental listings are eligible for public visibility.";
+
+                listingStatus.textContent =
+                    "Showing approved RENT listings.";
+
+                listingSort.style.display =
+                    "";
+
+            }
+
+
+            else {
+
+                heroLabel.textContent =
+                    "TIPECO MARKETPLACE • JOBS";
+
+
+                heroTitle.innerHTML =
+                    'Find Opportunities. <span>Find Talent.</span>';
+
+
+                heroDescription.textContent =
+                    "Explore approved job opportunities and employee profiles through TIPECO GROUP.";
+
+
+                listingSectionTitle.textContent =
+                    "Approved Jobs";
+
+                listingSectionDescription.textContent =
+                    "Job opportunities become publicly visible only after the applicable TIPECO GROUP review process.";
+
+                listingStatus.textContent =
+                    "Showing approved JOB listings.";
+
+                listingSort.style.display =
+                    "none";
+
+            }
+
+
+            /*
+             * Job-specific URL state is reflected without
+             * creating fake job records.
+             */
+
+            if (
+                activeType === "job" &&
+                jobAction === "find-employee"
+            ) {
+
+                listingSectionTitle.textContent =
+                    "Approved Employee Profiles";
+
+                listingSectionDescription.textContent =
+                    "Approved employee profiles will appear here when available.";
+
+            }
+
+
+            if (
+                activeType === "job" &&
+                jobCategory
+            ) {
+
+                listingSectionTitle.textContent =
+                    "Jobs • " +
+                    jobCategory;
+
+            }
+
+        }
+
+
+        /* =================================================
+           CATEGORY UI
+        ================================================== */
+
+        function applyCategoryUI() {
+
+            categoryButtons.forEach(
+                function (button) {
+
+                    const category =
+                        normalizeCategory(
+                            button.dataset.category
+                        );
+
+
+                    button.classList.toggle(
+                        "active",
+                        category === activeCategory
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =================================================
+           SEARCH
+        ================================================== */
+
+        function setupSearch() {
 
             searchForm.addEventListener(
                 "submit",
@@ -1292,63 +2101,156 @@
 
                     event.preventDefault();
 
-                    filterListings();
+
+                    const searchTerm =
+                        searchInput.value.trim();
+
+
+                    const nextParams =
+                        new URLSearchParams();
+
+
+                    nextParams.set(
+                        "type",
+                        activeType
+                    );
+
+
+                    if (activeCategory !== "all") {
+
+                        nextParams.set(
+                            "category",
+                            activeCategory
+                        );
+
+                    }
+
+
+                    if (searchTerm) {
+
+                        nextParams.set(
+                            "search",
+                            searchTerm
+                        );
+
+                    }
+
+
+                    if (activeType === "job") {
+
+                        if (jobAction) {
+
+                            nextParams.set(
+                                "jobAction",
+                                jobAction
+                            );
+
+                        }
+
+
+                        if (jobCategory) {
+
+                            nextParams.set(
+                                "jobCategory",
+                                jobCategory
+                            );
+
+                        }
+
+                    }
+
+
+                    window.location.href =
+                        "marketplace.html?" +
+                        nextParams.toString();
 
                 }
             );
 
-
-
-            /* =================================================
-               LIVE SEARCH
-            ================================================== */
 
             searchInput.addEventListener(
                 "input",
                 function () {
 
-                    filterListings();
+                    activeSearch =
+                        searchInput.value
+                            .trim()
+                            .toLowerCase();
+
+
+                    filterAndRenderListings();
 
                 }
             );
 
+        }
 
 
-            /* =================================================
-               CATEGORY FILTER
-            ================================================== */
+        /* =================================================
+           CATEGORY BUTTONS
+        ================================================== */
+
+        function setupCategoryButtons() {
 
             categoryButtons.forEach(
                 function (button) {
-
 
                     button.addEventListener(
                         "click",
                         function () {
 
-
-                            categoryButtons.forEach(
-                                function (item) {
-
-                                    item.classList.remove(
-                                        "active"
-                                    );
-
-                                }
-                            );
-
-
-                            button.classList.add(
-                                "active"
-                            );
-
-
                             activeCategory =
-                                button.dataset.category ||
-                                "all";
+                                normalizeCategory(
+                                    button.dataset.category
+                                );
 
 
-                            filterListings();
+                            applyCategoryUI();
+
+
+                            const nextParams =
+                                new URLSearchParams();
+
+
+                            nextParams.set(
+                                "type",
+                                activeType
+                            );
+
+
+                            if (
+                                activeCategory !== "all"
+                            ) {
+
+                                nextParams.set(
+                                    "category",
+                                    activeCategory
+                                );
+
+                            }
+
+
+                            if (
+                                searchInput.value.trim()
+                            ) {
+
+                                nextParams.set(
+                                    "search",
+                                    searchInput.value.trim()
+                                );
+
+                            }
+
+
+                            window.history.replaceState(
+                                {},
+                                "",
+                                "marketplace.html?" +
+                                nextParams.toString()
+                            );
+
+
+                            filterAndRenderListings();
 
                         }
                     );
@@ -1356,257 +2258,1050 @@
                 }
             );
 
+        }
 
 
-            /* =================================================
-               SORT
-            ================================================== */
+        /* =================================================
+           MODE BUTTONS
+        ================================================== */
+
+        function setupModeButtons() {
+
+            modeButtons.forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        function (event) {
+
+                            event.preventDefault();
+
+
+                            const nextType =
+                                normalizeType(
+                                    button.dataset.marketplaceType
+                                );
+
+
+                            const nextParams =
+                                new URLSearchParams();
+
+
+                            nextParams.set(
+                                "type",
+                                nextType
+                            );
+
+
+                            if (
+                                activeCategory !== "all"
+                            ) {
+
+                                nextParams.set(
+                                    "category",
+                                    activeCategory
+                                );
+
+                            }
+
+
+                            if (
+                                searchInput.value.trim()
+                            ) {
+
+                                nextParams.set(
+                                    "search",
+                                    searchInput.value.trim()
+                                );
+
+                            }
+
+
+                            window.location.href =
+                                "marketplace.html?" +
+                                nextParams.toString();
+
+                        }
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =================================================
+           LOAD APPROVED LISTINGS
+        ================================================== */
+
+        async function loadApprovedListings() {
+
+            listingLoading.style.display =
+                "block";
+
+            listingError.style.display =
+                "none";
+
+            listingEmpty.style.display =
+                "none";
+
+
+            try {
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * The Marketplace reads from the existing
+                 * Firestore "listings" collection.
+                 *
+                 * No new collection is invented here.
+                 *
+                 * Approval is checked client-side against
+                 * common approval/status fields so the page
+                 * does not expose unapproved listings.
+                 */
+
+                const snapshot =
+                    await getDocs(
+                        collection(
+                            db,
+                            "listings"
+                        )
+                    );
+
+
+                allListings = [];
+
+
+                snapshot.forEach(
+                    function (documentSnapshot) {
+
+                        const data =
+                            documentSnapshot.data() || {};
+
+
+                        if (
+                            isPubliclyApprovedListing(
+                                data
+                            )
+                        ) {
+
+                            allListings.push({
+
+                                id:
+                                    documentSnapshot.id,
+
+                                ...data
+
+                            });
+
+                        }
+
+                    }
+                );
+
+
+                listingStatus.textContent =
+                    allListings.length +
+                    " approved listing" +
+                    (
+                        allListings.length === 1
+                            ? ""
+                            : "s"
+                    ) +
+                    " available.";
+
+            }
+
+
+            catch (error) {
+
+                console.error(
+                    "Unable to load Firestore listings:",
+                    error
+                );
+
+
+                /*
+                 * Do not display fake listings if the
+                 * backend cannot be read.
+                 */
+
+                allListings = [];
+
+
+                listingError.style.display =
+                    "block";
+
+
+                listingStatus.textContent =
+                    "Marketplace listings could not be loaded.";
+
+            }
+
+
+            finally {
+
+                listingLoading.style.display =
+                    "none";
+
+            }
+
+        }
+
+
+        /* =================================================
+           APPROVAL CHECK
+        ================================================== */
+
+        function isPubliclyApprovedListing(data) {
+
+            const status =
+                String(
+                    data.status ||
+                    data.approvalStatus ||
+                    data.listingStatus ||
+                    ""
+                )
+                .trim()
+                .toLowerCase();
+
+
+            const approval =
+                data.approved === true ||
+                data.isApproved === true ||
+                data.approval === "approved";
+
+
+            const publication =
+                data.published === true ||
+                data.isPublished === true ||
+                data.visibility === "public";
+
+
+            /*
+             * A listing must have an explicit approval
+             * signal. Publication alone is not treated
+             * as approval.
+             */
+
+            if (
+                status === "approved" ||
+                status === "active"
+            ) {
+
+                return true;
+
+            }
+
+
+            if (
+                approval &&
+                (
+                    publication ||
+                    data.status === undefined
+                )
+            ) {
+
+                return true;
+
+            }
+
+
+            return false;
+
+        }
+
+
+        /* =================================================
+           TYPE NORMALIZATION FOR FIRESTORE
+        ================================================== */
+
+        function getListingType(data) {
+
+            const raw =
+                String(
+                    data.type ||
+                    data.listingType ||
+                    data.marketplaceType ||
+                    data.transactionType ||
+                    ""
+                )
+                .trim()
+                .toLowerCase();
+
+
+            if (
+                raw === "job" ||
+                raw === "jobs"
+            ) {
+
+                return "job";
+
+            }
+
+
+            if (
+                raw === "rent" ||
+                raw === "rental"
+            ) {
+
+                return "rent";
+
+            }
+
+
+            if (raw === "sell") {
+
+                return "sell";
+
+            }
+
+
+            if (raw === "buy") {
+
+                return "buy";
+
+            }
+
+
+            /*
+             * Existing listings without an explicit
+             * transaction type are treated as BUY-side
+             * marketplace listings for browsing only.
+             */
+
+            return "buy";
+
+        }
+
+
+        /* =================================================
+           CATEGORY NORMALIZATION FOR FIRESTORE
+        ================================================== */
+
+        function getListingCategory(data) {
+
+            const raw =
+                String(
+                    data.category ||
+                    data.categorySlug ||
+                    data.marketplaceCategory ||
+                    ""
+                )
+                .trim()
+                .toLowerCase();
+
+
+            const aliases = {
+
+                "vehicle":
+                    "vehicles",
+
+                "cars":
+                    "vehicles",
+
+                "realestate":
+                    "real-estate",
+
+                "real_estate":
+                    "real-estate",
+
+                "property":
+                    "real-estate",
+
+                "electronics":
+                    "electronics",
+
+                "home":
+                    "home-furniture",
+
+                "furniture":
+                    "home-furniture",
+
+                "construction":
+                    "construction-products",
+
+                "construction-products":
+                    "construction-products",
+
+                "paint":
+                    "paint-construction",
+
+                "paint-construction":
+                    "paint-construction",
+
+                "service":
+                    "services"
+
+            };
+
+
+            return aliases[raw] || raw;
+
+        }
+
+
+        /* =================================================
+           FILTER
+        ================================================== */
+
+        function filterListings() {
+
+            const searchTerm =
+                searchInput.value
+                    .trim()
+                    .toLowerCase();
+
+
+            return allListings.filter(
+                function (listing) {
+
+
+                    const title =
+                        String(
+                            listing.title ||
+                            listing.name ||
+                            listing.productName ||
+                            listing.jobTitle ||
+                            ""
+                        )
+                        .toLowerCase();
+
+
+                    const description =
+                        String(
+                            listing.description ||
+                            listing.details ||
+                            ""
+                        )
+                        .toLowerCase();
+
+
+                    const location =
+                        String(
+                            listing.location ||
+                            listing.city ||
+                            listing.address ||
+                            ""
+                        )
+                        .toLowerCase();
+
+
+                    const category =
+                        getListingCategory(
+                            listing
+                        );
+
+
+                    const type =
+                        getListingType(
+                            listing
+                        );
+
+
+                    const searchable =
+                        title +
+                        " " +
+                        description +
+                        " " +
+                        location +
+                        " " +
+                        category;
+
+
+                    const matchesSearch =
+                        !searchTerm ||
+                        searchable.includes(
+                            searchTerm
+                        );
+
+
+                    const matchesCategory =
+                        activeCategory === "all" ||
+                        category === activeCategory;
+
+
+                    const matchesType =
+                        type === activeType;
+
+
+                    /*
+                     * JOBS are intentionally filtered
+                     * separately from ordinary marketplace
+                     * products.
+                     */
+
+                    if (
+                        activeType === "job"
+                    ) {
+
+                        return (
+                            matchesSearch &&
+                            matchesType
+                        );
+
+                    }
+
+
+                    return (
+                        matchesSearch &&
+                        matchesCategory &&
+                        matchesType
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =================================================
+           SORT
+        ================================================== */
+
+        function setupSort() {
 
             listingSort.addEventListener(
                 "change",
                 function () {
 
-
-                    const sortValue =
-                        listingSort.value;
-
-
-                    if (
-                        sortValue === "price-low"
-                    ) {
-
-                        listingCards.sort(
-                            function (a, b) {
-
-                                return Number(
-                                    a.dataset.price
-                                ) -
-                                Number(
-                                    b.dataset.price
-                                );
-
-                            }
-                        );
-
-                    }
-
-
-                    else if (
-                        sortValue === "price-high"
-                    ) {
-
-                        listingCards.sort(
-                            function (a, b) {
-
-                                return Number(
-                                    b.dataset.price
-                                ) -
-                                Number(
-                                    a.dataset.price
-                                );
-
-                            }
-                        );
-
-                    }
-
-
-                    else {
-
-                        listingCards.sort(
-                            function (a, b) {
-
-                                return Number(
-                                    a.dataset.date
-                                ) -
-                                Number(
-                                    b.dataset.date
-                                );
-
-                            }
-                        );
-
-                    }
-
-
-                    listingCards.forEach(
-                        function (card) {
-
-                            listingGrid.appendChild(
-                                card
-                            );
-
-                        }
-                    );
-
-
-                    filterListings();
+                    filterAndRenderListings();
 
                 }
             );
 
+        }
 
 
-            /* =================================================
-               SAVED LISTINGS
-            ================================================== */
+        function getListingTimestamp(listing) {
 
-            let savedListings = [];
+            const value =
+                listing.createdAt ||
+                listing.updatedAt ||
+                listing.date ||
+                0;
 
 
-            try {
+            if (
+                value &&
+                typeof value.toMillis === "function"
+            ) {
 
-                savedListings =
-                    JSON.parse(
-                        localStorage.getItem(
-                            "tipecoSavedListings"
-                        )
-                    ) || [];
-
-            } catch (error) {
-
-                savedListings = [];
+                return value.toMillis();
 
             }
 
 
+            if (
+                value &&
+                typeof value.seconds === "number"
+            ) {
 
-            const saveButtons =
-                document.querySelectorAll(
-                    ".save-listing"
-                );
+                return value.seconds * 1000;
 
-
-            saveButtons.forEach(
-                function (button) {
-
-
-                    const listingId =
-                        button.dataset.listingId;
+            }
 
 
-                    if (
-                        savedListings.includes(
-                            listingId
-                        )
-                    ) {
+            const parsed =
+                Date.parse(value);
 
-                        button.classList.add(
-                            "saved"
+
+            if (!Number.isNaN(parsed)) {
+
+                return parsed;
+
+            }
+
+
+            return 0;
+
+        }
+
+
+        /* =================================================
+           RENDER
+        ================================================== */
+
+        function filterAndRenderListings() {
+
+            listingGrid.innerHTML =
+                "";
+
+
+            let listings =
+                filterListings();
+
+
+            const sortValue =
+                listingSort.value;
+
+
+            if (
+                sortValue === "price-low"
+            ) {
+
+                listings.sort(
+                    function (a, b) {
+
+                        return (
+                            getPrice(a) -
+                            getPrice(b)
                         );
 
-                        button.textContent =
-                            "♥";
+                    }
+                );
+
+            }
+
+
+            else if (
+                sortValue === "price-high"
+            ) {
+
+                listings.sort(
+                    function (a, b) {
+
+                        return (
+                            getPrice(b) -
+                            getPrice(a)
+                        );
 
                     }
+                );
+
+            }
 
 
-                    button.addEventListener(
-                        "click",
-                        function () {
+            else {
+
+                listings.sort(
+                    function (a, b) {
+
+                        return (
+                            getListingTimestamp(b) -
+                            getListingTimestamp(a)
+                        );
+
+                    }
+                );
+
+            }
 
 
-                            const index =
-                                savedListings.indexOf(
-                                    listingId
-                                );
+            listings.forEach(
+                function (listing) {
 
-
-                            if (index === -1) {
-
-                                savedListings.push(
-                                    listingId
-                                );
-
-                                button.classList.add(
-                                    "saved"
-                                );
-
-                                button.textContent =
-                                    "♥";
-
-
-                                alert(
-                                    "Listing saved successfully."
-                                );
-
-                            } else {
-
-                                savedListings.splice(
-                                    index,
-                                    1
-                                );
-
-                                button.classList.remove(
-                                    "saved"
-                                );
-
-                                button.textContent =
-                                    "♡";
-
-
-                                alert(
-                                    "Listing removed from saved items."
-                                );
-
-                            }
-
-
-                            localStorage.setItem(
-                                "tipecoSavedListings",
-                                JSON.stringify(
-                                    savedListings
-                                )
-                            );
-
-                        }
+                    listingGrid.appendChild(
+                        createListingCard(
+                            listing
+                        )
                     );
 
                 }
             );
 
 
+            if (listings.length === 0) {
 
-            /* =================================================
-               VIEW DETAILS
-            ================================================== */
+                listingEmpty.style.display =
+                    "block";
 
-            const viewButtons =
-                document.querySelectorAll(
+
+                if (
+                    activeType === "job" &&
+                    jobAction === "find-employee"
+                ) {
+
+                    listingEmptyTitle.textContent =
+                        "No approved employee profiles found";
+
+
+                    listingEmptyText.textContent =
+                        "Approved employee profiles will appear here when available.";
+
+                }
+
+
+                else {
+
+                    listingEmptyTitle.textContent =
+                        "No approved listings found";
+
+
+                    listingEmptyText.textContent =
+                        activeCategory === "all"
+                            ? "There are currently no approved listings matching your search."
+                            : "There are currently no approved listings in " +
+                              categoryLabel(activeCategory) +
+                              " matching your search.";
+
+                }
+
+            }
+
+
+            else {
+
+                listingEmpty.style.display =
+                    "none";
+
+            }
+
+
+            listingStatus.textContent =
+                listings.length +
+                " approved result" +
+                (
+                    listings.length === 1
+                        ? ""
+                        : "s"
+                );
+
+        }
+
+
+        /* =================================================
+           PRICE
+        ================================================== */
+
+        function getPrice(listing) {
+
+            const value =
+                listing.price ||
+                listing.amount ||
+                listing.cost ||
+                0;
+
+
+            if (
+                typeof value === "number"
+            ) {
+
+                return value;
+
+            }
+
+
+            const numeric =
+                String(value)
+                    .replace(
+                        /[^0-9.-]/g,
+                        ""
+                    );
+
+
+            return Number(
+                numeric
+            ) || 0;
+
+        }
+
+
+        /* =================================================
+           PRICE DISPLAY
+        ================================================== */
+
+        function formatPrice(listing) {
+
+            const price =
+                getPrice(listing);
+
+
+            if (!price) {
+
+                return "Price on request";
+
+            }
+
+
+            const currency =
+                listing.currency ||
+                "RWF";
+
+
+            return (
+                new Intl.NumberFormat(
+                    "en-US"
+                ).format(price) +
+                " " +
+                currency
+            );
+
+        }
+
+
+        /* =================================================
+           LISTING CARD
+        ================================================== */
+
+        function createListingCard(listing) {
+
+            const card =
+                document.createElement(
+                    "article"
+                );
+
+
+            card.className =
+                "listing-card";
+
+
+            const title =
+                listing.title ||
+                listing.name ||
+                listing.productName ||
+                listing.jobTitle ||
+                "Untitled Listing";
+
+
+            const category =
+                getListingCategory(
+                    listing
+                );
+
+
+            const type =
+                getListingType(
+                    listing
+                );
+
+
+            const location =
+                listing.location ||
+                listing.city ||
+                listing.address ||
+                "Location not specified";
+
+
+            const listingId =
+                listing.id;
+
+
+            const imageUrl =
+                listing.imageUrl ||
+                listing.image ||
+                (
+                    Array.isArray(
+                        listing.images
+                    ) &&
+                    listing.images.length
+                        ? listing.images[0]
+                        : ""
+                );
+
+
+            card.dataset.category =
+                category;
+
+
+            card.dataset.type =
+                type;
+
+
+            card.dataset.title =
+                title;
+
+
+            card.dataset.price =
+                getPrice(listing);
+
+
+            card.dataset.date =
+                getListingTimestamp(
+                    listing
+                );
+
+
+            const image =
+                document.createElement(
+                    "div"
+                );
+
+
+            image.className =
+                "listing-image";
+
+
+            if (imageUrl) {
+
+                image.innerHTML =
+                    `
+                    <img
+                        src="${escapeHtml(imageUrl)}"
+                        alt="${escapeHtml(title)}"
+                        loading="lazy">
+                    `;
+
+            }
+
+            else {
+
+                image.innerHTML =
+                    `
+                    <div class="listing-placeholder">
+                        ${type === "job" ? "💼" : "📦"}
+                    </div>
+                    `;
+
+            }
+
+
+            const verified =
+                document.createElement(
+                    "span"
+                );
+
+
+            verified.className =
+                "verified-badge";
+
+
+            verified.textContent =
+                "✓ Approved";
+
+
+            image.appendChild(
+                verified
+            );
+
+
+            const content =
+                document.createElement(
+                    "div"
+                );
+
+
+            content.className =
+                "listing-content";
+
+
+            content.innerHTML =
+                `
+                <span class="listing-category">
+                    ${escapeHtml(
+                        categoryLabel(category)
+                    )}
+                </span>
+
+                <h3>
+                    ${escapeHtml(title)}
+                </h3>
+
+                <p class="listing-location">
+                    📍 ${escapeHtml(location)}
+                </p>
+
+                <div class="listing-price">
+                    ${
+                        type === "job"
+                            ? "View Opportunity"
+                            : escapeHtml(
+                                formatPrice(listing)
+                              )
+                    }
+                </div>
+
+                <div class="listing-footer">
+
+                    <span>
+                        TIPECO Approved
+                    </span>
+
+                    <button
+                        type="button"
+                        class="view-listing-btn"
+                        data-listing-id="${escapeHtml(listingId)}">
+
+                        View Details →
+
+                    </button>
+
+                </div>
+                `;
+
+
+            card.appendChild(
+                image
+            );
+
+
+            card.appendChild(
+                content
+            );
+
+
+            const viewButton =
+                content.querySelector(
                     ".view-listing-btn"
                 );
 
 
-            viewButtons.forEach(
-                function (button) {
+            viewButton.addEventListener(
+                "click",
+                function () {
+
+                    /*
+                     * Detail-page routing is deliberately
+                     * not invented here because the existing
+                     * project has not yet supplied the final
+                     * listing-detail architecture.
+                     */
+
+                    const listingTitle =
+                        title;
 
 
-                    button.addEventListener(
-                        "click",
-                        function () {
-
-
-                            const title =
-                                button.dataset.title ||
-                                "this listing";
-
-
-                            alert(
-                                title +
-                                " details page will be available in the next marketplace update."
-                            );
-
-                        }
+                    alert(
+                        listingTitle +
+                        " details will be connected to the TIPECO listing detail workflow."
                     );
 
                 }
             );
 
 
+            return card;
 
-            /* =================================================
-               LOGOUT
-            ================================================== */
+        }
+
+
+        /* =================================================
+           HTML ESCAPE
+        ================================================== */
+
+        function escapeHtml(value) {
+
+            return String(value ?? "")
+                .replace(
+                    /&/g,
+                    "&amp;"
+                )
+                .replace(
+                    /</g,
+                    "&lt;"
+                )
+                .replace(
+                    />/g,
+                    "&gt;"
+                )
+                .replace(
+                    /"/g,
+                    "&quot;"
+                )
+                .replace(
+                    /'/g,
+                    "&#039;"
+                );
+
+        }
+
+
+        /* =================================================
+           LOGOUT
+        ================================================== */
+
+        function setupLogout() {
 
             const logoutButtons =
                 document.querySelectorAll(
@@ -1617,26 +3312,39 @@
             logoutButtons.forEach(
                 function (button) {
 
-
                     button.addEventListener(
                         "click",
-                        function (event) {
+                        async function (event) {
 
                             event.preventDefault();
 
 
-                            localStorage.removeItem(
-                                "tipecoLoggedIn"
-                            );
+                            try {
+
+                                await signOut(
+                                    auth
+                                );
 
 
-                            sessionStorage.removeItem(
-                                "tipecoLoggedIn"
-                            );
+                                window.location.href =
+                                    "../index.html";
+
+                            }
 
 
-                            window.location.href =
-                                "login.html";
+                            catch (error) {
+
+                                console.error(
+                                    "Logout failed:",
+                                    error
+                                );
+
+
+                                alert(
+                                    "Unable to logout right now. Please try again."
+                                );
+
+                            }
 
                         }
                     );
@@ -1644,17 +3352,7 @@
                 }
             );
 
-
-
-            /* =================================================
-               INITIAL DISPLAY
-            ================================================== */
-
-            filterListings();
-
-
         }
-    );
 
     </script>
 
