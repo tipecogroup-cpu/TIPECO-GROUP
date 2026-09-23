@@ -1,7 +1,7 @@
 /* =====================================================
    TIPECO GROUP - FIREBASE AUTHENTICATION
    REAL PROJECT
-   Version: 9.0
+   Version: 9.1
 
    GENERAL ACCOUNT ARCHITECTURE
 
@@ -61,7 +61,8 @@ import {
     onAuthStateChanged,
     sendEmailVerification,
     sendPasswordResetEmail,
-    reload
+    reload,
+    deleteUser
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
 
@@ -133,7 +134,9 @@ function showMessage(
 }
 
 
-function hideMessage(element) {
+function hideMessage(
+    element
+) {
 
     if (!element) {
         return;
@@ -144,6 +147,40 @@ function hideMessage(element) {
 
     element.style.display =
         "none";
+}
+
+
+/* =====================================================
+   GET STATUS ELEMENT
+
+   Different pages may use different IDs.
+   This helper prevents verification messages
+   from disappearing because of an ID mismatch.
+===================================================== */
+
+function getRegistrationMessageElement() {
+
+    return (
+        document.getElementById(
+            "registerMessage"
+        ) ||
+        document.getElementById(
+            "emailVerificationStatus"
+        )
+    );
+}
+
+
+function getVerificationMessageElement() {
+
+    return (
+        document.getElementById(
+            "emailVerificationStatus"
+        ) ||
+        document.getElementById(
+            "registerMessage"
+        )
+    );
 }
 
 
@@ -214,7 +251,9 @@ function saveTipecoSession(
    FIRESTORE USER PROFILE
 ===================================================== */
 
-async function getUserProfile(uid) {
+async function getUserProfile(
+    uid
+) {
 
     if (!uid) {
         return null;
@@ -228,7 +267,9 @@ async function getUserProfile(uid) {
         );
 
     const snapshot =
-        await getDoc(userRef);
+        await getDoc(
+            userRef
+        );
 
     if (!snapshot.exists()) {
         return null;
@@ -302,19 +343,355 @@ async function updateUserProfile(
 
 
 /* =====================================================
+   COUNTRY CALLING CODES
+
+   Used only when the user enters a local phone
+   number without +country-code.
+
+   This does NOT verify the phone number.
+===================================================== */
+
+const COUNTRY_CALLING_CODES = {
+
+    Afghanistan: "+93",
+    Albania: "+355",
+    Algeria: "+213",
+    Andorra: "+376",
+    Angola: "+244",
+    Argentina: "+54",
+    Armenia: "+374",
+    Australia: "+61",
+    Austria: "+43",
+    Azerbaijan: "+994",
+
+    Bahamas: "+1",
+    Bahrain: "+973",
+    Bangladesh: "+880",
+    Barbados: "+1",
+    Belarus: "+375",
+    Belgium: "+32",
+    Belize: "+501",
+    Benin: "+229",
+    Bhutan: "+975",
+    Bolivia: "+591",
+    Bosnia: "+387",
+    Botswana: "+267",
+    Brazil: "+55",
+    Brunei: "+673",
+    Bulgaria: "+359",
+    BurkinaFaso: "+226",
+    Burundi: "+257",
+
+    Cambodia: "+855",
+    Cameroon: "+237",
+    Canada: "+1",
+    CapeVerde: "+238",
+    Chad: "+235",
+    Chile: "+56",
+    China: "+86",
+    Colombia: "+57",
+    Comoros: "+269",
+    Congo: "+242",
+    "Congo, Democratic Republic": "+243",
+    CostaRica: "+506",
+    Croatia: "+385",
+    Cuba: "+53",
+    Cyprus: "+357",
+    CzechRepublic: "+420",
+
+    Denmark: "+45",
+    Djibouti: "+253",
+    Dominica: "+1",
+    DominicanRepublic: "+1",
+
+    Ecuador: "+593",
+    Egypt: "+20",
+    ElSalvador: "+503",
+    EquatorialGuinea: "+240",
+    Eritrea: "+291",
+    Estonia: "+372",
+    Eswatini: "+268",
+    Ethiopia: "+251",
+
+    Fiji: "+679",
+    Finland: "+358",
+    France: "+33",
+
+    Gabon: "+241",
+    Gambia: "+220",
+    Georgia: "+995",
+    Germany: "+49",
+    Ghana: "+233",
+    Greece: "+30",
+    Grenada: "+1",
+    Guatemala: "+502",
+    Guinea: "+224",
+    GuineaBissau: "+245",
+    Guyana: "+592",
+
+    Haiti: "+509",
+    Honduras: "+504",
+    Hungary: "+36",
+
+    Iceland: "+354",
+    India: "+91",
+    Indonesia: "+62",
+    Iran: "+98",
+    Iraq: "+964",
+    Ireland: "+353",
+    Israel: "+972",
+    Italy: "+39",
+    IvoryCoast: "+225",
+
+    Jamaica: "+1",
+    Japan: "+81",
+    Jordan: "+962",
+
+    Kazakhstan: "+7",
+    Kenya: "+254",
+    Kiribati: "+686",
+    Kuwait: "+965",
+    Kyrgyzstan: "+996",
+
+    Laos: "+856",
+    Latvia: "+371",
+    Lebanon: "+961",
+    Lesotho: "+266",
+    Liberia: "+231",
+    Libya: "+218",
+    Liechtenstein: "+423",
+    Lithuania: "+370",
+    Luxembourg: "+352",
+
+    Madagascar: "+261",
+    Malawi: "+265",
+    Malaysia: "+60",
+    Maldives: "+960",
+    Mali: "+223",
+    Malta: "+356",
+    MarshallIslands: "+692",
+    Mauritania: "+222",
+    Mauritius: "+230",
+    Mexico: "+52",
+    Micronesia: "+691",
+    Moldova: "+373",
+    Monaco: "+377",
+    Mongolia: "+976",
+    Montenegro: "+382",
+    Morocco: "+212",
+    Mozambique: "+258",
+    Myanmar: "+95",
+
+    Namibia: "+264",
+    Nauru: "+674",
+    Nepal: "+977",
+    Netherlands: "+31",
+    NewZealand: "+64",
+    Nicaragua: "+505",
+    Niger: "+227",
+    Nigeria: "+234",
+    NorthKorea: "+850",
+    NorthMacedonia: "+389",
+    Norway: "+47",
+
+    Oman: "+968",
+
+    Pakistan: "+92",
+    Palau: "+680",
+    Palestine: "+970",
+    Panama: "+507",
+    PapuaNewGuinea: "+675",
+    Paraguay: "+595",
+    Peru: "+51",
+    Philippines: "+63",
+    Poland: "+48",
+    Portugal: "+351",
+
+    Qatar: "+974",
+
+    Romania: "+40",
+    Russia: "+7",
+    Rwanda: "+250",
+
+    SaintKittsAndNevis: "+1",
+    SaintLucia: "+1",
+    SaintVincentAndTheGrenadines: "+1",
+    Samoa: "+685",
+    SanMarino: "+378",
+    SaoTomeAndPrincipe: "+239",
+    SaudiArabia: "+966",
+    Senegal: "+221",
+    Serbia: "+381",
+    Seychelles: "+248",
+    SierraLeone: "+232",
+    Singapore: "+65",
+    Slovakia: "+421",
+    Slovenia: "+386",
+    SolomonIslands: "+677",
+    Somalia: "+252",
+    SouthAfrica: "+27",
+    SouthKorea: "+82",
+    SouthSudan: "+211",
+    Spain: "+34",
+    SriLanka: "+94",
+    Sudan: "+249",
+    Suriname: "+597",
+    Sweden: "+46",
+    Switzerland: "+41",
+    Syria: "+963",
+
+    Taiwan: "+886",
+    Tajikistan: "+992",
+    Tanzania: "+255",
+    Thailand: "+66",
+    TimorLeste: "+670",
+    Togo: "+228",
+    Tonga: "+676",
+    TrinidadAndTobago: "+1",
+    Tunisia: "+216",
+    Turkey: "+90",
+    Turkmenistan: "+993",
+    Tuvalu: "+688",
+
+    Uganda: "+256",
+    Ukraine: "+380",
+    UnitedArabEmirates: "+971",
+    UnitedKingdom: "+44",
+    UnitedStates: "+1",
+    Uruguay: "+598",
+    Uzbekistan: "+998",
+
+    Vanuatu: "+678",
+    VaticanCity: "+39",
+    Venezuela: "+58",
+    Vietnam: "+84",
+
+    Yemen: "+967",
+
+    Zambia: "+260",
+    Zimbabwe: "+263"
+};
+
+
+/* =====================================================
+   FIND COUNTRY CALLING CODE
+
+   Supports:
+   - Exact country names
+   - Country values using spaces
+   - Country values using hyphens
+   - Country values using underscores
+   - Country values already containing +code
+===================================================== */
+
+function getCountryCallingCode(
+    country
+) {
+
+    if (!country) {
+        return "";
+    }
+
+    const value =
+        String(country)
+            .trim();
+
+    if (
+        /^\+\d{1,4}$/.test(
+            value
+        )
+    ) {
+
+        return value;
+    }
+
+    const normalizedKey =
+        value
+            .replace(
+                /[\s\-&,'.()]/g,
+                ""
+            )
+            .replace(
+                /[^a-zA-Z0-9]/g,
+                ""
+            );
+
+    if (
+        COUNTRY_CALLING_CODES[
+            normalizedKey
+        ]
+    ) {
+
+        return COUNTRY_CALLING_CODES[
+            normalizedKey
+        ];
+    }
+
+    /* ---------------------------------------------
+       Common country-name variations
+    --------------------------------------------- */
+
+    const aliases = {
+
+        "UnitedStatesofAmerica":
+            "+1",
+
+        "USA":
+            "+1",
+
+        "UK":
+            "+44",
+
+        "UnitedKingdomofGreatBritainandNorthernIreland":
+            "+44",
+
+        "DemocraticRepublicoftheCongo":
+            "+243",
+
+        "DRC":
+            "+243",
+
+        "RepublicoftheCongo":
+            "+242",
+
+        "IvoryCoast":
+            "+225",
+
+        "CotedIvoire":
+            "+225",
+
+        "Czechia":
+            "+420",
+
+        "Eswatini":
+            "+268",
+
+        "Swaziland":
+            "+268"
+    };
+
+    return (
+        aliases[
+            normalizedKey
+        ] ||
+        ""
+    );
+}
+
+
+/* =====================================================
    PHONE NORMALIZATION
 
-   IMPORTANT:
    Phone is OPTIONAL.
 
-   This function is only used when a user chooses
-   to provide a phone number as contact information.
+   This function only converts a phone number into
+   international format.
 
-   It does NOT verify the phone number.
+   It does NOT verify ownership of the number.
 ===================================================== */
 
 function normalizePhoneNumber(
-    countryCode,
+    country,
     phone
 ) {
 
@@ -325,11 +702,19 @@ function normalizePhoneNumber(
     let cleaned =
         String(phone)
             .trim()
-            .replace(/[^\d+]/g, "");
+            .replace(
+                /[\s().-]/g,
+                ""
+            );
 
     if (!cleaned) {
         return "";
     }
+
+
+    /* ---------------------------------------------
+       Already international
+    --------------------------------------------- */
 
     if (
         cleaned.startsWith("+")
@@ -337,6 +722,11 @@ function normalizePhoneNumber(
 
         return cleaned;
     }
+
+
+    /* ---------------------------------------------
+       International format using 00
+    --------------------------------------------- */
 
     if (
         cleaned.startsWith("00")
@@ -348,18 +738,48 @@ function normalizePhoneNumber(
         );
     }
 
+
+    /* ---------------------------------------------
+       Remove local trunk zero(s)
+    --------------------------------------------- */
+
     cleaned =
         cleaned.replace(
             /^0+/,
             ""
         );
 
+
+    if (!cleaned) {
+        return "";
+    }
+
+
+    /* ---------------------------------------------
+       Get country calling code
+    --------------------------------------------- */
+
+    const countryCode =
+        getCountryCallingCode(
+            country
+        );
+
+
+    /*
+       If country code is unknown, do not invent one.
+
+       The user can instead enter an international
+       number beginning with +.
+    */
+
     if (!countryCode) {
+
         return cleaned;
     }
 
+
     return (
-        String(countryCode) +
+        countryCode +
         cleaned
     );
 }
@@ -433,6 +853,21 @@ function getFirebaseErrorMessage(
         case "auth/requires-recent-login":
             return "Please log in again and retry.";
 
+        case "auth/expired-action-code":
+            return "This verification or reset link has expired.";
+
+        case "auth/invalid-action-code":
+            return "This verification or reset link is invalid or has already been used.";
+
+        case "auth/user-token-expired":
+            return "Your session has expired. Please log in again.";
+
+        case "auth/invalid-verification-code":
+            return "The verification code is invalid.";
+
+        case "auth/invalid-verification-id":
+            return "The verification request is invalid.";
+
         default:
             return (
                 error?.message ||
@@ -494,6 +929,9 @@ async function createRegistrationAccount(
 
     /* =================================================
        OPTIONAL PHONE
+
+       IMPORTANT:
+       Normalize exactly ONCE here.
     ================================================= */
 
     let normalizedPhone = "";
@@ -553,6 +991,7 @@ async function createRegistrationAccount(
             fullName,
 
         email:
+            user.email ||
             email,
 
         country:
@@ -567,6 +1006,9 @@ async function createRegistrationAccount(
         emailVerified:
             false,
 
+        phone:
+            normalizedPhone,
+
         createdAt:
             serverTimestamp(),
 
@@ -576,37 +1018,51 @@ async function createRegistrationAccount(
 
 
     /* =================================================
-       PHONE
+       CREATE FIRESTORE PROFILE
 
-       Phone is optional.
-
-       We store it only when supplied.
-       There is NO phoneVerified field.
+       If Firestore fails immediately after account
+       creation, attempt to remove the newly-created
+       Auth account so we do not intentionally leave
+       an orphan account behind.
     ================================================= */
 
-    if (normalizedPhone) {
+    try {
 
-        profileData.phone =
-            normalizedPhone;
+        await setDoc(
+            doc(
+                db,
+                "users",
+                user.uid
+            ),
+            profileData,
+            {
+                merge: false
+            }
+        );
 
-    } else {
+    } catch (firestoreError) {
 
-        profileData.phone =
-            "";
-    }
+        console.error(
+            "TIPECO Firestore profile creation error:",
+            firestoreError
+        );
 
+        try {
 
-    await setDoc(
-        doc(
-            db,
-            "users",
-            user.uid
-        ),
-        profileData,
-        {
-            merge: true
+            await deleteUser(
+                user
+            );
+
+        } catch (deleteError) {
+
+            console.error(
+                "TIPECO orphan Auth account cleanup error:",
+                deleteError
+            );
         }
-    );
+
+        throw firestoreError;
+    }
 
 
     return user;
@@ -688,9 +1144,7 @@ async function handleRegistration(
 
 
     const statusElement =
-        document.getElementById(
-            "registerMessage"
-        );
+        getRegistrationMessageElement();
 
 
     /* =================================================
@@ -777,35 +1231,28 @@ async function handleRegistration(
 
     /* =================================================
        OPTIONAL PHONE VALIDATION
-    ================================================= */
 
-    let normalizedPhone = "";
+       Normalize ONCE here so the user gets an early
+       validation message.
+
+       createRegistrationAccount receives the RAW
+       phone and normalizes it again internally.
+       This is intentional validation consistency,
+       not double-storage normalization.
+    ================================================= */
 
     if (phoneRaw) {
 
-        try {
-
-            normalizedPhone =
-                normalizePhoneNumber(
-                    country,
-                    phoneRaw
-                );
-
-        } catch (error) {
-
-            showMessage(
-                statusElement,
-                error.message,
-                "error"
+        const normalizedPhoneForValidation =
+            normalizePhoneNumber(
+                country,
+                phoneRaw
             );
-
-            return;
-        }
 
 
         if (
             !validateE164Phone(
-                normalizedPhone
+                normalizedPhoneForValidation
             )
         ) {
 
@@ -824,16 +1271,16 @@ async function handleRegistration(
        REGISTRATION
     ================================================= */
 
+    const registerButton =
+        document.getElementById(
+            "registerButton"
+        ) ||
+        document.getElementById(
+            "createAccountButton"
+        );
+
+
     try {
-
-        const registerButton =
-            document.getElementById(
-                "registerButton"
-            ) ||
-            document.getElementById(
-                "createAccountButton"
-            );
-
 
         if (registerButton) {
 
@@ -850,7 +1297,7 @@ async function handleRegistration(
 
 
         /* =============================================
-           CREATE FIREBASE ACCOUNT
+           CREATE FIREBASE ACCOUNT + PROFILE
         ============================================= */
 
         const user =
@@ -860,7 +1307,7 @@ async function handleRegistration(
                     email,
                     country,
                     phone:
-                        normalizedPhone,
+                        phoneRaw,
                     password
                 }
             );
@@ -870,34 +1317,48 @@ async function handleRegistration(
            EMAIL VERIFICATION
         ============================================= */
 
-        await sendEmailVerification(
-            user
-        );
+        try {
+
+            await sendEmailVerification(
+                user
+            );
+
+        } catch (verificationError) {
+
+            console.error(
+                "TIPECO verification email error:",
+                verificationError
+            );
+
+            /*
+               Keep the account/profile because the user
+               may retry sending verification later.
+
+               The account remains pending_verification.
+            */
+
+            showMessage(
+                statusElement,
+                "Your account was created, but the verification email could not be sent. Please try again later.",
+                "error"
+            );
+
+            clearTipecoSession();
+
+            return;
+        }
 
 
         /* =============================================
-           FIRESTORE PROFILE
+           KEEP PROFILE PENDING
 
-           Keep emailVerified false until
-           Firebase confirms the email.
+           The account must remain pending until Firebase
+           confirms emailVerified === true.
         ============================================= */
 
         await updateUserProfile(
             user.uid,
             {
-
-                uid:
-                    user.uid,
-
-                fullName,
-
-                email:
-                    user.email,
-
-                country,
-
-                role:
-                    GENERAL_USER_ROLE,
 
                 emailVerified:
                     false,
@@ -909,38 +1370,6 @@ async function handleRegistration(
                     serverTimestamp()
             }
         );
-
-
-        /* =============================================
-           OPTIONAL PHONE
-        ============================================= */
-
-        if (normalizedPhone) {
-
-            await updateUserProfile(
-                user.uid,
-                {
-                    phone:
-                        normalizedPhone,
-
-                    updatedAt:
-                        serverTimestamp()
-                }
-            );
-
-        } else {
-
-            await updateUserProfile(
-                user.uid,
-                {
-                    phone:
-                        "",
-
-                    updatedAt:
-                        serverTimestamp()
-                }
-            );
-        }
 
 
         /* =============================================
@@ -991,15 +1420,6 @@ async function handleRegistration(
 
     } finally {
 
-        const registerButton =
-            document.getElementById(
-                "registerButton"
-            ) ||
-            document.getElementById(
-                "createAccountButton"
-            );
-
-
         if (registerButton) {
 
             registerButton.disabled =
@@ -1016,9 +1436,8 @@ async function handleRegistration(
 async function verifyEmailAddress() {
 
     const statusElement =
-        document.getElementById(
-            "emailVerificationStatus"
-        );
+        getVerificationMessageElement();
+
 
     try {
 
@@ -1034,12 +1453,12 @@ async function verifyEmailAddress() {
                 "error"
             );
 
-            return;
+            return false;
         }
 
 
         /* =============================================
-           Refresh Firebase Auth state
+           REFRESH FIREBASE AUTH STATE
         ============================================= */
 
         await reload(
@@ -1059,7 +1478,7 @@ async function verifyEmailAddress() {
                 "error"
             );
 
-            return;
+            return false;
         }
 
 
@@ -1069,11 +1488,9 @@ async function verifyEmailAddress() {
            Phone verification is NOT required.
         ============================================= */
 
-        const emailVerified =
-            currentUser.emailVerified === true;
-
-
-        if (!emailVerified) {
+        if (
+            currentUser.emailVerified !== true
+        ) {
 
             showMessage(
                 statusElement,
@@ -1081,14 +1498,14 @@ async function verifyEmailAddress() {
                 "error"
             );
 
-            return;
+            return false;
         }
 
 
         /* =============================================
            UPDATE FIRESTORE
 
-           Email verification is now complete.
+           Email verification is complete.
            Account becomes ACTIVE.
         ============================================= */
 
@@ -1134,6 +1551,9 @@ async function verifyEmailAddress() {
         );
 
 
+        return true;
+
+
     } catch (error) {
 
         console.error(
@@ -1149,6 +1569,9 @@ async function verifyEmailAddress() {
             ),
             "error"
         );
+
+
+        return false;
     }
 }
 
@@ -1183,6 +1606,9 @@ async function handleLogin(
     const statusElement =
         document.getElementById(
             "loginStatus"
+        ) ||
+        document.getElementById(
+            "loginMessage"
         );
 
 
@@ -1263,6 +1689,9 @@ async function handleLogin(
             );
 
 
+            clearTipecoSession();
+
+
             return;
         }
 
@@ -1282,6 +1711,8 @@ async function handleLogin(
             await signOut(
                 auth
             );
+
+            clearTipecoSession();
 
 
             showMessage(
@@ -1314,6 +1745,8 @@ async function handleLogin(
                 auth
             );
 
+            clearTipecoSession();
+
 
             showMessage(
                 statusElement,
@@ -1327,43 +1760,37 @@ async function handleLogin(
 
 
         /* =============================================
-           ACCOUNT ACTIVE
+           EMAIL VERIFIED = ACTIVE
 
-           Email verification is the only
-           verification requirement.
+           No phone verification required.
         ============================================= */
 
         if (
-            currentUser.emailVerified === true
+            profile.emailVerified !== true ||
+            profile.accountStatus !== "active"
         ) {
 
-            if (
-                profile.accountStatus !==
-                "active"
-            ) {
+            await updateUserProfile(
+                currentUser.uid,
+                {
 
-                await updateUserProfile(
-                    currentUser.uid,
-                    {
+                    emailVerified:
+                        true,
 
-                        emailVerified:
-                            true,
+                    accountStatus:
+                        "active",
 
-                        accountStatus:
-                            "active",
-
-                        updatedAt:
-                            serverTimestamp()
-                    }
-                );
+                    updatedAt:
+                        serverTimestamp()
+                }
+            );
 
 
-                profile.emailVerified =
-                    true;
+            profile.emailVerified =
+                true;
 
-                profile.accountStatus =
-                    "active";
-            }
+            profile.accountStatus =
+                "active";
         }
 
 
@@ -1408,6 +1835,9 @@ async function handleLogin(
             "TIPECO login error:",
             error
         );
+
+
+        clearTipecoSession();
 
 
         showMessage(
@@ -1455,7 +1885,11 @@ async function () {
                 };
 
 
-            const unsubscribe =
+            let unsubscribe =
+                () => {};
+
+
+            unsubscribe =
                 onAuthStateChanged(
                     auth,
                     async (user) => {
@@ -1467,6 +1901,8 @@ async function () {
                         if (!user) {
 
                             unsubscribe();
+
+                            clearTipecoSession();
 
 
                             window.location.href =
@@ -1501,6 +1937,8 @@ async function () {
 
                                 unsubscribe();
 
+                                clearTipecoSession();
+
 
                                 window.location.href =
                                     LOGIN_PAGE;
@@ -1528,8 +1966,9 @@ async function () {
                                     auth
                                 );
 
-
                                 unsubscribe();
+
+                                clearTipecoSession();
 
 
                                 window.location.href =
@@ -1561,8 +2000,9 @@ async function () {
                                     auth
                                 );
 
-
                                 unsubscribe();
+
+                                clearTipecoSession();
 
 
                                 window.location.href =
@@ -1596,8 +2036,9 @@ async function () {
                                         auth
                                     );
 
-
                                     unsubscribe();
+
+                                    clearTipecoSession();
 
 
                                     window.location.href =
@@ -1625,18 +2066,17 @@ async function () {
 
 
                             if (
-                                status ===
-                                    "blocked" ||
-                                status ===
-                                    "suspended"
+                                status === "blocked" ||
+                                status === "suspended"
                             ) {
 
                                 await signOut(
                                     auth
                                 );
 
-
                                 unsubscribe();
+
+                                clearTipecoSession();
 
 
                                 window.location.href =
@@ -1655,42 +2095,38 @@ async function () {
                             /* =============================
                                OWNER ACCOUNT ACTIVE
 
-                               IMPORTANT:
+                               Email verification only.
                                No phone verification.
                             ============================= */
 
                             if (
-                                currentUser.emailVerified ===
-                                true
+                                profile.emailVerified !==
+                                    true ||
+                                profile.accountStatus !==
+                                    "active"
                             ) {
 
-                                if (
-                                    profile.accountStatus !==
-                                    "active"
-                                ) {
+                                await updateUserProfile(
+                                    currentUser.uid,
+                                    {
 
-                                    await updateUserProfile(
-                                        currentUser.uid,
-                                        {
+                                        emailVerified:
+                                            true,
 
-                                            emailVerified:
-                                                true,
+                                        accountStatus:
+                                            "active",
 
-                                            accountStatus:
-                                                "active",
-
-                                            updatedAt:
-                                                serverTimestamp()
-                                        }
-                                    );
+                                        updatedAt:
+                                            serverTimestamp()
+                                    }
+                                );
 
 
-                                    profile.emailVerified =
-                                        true;
+                                profile.emailVerified =
+                                    true;
 
-                                    profile.accountStatus =
-                                        "active";
-                                }
+                                profile.accountStatus =
+                                    "active";
                             }
 
 
@@ -1744,6 +2180,9 @@ async function () {
                                     signOutError
                                 );
                             }
+
+
+                            clearTipecoSession();
 
 
                             window.location.href =
@@ -1979,6 +2418,12 @@ document.addEventListener(
 
         /* =============================================
            EMAIL VERIFICATION BUTTON
+
+           If register.html already has inline
+           onclick="window.tipecoVerifyEmail()",
+           do NOT attach a second listener.
+
+           This prevents double verification calls.
         ============================================= */
 
         const verifyEmailButton =
@@ -1989,10 +2434,19 @@ document.addEventListener(
 
         if (verifyEmailButton) {
 
-            verifyEmailButton.addEventListener(
-                "click",
-                verifyEmailAddress
-            );
+            const inlineHandler =
+                verifyEmailButton.getAttribute(
+                    "onclick"
+                );
+
+
+            if (!inlineHandler) {
+
+                verifyEmailButton.addEventListener(
+                    "click",
+                    verifyEmailAddress
+                );
+            }
         }
     }
 );
@@ -2000,6 +2454,10 @@ document.addEventListener(
 
 /* =====================================================
    AUTH STATE INFORMATION
+
+   Informational only.
+
+   It does NOT grant authentication authority.
 ===================================================== */
 
 onAuthStateChanged(
@@ -2076,5 +2534,5 @@ onAuthStateChanged(
 ===================================================== */
 
 console.log(
-    "TIPECO GROUP auth.js v9.0 loaded successfully."
+    "TIPECO GROUP auth.js v9.1 loaded successfully."
 );
