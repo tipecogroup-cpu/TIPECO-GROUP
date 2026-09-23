@@ -5,7 +5,8 @@
 
     <!-- =====================================================
          TIPECO GROUP - USER DASHBOARD
-         Version: 2.1
+         REAL FIREBASE PROJECT
+         General User Dashboard
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -89,7 +90,7 @@
                             class="dashboard-user-name"
                             data-user-name>
 
-                            User
+                            Loading...
 
                         </span>
 
@@ -152,9 +153,7 @@
                 <ul class="dashboard-nav">
 
 
-                    <!-- =================================================
-                         DASHBOARD
-                    ================================================== -->
+                    <!-- DASHBOARD -->
 
                     <li>
 
@@ -172,12 +171,9 @@
                     </li>
 
 
+                    <!-- BUY & SELL -->
 
-                    <!-- =================================================
-                         BUYER
-                    ================================================== -->
-
-                    <li class="buyer-only">
+                    <li>
 
                         <a href="marketplace.html">
 
@@ -192,7 +188,9 @@
                     </li>
 
 
-                    <li class="buyer-only">
+                    <!-- SAVED ITEMS -->
+
+                    <li>
 
                         <a href="#">
 
@@ -207,7 +205,9 @@
                     </li>
 
 
-                    <li class="buyer-only">
+                    <!-- REQUESTS -->
+
+                    <li>
 
                         <a href="#">
 
@@ -222,7 +222,9 @@
                     </li>
 
 
-                    <li class="buyer-only">
+                    <!-- VIEWING REQUESTS -->
+
+                    <li>
 
                         <a href="#">
 
@@ -237,75 +239,7 @@
                     </li>
 
 
-
-                    <!-- =================================================
-                         SELLER
-                    ================================================== -->
-
-                    <li class="seller-only">
-
-                        <a href="add-listing.html">
-
-                            <span class="dashboard-nav-icon">
-                                ➕
-                            </span>
-
-                            Add Listing
-
-                        </a>
-
-                    </li>
-
-
-                    <li class="seller-only">
-
-                        <a href="my-listings.html">
-
-                            <span class="dashboard-nav-icon">
-                                📋
-                            </span>
-
-                            My Listings
-
-                        </a>
-
-                    </li>
-
-
-                    <li class="seller-only">
-
-                        <a href="#">
-
-                            <span class="dashboard-nav-icon">
-                                📩
-                            </span>
-
-                            Customer Requests
-
-                        </a>
-
-                    </li>
-
-
-                    <li class="seller-only">
-
-                        <a href="#">
-
-                            <span class="dashboard-nav-icon">
-                                👁️
-                            </span>
-
-                            Viewing Requests
-
-                        </a>
-
-                    </li>
-
-
-
-                    <!-- =================================================
-                         BOTH BUYER & SELLER
-                    ================================================== -->
+                    <!-- MESSAGES -->
 
                     <li>
 
@@ -322,6 +256,8 @@
                     </li>
 
 
+                    <!-- NOTIFICATIONS -->
+
                     <li>
 
                         <a href="#">
@@ -336,6 +272,8 @@
 
                     </li>
 
+
+                    <!-- ACCOUNT SETTINGS -->
 
                     <li>
 
@@ -382,7 +320,7 @@
 
                         Welcome Back,
                         <span data-user-name>
-                            User
+                            Loading...
                         </span> 👋
 
                     </h1>
@@ -420,14 +358,14 @@
 
                             <h3 data-user-name>
 
-                                User
+                                Loading...
 
                             </h3>
 
 
                             <p data-user-email>
 
-                                user@example.com
+                                Loading...
 
                             </p>
 
@@ -466,7 +404,7 @@
 
                         <!-- MY LISTINGS -->
 
-                        <div class="dashboard-stat-card seller-only">
+                        <div class="dashboard-stat-card">
 
                             <div class="stat-icon">
                                 📋
@@ -489,7 +427,7 @@
 
                         <!-- SAVED -->
 
-                        <div class="dashboard-stat-card buyer-only">
+                        <div class="dashboard-stat-card">
 
                             <div class="stat-icon">
                                 ❤️
@@ -563,10 +501,10 @@
 
 
                 <!-- =================================================
-                     BUYER QUICK ACTIONS
+                     QUICK ACTIONS
                 ================================================== -->
 
-                <section class="dashboard-section buyer-only">
+                <section class="dashboard-section">
 
 
                     <div class="dashboard-section-header">
@@ -595,8 +533,8 @@
                             </h3>
 
                             <p>
-                                Explore verified products,
-                                vehicles and properties.
+                                Explore products, vehicles
+                                and properties.
                             </p>
 
                         </a>
@@ -639,94 +577,6 @@
                             <p>
                                 Ask TIPECO GROUP to arrange
                                 a product viewing.
-                            </p>
-
-                        </a>
-
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     SELLER QUICK ACTIONS
-                ================================================== -->
-
-                <section class="dashboard-section seller-only">
-
-
-                    <div class="dashboard-section-header">
-
-                        <h2>
-                            Manage Your Business
-                        </h2>
-
-                    </div>
-
-
-                    <div class="quick-actions">
-
-
-                        <!-- ADD LISTING -->
-
-                        <a href="add-listing.html"
-                           class="quick-action">
-
-                            <div class="quick-action-icon">
-                                ➕
-                            </div>
-
-                            <h3>
-                                Add Listing
-                            </h3>
-
-                            <p>
-                                Submit a product or service
-                                for TIPECO GROUP review.
-                            </p>
-
-                        </a>
-
-
-                        <!-- MY LISTINGS -->
-
-                        <a href="my-listings.html"
-                           class="quick-action">
-
-                            <div class="quick-action-icon">
-                                📋
-                            </div>
-
-                            <h3>
-                                My Listings
-                            </h3>
-
-                            <p>
-                                Manage the products and services
-                                you have submitted.
-                            </p>
-
-                        </a>
-
-
-                        <!-- CUSTOMER REQUESTS -->
-
-                        <a href="#"
-                           class="quick-action">
-
-                            <div class="quick-action-icon">
-                                📩
-                            </div>
-
-                            <h3>
-                                Customer Requests
-                            </h3>
-
-                            <p>
-                                View requests received through
-                                TIPECO GROUP.
                             </p>
 
                         </a>
@@ -964,138 +814,360 @@
 
 
     <!-- =====================================================
-         AUTH JAVASCRIPT
+         FIREBASE GENERAL DASHBOARD
     ====================================================== -->
 
-    <script src="../assets/js/auth.js"></script>
+    <script type="module">
+
+        import {
+            auth
+        } from "../assets/js/firebase-config.js";
+
+        import {
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+        import {
+            getApp
+        } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+        import {
+            getFirestore,
+            doc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 
+        /* =====================================================
+           FIRESTORE
+        ====================================================== */
 
-    <!-- =====================================================
-         ROLE-BASED DASHBOARD
-    ====================================================== -->
+        const app = getApp();
 
-    <script>
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            function () {
+        const db = getFirestore(app);
 
 
-                const storedUser =
-                    localStorage.getItem(
-                        "tipecoUser"
+        /* =====================================================
+           DOM ELEMENTS
+        ====================================================== */
+
+        const userNameElements =
+            document.querySelectorAll(
+                "[data-user-name]"
+            );
+
+
+        const userEmailElements =
+            document.querySelectorAll(
+                "[data-user-email]"
+            );
+
+
+        const userRoleElements =
+            document.querySelectorAll(
+                "[data-user-role]"
+            );
+
+
+        const logoutButton =
+            document.querySelector(
+                '[data-action="logout"]'
+            );
+
+
+        /* =====================================================
+           SET USER NAME
+        ====================================================== */
+
+        function setUserName(name) {
+
+            const safeName =
+                name && name.trim()
+                    ? name.trim()
+                    : "TIPECO User";
+
+
+            userNameElements.forEach(
+                function (element) {
+
+                    element.textContent =
+                        safeName;
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           SET USER EMAIL
+        ====================================================== */
+
+        function setUserEmail(email) {
+
+            const safeEmail =
+                email && email.trim()
+                    ? email.trim()
+                    : "";
+
+
+            userEmailElements.forEach(
+                function (element) {
+
+                    element.textContent =
+                        safeEmail;
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           SET USER ROLE LABEL
+        ====================================================== */
+
+        function setUserRole(role) {
+
+            let label =
+                "TIPECO User";
+
+
+            if (role === "owner") {
+
+                label =
+                    "TIPECO Owner";
+
+            }
+
+            else if (role === "agent") {
+
+                label =
+                    "TIPECO Agent";
+
+            }
+
+
+            userRoleElements.forEach(
+                function (element) {
+
+                    element.textContent =
+                        label;
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           LOAD FIRESTORE USER PROFILE
+        ====================================================== */
+
+        async function loadUserProfile(user) {
+
+            try {
+
+                /* ---------------------------------------------
+                   AUTH FALLBACK
+                --------------------------------------------- */
+
+                let displayName =
+                    user.displayName || "";
+
+
+                /* ---------------------------------------------
+                   FIRESTORE PROFILE
+                --------------------------------------------- */
+
+                const userRef =
+                    doc(
+                        db,
+                        "users",
+                        user.uid
                     );
 
 
-                if (!storedUser) {
+                const userSnapshot =
+                    await getDoc(
+                        userRef
+                    );
+
+
+                if (userSnapshot.exists()) {
+
+                    const profile =
+                        userSnapshot.data();
+
+
+                    /*
+                     * The registration flow uses
+                     * Full Name / fullName.
+                     */
+
+                    displayName =
+                        profile.fullName ||
+                        profile.name ||
+                        profile.displayName ||
+                        displayName;
+
+
+                    setUserRole(
+                        profile.role ||
+                        profile.accountType ||
+                        profile.userRole ||
+                        "user"
+                    );
+
+                }
+
+                else {
+
+                    setUserRole("user");
+
+                }
+
+
+                /* ---------------------------------------------
+                   FINAL USER DISPLAY
+                --------------------------------------------- */
+
+                setUserName(
+                    displayName
+                );
+
+
+                setUserEmail(
+                    user.email || ""
+                );
+
+
+                console.log(
+                    "TIPECO GROUP: User profile loaded",
+                    user.uid
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "TIPECO GROUP: Unable to load user profile:",
+                    error
+                );
+
+
+                /*
+                 * Even if Firestore profile loading fails,
+                 * Firebase Auth information remains available.
+                 */
+
+                setUserName(
+                    user.displayName ||
+                    "TIPECO User"
+                );
+
+
+                setUserEmail(
+                    user.email || ""
+                );
+
+
+                setUserRole("user");
+
+            }
+
+        }
+
+
+        /* =====================================================
+           FIREBASE AUTH STATE
+        ====================================================== */
+
+        onAuthStateChanged(
+            auth,
+            async function (user) {
+
+                if (!user) {
+
+                    /*
+                     * No authenticated user.
+                     * Return to login page.
+                     */
+
+                    window.location.href =
+                        "login.html";
 
                     return;
 
                 }
 
 
-                let user;
+                /*
+                 * The current TIPECO architecture
+                 * requires email verification.
+                 */
 
+                if (!user.emailVerified) {
 
-                try {
-
-                    user =
-                        JSON.parse(
-                            storedUser
-                        );
-
-                } catch (error) {
-
-                    console.error(
-                        "Unable to read user role."
-                    );
+                    window.location.href =
+                        "login.html";
 
                     return;
 
                 }
 
 
-                const role =
-                    user.accountType;
-
-
-                const buyerElements =
-                    document.querySelectorAll(
-                        ".buyer-only"
-                    );
-
-
-                const sellerElements =
-                    document.querySelectorAll(
-                        ".seller-only"
-                    );
-
-
-                /* =================================================
-                   BUYER
-                ================================================== */
-
-                if (role === "buyer") {
-
-
-                    buyerElements.forEach(
-                        function (element) {
-
-                            element.style.display =
-                                "";
-
-                        }
-                    );
-
-
-                    sellerElements.forEach(
-                        function (element) {
-
-                            element.style.display =
-                                "none";
-
-                        }
-                    );
-
-
-                }
-
-
-                /* =================================================
-                   SELLER
-                ================================================== */
-
-                else if (
-                    role === "seller"
-                ) {
-
-
-                    sellerElements.forEach(
-                        function (element) {
-
-                            element.style.display =
-                                "";
-
-                        }
-                    );
-
-
-                    buyerElements.forEach(
-                        function (element) {
-
-                            element.style.display =
-                                "none";
-
-                        }
-                    );
-
-
-                }
-
+                await loadUserProfile(
+                    user
+                );
 
             }
         );
+
+
+        /* =====================================================
+           LOGOUT
+        ====================================================== */
+
+        if (logoutButton) {
+
+            logoutButton.addEventListener(
+                "click",
+                async function (event) {
+
+                    event.preventDefault();
+
+
+                    try {
+
+                        await signOut(
+                            auth
+                        );
+
+
+                        window.location.href =
+                            "../index.html";
+
+
+                    } catch (error) {
+
+                        console.error(
+                            "TIPECO GROUP Logout Error:",
+                            error
+                        );
+
+
+                        alert(
+                            "Logout failed. Please try again."
+                        );
+
+                    }
+
+                }
+            );
+
+        }
 
     </script>
 
