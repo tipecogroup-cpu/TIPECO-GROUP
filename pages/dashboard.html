@@ -4,9 +4,16 @@
 <head>
 
     <!-- =====================================================
-         TIPECO GROUP - USER DASHBOARD
+         TIPECO GROUP - MARKETPLACE DASHBOARD
          REAL FIREBASE PROJECT
-         General User Dashboard
+         Marketplace User Dashboard
+
+         IMPORTANT:
+         - Firebase Auth remains the source of truth.
+         - Firestore user profile remains the source of truth.
+         - Subscription != Approval.
+         - Public contact information must not be exposed.
+         - Owner Dashboard is separate.
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -15,7 +22,7 @@
           content="width=device-width, initial-scale=1.0">
 
     <meta name="description"
-          content="TIPECO GROUP User Dashboard">
+          content="TIPECO GROUP Marketplace Dashboard - Buy, Sell, Rent and Jobs">
 
     <meta name="author"
           content="TIPECO GROUP">
@@ -23,11 +30,11 @@
     <meta name="theme-color"
           content="#0D47A1">
 
-    <title>Dashboard | TIPECO GROUP</title>
+    <title>TIPECO Marketplace | Dashboard</title>
 
 
     <!-- =====================================================
-         CSS
+         EXISTING PROJECT CSS
     ====================================================== -->
 
     <link rel="stylesheet"
@@ -45,10 +52,631 @@
     <link rel="stylesheet"
           href="../assets/css/dashboard.css">
 
+
+    <!-- =====================================================
+         MARKETPLACE DASHBOARD LOCAL STYLES
+         These styles extend the existing dashboard without
+         replacing the existing project CSS architecture.
+    ====================================================== -->
+
+    <style>
+
+        /* =====================================================
+           MARKETPLACE VARIABLES
+        ====================================================== */
+
+        .marketplace-dashboard {
+            --mp-primary: #0D47A1;
+            --mp-secondary: #1976D2;
+            --mp-accent: #FFC107;
+            --mp-green: #168a45;
+            --mp-purple: #6A1B9A;
+            --mp-bg: #F5F7FA;
+            --mp-border: #E3E8EF;
+            --mp-text: #1F2937;
+            --mp-muted: #667085;
+            --mp-white: #FFFFFF;
+        }
+
+
+        /* =====================================================
+           MARKETPLACE SIDEBAR
+        ====================================================== */
+
+        .marketplace-sidebar-title {
+            padding: 0 20px 12px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            color: #667085;
+        }
+
+
+        .marketplace-nav-group {
+            margin: 6px 0 14px;
+        }
+
+
+        .marketplace-nav-label {
+            display: block;
+            padding: 8px 20px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #98A2B3;
+        }
+
+
+        .marketplace-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+
+        .marketplace-nav-icon {
+            width: 24px;
+            min-width: 24px;
+            text-align: center;
+        }
+
+
+        .marketplace-nav-badge {
+            margin-left: auto;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 7px;
+            border-radius: 20px;
+            background: rgba(13, 71, 161, 0.08);
+            color: #0D47A1;
+        }
+
+
+        /* =====================================================
+           MARKETPLACE HERO
+        ====================================================== */
+
+        .marketplace-hero {
+            background:
+                linear-gradient(
+                    135deg,
+                    #0D47A1 0%,
+                    #1976D2 60%,
+                    #1565C0 100%
+                );
+            color: #FFFFFF;
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 12px 30px rgba(13, 71, 161, 0.14);
+        }
+
+
+        .marketplace-hero-label {
+            margin: 0 0 7px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            opacity: 0.82;
+        }
+
+
+        .marketplace-hero h1 {
+            margin: 0 0 9px;
+            font-size: clamp(25px, 4vw, 36px);
+            line-height: 1.15;
+        }
+
+
+        .marketplace-hero p {
+            margin: 0;
+            max-width: 720px;
+            line-height: 1.65;
+            opacity: 0.92;
+        }
+
+
+        /* =====================================================
+           CORE MARKETPLACE CARDS
+        ====================================================== */
+
+        .marketplace-core-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+
+        .marketplace-core-card {
+            position: relative;
+            display: block;
+            min-height: 165px;
+            padding: 21px;
+            border-radius: 16px;
+            border: 1px solid var(--mp-border);
+            background: #FFFFFF;
+            color: var(--mp-text);
+            text-decoration: none;
+            box-sizing: border-box;
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+
+        .marketplace-core-card:hover {
+            transform: translateY(-3px);
+            border-color: #B7C9E8;
+            box-shadow: 0 12px 28px rgba(16, 24, 40, 0.08);
+        }
+
+
+        .marketplace-core-icon {
+            width: 46px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 13px;
+            margin-bottom: 15px;
+            font-size: 23px;
+        }
+
+
+        .marketplace-buy .marketplace-core-icon {
+            background: rgba(25, 118, 210, 0.11);
+        }
+
+
+        .marketplace-sell .marketplace-core-icon {
+            background: rgba(13, 71, 161, 0.11);
+        }
+
+
+        .marketplace-rent .marketplace-core-icon {
+            background: rgba(255, 193, 7, 0.16);
+        }
+
+
+        .marketplace-jobs .marketplace-core-icon {
+            background: rgba(106, 27, 154, 0.11);
+        }
+
+
+        .marketplace-core-card h3 {
+            margin: 0 0 6px;
+            font-size: 18px;
+        }
+
+
+        .marketplace-core-card p {
+            margin: 0;
+            color: #667085;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+
+        .marketplace-core-arrow {
+            position: absolute;
+            right: 18px;
+            bottom: 18px;
+            font-weight: 800;
+            color: #0D47A1;
+        }
+
+
+        /* =====================================================
+           SEARCH
+        ====================================================== */
+
+        .marketplace-search-box {
+            padding: 20px;
+            border-radius: 16px;
+            background: #FFFFFF;
+            border: 1px solid var(--mp-border);
+            margin-bottom: 28px;
+        }
+
+
+        .marketplace-search-box h2 {
+            margin: 0 0 14px;
+            font-size: 19px;
+        }
+
+
+        .marketplace-search-form {
+            display: grid;
+            grid-template-columns:
+                minmax(220px, 2fr)
+                minmax(145px, 1fr)
+                minmax(145px, 1fr)
+                auto;
+            gap: 10px;
+        }
+
+
+        .marketplace-search-form input,
+        .marketplace-search-form select {
+            width: 100%;
+            min-height: 46px;
+            box-sizing: border-box;
+            padding: 0 13px;
+            border: 1px solid #D0D5DD;
+            border-radius: 9px;
+            background: #FFFFFF;
+            color: #344054;
+            outline: none;
+        }
+
+
+        .marketplace-search-form input:focus,
+        .marketplace-search-form select:focus {
+            border-color: #1976D2;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.10);
+        }
+
+
+        .marketplace-search-button {
+            border: 0;
+            border-radius: 9px;
+            min-height: 46px;
+            padding: 0 20px;
+            background: #0D47A1;
+            color: #FFFFFF;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+
+        /* =====================================================
+           CATEGORY GRID
+        ====================================================== */
+
+        .marketplace-category-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+
+        .marketplace-category {
+            display: block;
+            padding: 15px;
+            border: 1px solid var(--mp-border);
+            border-radius: 12px;
+            background: #FFFFFF;
+            color: #1F2937;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+
+        .marketplace-category:hover {
+            border-color: #9DB9E4;
+            transform: translateY(-2px);
+        }
+
+
+        .marketplace-category strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+
+        .marketplace-category span {
+            color: #667085;
+            font-size: 12px;
+        }
+
+
+        /* =====================================================
+           CONTENT GRID
+        ====================================================== */
+
+        .marketplace-content-grid {
+            display: grid;
+            grid-template-columns:
+                minmax(0, 1.65fr)
+                minmax(280px, 0.85fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+
+        .marketplace-panel {
+            background: #FFFFFF;
+            border: 1px solid var(--mp-border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+
+        .marketplace-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--mp-border);
+        }
+
+
+        .marketplace-panel-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+
+        .marketplace-panel-link {
+            color: #0D47A1;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+
+        /* =====================================================
+           LISTING PLACEHOLDER
+        ====================================================== */
+
+        .marketplace-empty {
+            padding: 30px 20px;
+            text-align: center;
+            color: #667085;
+        }
+
+
+        .marketplace-empty-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+
+        .marketplace-empty h3 {
+            margin: 0 0 7px;
+            color: #344054;
+            font-size: 16px;
+        }
+
+
+        .marketplace-empty p {
+            max-width: 500px;
+            margin: 0 auto;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+
+        /* =====================================================
+           JOB CARDS
+        ====================================================== */
+
+        .marketplace-job-list {
+            padding: 5px 20px;
+        }
+
+
+        .marketplace-job-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 16px 0;
+            border-bottom: 1px solid #EEF1F5;
+        }
+
+
+        .marketplace-job-item:last-child {
+            border-bottom: 0;
+        }
+
+
+        .marketplace-job-item h3 {
+            margin: 0 0 5px;
+            font-size: 15px;
+        }
+
+
+        .marketplace-job-item p {
+            margin: 0;
+            color: #667085;
+            font-size: 12px;
+        }
+
+
+        .marketplace-job-button {
+            align-self: center;
+            white-space: nowrap;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #D0D5DD;
+            color: #0D47A1;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+
+        /* =====================================================
+           INFO CARDS
+        ====================================================== */
+
+        .marketplace-info-card {
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--mp-border);
+            background: #FFFFFF;
+            margin-bottom: 16px;
+        }
+
+
+        .marketplace-info-card:last-child {
+            margin-bottom: 0;
+        }
+
+
+        .marketplace-info-card h3 {
+            margin: 0 0 8px;
+            font-size: 17px;
+        }
+
+
+        .marketplace-info-card p {
+            margin: 0 0 15px;
+            color: #667085;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+
+        .marketplace-primary-button,
+        .marketplace-secondary-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+            padding: 0 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            box-sizing: border-box;
+        }
+
+
+        .marketplace-primary-button {
+            background: #0D47A1;
+            color: #FFFFFF;
+        }
+
+
+        .marketplace-secondary-button {
+            border: 1px solid #D0D5DD;
+            color: #344054;
+            background: #FFFFFF;
+        }
+
+
+        /* =====================================================
+           SUBSCRIPTION CARD
+        ====================================================== */
+
+        .marketplace-subscription-card {
+            border-left: 4px solid #FFC107;
+        }
+
+
+        .marketplace-subscription-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 12px;
+            padding: 5px 9px;
+            border-radius: 20px;
+            background: rgba(255, 193, 7, 0.13);
+            color: #7A5A00;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+
+        /* =====================================================
+           CHAT PROTECTION
+        ====================================================== */
+
+        .marketplace-chat-card {
+            border-left: 4px solid #1976D2;
+        }
+
+
+        .marketplace-protection-card {
+            border-left: 4px solid #168A45;
+        }
+
+
+        .marketplace-protection-list {
+            margin: 12px 0 0;
+            padding-left: 19px;
+            color: #667085;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ====================================================== */
+
+        @media (max-width: 1050px) {
+
+            .marketplace-core-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+
+            .marketplace-category-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+
+            .marketplace-content-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 760px) {
+
+            .marketplace-search-form {
+                grid-template-columns: 1fr;
+            }
+
+
+            .marketplace-core-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .marketplace-category-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .marketplace-hero {
+                padding: 22px;
+                border-radius: 14px;
+            }
+
+
+            .marketplace-job-item {
+                flex-direction: column;
+            }
+
+
+            .marketplace-job-button {
+                align-self: flex-start;
+            }
+
+        }
+
+    </style>
+
 </head>
 
 
-<body>
+<body class="marketplace-dashboard">
 
 
     <!-- =====================================================
@@ -74,8 +702,6 @@
 
             <div class="dashboard-header-actions">
 
-
-                <!-- USER -->
 
                 <div class="dashboard-user">
 
@@ -137,15 +763,15 @@
 
 
             <!-- =================================================
-                 SIDEBAR
+                 MARKETPLACE SIDEBAR
             ================================================== -->
 
             <aside class="dashboard-sidebar">
 
 
-                <div class="sidebar-title">
+                <div class="marketplace-sidebar-title">
 
-                    MY DASHBOARD
+                    TIPECO MARKETPLACE
 
                 </div>
 
@@ -153,48 +779,118 @@
                 <ul class="dashboard-nav">
 
 
-                    <!-- DASHBOARD -->
+                    <!-- MARKETPLACE HOME -->
 
                     <li>
 
                         <a href="dashboard.html"
-                           class="active">
+                           class="active marketplace-nav-link">
 
-                            <span class="dashboard-nav-icon">
+                            <span class="marketplace-nav-icon">
                                 🏠
                             </span>
 
-                            Dashboard
+                            Marketplace Home
 
                         </a>
 
                     </li>
 
 
-                    <!-- BUY & SELL -->
+                    <!-- BUY -->
 
-                    <li>
+                    <li class="marketplace-nav-group">
 
-                        <a href="marketplace.html">
+                        <span class="marketplace-nav-label">
+                            Explore
+                        </span>
 
-                            <span class="dashboard-nav-icon">
-                                🔎
+
+                        <a href="#buy"
+                           class="marketplace-nav-link">
+
+                            <span class="marketplace-nav-icon">
+                                🟢
                             </span>
 
-                            Browse Buy &amp; Sell
+                            BUY
 
                         </a>
 
                     </li>
 
 
-                    <!-- SAVED ITEMS -->
+                    <!-- SELL -->
 
                     <li>
 
-                        <a href="#">
+                        <a href="#sell"
+                           class="marketplace-nav-link">
 
-                            <span class="dashboard-nav-icon">
+                            <span class="marketplace-nav-icon">
+                                🔵
+                            </span>
+
+                            SELL
+
+                            <span class="marketplace-nav-badge">
+                                Subscription
+                            </span>
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- RENT -->
+
+                    <li>
+
+                        <a href="#rent"
+                           class="marketplace-nav-link">
+
+                            <span class="marketplace-nav-icon">
+                                🟡
+                            </span>
+
+                            RENT
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- JOBS -->
+
+                    <li>
+
+                        <a href="#jobs"
+                           class="marketplace-nav-link">
+
+                            <span class="marketplace-nav-icon">
+                                🟣
+                            </span>
+
+                            JOBS
+
+                        </a>
+
+                    </li>
+
+
+                    <!-- ACCOUNT / ACTIVITY -->
+
+                    <li class="marketplace-nav-group">
+
+                        <span class="marketplace-nav-label">
+                            My Activity
+                        </span>
+
+
+                        <a href="#saved"
+                           class="marketplace-nav-link">
+
+                            <span class="marketplace-nav-icon">
                                 ❤️
                             </span>
 
@@ -205,13 +901,12 @@
                     </li>
 
 
-                    <!-- REQUESTS -->
-
                     <li>
 
-                        <a href="#">
+                        <a href="#requests"
+                           class="marketplace-nav-link">
 
-                            <span class="dashboard-nav-icon">
+                            <span class="marketplace-nav-icon">
                                 📩
                             </span>
 
@@ -222,13 +917,12 @@
                     </li>
 
 
-                    <!-- VIEWING REQUESTS -->
-
                     <li>
 
-                        <a href="#">
+                        <a href="#viewings"
+                           class="marketplace-nav-link">
 
-                            <span class="dashboard-nav-icon">
+                            <span class="marketplace-nav-icon">
                                 👁️
                             </span>
 
@@ -239,30 +933,28 @@
                     </li>
 
 
-                    <!-- MESSAGES -->
-
                     <li>
 
-                        <a href="#">
+                        <a href="#chat"
+                           class="marketplace-nav-link">
 
-                            <span class="dashboard-nav-icon">
+                            <span class="marketplace-nav-icon">
                                 💬
                             </span>
 
-                            Messages
+                            TIPECO Chat
 
                         </a>
 
                     </li>
 
 
-                    <!-- NOTIFICATIONS -->
-
                     <li>
 
-                        <a href="#">
+                        <a href="#notifications"
+                           class="marketplace-nav-link">
 
-                            <span class="dashboard-nav-icon">
+                            <span class="marketplace-nav-icon">
                                 🔔
                             </span>
 
@@ -273,13 +965,51 @@
                     </li>
 
 
-                    <!-- ACCOUNT SETTINGS -->
+                    <!-- ACCOUNT -->
+
+                    <li class="marketplace-nav-group">
+
+                        <span class="marketplace-nav-label">
+                            Account
+                        </span>
+
+
+                        <a href="#subscription"
+                           class="marketplace-nav-link">
+
+                            <span class="marketplace-nav-icon">
+                                💳
+                            </span>
+
+                            Subscription
+
+                        </a>
+
+                    </li>
+
 
                     <li>
 
-                        <a href="#">
+                        <a href="#profile"
+                           class="marketplace-nav-link">
 
-                            <span class="dashboard-nav-icon">
+                            <span class="marketplace-nav-icon">
+                                👤
+                            </span>
+
+                            My Profile
+
+                        </a>
+
+                    </li>
+
+
+                    <li>
+
+                        <a href="#settings"
+                           class="marketplace-nav-link">
+
+                            <span class="marketplace-nav-icon">
                                 ⚙️
                             </span>
 
@@ -304,33 +1034,30 @@
 
 
                 <!-- =================================================
-                     WELCOME
+                     MARKETPLACE HERO
                 ================================================== -->
 
-                <section class="dashboard-welcome">
+                <section class="marketplace-hero">
 
-                    <p class="dashboard-welcome-label">
-
-                        TIPECO GROUP DASHBOARD
-
+                    <p class="marketplace-hero-label">
+                        TIPECO MARKETPLACE
                     </p>
 
 
                     <h1>
-
                         Welcome Back,
                         <span data-user-name>
                             Loading...
-                        </span> 👋
-
+                        </span>
+                        👋
                     </h1>
 
 
                     <p>
-
-                        Manage your TIPECO GROUP account
-                        and activities from one place.
-
+                        Buy, sell, rent, find jobs and connect
+                        through a trusted marketplace built
+                        with TIPECO GROUP protection and
+                        moderation.
                     </p>
 
                 </section>
@@ -338,71 +1065,954 @@
 
 
                 <!-- =================================================
-                     PROFILE SUMMARY
+                     BUY / SELL / RENT / JOBS
                 ================================================== -->
 
-                <section class="profile-card">
+                <section
+                    class="dashboard-section"
+                    id="marketplace-actions">
 
 
-                    <div class="profile-card-top">
+                    <div class="dashboard-section-header">
+
+                        <h2>
+                            What Would You Like To Do?
+                        </h2>
+
+                    </div>
 
 
-                        <div class="dashboard-avatar">
+                    <div class="marketplace-core-grid">
 
-                            👤
+
+                        <!-- BUY -->
+
+                        <a href="#buy"
+                           class="marketplace-core-card marketplace-buy">
+
+                            <div class="marketplace-core-icon">
+                                🛒
+                            </div>
+
+
+                            <h3>
+                                BUY
+                            </h3>
+
+
+                            <p>
+                                Browse approved products,
+                                properties, vehicles,
+                                services and more.
+                            </p>
+
+
+                            <span class="marketplace-core-arrow">
+                                →
+                            </span>
+
+                        </a>
+
+
+                        <!-- SELL -->
+
+                        <a href="#sell"
+                           class="marketplace-core-card marketplace-sell">
+
+                            <div class="marketplace-core-icon">
+                                🏷️
+                            </div>
+
+
+                            <h3>
+                                SELL
+                            </h3>
+
+
+                            <p>
+                                Promote your products or
+                                services through TIPECO.
+                                Subscription is required
+                                to publish.
+                            </p>
+
+
+                            <span class="marketplace-core-arrow">
+                                →
+                            </span>
+
+                        </a>
+
+
+                        <!-- RENT -->
+
+                        <a href="#rent"
+                           class="marketplace-core-card marketplace-rent">
+
+                            <div class="marketplace-core-icon">
+                                🏠
+                            </div>
+
+
+                            <h3>
+                                RENT
+                            </h3>
+
+
+                            <p>
+                                Find houses, apartments,
+                                vehicles, equipment and
+                                other rental opportunities.
+                            </p>
+
+
+                            <span class="marketplace-core-arrow">
+                                →
+                            </span>
+
+                        </a>
+
+
+                        <!-- JOBS -->
+
+                        <a href="#jobs"
+                           class="marketplace-core-card marketplace-jobs">
+
+                            <div class="marketplace-core-icon">
+                                💼
+                            </div>
+
+
+                            <h3>
+                                JOBS
+                            </h3>
+
+
+                            <p>
+                                Find a job or discover
+                                employees by skills,
+                                experience and location.
+                            </p>
+
+
+                            <span class="marketplace-core-arrow">
+                                →
+                            </span>
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     SEARCH MARKETPLACE
+                ================================================== -->
+
+                <section
+                    class="marketplace-search-box"
+                    id="search">
+
+
+                    <h2>
+                        Search Marketplace
+                    </h2>
+
+
+                    <form
+                        class="marketplace-search-form"
+                        id="marketplaceSearchForm">
+
+
+                        <input
+                            type="search"
+                            id="marketplaceSearch"
+                            name="search"
+                            placeholder="Search products, properties, vehicles, services, jobs..."
+                            autocomplete="off">
+
+
+                        <select
+                            id="marketplaceCategory"
+                            name="category">
+
+                            <option value="">
+                                All Categories
+                            </option>
+
+                            <option value="vehicles">
+                                Vehicles
+                            </option>
+
+                            <option value="real-estate">
+                                Real Estate
+                            </option>
+
+                            <option value="electronics">
+                                Electronics
+                            </option>
+
+                            <option value="home-furniture">
+                                Home &amp; Furniture
+                            </option>
+
+                            <option value="construction-products">
+                                Construction Products
+                            </option>
+
+                            <option value="paint-construction">
+                                Paint &amp; Construction
+                            </option>
+
+                            <option value="services">
+                                Services
+                            </option>
+
+                            <option value="jobs">
+                                Jobs
+                            </option>
+
+                            <option value="other">
+                                Other
+                            </option>
+
+                        </select>
+
+
+                        <select
+                            id="marketplaceType"
+                            name="type">
+
+                            <option value="">
+                                All Types
+                            </option>
+
+                            <option value="buy">
+                                Buy
+                            </option>
+
+                            <option value="sell">
+                                Sell
+                            </option>
+
+                            <option value="rent">
+                                Rent
+                            </option>
+
+                            <option value="job">
+                                Job
+
+                            </option>
+
+                        </select>
+
+
+                        <button
+                            type="submit"
+                            class="marketplace-search-button">
+
+                            Search
+
+                        </button>
+
+                    </form>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     MARKETPLACE CATEGORIES
+                ================================================== -->
+
+                <section
+                    class="dashboard-section"
+                    id="buy">
+
+
+                    <div class="dashboard-section-header">
+
+                        <h2>
+                            Marketplace Categories
+                        </h2>
+
+
+                        <a href="marketplace.html"
+                           class="dashboard-section-link">
+
+                            Browse Marketplace
+
+                        </a>
+
+                    </div>
+
+
+                    <div class="marketplace-category-grid">
+
+
+                        <a href="marketplace.html?category=vehicles"
+                           class="marketplace-category">
+
+                            <strong>
+                                🚗 Vehicles
+                            </strong>
+
+                            <span>
+                                Cars, motorcycles and more
+                            </span>
+
+                        </a>
+
+
+                        <a href="marketplace.html?category=real-estate"
+                           class="marketplace-category">
+
+                            <strong>
+                                🏠 Real Estate
+                            </strong>
+
+                            <span>
+                                Houses, land and properties
+                            </span>
+
+                        </a>
+
+
+                        <a href="marketplace.html?category=electronics"
+                           class="marketplace-category">
+
+                            <strong>
+                                📱 Electronics
+                            </strong>
+
+                            <span>
+                                Devices and electronics
+                            </span>
+
+                        </a>
+
+
+                        <a href="marketplace.html?category=home-furniture"
+                           class="marketplace-category">
+
+                            <strong>
+                                🛋️ Home &amp; Furniture
+                            </strong>
+
+                            <span>
+                                Furniture and household items
+                            </span>
+
+                        </a>
+
+
+                        <a href="marketplace.html?category=construction-products"
+                           class="marketplace-category">
+
+                            <strong>
+                                🧱 Construction Products
+                            </strong>
+
+                            <span>
+                                Building materials and products
+                            </span>
+
+                        </a>
+
+
+                        <a href="marketplace.html?category=paint-construction"
+                           class="marketplace-category">
+
+                            <strong>
+                                🎨 Paint &amp; Construction
+                            </strong>
+
+                            <span>
+                                Paint and construction solutions
+                            </span>
+
+                        </a>
+
+
+                        <a href="marketplace.html?category=services"
+                           class="marketplace-category">
+
+                            <strong>
+                                🛠️ Services
+                            </strong>
+
+                            <span>
+                                Professional and local services
+                            </span>
+
+                        </a>
+
+
+                        <a href="marketplace.html?category=other"
+                           class="marketplace-category">
+
+                            <strong>
+                                📦 Other
+                            </strong>
+
+                            <span>
+                                Other approved marketplace items
+                            </span>
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     MAIN MARKETPLACE CONTENT
+                ================================================== -->
+
+                <section
+                    class="marketplace-content-grid"
+                    id="marketplace-content">
+
+
+                    <!-- =============================================
+                         LATEST LISTINGS
+                    ============================================== -->
+
+                    <div class="marketplace-panel">
+
+
+                        <div class="marketplace-panel-header">
+
+                            <h2>
+                                Latest Approved Listings
+                            </h2>
+
+
+                            <a href="marketplace.html"
+                               class="marketplace-panel-link">
+
+                                View All
+
+                            </a>
 
                         </div>
 
 
-                        <div>
+                        <div
+                            class="marketplace-empty"
+                            id="latestListings">
 
-                            <h3 data-user-name>
 
-                                Loading...
+                            <div class="marketplace-empty-icon">
+                                🛍️
+                            </div>
 
+
+                            <h3>
+                                Marketplace Listings
                             </h3>
 
 
-                            <p data-user-email>
-
-                                Loading...
-
+                            <p>
+                                Approved public listings will
+                                appear here. Browsing and
+                                searching Marketplace is free.
                             </p>
 
-
-                            <p data-user-role>
-
-                                TIPECO User
-
-                            </p>
 
                         </div>
 
                     </div>
 
 
-                    <a href="#"
-                       class="profile-card-link">
 
-                        Edit Profile
+                    <!-- =============================================
+                         JOBS
+                    ============================================== -->
 
-                    </a>
+                    <div
+                        class="marketplace-panel"
+                        id="jobs">
+
+
+                        <div class="marketplace-panel-header">
+
+                            <h2>
+                                Latest Jobs
+                            </h2>
+
+
+                            <a href="#jobs"
+                               class="marketplace-panel-link">
+
+                                Explore
+
+                            </a>
+
+                        </div>
+
+
+                        <div class="marketplace-job-list">
+
+
+                            <div class="marketplace-job-item">
+
+                                <div>
+
+                                    <h3>
+                                        Find a Job
+                                    </h3>
+
+                                    <p>
+                                        Browse approved job
+                                        opportunities.
+                                    </p>
+
+                                </div>
+
+
+                                <a href="#jobs"
+                                   class="marketplace-job-button">
+
+                                    Browse
+
+                                </a>
+
+                            </div>
+
+
+                            <div class="marketplace-job-item">
+
+                                <div>
+
+                                    <h3>
+                                        Find an Employee
+                                    </h3>
+
+                                    <p>
+                                        Search employees by
+                                        skills and experience.
+                                    </p>
+
+                                </div>
+
+
+                                <a href="#jobs"
+                                   class="marketplace-job-button">
+
+                                    Explore
+
+                                </a>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
 
                 </section>
 
 
 
                 <!-- =================================================
-                     STATISTICS
+                     RENT
+                ================================================== -->
+
+                <section
+                    class="dashboard-section"
+                    id="rent">
+
+
+                    <div class="dashboard-section-header">
+
+                        <h2>
+                            RENT
+                        </h2>
+
+
+                        <span class="dashboard-section-link">
+                            Rental Marketplace
+                        </span>
+
+                    </div>
+
+
+                    <div class="marketplace-category-grid">
+
+
+                        <a href="marketplace.html?type=rent&category=houses"
+                           class="marketplace-category">
+
+                            <strong>
+                                🏡 Houses
+                            </strong>
+
+                            <span>
+                                Rental houses
+                            </span>
+
+                        </a>
+
+
+                        <a href="marketplace.html?type=rent&category=apartments"
+                           class="marketplace-category">
+
+                            <strong>
+                                🏢 Apartments
+                            </strong>
+
+                            <span>
+                                Rental apartments
+                            </span>
+
+                        </a>
+
+
+                        <a href="marketplace.html?type=rent&category=commercial"
+                           class="marketplace-category">
+
+                            <strong>
+                                🏬 Commercial Property
+                            </strong>
+
+                            <span>
+                                Offices and commercial spaces
+                            </span>
+
+                        </a>
+
+
+                        <a href="marketplace.html?type=rent&category=vehicles"
+                           class="marketplace-category">
+
+                            <strong>
+                                🚙 Vehicles
+                            </strong>
+
+                            <span>
+                                Vehicles available for rent
+                            </span>
+
+                        </a>
+
+
+                        <a href="marketplace.html?type=rent&category=equipment"
+                           class="marketplace-category">
+
+                            <strong>
+                                🏗️ Equipment
+                            </strong>
+
+                            <span>
+                                Equipment available for rent
+                            </span>
+
+                        </a>
+
+
+                        <a href="marketplace.html?type=rent&category=furniture"
+                           class="marketplace-category">
+
+                            <strong>
+                                🪑 Furniture
+                            </strong>
+
+                            <span>
+                                Furniture available for rent
+                            </span>
+
+                        </a>
+
+
+                        <a href="marketplace.html?type=rent&category=other"
+                           class="marketplace-category">
+
+                            <strong>
+                                📦 Other
+                            </strong>
+
+                            <span>
+                                Other rental opportunities
+                            </span>
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     SELL
+                ================================================== -->
+
+                <section
+                    class="dashboard-section"
+                    id="sell">
+
+
+                    <div class="marketplace-info-card">
+
+
+                        <h3>
+                            🏷️ Sell on TIPECO Marketplace
+                        </h3>
+
+
+                        <p>
+                            Promote your products, properties,
+                            vehicles, services and other approved
+                            marketplace items. A subscription is
+                            required to submit content for
+                            publication.
+                        </p>
+
+
+                        <p>
+                            <strong>
+                                Important:
+                            </strong>
+
+                            Subscription does not automatically
+                            approve a listing. TIPECO GROUP review
+                            and approval remain required before
+                            publication.
+                        </p>
+
+
+                        <a href="#subscription"
+                           class="marketplace-primary-button">
+
+                            View Subscription
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     JOBS DETAILS
+                ================================================== -->
+
+                <section
+                    class="dashboard-section"
+                    id="jobs-details">
+
+
+                    <div class="dashboard-section-header">
+
+                        <h2>
+                            JOBS
+                        </h2>
+
+                    </div>
+
+
+                    <div class="marketplace-category-grid">
+
+
+                        <a href="#jobs"
+                           class="marketplace-category">
+
+                            <strong>
+                                🏗️ Construction
+                            </strong>
+
+                            <span>
+                                Construction opportunities
+                            </span>
+
+                        </a>
+
+
+                        <a href="#jobs"
+                           class="marketplace-category">
+
+                            <strong>
+                                💻 Technology / IT
+                            </strong>
+
+                            <span>
+                                Technology and digital roles
+                            </span>
+
+                        </a>
+
+
+                        <a href="#jobs"
+                           class="marketplace-category">
+
+                            <strong>
+                                💼 Business &amp; Finance
+                            </strong>
+
+                            <span>
+                                Business and finance roles
+                            </span>
+
+                        </a>
+
+
+                        <a href="#jobs"
+                           class="marketplace-category">
+
+                            <strong>
+                                📣 Sales &amp; Marketing
+                            </strong>
+
+                            <span>
+                                Sales and marketing roles
+                            </span>
+
+                        </a>
+
+
+                        <a href="#jobs"
+                           class="marketplace-category">
+
+                            <strong>
+                                🚚 Transport
+                            </strong>
+
+                            <span>
+                                Transport opportunities
+                            </span>
+
+                        </a>
+
+
+                        <a href="#jobs"
+                           class="marketplace-category">
+
+                            <strong>
+                                🍽️ Hospitality
+                            </strong>
+
+                            <span>
+                                Hospitality opportunities
+                            </span>
+
+                        </a>
+
+
+                        <a href="#jobs"
+                           class="marketplace-category">
+
+                            <strong>
+                                🛡️ Security
+                            </strong>
+
+                            <span>
+                                Security roles
+                            </span>
+
+                        </a>
+
+
+                        <a href="#jobs"
+                           class="marketplace-category">
+
+                            <strong>
+                                🔧 Skilled Trades
+                            </strong>
+
+                            <span>
+                                Skilled technical work
+                            </span>
+
+                        </a>
+
+
+                        <a href="#jobs"
+                           class="marketplace-category">
+
+                            <strong>
+                                🌱 Agriculture
+                            </strong>
+
+                            <span>
+                                Agriculture opportunities
+                            </span>
+
+                        </a>
+
+
+                        <a href="#jobs"
+                           class="marketplace-category">
+
+                            <strong>
+                                🏥 Healthcare
+                            </strong>
+
+                            <span>
+                                Healthcare opportunities
+                            </span>
+
+                        </a>
+
+
+                        <a href="#jobs"
+                           class="marketplace-category">
+
+                            <strong>
+                                🎓 Education
+                            </strong>
+
+                            <span>
+                                Education opportunities
+                            </span>
+
+                        </a>
+
+
+                        <a href="#jobs"
+                           class="marketplace-category">
+
+                            <strong>
+                                📦 Other
+                            </strong>
+
+                            <span>
+                                Other approved job categories
+                            </span>
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     USER STATISTICS
                 ================================================== -->
 
                 <section class="dashboard-section">
 
 
+                    <div class="dashboard-section-header">
+
+                        <h2>
+                            My Marketplace Activity
+                        </h2>
+
+                    </div>
+
+
                     <div class="dashboard-stats">
 
 
-                        <!-- MY LISTINGS -->
+                        <!-- LISTINGS -->
 
                         <div class="dashboard-stat-card">
 
@@ -463,7 +2073,7 @@
                                 </strong>
 
                                 <div class="stat-title">
-                                    Requests
+                                    My Requests
                                 </div>
 
                             </div>
@@ -471,7 +2081,7 @@
                         </div>
 
 
-                        <!-- MESSAGES -->
+                        <!-- CHAT -->
 
                         <div class="dashboard-stat-card">
 
@@ -486,13 +2096,12 @@
                                 </strong>
 
                                 <div class="stat-title">
-                                    Messages
+                                    TIPECO Chat
                                 </div>
 
                             </div>
 
                         </div>
-
 
                     </div>
 
@@ -510,7 +2119,7 @@
                     <div class="dashboard-section-header">
 
                         <h2>
-                            What Would You Like To Do?
+                            Quick Actions
                         </h2>
 
                     </div>
@@ -528,59 +2137,133 @@
                                 🔎
                             </div>
 
+
                             <h3>
-                                Browse Buy &amp; Sell
+                                Browse Marketplace
                             </h3>
 
+
                             <p>
-                                Explore products, vehicles
-                                and properties.
+                                Explore approved listings
+                                and marketplace content.
                             </p>
 
                         </a>
 
 
-                        <!-- SAVED -->
+                        <!-- CREATE -->
 
-                        <a href="#"
+                        <a href="#sell"
                            class="quick-action">
 
                             <div class="quick-action-icon">
-                                ❤️
+                                ➕
                             </div>
 
+
                             <h3>
-                                Saved Items
+                                Create Listing
                             </h3>
 
+
                             <p>
-                                View products and properties
-                                you saved.
+                                Subscription is required
+                                before submitting a listing.
                             </p>
 
                         </a>
 
 
-                        <!-- VIEWING -->
+                        <!-- RENT -->
 
-                        <a href="#"
+                        <a href="#rent"
                            class="quick-action">
 
                             <div class="quick-action-icon">
-                                👁️
+                                🏠
                             </div>
 
+
                             <h3>
-                                Request a Viewing
+                                Find Rentals
                             </h3>
 
+
                             <p>
-                                Ask TIPECO GROUP to arrange
-                                a product viewing.
+                                Explore houses, vehicles,
+                                equipment and more.
                             </p>
 
                         </a>
 
+
+                        <!-- JOB -->
+
+                        <a href="#jobs"
+                           class="quick-action">
+
+                            <div class="quick-action-icon">
+                                💼
+                            </div>
+
+
+                            <h3>
+                                Find a Job
+                            </h3>
+
+
+                            <p>
+                                Explore approved job
+                                opportunities.
+                            </p>
+
+                        </a>
+
+
+                        <!-- EMPLOYEE -->
+
+                        <a href="#jobs"
+                           class="quick-action">
+
+                            <div class="quick-action-icon">
+                                👥
+                            </div>
+
+
+                            <h3>
+                                Find an Employee
+                            </h3>
+
+
+                            <p>
+                                Discover employees by skills,
+                                experience and location.
+                            </p>
+
+                        </a>
+
+
+                        <!-- CHAT -->
+
+                        <a href="#chat"
+                           class="quick-action">
+
+                            <div class="quick-action-icon">
+                                💬
+                            </div>
+
+
+                            <h3>
+                                TIPECO Chat
+                            </h3>
+
+
+                            <p>
+                                Communicate through the
+                                protected TIPECO platform.
+                            </p>
+
+                        </a>
 
                     </div>
 
@@ -589,10 +2272,168 @@
 
 
                 <!-- =================================================
-                     TIPECO GROUP VERIFICATION
+                     SUBSCRIPTION
+                ================================================== -->
+
+                <section
+                    class="dashboard-section"
+                    id="subscription">
+
+
+                    <div class="marketplace-info-card marketplace-subscription-card">
+
+
+                        <span class="marketplace-subscription-status">
+                            💳 SUBSCRIPTION
+                        </span>
+
+
+                        <h3>
+                            TIPECO Marketplace Subscription
+                        </h3>
+
+
+                        <p>
+                            A subscription allows eligible users
+                            to submit listings and access protected
+                            marketplace activities according to
+                            TIPECO GROUP rules.
+                        </p>
+
+
+                        <p>
+                            <strong>
+                                Subscription does not equal approval.
+                            </strong>
+
+                            Every controlled listing or publication
+                            remains subject to TIPECO GROUP review,
+                            verification and approval.
+                        </p>
+
+
+                        <a href="#"
+                           class="marketplace-primary-button"
+                           data-feature="subscription">
+
+                            View Plans
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     TIPECO CHAT
+                ================================================== -->
+
+                <section
+                    class="dashboard-section"
+                    id="chat">
+
+
+                    <div class="marketplace-info-card marketplace-chat-card">
+
+
+                        <h3>
+                            💬 TIPECO Chat
+                        </h3>
+
+
+                        <p>
+                            Communicate with buyers, sellers,
+                            employers and service providers through
+                            the TIPECO GROUP platform.
+                        </p>
+
+
+                        <p>
+                            For safety and privacy, personal phone
+                            numbers, WhatsApp numbers, Telegram
+                            handles and other direct contact
+                            information should not be published
+                            inside marketplace listings.
+                        </p>
+
+
+                        <a href="#"
+                           class="marketplace-primary-button"
+                           data-feature="chat">
+
+                            Open TIPECO Chat
+
+                        </a>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     PROTECTED MARKETPLACE
                 ================================================== -->
 
                 <section class="dashboard-section">
+
+
+                    <div class="marketplace-info-card marketplace-protection-card">
+
+
+                        <h3>
+                            🛡️ TIPECO GROUP Protected Marketplace
+                        </h3>
+
+
+                        <p>
+                            TIPECO GROUP is designed as a controlled
+                            marketplace. Listings and selected
+                            marketplace activities may be reviewed
+                            and verified before publication.
+                        </p>
+
+
+                        <ul class="marketplace-protection-list">
+
+                            <li>
+                                Approved listings are required
+                                before public publication.
+                            </li>
+
+                            <li>
+                                Subscription does not guarantee
+                                approval.
+                            </li>
+
+                            <li>
+                                Use TIPECO Chat instead of
+                                publishing personal contact
+                                information.
+                            </li>
+
+                            <li>
+                                Suspicious or abusive content can
+                                be reported for TIPECO review.
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     PROFILE SUMMARY
+                ================================================== -->
+
+                <section
+                    class="dashboard-section"
+                    id="profile">
 
 
                     <div class="profile-card">
@@ -602,21 +2443,24 @@
 
 
                             <div class="dashboard-avatar">
-                                ✓
+                                👤
                             </div>
 
 
                             <div>
 
-                                <h3>
-                                    TIPECO GROUP Verification
+                                <h3 data-user-name>
+                                    Loading...
                                 </h3>
 
 
-                                <p>
-                                    We help connect customers
-                                    with trusted sellers and
-                                    service providers.
+                                <p data-user-email>
+                                    Loading...
+                                </p>
+
+
+                                <p data-user-role>
+                                    TIPECO User
                                 </p>
 
                             </div>
@@ -624,24 +2468,168 @@
                         </div>
 
 
-                        <p style="
-                            margin: 0 0 18px;
-                            color: rgba(255,255,255,0.85);
-                            font-size: 13px;
-                            line-height: 1.6;
-                        ">
+                        <a href="#settings"
+                           class="profile-card-link">
 
-                            Product information, viewing requests
-                            and customer communication can be
-                            managed through the TIPECO GROUP platform.
+                            Edit Profile
 
+                        </a>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     REQUESTS / VIEWINGS / NOTIFICATIONS
+                ================================================== -->
+
+                <section
+                    class="dashboard-section"
+                    id="requests">
+
+
+                    <div class="dashboard-section-header">
+
+                        <h2>
+                            My Requests
+                        </h2>
+
+                    </div>
+
+
+                    <div class="dashboard-empty">
+
+
+                        <div class="dashboard-empty-icon">
+                            📩
+                        </div>
+
+
+                        <h3>
+                            No Requests Yet
+                        </h3>
+
+
+                        <p>
+                            Your marketplace requests will appear
+                            here when you start using protected
+                            TIPECO Marketplace services.
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+
+                <section
+                    class="dashboard-section"
+                    id="viewings">
+
+
+                    <div class="dashboard-section-header">
+
+                        <h2>
+                            Viewing Requests
+                        </h2>
+
+                    </div>
+
+
+                    <div class="dashboard-empty">
+
+
+                        <div class="dashboard-empty-icon">
+                            👁️
+                        </div>
+
+
+                        <h3>
+                            No Viewing Requests Yet
+                        </h3>
+
+
+                        <p>
+                            Property and vehicle viewing requests
+                            will be managed here.
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+
+                <section
+                    class="dashboard-section"
+                    id="notifications">
+
+
+                    <div class="dashboard-section-header">
+
+                        <h2>
+                            Notifications
+                        </h2>
+
+                    </div>
+
+
+                    <div class="dashboard-empty">
+
+
+                        <div class="dashboard-empty-icon">
+                            🔔
+                        </div>
+
+
+                        <h3>
+                            No New Notifications
+                        </h3>
+
+
+                        <p>
+                            TIPECO GROUP notifications will appear
+                            here when marketplace activity requires
+                            your attention.
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     ACCOUNT SETTINGS
+                ================================================== -->
+
+                <section
+                    class="dashboard-section"
+                    id="settings">
+
+
+                    <div class="marketplace-info-card">
+
+
+                        <h3>
+                            ⚙️ Account Settings
+                        </h3>
+
+
+                        <p>
+                            Account profile and security settings
+                            will be managed here as the
+                            corresponding Firebase features are
+                            connected.
                         </p>
 
 
-                        <a href="contact.html"
-                           class="profile-card-link">
+                        <a href="#profile"
+                           class="marketplace-secondary-button">
 
-                            Contact TIPECO GROUP
+                            View Profile
 
                         </a>
 
@@ -666,7 +2654,8 @@
 
 
                         <a href="#"
-                           class="dashboard-section-link">
+                           class="dashboard-section-link"
+                           data-feature="activity">
 
                             View All
 
@@ -677,8 +2666,6 @@
 
                     <div class="activity-card">
 
-
-                        <!-- ACTIVITY 1 -->
 
                         <div class="activity-item">
 
@@ -691,12 +2678,13 @@
                             <div class="activity-content">
 
                                 <h4>
-                                    Welcome to TIPECO GROUP
+                                    Welcome to TIPECO Marketplace
                                 </h4>
 
 
                                 <p>
-                                    Your dashboard is ready.
+                                    Your Marketplace Dashboard
+                                    is ready.
                                 </p>
 
                             </div>
@@ -708,8 +2696,6 @@
 
                         </div>
 
-
-                        <!-- ACTIVITY 2 -->
 
                         <div class="activity-item">
 
@@ -727,8 +2713,8 @@
 
 
                                 <p>
-                                    Your account was created
-                                    successfully.
+                                    Your TIPECO GROUP account was
+                                    created successfully.
                                 </p>
 
                             </div>
@@ -740,7 +2726,6 @@
 
                         </div>
 
-
                     </div>
 
                 </section>
@@ -748,7 +2733,7 @@
 
 
                 <!-- =================================================
-                     EMPTY STATE
+                     COMING SOON
                 ================================================== -->
 
                 <section class="dashboard-section">
@@ -763,14 +2748,15 @@
 
 
                         <h3>
-                            More Features Coming Soon
+                            More Marketplace Features Coming Soon
                         </h3>
 
 
                         <p>
                             TIPECO GROUP is continuously building
-                            new tools to make buying, selling and
-                            discovering services easier.
+                            secure tools for buying, selling,
+                            renting, employment and protected
+                            communication.
                         </p>
 
 
@@ -814,7 +2800,8 @@
 
 
     <!-- =====================================================
-         FIREBASE GENERAL DASHBOARD
+         FIREBASE MARKETPLACE DASHBOARD
+         EXISTING AUTH ARCHITECTURE PRESERVED
     ====================================================== -->
 
     <script type="module">
@@ -1002,8 +2989,8 @@
 
 
                     /*
-                     * The registration flow uses
-                     * Full Name / fullName.
+                     * Preserve existing TIPECO registration
+                     * profile field compatibility.
                      */
 
                     displayName =
@@ -1044,7 +3031,7 @@
 
 
                 console.log(
-                    "TIPECO GROUP: User profile loaded",
+                    "TIPECO GROUP: Marketplace user profile loaded",
                     user.uid
                 );
 
@@ -1058,8 +3045,8 @@
 
 
                 /*
-                 * Even if Firestore profile loading fails,
-                 * Firebase Auth information remains available.
+                 * Firebase Auth information remains available
+                 * even if the Firestore profile cannot be read.
                  */
 
                 setUserName(
@@ -1082,6 +3069,7 @@
 
         /* =====================================================
            FIREBASE AUTH STATE
+           EXISTING PROJECT LOGIC PRESERVED
         ====================================================== */
 
         onAuthStateChanged(
@@ -1104,8 +3092,8 @@
 
 
                 /*
-                 * The current TIPECO architecture
-                 * requires email verification.
+                 * TIPECO architecture requires
+                 * email verification.
                  */
 
                 if (!user.emailVerified) {
@@ -1128,6 +3116,7 @@
 
         /* =====================================================
            LOGOUT
+           EXISTING FIREBASE LOGOUT PRESERVED
         ====================================================== */
 
         if (logoutButton) {
@@ -1168,6 +3157,193 @@
             );
 
         }
+
+
+        /* =====================================================
+           MARKETPLACE SEARCH
+           -----------------------------------------------------
+           This prepares the dashboard search UI without
+           pretending that a new backend search engine exists.
+           The existing marketplace page remains the browsing
+           destination.
+        ====================================================== */
+
+        const searchForm =
+            document.getElementById(
+                "marketplaceSearchForm"
+            );
+
+
+        if (searchForm) {
+
+            searchForm.addEventListener(
+                "submit",
+                function (event) {
+
+                    event.preventDefault();
+
+
+                    const searchInput =
+                        document.getElementById(
+                            "marketplaceSearch"
+                        );
+
+
+                    const category =
+                        document.getElementById(
+                            "marketplaceCategory"
+                        );
+
+
+                    const type =
+                        document.getElementById(
+                            "marketplaceType"
+                        );
+
+
+                    const search =
+                        searchInput
+                            ? searchInput.value.trim()
+                            : "";
+
+
+                    const categoryValue =
+                        category
+                            ? category.value
+                            : "";
+
+
+                    const typeValue =
+                        type
+                            ? type.value
+                            : "";
+
+
+                    /*
+                     * Keep navigation compatible with the
+                     * existing marketplace page.
+                     *
+                     * Query parameters are used so the
+                     * marketplace page can consume them when
+                     * its search/filter engine is connected.
+                     */
+
+                    const params =
+                        new URLSearchParams();
+
+
+                    if (search) {
+
+                        params.set(
+                            "search",
+                            search
+                        );
+
+                    }
+
+
+                    if (categoryValue) {
+
+                        params.set(
+                            "category",
+                            categoryValue
+                        );
+
+                    }
+
+
+                    if (typeValue) {
+
+                        params.set(
+                            "type",
+                            typeValue
+                        );
+
+                    }
+
+
+                    const query =
+                        params.toString();
+
+
+                    window.location.href =
+                        "marketplace.html" +
+                        (
+                            query
+                                ? "?" + query
+                                : ""
+                        );
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           PROTECTED FEATURE PLACEHOLDERS
+           -----------------------------------------------------
+           These actions intentionally do not create fake
+           backend functionality. They clearly tell the user
+           that the corresponding protected module will be
+           connected to its Firebase backend.
+        ====================================================== */
+
+        const protectedFeatureLinks =
+            document.querySelectorAll(
+                "[data-feature]"
+            );
+
+
+        protectedFeatureLinks.forEach(
+            function (link) {
+
+                link.addEventListener(
+                    "click",
+                    function (event) {
+
+                        event.preventDefault();
+
+
+                        const feature =
+                            link.getAttribute(
+                                "data-feature"
+                            );
+
+
+                        let message =
+                            "This TIPECO Marketplace module is prepared for its protected Firebase functionality.";
+
+
+                        if (feature === "subscription") {
+
+                            message =
+                                "TIPECO Marketplace Subscription module is prepared for the subscription and payment workflow. Subscription does not guarantee listing approval.";
+
+                        }
+
+                        else if (feature === "chat") {
+
+                            message =
+                                "TIPECO Chat module is prepared for protected communication. Public phone numbers and direct contact information should not be exposed.";
+
+                        }
+
+                        else if (feature === "activity") {
+
+                            message =
+                                "Marketplace activity history will appear here when the corresponding Firebase activity records are connected.";
+
+                        }
+
+
+                        alert(message);
+
+                    }
+                );
+
+            }
+        );
 
     </script>
 
