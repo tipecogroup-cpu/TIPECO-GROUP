@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="robots"
+        content="noindex, nofollow"
+    >
+
+    <title>TIPECO GROUP - Subscription</title>
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/variables.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/responsive.css"
+    >
+
+    <style>
+
+        .subscription-page {
+            min-height: 100vh;
+            background: #f5f5f5;
+            padding-bottom: 60px;
+        }
+
+        .subscription-container {
+            width: min(1180px, 94%);
+            margin: 0 auto;
+        }
+
+        .subscription-header {
+            padding: 35px 0 20px;
+        }
+
+        .subscription-header h1 {
+            margin: 0 0 8px;
+            color: #0D47A1;
+            font-size: 32px;
+        }
+
+        .subscription-header p {
+            margin: 0;
+            color: #666;
+        }
+
+        .subscription-notice {
+            background: #fff;
+            border-left: 5px solid #FFC107;
+            padding: 18px;
+            margin: 20px 0 30px;
+            border-radius: 8px;
+        }
+
+        .subscription-notice strong {
+            color: #0D47A1;
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .plan-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 15px rgba(0,0,0,.06);
+            transition: .2s ease;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .plan-card.selected {
+            border-color: #1976D2;
+        }
+
+        .plan-card h2 {
+            margin: 0 0 10px;
+            color: #0D47A1;
+        }
+
+        .plan-price {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .plan-duration {
+            color: #777;
+            margin-bottom: 20px;
+        }
+
+        .plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px;
+        }
+
+        .plan-features li {
+            margin: 10px 0;
+        }
+
+        .plan-select {
+            width: 100%;
+            border: 0;
+            background: #0D47A1;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .payment-panel {
+            display: none;
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.06);
+            margin-bottom: 30px;
+        }
+
+        .payment-panel.visible {
+            display: block;
+        }
+
+        .payment-panel h2 {
+            color: #0D47A1;
+            margin-top: 0;
+        }
+
+        .merchant-box {
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 18px;
+            margin: 20px 0;
+        }
+
+        .merchant-code {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0D47A1;
+            letter-spacing: 2px;
+        }
+
+        .payment-form {
+            display: grid;
+            gap: 18px;
+        }
+
+        .form-group {
+            display: grid;
+            gap: 7px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1976D2;
+        }
+
+        .submit-payment {
+            border: 0;
+            background: #1976D2;
+            color: #fff;
+            padding: 14px 20px;
+            border-radius: 7px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .submit-payment:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .payment-status {
+            display: none;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .payment-status.visible {
+            display: block;
+        }
+
+        .payment-status.success {
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        .payment-status.error {
+            background: #ffebee;
+            color: #b71c1c;
+        }
+
+        .current-subscription {
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.06);
+        }
+
+        .subscription-status {
+            font-weight: 700;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: #0D47A1;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .loading {
+            color: #777;
+        }
+
+        @media (max-width: 850px) {
+
+            .plans-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .subscription-header h1 {
+                font-size: 27px;
+            }
+
+        }
+
+    </style>
+</head>
+
+<body class="subscription-page">
+
+    <main class="subscription-container">
+
+        <header class="subscription-header">
+
+            <a
+                href="dashboard.html"
+                class="back-link"
+            >
+                ← Back to Marketplace Dashboard
+            </a>
+
+            <h1>
+                TIPECO Seller Subscription
+            </h1>
+
+            <p>
+                Choose a subscription plan to become eligible
+                to publish listings.
+            </p>
+
+        </header>
+
+
+        <section class="subscription-notice">
+
+            <strong>
+                Important:
+            </strong>
+
+            Subscription does not automatically approve
+            your listings.
+
+            After your subscription is activated,
+            every listing still goes through
+            TIPECO Owner review and approval.
+        </section>
+
+
+        <!-- =================================================
+             PLANS
+        ================================================== -->
+
+        <section>
+
+            <div
+                id="plansGrid"
+                class="plans-grid"
+            ></div>
+
+        </section>
+
+
+        <!-- =================================================
+             PAYMENT
+        ================================================== -->
+
+        <section
+            id="paymentPanel"
+            class="payment-panel"
+        >
+
+            <h2>
+                Complete Payment
+            </h2>
+
+            <p>
+                Selected plan:
+                <strong id="selectedPlanName">
+                    -
+                </strong>
+            </p>
+
+            <p>
+                Amount:
+                <strong id="selectedPlanPrice">
+                    -
+                </strong>
+            </p>
+
+
+            <div class="merchant-box">
+
+                <div>
+                    Pay using MTN MoMoPay
+                </div>
+
+                <div class="merchant-code">
+                    578849
+                </div>
+
+                <div>
+                    Merchant:
+                    <strong>TIMOTHEE</strong>
+                </div>
+
+                <small>
+                    Make sure the amount matches
+                    the selected subscription plan.
+                </small>
+
+            </div>
+
+
+            <form
+                id="paymentForm"
+                class="payment-form"
+            >
+
+                <div class="form-group">
+
+                    <label for="paymentReference">
+                        Payment Reference
+                    </label>
+
+                    <input
+                        type="text"
+                        id="paymentReference"
+                        name="paymentReference"
+                        placeholder="Enter your MoMo transaction reference"
+                        required
+                        maxlength="100"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="paymentScreenshot">
+                        Payment Screenshot
+                    </label>
+
+                    <input
+                        type="file"
+                        id="paymentScreenshot"
+                        name="paymentScreenshot"
+                        accept="image/jpeg,image/png,image/webp"
+                        required
+                    >
+
+                    <small>
+                        Upload a clear screenshot showing
+                        the payment details.
+                    </small>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    id="submitPaymentBtn"
+                    class="submit-payment"
+                >
+                    Submit Payment for Verification
+                </button>
+
+            </form>
+
+
+            <div
+                id="paymentStatus"
+                class="payment-status"
+            ></div>
+
+        </section>
+
+
+        <!-- =================================================
+             CURRENT SUBSCRIPTION
+        ================================================== -->
+
+        <section
+            id="currentSubscription"
+            class="current-subscription"
+        >
+
+            <h2>
+                My Subscription
+            </h2>
+
+            <div
+                id="subscriptionInfo"
+                class="loading"
+            >
+                Checking subscription...
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script
+        type="module"
+        src="../assets/js/subscription.js"
+    ></script>
+
+</body>
+</html>
+
+2. "assets/js/subscription.js"
+
+:::writing{variant="standard" id="74106" title="TIPECO Subscription Logic"}
+
+/* =========================================================
+   TIPECO GROUP
+   SELLER SUBSCRIPTION PAGE
+   MANUAL MOMO PAYMENT + SCREENSHOT
+   VERSION 1.0
+========================================================= */
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+import {
+    ref,
+    uploadBytes,
+    getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
+
+import {
+    collection,
+    getDocs,
+    query,
+    where,
+    limit
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+import {
+    auth,
+    db,
+    storage
+} from "./firebase-config.js";
+
+import {
+    SUBSCRIPTION_PLANS,
+    SUBSCRIPTION_STATUS,
+    PAYMENT_STATUS,
+    MOMO_MERCHANT
+} from "./subscription-config.js";
+
+import {
+    createSubscriptionRequest,
+    createPaymentRecord,
+    attachPaymentScreenshot,
+    getActiveSellerSubscription
+} from "./subscription-service.js";
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const plansGrid =
+    document.getElementById("plansGrid");
+
+const paymentPanel =
+    document.getElementById("paymentPanel");
+
+const selectedPlanName =
+    document.getElementById("selectedPlanName");
+
+const selectedPlanPrice =
+    document.getElementById("selectedPlanPrice");
+
+const paymentForm =
+    document.getElementById("paymentForm");
+
+const paymentReference =
+    document.getElementById("paymentReference");
+
+const paymentScreenshot =
+    document.getElementById("paymentScreenshot");
+
+const submitPaymentBtn =
+    document.getElementById("submitPaymentBtn");
+
+const paymentStatus =
+    document.getElementById("paymentStatus");
+
+const subscriptionInfo =
+    document.getElementById("subscriptionInfo");
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let currentUser = null;
+
+let selectedPlan = null;
+
+let currentSubscription = null;
+
+
+/* =========================================================
+   UTILITIES
+========================================================= */
+
+function formatRwf(amount) {
+
+    return `${Number(amount).toLocaleString("en-US")} RWF`;
+}
+
+
+function showStatus(message, type) {
+
+    paymentStatus.textContent = message;
+
+    paymentStatus.className =
+        `payment-status visible ${type}`;
+}
+
+
+function clearStatus() {
+
+    paymentStatus.textContent = "";
+
+    paymentStatus.className =
+        "payment-status";
+}
+
+
+/* =========================================================
+   RENDER PLANS
+========================================================= */
+
+function renderPlans() {
+
+    plansGrid.innerHTML = "";
+
+
+    Object.values(SUBSCRIPTION_PLANS)
+        .forEach(plan => {
+
+            const card =
+                document.createElement("article");
+
+            card.className =
+                "plan-card";
+
+            card.dataset.planId =
+                plan.id;
+
+
+            const videoText =
+                plan.videoAllowed
+                    ? "✅ Video listings allowed"
+                    : "❌ Video listings not allowed";
+
+
+            card.innerHTML = `
+
+                <h2>
+                    ${plan.name}
+                </h2>
+
+                <div class="plan-price">
+                    ${formatRwf(plan.price)}
+                </div>
+
+                <div class="plan-duration">
+                    ${plan.durationDays} days
+                </div>
+
+                <ul class="plan-features">
+
+                    <li>
+                        ✅ ${plan.activePostLimit}
+                        active posts
+                    </li>
+
+                    <li>
+                        ${videoText}
+                    </li>
+
+                    <li>
+                        ✅ Owner review
+                    </li>
+
+                    <li>
+                        ✅ Protected marketplace
+                    </li>
+
+                </ul>
+
+                <button
+                    type="button"
+                    class="plan-select"
+                    data-plan-id="${plan.id}"
+                >
+                    Choose ${plan.name}
+                </button>
+
+            `;
+
+
+            plansGrid.appendChild(card);
+
+        });
+
+
+    document
+        .querySelectorAll(".plan-select")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const planId =
+                        button.dataset.planId;
+
+                    selectPlan(planId);
+
+                }
+            );
+
+        });
+}
+
+
+/* =========================================================
+   SELECT PLAN
+========================================================= */
+
+function selectPlan(planId) {
+
+    selectedPlan =
+        SUBSCRIPTION_PLANS[planId];
+
+
+    if (!selectedPlan) {
+
+        showStatus(
+            "Invalid subscription plan.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    document
+        .querySelectorAll(".plan-card")
+        .forEach(card => {
+
+            card.classList.toggle(
+                "selected",
+                card.dataset.planId === planId
+            );
+
+        });
+
+
+    selectedPlanName.textContent =
+        selectedPlan.name;
+
+
+    selectedPlanPrice.textContent =
+        formatRwf(selectedPlan.price);
+
+
+    paymentPanel.classList.add(
+        "visible"
+    );
+
+
+    paymentPanel.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+
+    clearStatus();
+}
+
+
+/* =========================================================
+   LOAD CURRENT SUBSCRIPTION
+========================================================= */
+
+async function loadCurrentSubscription() {
+
+    if (!currentUser) {
+        return;
+    }
+
+
+    try {
+
+        currentSubscription =
+            await getActiveSellerSubscription(
+                currentUser.uid
+            );
+
+
+        if (!currentSubscription) {
+
+            subscriptionInfo.innerHTML = `
+                <p>
+                    You do not currently have
+                    an active subscription.
+                </p>
+            `;
+
+            return;
+        }
+
+
+        const expires =
+            currentSubscription.expiresAt;
+
+        let expiryText = "Not available";
+
+
+        if (
+            expires &&
+            typeof expires.toDate === "function"
+        ) {
+
+            expiryText =
+                expires.toDate()
+                    .toLocaleDateString();
+
+        } else if (expires) {
+
+            expiryText =
+                new Date(expires)
+                    .toLocaleDateString();
+        }
+
+
+        subscriptionInfo.innerHTML = `
+
+            <p>
+                <strong>Plan:</strong>
+                ${currentSubscription.planName || "-"}
+            </p>
+
+            <p>
+                <strong>Status:</strong>
+                <span class="subscription-status">
+                    ${currentSubscription.status || "-"}
+                </span>
+            </p>
+
+            <p>
+                <strong>Active post limit:</strong>
+                ${currentSubscription.activePostLimit || 0}
+            </p>
+
+            <p>
+                <strong>Video:</strong>
+                ${
+                    currentSubscription.videoAllowed
+                        ? "Allowed"
+                        : "Not allowed"
+                }
+            </p>
+
+            <p>
+                <strong>Expires:</strong>
+                ${expiryText}
+            </p>
+
+        `;
+
+    } catch (error) {
+
+        console.error(
+            "Subscription load error:",
+            error
+        );
+
+        subscriptionInfo.textContent =
+            "Unable to load subscription information.";
+    }
+}
+
+
+/* =========================================================
+   UPLOAD SCREENSHOT
+========================================================= */
+
+async function uploadScreenshot(
+    file,
+    sellerId,
+    paymentId
+) {
+
+    if (!file) {
+        throw new Error(
+            "Payment screenshot is required."
+        );
+    }
+
+
+    const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    ];
+
+
+    if (
+        !allowedTypes.includes(
+            file.type
+        )
+    ) {
+
+        throw new Error(
+            "Only JPG, PNG, or WebP screenshots are allowed."
+        );
+    }
+
+
+    const maxSize =
+        5 * 1024 * 1024;
+
+
+    if (file.size > maxSize) {
+
+        throw new Error(
+            "Payment screenshot must not exceed 5 MB."
+        );
+    }
+
+
+    const safeName =
+        file.name
+            .replace(
+                /[^a-zA-Z0-9._-]/g,
+                "_"
+            );
+
+
+    const storagePath =
+        `payments/${sellerId}/${paymentId}/${Date.now()}-${safeName}`;
+
+
+    const storageRef =
+        ref(storage, storagePath);
+
+
+    await uploadBytes(
+        storageRef,
+        file,
+        {
+            contentType: file.type
+        }
+    );
+
+
+    return await getDownloadURL(
+        storageRef
+    );
+}
+
+
+/* =========================================================
+   SUBMIT PAYMENT
+========================================================= */
+
+async function submitPayment(event) {
+
+    event.preventDefault();
+
+
+    clearStatus();
+
+
+    if (!currentUser) {
+
+        showStatus(
+            "Please log in before submitting payment.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (!selectedPlan) {
+
+        showStatus(
+            "Please choose a subscription plan first.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    const reference =
+        paymentReference.value.trim();
+
+
+    const screenshot =
+        paymentScreenshot.files[0];
+
+
+    if (!reference) {
+
+        showStatus(
+            "Please enter your payment reference.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    if (!screenshot) {
+
+        showStatus(
+            "Please upload your payment screenshot.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    submitPaymentBtn.disabled = true;
+
+    submitPaymentBtn.textContent =
+        "Submitting...";
+
+
+    try {
+
+        /*
+           STEP 1
+           Create subscription request.
+        */
+
+        const subscription =
+            await createSubscriptionRequest({
+
+                sellerId:
+                    currentUser.uid,
+
+                planId:
+                    selectedPlan.id
+
+            });
+
+
+        /*
+           STEP 2
+           Create payment record.
+        */
+
+        const payment =
+            await createPaymentRecord({
+
+                sellerId:
+                    currentUser.uid,
+
+                subscriptionId:
+                    subscription.subscriptionId,
+
+                planId:
+                    selectedPlan.id,
+
+                amount:
+                    selectedPlan.price,
+
+                paymentReference:
+                    reference
+
+            });
+
+
+        /*
+           STEP 3
+           Upload screenshot.
+        */
+
+        const screenshotUrl =
+            await uploadScreenshot(
+
+                screenshot,
+
+                currentUser.uid,
+
+                payment.paymentId
+
+            );
+
+
+        /*
+           STEP 4
+           Attach screenshot URL.
+        */
+
+        await attachPaymentScreenshot({
+
+            paymentId:
+                payment.paymentId,
+
+            screenshotUrl
+
+        });
+
+
+        /*
+           IMPORTANT:
+           We DO NOT activate the subscription here.
+        */
+
+        showStatus(
+            "Payment submitted successfully. Your subscription is now pending Owner verification.",
+            "success"
+        );
+
+
+        paymentForm.reset();
+
+
+        selectedPlan = null;
+
+
+        document
+            .querySelectorAll(".plan-card")
+            .forEach(card => {
+
+                card.classList.remove(
+                    "selected"
+                );
+
+            });
+
+
+        await loadCurrentSubscription();
+
+
+    } catch (error) {
+
+        console.error(
+            "Payment submission error:",
+            error
+        );
+
+
+        showStatus(
+            error.message ||
+            "Unable to submit payment.",
+            "error"
+        );
+
+    } finally {
+
+        submitPaymentBtn.disabled =
+            false;
+
+        submitPaymentBtn.textContent =
+            "Submit Payment for Verification";
+    }
+}
+
+
+/* =========================================================
+   AUTH
+========================================================= */
+
+onAuthStateChanged(
+    auth,
+    async user => {
+
+        if (!user) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+        }
+
+
+        if (!user.emailVerified) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+        }
+
+
+        currentUser = user;
+
+
+        renderPlans();
+
+        await loadCurrentSubscription();
+
+    }
+);
+
+
+/* =========================================================
+   FORM EVENT
+========================================================= */
+
+if (paymentForm) {
+
+    paymentForm.addEventListener(
+        "submit",
+        submitPayment
+    );
+}
+
+Icyo twubatse ubu
+
+Seller azagera kuri:
+
+pages/subscription.html
+
+abona:
+
+Starter
+
+- 2,000 RWF
+- 30 days
+- 30 active posts
+- No video
+
+Business
+
+- 5,000 RWF
+- 60 days
+- 90 active posts
+- Video
+
+Professional
+
+- 10,000 RWF
+- 90 days
+- 200 active posts
+- Video
+
+Hanyuma akabona:
+
+MTN MoMoPay
+Code: 578849
+Merchant: TIMOTHEE
+
+Amaze kwishyura, ashyiramo:
+
+- Payment Reference
+- Screenshot
+
+Request ijya muri Firestore nka PENDING.
+
+Nta subscription iba ACTIVE hano. Activation izakorwa na Owner nyuma yo kugenzura payment.
+
+Icyitonderwa kimwe cy'ingenzi
+
+Mbere yo kuyitestinga, hari ikintu kimwe tugomba kubaka: Owner Dashboard subscription verification UI. Ni ho Owner azabona screenshot, amount, seller, plan, reference, hanyuma akande Confirm & Activate cyangwa Reject.
+
+Ni yo next step; ntabwo turagera kuri "listing.js" cyangwa Listing test.
