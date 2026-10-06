@@ -3,7 +3,7 @@
    SUBSCRIPTION SERVICE
    MANUAL MOMO PAYMENT + OWNER VERIFICATION
    FIRESTORE DATA LAYER
-   VERSION 1.0
+   VERSION 1.1
 ========================================================= */
 
 import {
@@ -58,6 +58,48 @@ function requirePlan(planId) {
 }
 
 
+function getDateValue(value) {
+
+    if (!value) {
+        return null;
+    }
+
+    if (
+        value &&
+        typeof value.toDate === "function"
+    ) {
+        return value.toDate();
+    }
+
+    if (value instanceof Date) {
+        return value;
+    }
+
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime())
+        ? null
+        : date;
+}
+
+
+function isSubscriptionExpired(subscription) {
+
+    if (!subscription?.expiresAt) {
+        return false;
+    }
+
+    const expiresAt =
+        getDateValue(subscription.expiresAt);
+
+    if (!expiresAt) {
+        return false;
+    }
+
+    return expiresAt.getTime() <= Date.now();
+}
+
+
 /* =========================================================
    CREATE SUBSCRIPTION REQUEST
 ========================================================= */
@@ -72,9 +114,72 @@ export async function createSubscriptionRequest({
     const plan = requirePlan(planId);
 
 
-    const subscriptionRef = doc(
-        collection(db, SUBSCRIPTION_COLLECTION)
+    /*
+       Prevent another subscription request while an
+       active subscription already exists.
+    */
+
+    const activeSubscription =
+        await getActiveSellerSubscription(
+            sellerId
+        );
+
+
+    if (activeSubscription) {
+
+        throw new Error(
+            "You already have an active subscription."
+        );
+    }
+
+
+    /*
+       Prevent duplicate pending subscription requests.
+    */
+
+    const pendingQuery = query(
+        collection(
+            db,
+            SUBSCRIPTION_COLLECTION
+        ),
+
+        where(
+            "sellerId",
+            "==",
+            sellerId
+        ),
+
+        where(
+            "status",
+            "==",
+            SUBSCRIPTION_STATUS.PENDING
+        ),
+
+        limit(1)
     );
+
+
+    const pendingSnapshot =
+        await getDocs(
+            pendingQuery
+        );
+
+
+    if (!pendingSnapshot.empty) {
+
+        throw new Error(
+            "You already have a pending subscription request. Please wait for Owner verification."
+        );
+    }
+
+
+    const subscriptionRef =
+        doc(
+            collection(
+                db,
+                SUBSCRIPTION_COLLECTION
+            )
+        );
 
 
     const subscriptionData = {
@@ -87,23 +192,31 @@ export async function createSubscriptionRequest({
         price: plan.price,
         currency: plan.currency,
 
-        durationDays: plan.durationDays,
+        durationDays:
+            plan.durationDays,
 
-        activePostLimit: plan.activePostLimit,
+        activePostLimit:
+            plan.activePostLimit,
 
-        videoAllowed: plan.videoAllowed,
+        videoAllowed:
+            plan.videoAllowed,
 
-        status: SUBSCRIPTION_STATUS.PENDING,
+        status:
+            SUBSCRIPTION_STATUS.PENDING,
 
-        paymentStatus: PAYMENT_STATUS.PENDING,
+        paymentStatus:
+            PAYMENT_STATUS.PENDING,
 
         paymentId: null,
 
         startedAt: null,
         expiresAt: null,
 
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        createdAt:
+            serverTimestamp(),
+
+        updatedAt:
+            serverTimestamp()
     };
 
 
@@ -115,7 +228,8 @@ export async function createSubscriptionRequest({
 
     return {
 
-        subscriptionId: subscriptionRef.id,
+        subscriptionId:
+            subscriptionRef.id,
 
         ...subscriptionData
     };
@@ -137,23 +251,88 @@ export async function createPaymentRecord({
     requireSellerId(sellerId);
 
     if (!subscriptionId) {
-        throw new Error("Subscription ID is required.");
+        throw new Error(
+            "Subscription ID is required."
+        );
     }
 
 
-    const plan = requirePlan(planId);
+    const plan =
+        requirePlan(planId);
 
 
-    if (Number(amount) !== Number(plan.price)) {
+    if (
+        Number(amount) !==
+        Number(plan.price)
+    ) {
+
         throw new Error(
             "Payment amount does not match the selected plan."
         );
     }
 
 
-    const paymentRef = doc(
-        collection(db, PAYMENTS_COLLECTION)
-    );
+    /*
+       Verify subscription ownership and state.
+    */
+
+    const subscriptionRef =
+        doc(
+            db,
+            SUBSCRIPTION_COLLECTION,
+            subscriptionId
+        );
+
+
+    const subscriptionSnapshot =
+        await getDoc(
+            subscriptionRef
+        );
+
+
+    if (
+        !subscriptionSnapshot.exists()
+    ) {
+
+        throw new Error(
+            "Subscription request not found."
+        );
+    }
+
+
+    const subscription =
+        subscriptionSnapshot.data();
+
+
+    if (
+        subscription.sellerId !==
+        sellerId
+    ) {
+
+        throw new Error(
+            "You do not own this subscription request."
+        );
+    }
+
+
+    if (
+        subscription.status !==
+        SUBSCRIPTION_STATUS.PENDING
+    ) {
+
+        throw new Error(
+            "This subscription request is no longer pending."
+        );
+    }
+
+
+    const paymentRef =
+        doc(
+            collection(
+                db,
+                PAYMENTS_COLLECTION
+            )
+        );
 
 
     const paymentData = {
@@ -162,37 +341,52 @@ export async function createPaymentRecord({
 
         subscriptionId,
 
-        planId: plan.id,
+        planId:
+            plan.id,
 
-        amount: plan.price,
+        amount:
+            plan.price,
 
-        currency: "RWF",
+        currency:
+            plan.currency,
 
-        paymentMethod: PAYMENT_METHOD.MOMO,
+        paymentMethod:
+            PAYMENT_METHOD.MOMO,
 
-        merchantCode: MOMO_MERCHANT.code,
+        merchantCode:
+            MOMO_MERCHANT.code,
 
-        merchantName: MOMO_MERCHANT.name,
+        merchantName:
+            MOMO_MERCHANT.name,
 
         paymentReference,
 
-        paymentStatus: PAYMENT_STATUS.PENDING,
+        paymentStatus:
+            PAYMENT_STATUS.PENDING,
 
-        screenshotUrl: null,
+        screenshotUrl:
+            null,
 
-        initiatedAt: serverTimestamp(),
+        initiatedAt:
+            serverTimestamp(),
 
-        submittedAt: null,
+        submittedAt:
+            null,
 
-        confirmedAt: null,
+        confirmedAt:
+            null,
 
-        reviewedBy: null,
+        reviewedBy:
+            null,
 
-        reviewedAt: null,
+        reviewedAt:
+            null,
 
-        reviewReason: null,
+        reviewReason:
+            null,
 
-        updatedAt: serverTimestamp()
+        updatedAt:
+            serverTimestamp()
     };
 
 
@@ -202,9 +396,28 @@ export async function createPaymentRecord({
     );
 
 
+    /*
+       Connect the subscription request to
+       the payment record.
+    */
+
+    await updateDoc(
+        subscriptionRef,
+        {
+
+            paymentId:
+                paymentRef.id,
+
+            updatedAt:
+                serverTimestamp()
+        }
+    );
+
+
     return {
 
-        paymentId: paymentRef.id,
+        paymentId:
+            paymentRef.id,
 
         ...paymentData
     };
@@ -221,38 +434,51 @@ export async function attachPaymentScreenshot({
 }) {
 
     if (!paymentId) {
-        throw new Error("Payment ID is required.");
+        throw new Error(
+            "Payment ID is required."
+        );
     }
 
     if (!screenshotUrl) {
-        throw new Error("Payment screenshot is required.");
+        throw new Error(
+            "Payment screenshot is required."
+        );
     }
 
 
-    const paymentRef = doc(
-        db,
-        PAYMENTS_COLLECTION,
-        paymentId
-    );
+    const paymentRef =
+        doc(
+            db,
+            PAYMENTS_COLLECTION,
+            paymentId
+        );
 
 
-    const paymentSnapshot = await getDoc(
-        paymentRef
-    );
+    const paymentSnapshot =
+        await getDoc(
+            paymentRef
+        );
 
 
-    if (!paymentSnapshot.exists()) {
-        throw new Error("Payment record not found.");
+    if (
+        !paymentSnapshot.exists()
+    ) {
+
+        throw new Error(
+            "Payment record not found."
+        );
     }
 
 
-    const payment = paymentSnapshot.data();
+    const payment =
+        paymentSnapshot.data();
 
 
     if (
         payment.paymentStatus ===
         PAYMENT_STATUS.CONFIRMED
     ) {
+
         throw new Error(
             "This payment has already been confirmed."
         );
@@ -285,23 +511,27 @@ export async function attachPaymentScreenshot({
    GET PAYMENT BY ID
 ========================================================= */
 
-export async function getPaymentById(paymentId) {
+export async function getPaymentById(
+    paymentId
+) {
 
     if (!paymentId) {
         return null;
     }
 
 
-    const paymentRef = doc(
-        db,
-        PAYMENTS_COLLECTION,
-        paymentId
-    );
+    const paymentRef =
+        doc(
+            db,
+            PAYMENTS_COLLECTION,
+            paymentId
+        );
 
 
-    const snapshot = await getDoc(
-        paymentRef
-    );
+    const snapshot =
+        await getDoc(
+            paymentRef
+        );
 
 
     if (!snapshot.exists()) {
@@ -311,7 +541,8 @@ export async function getPaymentById(paymentId) {
 
     return {
 
-        id: snapshot.id,
+        id:
+            snapshot.id,
 
         ...snapshot.data()
     };
@@ -331,16 +562,18 @@ export async function getSubscriptionById(
     }
 
 
-    const subscriptionRef = doc(
-        db,
-        SUBSCRIPTION_COLLECTION,
-        subscriptionId
-    );
+    const subscriptionRef =
+        doc(
+            db,
+            SUBSCRIPTION_COLLECTION,
+            subscriptionId
+        );
 
 
-    const snapshot = await getDoc(
-        subscriptionRef
-    );
+    const snapshot =
+        await getDoc(
+            subscriptionRef
+        );
 
 
     if (!snapshot.exists()) {
@@ -350,7 +583,8 @@ export async function getSubscriptionById(
 
     return {
 
-        id: snapshot.id,
+        id:
+            snapshot.id,
 
         ...snapshot.data()
     };
@@ -368,34 +602,37 @@ export async function getActiveSellerSubscription(
     requireSellerId(sellerId);
 
 
-    const subscriptionsRef = collection(
-        db,
-        SUBSCRIPTION_COLLECTION
-    );
+    const subscriptionsRef =
+        collection(
+            db,
+            SUBSCRIPTION_COLLECTION
+        );
 
 
-    const activeQuery = query(
-        subscriptionsRef,
+    const activeQuery =
+        query(
+            subscriptionsRef,
 
-        where(
-            "sellerId",
-            "==",
-            sellerId
-        ),
+            where(
+                "sellerId",
+                "==",
+                sellerId
+            ),
 
-        where(
-            "status",
-            "==",
-            SUBSCRIPTION_STATUS.ACTIVE
-        ),
+            where(
+                "status",
+                "==",
+                SUBSCRIPTION_STATUS.ACTIVE
+            ),
 
-        limit(10)
-    );
+            limit(10)
+        );
 
 
-    const snapshot = await getDocs(
-        activeQuery
-    );
+    const snapshot =
+        await getDocs(
+            activeQuery
+        );
 
 
     if (snapshot.empty) {
@@ -406,18 +643,98 @@ export async function getActiveSellerSubscription(
     const subscriptions =
         snapshot.docs.map(
             item => ({
-                id: item.id,
+                id:
+                    item.id,
+
                 ...item.data()
             })
         );
 
 
     /*
-       Normally only one subscription should be
-       active for a seller.
+       Find a subscription that is genuinely
+       still within its active period.
     */
 
-    return subscriptions[0];
+    const activeSubscription =
+        subscriptions.find(
+            subscription =>
+                !isSubscriptionExpired(
+                    subscription
+                )
+        );
+
+
+    /*
+       If Firestore still says ACTIVE but the
+       expiration date has passed, return null.
+
+       The Owner/management workflow can later
+       mark the record EXPIRED and deactivate
+       its listings.
+    */
+
+    return activeSubscription || null;
+}
+
+
+/* =========================================================
+   GET SELLER SUBSCRIPTION FOR LISTING
+========================================================= */
+
+export async function getSellerListingEntitlement(
+    sellerId
+) {
+
+    requireSellerId(sellerId);
+
+
+    const subscription =
+        await getActiveSellerSubscription(
+            sellerId
+        );
+
+
+    if (!subscription) {
+
+        return {
+
+            eligible:
+                false,
+
+            subscription:
+                null,
+
+            activePostLimit:
+                0,
+
+            videoAllowed:
+                false,
+
+            reason:
+                "No active subscription."
+        };
+    }
+
+
+    return {
+
+        eligible:
+            true,
+
+        subscription,
+
+        activePostLimit:
+            Number(
+                subscription.activePostLimit || 0
+            ),
+
+        videoAllowed:
+            subscription.videoAllowed === true,
+
+        reason:
+            ""
+    };
 }
 
 
@@ -432,39 +749,45 @@ export async function getSellerPendingPayments(
     requireSellerId(sellerId);
 
 
-    const paymentsRef = collection(
-        db,
-        PAYMENTS_COLLECTION
-    );
+    const paymentsRef =
+        collection(
+            db,
+            PAYMENTS_COLLECTION
+        );
 
 
-    const pendingQuery = query(
-        paymentsRef,
+    const pendingQuery =
+        query(
+            paymentsRef,
 
-        where(
-            "sellerId",
-            "==",
-            sellerId
-        ),
+            where(
+                "sellerId",
+                "==",
+                sellerId
+            ),
 
-        where(
-            "paymentStatus",
-            "==",
-            PAYMENT_STATUS.PENDING
-        ),
+            where(
+                "paymentStatus",
+                "==",
+                PAYMENT_STATUS.PENDING
+            ),
 
-        limit(20)
-    );
+            limit(20)
+        );
 
 
-    const snapshot = await getDocs(
-        pendingQuery
-    );
+    const snapshot =
+        await getDocs(
+            pendingQuery
+        );
 
 
     return snapshot.docs.map(
         item => ({
-            id: item.id,
+
+            id:
+                item.id,
+
             ...item.data()
         })
     );
@@ -478,32 +801,44 @@ export async function getSellerPendingPayments(
 export async function confirmPayment({
     paymentId,
     ownerId,
-    reason = "Payment verified by Owner"
+    reason =
+        "Payment verified by Owner"
 }) {
 
     if (!paymentId) {
-        throw new Error("Payment ID is required.");
+        throw new Error(
+            "Payment ID is required."
+        );
     }
 
     if (!ownerId) {
-        throw new Error("Owner ID is required.");
+        throw new Error(
+            "Owner ID is required."
+        );
     }
 
 
-    const paymentRef = doc(
-        db,
-        PAYMENTS_COLLECTION,
-        paymentId
-    );
+    const paymentRef =
+        doc(
+            db,
+            PAYMENTS_COLLECTION,
+            paymentId
+        );
 
 
-    const paymentSnapshot = await getDoc(
-        paymentRef
-    );
+    const paymentSnapshot =
+        await getDoc(
+            paymentRef
+        );
 
 
-    if (!paymentSnapshot.exists()) {
-        throw new Error("Payment not found.");
+    if (
+        !paymentSnapshot.exists()
+    ) {
+
+        throw new Error(
+            "Payment not found."
+        );
     }
 
 
@@ -559,7 +894,8 @@ export async function activateSubscription({
     subscriptionId,
     paymentId,
     ownerId,
-    reason = "Payment verified and subscription activated"
+    reason =
+        "Payment verified and subscription activated"
 }) {
 
     if (!subscriptionId) {
@@ -575,18 +911,24 @@ export async function activateSubscription({
     }
 
 
-    const subscriptionRef = doc(
-        db,
-        SUBSCRIPTION_COLLECTION,
-        subscriptionId
-    );
+    const subscriptionRef =
+        doc(
+            db,
+            SUBSCRIPTION_COLLECTION,
+            subscriptionId
+        );
 
 
     const subscriptionSnapshot =
-        await getDoc(subscriptionRef);
+        await getDoc(
+            subscriptionRef
+        );
 
 
-    if (!subscriptionSnapshot.exists()) {
+    if (
+        !subscriptionSnapshot.exists()
+    ) {
+
         throw new Error(
             "Subscription not found."
         );
@@ -597,14 +939,11 @@ export async function activateSubscription({
         subscriptionSnapshot.data();
 
 
-    const plan = requirePlan(
-        subscription.planId
-    );
+    const plan =
+        requirePlan(
+            subscription.planId
+        );
 
-
-    /*
-       Prevent accidental duplicate activation.
-    */
 
     if (
         subscription.status ===
@@ -618,18 +957,85 @@ export async function activateSubscription({
 
 
     /*
-       Calculate expiration from activation time.
+       If a payment ID is supplied, verify that the
+       payment belongs to this subscription.
     */
 
-    const startedAt = new Date();
+    if (paymentId) {
 
-    const expiresAt = new Date(
-        startedAt
-    );
+        const paymentRef =
+            doc(
+                db,
+                PAYMENTS_COLLECTION,
+                paymentId
+            );
+
+
+        const paymentSnapshot =
+            await getDoc(
+                paymentRef
+            );
+
+
+        if (
+            !paymentSnapshot.exists()
+        ) {
+
+            throw new Error(
+                "Payment not found."
+            );
+        }
+
+
+        const payment =
+            paymentSnapshot.data();
+
+
+        if (
+            payment.subscriptionId !==
+            subscriptionId
+        ) {
+
+            throw new Error(
+                "Payment does not belong to this subscription."
+            );
+        }
+
+
+        if (
+            payment.sellerId !==
+            subscription.sellerId
+        ) {
+
+            throw new Error(
+                "Payment seller does not match subscription seller."
+            );
+        }
+    }
+
+
+    /*
+       Activation time.
+
+       We keep the existing project architecture
+       and calculate the plan period from activation.
+    */
+
+    const startedAt =
+        new Date();
+
+
+    const expiresAt =
+        new Date(
+            startedAt
+        );
+
 
     expiresAt.setDate(
         expiresAt.getDate() +
-        Number(plan.durationDays)
+        Number(
+            plan.durationDays
+        )
     );
 
 
@@ -657,7 +1063,8 @@ export async function activateSubscription({
 
             audit: {
 
-                action: "activate",
+                action:
+                    "activate",
 
                 changedBy:
                     ownerId,
@@ -679,16 +1086,17 @@ export async function activateSubscription({
 
 
     /*
-       Make sure the payment is also confirmed.
+       Confirm the payment as part of activation.
     */
 
     if (paymentId) {
 
-        const paymentRef = doc(
-            db,
-            PAYMENTS_COLLECTION,
-            paymentId
-        );
+        const paymentRef =
+            doc(
+                db,
+                PAYMENTS_COLLECTION,
+                paymentId
+            );
 
 
         await updateDoc(
@@ -750,16 +1158,18 @@ export async function rejectPayment({
     }
 
 
-    const paymentRef = doc(
-        db,
-        PAYMENTS_COLLECTION,
-        paymentId
-    );
+    const paymentRef =
+        doc(
+            db,
+            PAYMENTS_COLLECTION,
+            paymentId
+        );
 
 
-    const snapshot = await getDoc(
-        paymentRef
-    );
+    const snapshot =
+        await getDoc(
+            paymentRef
+        );
 
 
     if (!snapshot.exists()) {
@@ -795,18 +1205,14 @@ export async function rejectPayment({
     );
 
 
-    /*
-       Keep the subscription pending.
-       We do NOT activate it.
-    */
-
     if (payment.subscriptionId) {
 
-        const subscriptionRef = doc(
-            db,
-            SUBSCRIPTION_COLLECTION,
-            payment.subscriptionId
-        );
+        const subscriptionRef =
+            doc(
+                db,
+                SUBSCRIPTION_COLLECTION,
+                payment.subscriptionId
+            );
 
 
         await updateDoc(
@@ -850,16 +1256,18 @@ export async function suspendSubscription({
     }
 
 
-    const subscriptionRef = doc(
-        db,
-        SUBSCRIPTION_COLLECTION,
-        subscriptionId
-    );
+    const subscriptionRef =
+        doc(
+            db,
+            SUBSCRIPTION_COLLECTION,
+            subscriptionId
+        );
 
 
-    const snapshot = await getDoc(
-        subscriptionRef
-    );
+    const snapshot =
+        await getDoc(
+            subscriptionRef
+        );
 
 
     if (!snapshot.exists()) {
@@ -885,7 +1293,8 @@ export async function suspendSubscription({
 
             audit: {
 
-                action: "suspend",
+                action:
+                    "suspend",
 
                 changedBy:
                     ownerId,
@@ -935,16 +1344,18 @@ export async function cancelSubscription({
     }
 
 
-    const subscriptionRef = doc(
-        db,
-        SUBSCRIPTION_COLLECTION,
-        subscriptionId
-    );
+    const subscriptionRef =
+        doc(
+            db,
+            SUBSCRIPTION_COLLECTION,
+            subscriptionId
+        );
 
 
-    const snapshot = await getDoc(
-        subscriptionRef
-    );
+    const snapshot =
+        await getDoc(
+            subscriptionRef
+        );
 
 
     if (!snapshot.exists()) {
@@ -970,7 +1381,8 @@ export async function cancelSubscription({
 
             audit: {
 
-                action: "cancel",
+                action:
+                    "cancel",
 
                 changedBy:
                     ownerId,
@@ -1033,16 +1445,18 @@ export async function extendSubscription({
     }
 
 
-    const subscriptionRef = doc(
-        db,
-        SUBSCRIPTION_COLLECTION,
-        subscriptionId
-    );
+    const subscriptionRef =
+        doc(
+            db,
+            SUBSCRIPTION_COLLECTION,
+            subscriptionId
+        );
 
 
-    const snapshot = await getDoc(
-        subscriptionRef
-    );
+    const snapshot =
+        await getDoc(
+            subscriptionRef
+        );
 
 
     if (!snapshot.exists()) {
@@ -1056,33 +1470,16 @@ export async function extendSubscription({
         snapshot.data();
 
 
-    let currentExpiry;
-
-
-    if (
-        subscription.expiresAt &&
-        typeof subscription.expiresAt.toDate === "function"
-    ) {
-
-        currentExpiry =
-            subscription.expiresAt.toDate();
-
-    } else if (
-        subscription.expiresAt instanceof Date
-    ) {
-
-        currentExpiry =
-            subscription.expiresAt;
-
-    } else {
-
-        currentExpiry =
-            new Date();
-    }
+    const currentExpiry =
+        getDateValue(
+            subscription.expiresAt
+        ) || new Date();
 
 
     const newExpiry =
-        new Date(currentExpiry);
+        new Date(
+            currentExpiry
+        );
 
 
     newExpiry.setDate(
@@ -1103,7 +1500,8 @@ export async function extendSubscription({
 
             audit: {
 
-                action: "extend",
+                action:
+                    "extend",
 
                 changedBy:
                     ownerId,
@@ -1117,7 +1515,9 @@ export async function extendSubscription({
                     null,
 
                 additionalDays:
-                    Number(additionalDays),
+                    Number(
+                        additionalDays
+                    ),
 
                 reason:
                     reason ||
