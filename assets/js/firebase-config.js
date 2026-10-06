@@ -9,7 +9,9 @@
    FIREBASE APP
 ===================================================== */
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 
 
 /* =====================================================
@@ -28,6 +30,19 @@ import {
 import {
     getFirestore
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+
+/* =====================================================
+   FIREBASE STORAGE
+   Used for:
+   - Listing images
+   - Listing videos
+   - Payment screenshots
+===================================================== */
+
+import {
+    getStorage
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
 
 
 /* =====================================================
@@ -70,7 +85,7 @@ const firebaseConfig = {
 
 
 /* =====================================================
-   INITIALIZE FIREBASE
+   INITIALIZE FIREBASE APP
 ===================================================== */
 
 const app =
@@ -94,6 +109,14 @@ const db =
 
 
 /* =====================================================
+   INITIALIZE STORAGE
+===================================================== */
+
+const storage =
+    getStorage(app);
+
+
+/* =====================================================
    INITIALIZE ANALYTICS
 ===================================================== */
 
@@ -109,5 +132,6 @@ export {
     app,
     auth,
     db,
+    storage,
     analytics
 };
