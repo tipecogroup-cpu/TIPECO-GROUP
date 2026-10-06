@@ -3,20 +3,6 @@
 
 <head>
 
-    <!-- =====================================================
-         TIPECO GROUP - MARKETPLACE DASHBOARD
-         REAL FIREBASE PROJECT
-
-         ARCHITECTURE:
-         - Firebase Auth = authentication source of truth
-         - Firestore users = profile source of truth
-         - Subscription != Approval
-         - Subscription payment requires Owner verification
-         - Listing approval remains controlled by Owner
-         - Public contact information must remain protected
-         - Owner Dashboard remains separate
-    ====================================================== -->
-
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -32,11 +18,6 @@
           content="#0D47A1">
 
     <title>TIPECO Marketplace | Dashboard</title>
-
-
-    <!-- =====================================================
-         EXISTING PROJECT CSS
-    ====================================================== -->
 
     <link rel="stylesheet"
           href="../assets/css/variables.css">
@@ -54,10 +35,6 @@
           href="../assets/css/dashboard.css">
 
 
-    <!-- =====================================================
-         MARKETPLACE DASHBOARD LOCAL STYLES
-    ====================================================== -->
-
     <style>
 
         .marketplace-dashboard {
@@ -72,11 +49,6 @@
             --mp-muted: #667085;
             --mp-white: #FFFFFF;
         }
-
-
-        /* =====================================================
-           SIDEBAR
-        ====================================================== */
 
         .marketplace-sidebar-title {
             padding: 0 20px 12px;
@@ -124,11 +96,6 @@
             color: #0D47A1;
         }
 
-
-        /* =====================================================
-           HERO
-        ====================================================== */
-
         .marketplace-hero {
             background:
                 linear-gradient(
@@ -166,15 +133,9 @@
             opacity: 0.92;
         }
 
-
-        /* =====================================================
-           CORE CARDS
-        ====================================================== */
-
         .marketplace-core-grid {
             display: grid;
-            grid-template-columns:
-                repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 16px;
             margin-bottom: 28px;
         }
@@ -249,11 +210,6 @@
             color: #0D47A1;
         }
 
-
-        /* =====================================================
-           SEARCH
-        ====================================================== */
-
         .marketplace-search-box {
             padding: 20px;
             border-radius: 16px;
@@ -290,12 +246,6 @@
             outline: none;
         }
 
-        .marketplace-search-form input:focus,
-        .marketplace-search-form select:focus {
-            border-color: #1976D2;
-            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.10);
-        }
-
         .marketplace-search-button {
             border: 0;
             border-radius: 9px;
@@ -307,15 +257,9 @@
             cursor: pointer;
         }
 
-
-        /* =====================================================
-           CATEGORY GRID
-        ====================================================== */
-
         .marketplace-category-grid {
             display: grid;
-            grid-template-columns:
-                repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 12px;
         }
 
@@ -345,11 +289,6 @@
             color: #667085;
             font-size: 12px;
         }
-
-
-        /* =====================================================
-           CONTENT
-        ====================================================== */
 
         .marketplace-content-grid {
             display: grid;
@@ -388,11 +327,6 @@
             text-decoration: none;
         }
 
-
-        /* =====================================================
-           EMPTY
-        ====================================================== */
-
         .marketplace-empty {
             padding: 30px 20px;
             text-align: center;
@@ -416,11 +350,6 @@
             font-size: 13px;
             line-height: 1.6;
         }
-
-
-        /* =====================================================
-           JOBS
-        ====================================================== */
 
         .marketplace-job-list {
             padding: 5px 20px;
@@ -459,12 +388,9 @@
             text-decoration: none;
             font-size: 12px;
             font-weight: 700;
+            cursor: pointer;
+            background: #fff;
         }
-
-
-        /* =====================================================
-           INFO CARDS
-        ====================================================== */
 
         .marketplace-info-card {
             padding: 20px;
@@ -502,11 +428,13 @@
             font-size: 13px;
             font-weight: 700;
             box-sizing: border-box;
+            cursor: pointer;
         }
 
         .marketplace-primary-button {
             background: #0D47A1;
             color: #FFFFFF;
+            border: 0;
         }
 
         .marketplace-secondary-button {
@@ -514,11 +442,6 @@
             color: #344054;
             background: #FFFFFF;
         }
-
-
-        /* =====================================================
-           SUBSCRIPTION
-        ====================================================== */
 
         .marketplace-subscription-card {
             border-left: 4px solid #FFC107;
@@ -554,11 +477,6 @@
             color: #0D47A1;
         }
 
-
-        /* =====================================================
-           CHAT / PROTECTION
-        ====================================================== */
-
         .marketplace-chat-card {
             border-left: 4px solid #1976D2;
         }
@@ -577,23 +495,284 @@
 
 
         /* =====================================================
-           RESPONSIVE
+           REAL JOB SYSTEM
         ====================================================== */
+
+        .jobs-dashboard-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .job-action-card {
+            border: 1px solid #E3E8EF;
+            border-radius: 14px;
+            background: #FFFFFF;
+            padding: 18px;
+            cursor: pointer;
+            text-align: left;
+            transition: 0.2s ease;
+        }
+
+        .job-action-card:hover {
+            transform: translateY(-2px);
+            border-color: #9DB9E4;
+            box-shadow: 0 8px 22px rgba(16, 24, 40, 0.07);
+        }
+
+        .job-action-card .job-action-icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .job-action-card h3 {
+            margin: 0 0 6px;
+            font-size: 16px;
+        }
+
+        .job-action-card p {
+            margin: 0;
+            color: #667085;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .job-form-container {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #E3E8EF;
+            border-radius: 14px;
+            background: #FFFFFF;
+        }
+
+        .job-form-container.active {
+            display: block;
+        }
+
+        .job-form-container h3 {
+            margin: 0 0 18px;
+        }
+
+        .job-form-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .job-form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .job-form-field.full {
+            grid-column: 1 / -1;
+        }
+
+        .job-form-field label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #344054;
+        }
+
+        .job-form-field input,
+        .job-form-field select,
+        .job-form-field textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 11px 12px;
+            border: 1px solid #D0D5DD;
+            border-radius: 8px;
+            outline: none;
+            background: #FFFFFF;
+            font: inherit;
+        }
+
+        .job-form-field textarea {
+            min-height: 105px;
+            resize: vertical;
+        }
+
+        .job-form-field input:focus,
+        .job-form-field select:focus,
+        .job-form-field textarea:focus {
+            border-color: #1976D2;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.10);
+        }
+
+        .job-form-help {
+            color: #667085;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .cv-preview {
+            display: none;
+            margin-top: 10px;
+            max-width: 180px;
+            border-radius: 10px;
+            border: 1px solid #E3E8EF;
+            overflow: hidden;
+        }
+
+        .cv-preview img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .job-form-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .job-status-message {
+            display: none;
+            margin-top: 14px;
+            padding: 11px 13px;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .job-status-message.show {
+            display: block;
+        }
+
+        .job-status-message.info {
+            background: #EFF6FF;
+            color: #1D4ED8;
+        }
+
+        .job-status-message.success {
+            background: #ECFDF3;
+            color: #027A48;
+        }
+
+        .job-status-message.error {
+            background: #FEF3F2;
+            color: #B42318;
+        }
+
+        .real-job-card {
+            padding: 17px 20px;
+            border-bottom: 1px solid #EEF1F5;
+        }
+
+        .real-job-card:last-child {
+            border-bottom: 0;
+        }
+
+        .real-job-card-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .real-job-card h3 {
+            margin: 0 0 5px;
+            font-size: 15px;
+        }
+
+        .real-job-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .real-job-meta span {
+            padding: 4px 7px;
+            border-radius: 20px;
+            background: #F2F4F7;
+            color: #475467;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .real-job-description {
+            margin: 9px 0 0;
+            color: #667085;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .job-detail-panel {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .job-detail-panel.active {
+            display: block;
+        }
+
+        .job-detail-box {
+            padding: 20px;
+            border: 1px solid #E3E8EF;
+            border-radius: 14px;
+            background: #FFFFFF;
+        }
+
+        .job-detail-box h3 {
+            margin: 0 0 8px;
+        }
+
+        .job-detail-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .job-detail-item {
+            padding: 10px;
+            border-radius: 8px;
+            background: #F5F7FA;
+        }
+
+        .job-detail-item strong {
+            display: block;
+            font-size: 10px;
+            color: #667085;
+            margin-bottom: 3px;
+        }
+
+        .job-detail-item span {
+            font-size: 12px;
+            color: #344054;
+        }
+
+        .loading-small {
+            padding: 18px;
+            color: #667085;
+            text-align: center;
+            font-size: 12px;
+        }
+
 
         @media (max-width: 1050px) {
 
             .marketplace-core-grid {
-                grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
             .marketplace-category-grid {
-                grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
             .marketplace-content-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .jobs-dashboard-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
         }
@@ -605,12 +784,16 @@
                 grid-template-columns: 1fr;
             }
 
-            .marketplace-core-grid {
+            .marketplace-core-grid,
+            .marketplace-category-grid,
+            .jobs-dashboard-grid,
+            .job-form-grid,
+            .job-detail-grid {
                 grid-template-columns: 1fr;
             }
 
-            .marketplace-category-grid {
-                grid-template-columns: 1fr;
+            .job-form-field.full {
+                grid-column: auto;
             }
 
             .marketplace-hero {
@@ -636,1389 +819,5419 @@
 <body class="marketplace-dashboard">
 
 
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
+<header class="dashboard-header">
 
-    <header class="dashboard-header">
+    <div class="dashboard-header-inner">
 
-        <div class="dashboard-header-inner">
+        <a href="../index.html"
+           class="dashboard-logo">
+            TIPECO GROUP
+        </a>
 
-            <a href="../index.html"
-               class="dashboard-logo">
-                TIPECO GROUP
-            </a>
+        <div class="dashboard-header-actions">
 
+            <div class="dashboard-user">
 
-            <div class="dashboard-header-actions">
+                <div class="dashboard-avatar">
+                    👤
+                </div>
 
-                <div class="dashboard-user">
+                <div class="dashboard-user-info">
 
-                    <div class="dashboard-avatar">
-                        👤
-                    </div>
+                    <span class="dashboard-user-name"
+                          data-user-name>
+                        Loading...
+                    </span>
 
-                    <div class="dashboard-user-info">
-
-                        <span
-                            class="dashboard-user-name"
-                            data-user-name>
-                            Loading...
-                        </span>
-
-                        <span
-                            class="dashboard-user-role"
-                            data-user-role>
-                            TIPECO User
-                        </span>
-
-                    </div>
+                    <span class="dashboard-user-role"
+                          data-user-role>
+                        TIPECO User
+                    </span>
 
                 </div>
 
+            </div>
 
-                <a href="#"
-                   class="dashboard-logout"
-                   data-action="logout">
+            <a href="#"
+               class="dashboard-logout"
+               data-action="logout">
+                Logout
+            </a>
 
-                    Logout
+        </div>
 
-                </a>
+    </div>
+
+</header>
+
+
+<main class="dashboard-page">
+
+<div class="dashboard-layout">
+
+
+<aside class="dashboard-sidebar">
+
+    <div class="marketplace-sidebar-title">
+        TIPECO MARKETPLACE
+    </div>
+
+    <ul class="dashboard-nav">
+
+        <li>
+            <a href="dashboard.html"
+               class="active marketplace-nav-link">
+                <span class="marketplace-nav-icon">🏠</span>
+                Marketplace Home
+            </a>
+        </li>
+
+        <li class="marketplace-nav-group">
+            <span class="marketplace-nav-label">
+                Explore
+            </span>
+
+            <a href="#buy"
+               class="marketplace-nav-link">
+                <span class="marketplace-nav-icon">🟢</span>
+                BUY
+            </a>
+        </li>
+
+        <li>
+            <a href="#sell"
+               class="marketplace-nav-link">
+                <span class="marketplace-nav-icon">🔵</span>
+                SELL
+                <span class="marketplace-nav-badge">
+                    Subscription
+                </span>
+            </a>
+        </li>
+
+        <li>
+            <a href="#rent"
+               class="marketplace-nav-link">
+                <span class="marketplace-nav-icon">🟡</span>
+                RENT
+            </a>
+        </li>
+
+        <li>
+            <a href="#jobs"
+               class="marketplace-nav-link">
+                <span class="marketplace-nav-icon">🟣</span>
+                JOBS
+            </a>
+        </li>
+
+        <li class="marketplace-nav-group">
+
+            <span class="marketplace-nav-label">
+                My Activity
+            </span>
+
+            <a href="#saved"
+               class="marketplace-nav-link">
+                <span class="marketplace-nav-icon">❤️</span>
+                Saved Items
+                <span class="marketplace-nav-badge"
+                      data-saved-count>
+                    0
+                </span>
+            </a>
+
+        </li>
+
+        <li>
+            <a href="#requests"
+               class="marketplace-nav-link">
+                <span class="marketplace-nav-icon">📩</span>
+                My Requests
+            </a>
+        </li>
+
+        <li>
+            <a href="#viewings"
+               class="marketplace-nav-link">
+                <span class="marketplace-nav-icon">👁️</span>
+                Viewing Requests
+            </a>
+        </li>
+
+        <li>
+            <a href="#chat"
+               class="marketplace-nav-link">
+                <span class="marketplace-nav-icon">💬</span>
+                TIPECO Chat
+            </a>
+        </li>
+
+        <li>
+            <a href="#notifications"
+               class="marketplace-nav-link">
+                <span class="marketplace-nav-icon">🔔</span>
+                Notifications
+            </a>
+        </li>
+
+        <li class="marketplace-nav-group">
+
+            <span class="marketplace-nav-label">
+                Account
+            </span>
+
+            <a href="#subscription"
+               class="marketplace-nav-link">
+                <span class="marketplace-nav-icon">💳</span>
+                Subscription
+            </a>
+
+        </li>
+
+        <li>
+            <a href="#profile"
+               class="marketplace-nav-link">
+                <span class="marketplace-nav-icon">👤</span>
+                My Profile
+            </a>
+        </li>
+
+        <li>
+            <a href="#settings"
+               class="marketplace-nav-link">
+                <span class="marketplace-nav-icon">⚙️</span>
+                Account Settings
+            </a>
+        </li>
+
+    </ul>
+
+</aside>
+
+
+<section class="dashboard-main">
+
+
+<section class="marketplace-hero">
+
+    <p class="marketplace-hero-label">
+        TIPECO MARKETPLACE
+    </p>
+
+    <h1>
+        Welcome Back,
+        <span data-user-name>
+            Loading...
+        </span>
+        👋
+    </h1>
+
+    <p>
+        Buy, sell, rent, find jobs and connect
+        through a trusted marketplace built
+        with TIPECO GROUP protection and
+        moderation.
+    </p>
+
+</section>
+
+
+<section class="dashboard-section">
+
+    <div class="dashboard-section-header">
+        <h2>
+            What Would You Like To Do?
+        </h2>
+    </div>
+
+    <div class="marketplace-core-grid">
+
+        <a href="#buy"
+           class="marketplace-core-card marketplace-buy">
+
+            <div class="marketplace-core-icon">
+                🛒
+            </div>
+
+            <h3>BUY</h3>
+
+            <p>
+                Browse approved products,
+                properties, vehicles,
+                services and more.
+            </p>
+
+            <span class="marketplace-core-arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <a href="#sell"
+           class="marketplace-core-card marketplace-sell">
+
+            <div class="marketplace-core-icon">
+                🏷️
+            </div>
+
+            <h3>SELL</h3>
+
+            <p>
+                Promote products or services.
+                Subscription is required
+                to publish.
+            </p>
+
+            <span class="marketplace-core-arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <a href="#rent"
+           class="marketplace-core-card marketplace-rent">
+
+            <div class="marketplace-core-icon">
+                🏠
+            </div>
+
+            <h3>RENT</h3>
+
+            <p>
+                Find houses, apartments,
+                vehicles, equipment and
+                other rental opportunities.
+            </p>
+
+            <span class="marketplace-core-arrow">
+                →
+            </span>
+
+        </a>
+
+
+        <a href="#jobs"
+           class="marketplace-core-card marketplace-jobs">
+
+            <div class="marketplace-core-icon">
+                💼
+            </div>
+
+            <h3>JOBS</h3>
+
+            <p>
+                Find a job or discover
+                employees by skills,
+                experience and location.
+            </p>
+
+            <span class="marketplace-core-arrow">
+                →
+            </span>
+
+        </a>
+
+    </div>
+
+</section>
+
+
+<section class="marketplace-search-box">
+
+    <h2>
+        Search Marketplace
+    </h2>
+
+    <form id="marketplaceSearchForm"
+          class="marketplace-search-form">
+
+        <input type="search"
+               id="marketplaceSearch"
+               placeholder="Search products, properties, vehicles, services, jobs..."
+               autocomplete="off">
+
+        <select id="marketplaceCategory">
+
+            <option value="">
+                All Categories
+            </option>
+
+            <option value="vehicles">
+                Vehicles
+            </option>
+
+            <option value="real-estate">
+                Real Estate
+            </option>
+
+            <option value="electronics">
+                Electronics
+            </option>
+
+            <option value="home-furniture">
+                Home &amp; Furniture
+            </option>
+
+            <option value="construction-products">
+                Construction Products
+            </option>
+
+            <option value="paint-construction">
+                Paint &amp; Construction
+            </option>
+
+            <option value="services">
+                Services
+            </option>
+
+            <option value="jobs">
+                Jobs
+            </option>
+
+            <option value="other">
+                Other
+            </option>
+
+        </select>
+
+
+        <select id="marketplaceType">
+
+            <option value="">
+                All Types
+            </option>
+
+            <option value="buy">
+                Buy
+            </option>
+
+            <option value="sell">
+                Sell
+            </option>
+
+            <option value="rent">
+                Rent
+            </option>
+
+            <option value="job">
+                Job
+            </option>
+
+        </select>
+
+
+        <button type="submit"
+                class="marketplace-search-button">
+            Search
+        </button>
+
+    </form>
+
+</section>
+
+
+<section class="dashboard-section"
+         id="buy">
+
+    <div class="dashboard-section-header">
+
+        <h2>
+            Marketplace Categories
+        </h2>
+
+        <a href="marketplace.html"
+           class="dashboard-section-link">
+            Browse Marketplace
+        </a>
+
+    </div>
+
+
+    <div class="marketplace-category-grid">
+
+        <a href="marketplace.html?category=vehicles"
+           class="marketplace-category">
+            <strong>🚗 Vehicles</strong>
+            <span>Cars, motorcycles and more</span>
+        </a>
+
+        <a href="marketplace.html?category=real-estate"
+           class="marketplace-category">
+            <strong>🏠 Real Estate</strong>
+            <span>Houses, land and properties</span>
+        </a>
+
+        <a href="marketplace.html?category=electronics"
+           class="marketplace-category">
+            <strong>📱 Electronics</strong>
+            <span>Devices and electronics</span>
+        </a>
+
+        <a href="marketplace.html?category=home-furniture"
+           class="marketplace-category">
+            <strong>🛋️ Home &amp; Furniture</strong>
+            <span>Furniture and household items</span>
+        </a>
+
+        <a href="marketplace.html?category=construction-products"
+           class="marketplace-category">
+            <strong>🧱 Construction Products</strong>
+            <span>Building materials and products</span>
+        </a>
+
+        <a href="marketplace.html?category=paint-construction"
+           class="marketplace-category">
+            <strong>🎨 Paint &amp; Construction</strong>
+            <span>Paint and construction solutions</span>
+        </a>
+
+        <a href="marketplace.html?category=services"
+           class="marketplace-category">
+            <strong>🛠️ Services</strong>
+            <span>Professional and local services</span>
+        </a>
+
+        <a href="marketplace.html?category=other"
+           class="marketplace-category">
+            <strong>📦 Other</strong>
+            <span>Other approved marketplace items</span>
+        </a>
+
+    </div>
+
+</section>
+
+
+<section class="marketplace-content-grid">
+
+    <div class="marketplace-panel">
+
+        <div class="marketplace-panel-header">
+
+            <h2>
+                Latest Approved Listings
+            </h2>
+
+            <a href="marketplace.html"
+               class="marketplace-panel-link">
+                View All
+            </a>
+
+        </div>
+
+        <div id="latestListings"
+             class="marketplace-empty">
+
+            <div class="marketplace-empty-icon">
+                ⏳
+            </div>
+
+            <h3>
+                Loading Listings
+            </h3>
+
+            <p>
+                Loading approved public listings...
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="marketplace-panel">
+
+        <div class="marketplace-panel-header">
+
+            <h2>
+                Latest Jobs
+            </h2>
+
+            <a href="#jobs"
+               class="marketplace-panel-link">
+                Explore
+            </a>
+
+        </div>
+
+        <div id="latestJobs"
+             class="marketplace-job-list">
+
+            <div class="loading-small">
+                Loading approved jobs...
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     REAL JOBS SECTION
+====================================================== -->
+
+<section class="dashboard-section"
+         id="jobs">
+
+    <div class="dashboard-section-header">
+
+        <h2>
+            💼 TIPECO JOBS
+        </h2>
+
+        <span class="dashboard-section-link">
+            Find Jobs • Find Employees
+        </span>
+
+    </div>
+
+
+    <div class="jobs-dashboard-grid">
+
+        <button type="button"
+                class="job-action-card"
+                data-job-action="find-job">
+
+            <div class="job-action-icon">
+                🔎
+            </div>
+
+            <h3>
+                Find a Job
+            </h3>
+
+            <p>
+                Browse jobs approved by TIPECO
+                and view their full details.
+            </p>
+
+        </button>
+
+
+        <button type="button"
+                class="job-action-card"
+                data-job-action="find-employee">
+
+            <div class="job-action-icon">
+                👥
+            </div>
+
+            <h3>
+                Find an Employee
+            </h3>
+
+            <p>
+                Discover employee profiles by
+                skills, experience and location.
+            </p>
+
+        </button>
+
+
+        <button type="button"
+                class="job-action-card"
+                data-job-action="post-job">
+
+            <div class="job-action-icon">
+                📝
+            </div>
+
+            <h3>
+                Post a Job
+            </h3>
+
+            <p>
+                Employers can submit a job.
+                Subscription and Owner approval
+                are required before publication.
+            </p>
+
+        </button>
+
+    </div>
+
+
+    <!-- FIND JOB -->
+
+    <div class="job-form-container"
+         id="findJobPanel">
+
+        <h3>
+            🔎 Find a Job
+        </h3>
+
+        <div id="jobResults">
+
+            <div class="loading-small">
+                Loading approved jobs...
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- FIND EMPLOYEE -->
+
+    <div class="job-form-container"
+         id="findEmployeePanel">
+
+        <h3>
+            👥 Find an Employee
+        </h3>
+
+        <div class="job-form-grid">
+
+            <div class="job-form-field">
+
+                <label for="employeeSkillSearch">
+                    Skill
+                </label>
+
+                <input type="search"
+                       id="employeeSkillSearch"
+                       placeholder="e.g. Mason, Driver, Accountant">
+
+            </div>
+
+
+            <div class="job-form-field">
+
+                <label for="employeeLocationSearch">
+                    Location
+                </label>
+
+                <input type="search"
+                       id="employeeLocationSearch"
+                       placeholder="e.g. Kigali">
 
             </div>
 
         </div>
 
-    </header>
+
+        <div class="job-form-actions">
+
+            <button type="button"
+                    class="marketplace-primary-button"
+                    id="searchEmployeesButton">
+
+                Search Employees
+
+            </button>
+
+        </div>
 
 
+        <div id="employeeResults">
 
-    <!-- =====================================================
-         PAGE
-    ====================================================== -->
+            <div class="marketplace-empty">
+                Search for employees using skills
+                or location.
+            </div>
 
-    <main class="dashboard-page">
+        </div>
 
-        <div class="dashboard-layout">
+    </div>
 
 
-            <!-- =================================================
-                 SIDEBAR
-            ================================================== -->
+    <!-- POST JOB -->
 
-            <aside class="dashboard-sidebar">
+    <div class="job-form-container"
+         id="postJobPanel">
 
-                <div class="marketplace-sidebar-title">
-                    TIPECO MARKETPLACE
+        <h3>
+            📝 Post a Job
+        </h3>
+
+        <p class="job-form-help">
+            Job posting requires an eligible TIPECO
+            subscription. The job is not public until
+            payment/subscription verification and
+            Owner approval are completed.
+        </p>
+
+
+        <form id="postJobForm">
+
+            <div class="job-form-grid">
+
+                <div class="job-form-field">
+
+                    <label for="jobCompany">
+                        Company / Employer *
+                    </label>
+
+                    <input type="text"
+                           id="jobCompany"
+                           required>
+
                 </div>
 
 
-                <ul class="dashboard-nav">
+                <div class="job-form-field">
 
-                    <li>
+                    <label for="jobTitle">
+                        Job Title *
+                    </label>
 
-                        <a href="dashboard.html"
-                           class="active marketplace-nav-link">
+                    <input type="text"
+                           id="jobTitle"
+                           required>
 
-                            <span class="marketplace-nav-icon">
-                                🏠
-                            </span>
+                </div>
 
-                            Marketplace Home
 
-                        </a>
+                <div class="job-form-field">
 
-                    </li>
+                    <label for="jobCategory">
+                        Category *
+                    </label>
 
+                    <select id="jobCategory"
+                            required>
 
-                    <li class="marketplace-nav-group">
+                        <option value="">
+                            Select category
+                        </option>
 
-                        <span class="marketplace-nav-label">
-                            Explore
-                        </span>
+                        <option value="construction">
+                            Construction
+                        </option>
 
-                        <a href="#buy"
-                           class="marketplace-nav-link">
+                        <option value="technology">
+                            Technology / IT
+                        </option>
 
-                            <span class="marketplace-nav-icon">
-                                🟢
-                            </span>
+                        <option value="business-finance">
+                            Business &amp; Finance
+                        </option>
 
-                            BUY
+                        <option value="sales-marketing">
+                            Sales &amp; Marketing
+                        </option>
 
-                        </a>
+                        <option value="transport">
+                            Transport
+                        </option>
 
-                    </li>
+                        <option value="hospitality">
+                            Hospitality
+                        </option>
 
+                        <option value="security">
+                            Security
+                        </option>
 
-                    <li>
+                        <option value="skilled-trades">
+                            Skilled Trades
+                        </option>
 
-                        <a href="#sell"
-                           class="marketplace-nav-link">
+                        <option value="agriculture">
+                            Agriculture
+                        </option>
 
-                            <span class="marketplace-nav-icon">
-                                🔵
-                            </span>
+                        <option value="healthcare">
+                            Healthcare
+                        </option>
 
-                            SELL
+                        <option value="education">
+                            Education
+                        </option>
 
-                            <span class="marketplace-nav-badge">
-                                Subscription
-                            </span>
+                        <option value="other">
+                            Other
+                        </option>
 
-                        </a>
+                    </select>
 
-                    </li>
+                </div>
 
 
-                    <li>
+                <div class="job-form-field">
 
-                        <a href="#rent"
-                           class="marketplace-nav-link">
+                    <label for="jobLocation">
+                        Location *
+                    </label>
 
-                            <span class="marketplace-nav-icon">
-                                🟡
-                            </span>
+                    <input type="text"
+                           id="jobLocation"
+                           required>
 
-                            RENT
+                </div>
 
-                        </a>
 
-                    </li>
+                <div class="job-form-field">
 
+                    <label for="jobEducation">
+                        Education Required
+                    </label>
 
-                    <li>
+                    <input type="text"
+                           id="jobEducation">
 
-                        <a href="#jobs"
-                           class="marketplace-nav-link">
+                </div>
 
-                            <span class="marketplace-nav-icon">
-                                🟣
-                            </span>
 
-                            JOBS
+                <div class="job-form-field">
 
-                        </a>
+                    <label for="jobSkills">
+                        Skills Required *
+                    </label>
 
-                    </li>
+                    <input type="text"
+                           id="jobSkills"
+                           placeholder="Separate skills with commas"
+                           required>
 
+                </div>
 
-                    <li class="marketplace-nav-group">
 
-                        <span class="marketplace-nav-label">
-                            My Activity
-                        </span>
+                <div class="job-form-field">
 
-                        <a href="#saved"
-                           class="marketplace-nav-link">
+                    <label for="jobExperience">
+                        Experience
+                    </label>
 
-                            <span class="marketplace-nav-icon">
-                                ❤️
-                            </span>
+                    <input type="text"
+                           id="jobExperience"
+                           placeholder="e.g. 2 years">
 
-                            Saved Items
+                </div>
 
-                        </a>
 
-                    </li>
+                <div class="job-form-field">
 
+                    <label for="jobSalary">
+                        Salary
+                    </label>
 
-                    <li>
+                    <input type="text"
+                           id="jobSalary"
+                           placeholder="e.g. 250,000 RWF">
 
-                        <a href="#requests"
-                           class="marketplace-nav-link">
+                </div>
 
-                            <span class="marketplace-nav-icon">
-                                📩
-                            </span>
 
-                            My Requests
+                <div class="job-form-field">
 
-                        </a>
+                    <label for="jobDeadline">
+                        Application Deadline
+                    </label>
 
-                    </li>
+                    <input type="date"
+                           id="jobDeadline">
 
+                </div>
 
-                    <li>
 
-                        <a href="#viewings"
-                           class="marketplace-nav-link">
+                <div class="job-form-field">
 
-                            <span class="marketplace-nav-icon">
-                                👁️
-                            </span>
+                    <label for="jobWorkers">
+                        Number of Workers
+                    </label>
 
-                            Viewing Requests
+                    <input type="number"
+                           id="jobWorkers"
+                           min="1"
+                           value="1">
 
-                        </a>
+                </div>
 
-                    </li>
 
+                <div class="job-form-field full">
 
-                    <li>
+                    <label for="jobDescription">
+                        Job Description *
+                    </label>
 
-                        <a href="#chat"
-                           class="marketplace-nav-link">
+                    <textarea id="jobDescription"
+                              required></textarea>
 
-                            <span class="marketplace-nav-icon">
-                                💬
-                            </span>
+                </div>
 
-                            TIPECO Chat
 
-                        </a>
+                <div class="job-form-field full">
 
-                    </li>
+                    <label for="jobResponsibilities">
+                        Responsibilities
+                    </label>
 
+                    <textarea id="jobResponsibilities"></textarea>
 
-                    <li>
+                </div>
 
-                        <a href="#notifications"
-                           class="marketplace-nav-link">
+            </div>
 
-                            <span class="marketplace-nav-icon">
-                                🔔
-                            </span>
 
-                            Notifications
+            <div class="job-form-actions">
 
-                        </a>
+                <button type="submit"
+                        class="marketplace-primary-button">
 
-                    </li>
+                    Submit Job
 
+                </button>
 
-                    <li class="marketplace-nav-group">
+                <button type="button"
+                        class="marketplace-secondary-button"
+                        data-close-job-panels>
 
-                        <span class="marketplace-nav-label">
-                            Account
-                        </span>
+                    Cancel
 
+                </button>
 
-                        <a href="#subscription"
-                           class="marketplace-nav-link">
+            </div>
 
-                            <span class="marketplace-nav-icon">
-                                💳
-                            </span>
 
-                            Subscription
+            <div id="postJobStatus"
+                 class="job-status-message">
+            </div>
 
-                        </a>
+        </form>
 
-                    </li>
+    </div>
 
 
-                    <li>
+    <!-- JOB DETAIL -->
 
-                        <a href="#profile"
-                           class="marketplace-nav-link">
+    <div class="job-detail-panel"
+         id="jobDetailPanel">
 
-                            <span class="marketplace-nav-icon">
-                                👤
-                            </span>
+        <div class="job-detail-box">
 
-                            My Profile
+            <div id="jobDetailContent"></div>
 
-                        </a>
+        </div>
 
-                    </li>
+    </div>
 
+</section>
 
-                    <li>
 
-                        <a href="#settings"
-                           class="marketplace-nav-link">
+<!-- =====================================================
+     RENT
+====================================================== -->
 
-                            <span class="marketplace-nav-icon">
-                                ⚙️
-                            </span>
+<section class="dashboard-section"
+         id="rent">
 
-                            Account Settings
+    <div class="dashboard-section-header">
 
-                        </a>
+        <h2>RENT</h2>
 
-                    </li>
+        <span class="dashboard-section-link">
+            Rental Marketplace
+        </span>
 
-                </ul>
+    </div>
 
-            </aside>
 
+    <div class="marketplace-category-grid">
 
+        <a href="marketplace.html?type=rent&category=houses"
+           class="marketplace-category">
+            <strong>🏡 Houses</strong>
+            <span>Rental houses</span>
+        </a>
 
-            <!-- =================================================
-                 MAIN
-            ================================================== -->
+        <a href="marketplace.html?type=rent&category=apartments"
+           class="marketplace-category">
+            <strong>🏢 Apartments</strong>
+            <span>Rental apartments</span>
+        </a>
 
-            <section class="dashboard-main">
+        <a href="marketplace.html?type=rent&category=commercial"
+           class="marketplace-category">
+            <strong>🏬 Commercial Property</strong>
+            <span>Offices and commercial spaces</span>
+        </a>
 
+        <a href="marketplace.html?type=rent&category=vehicles"
+           class="marketplace-category">
+            <strong>🚙 Vehicles</strong>
+            <span>Vehicles available for rent</span>
+        </a>
 
-                <!-- HERO -->
+        <a href="marketplace.html?type=rent&category=equipment"
+           class="marketplace-category">
+            <strong>🏗️ Equipment</strong>
+            <span>Equipment available for rent</span>
+        </a>
 
-                <section class="marketplace-hero">
+        <a href="marketplace.html?type=rent&category=furniture"
+           class="marketplace-category">
+            <strong>🪑 Furniture</strong>
+            <span>Furniture available for rent</span>
+        </a>
 
-                    <p class="marketplace-hero-label">
-                        TIPECO MARKETPLACE
-                    </p>
+        <a href="marketplace.html?type=rent&category=other"
+           class="marketplace-category">
+            <strong>📦 Other</strong>
+            <span>Other rental opportunities</span>
+        </a>
 
-                    <h1>
-                        Welcome Back,
-                        <span data-user-name>
-                            Loading...
-                        </span>
-                        👋
-                    </h1>
+    </div>
 
-                    <p>
-                        Buy, sell, rent, find jobs and connect
-                        through a trusted marketplace built
-                        with TIPECO GROUP protection and
-                        moderation.
-                    </p>
+</section>
 
-                </section>
 
+<!-- SELL -->
 
+<section class="dashboard-section"
+         id="sell">
 
-                <!-- =================================================
-                     CORE ACTIONS
-                ================================================== -->
+    <div class="marketplace-info-card">
 
-                <section
-                    class="dashboard-section"
-                    id="marketplace-actions">
+        <h3>
+            🏷️ Sell on TIPECO Marketplace
+        </h3>
 
-                    <div class="dashboard-section-header">
+        <p>
+            Promote your products, properties,
+            vehicles, services and other approved
+            marketplace items. A subscription is
+            required to submit content for publication.
+        </p>
 
-                        <h2>
-                            What Would You Like To Do?
-                        </h2>
+        <p>
+            <strong>Important:</strong>
+            Subscription does not automatically approve
+            a listing. TIPECO GROUP review and approval
+            remain required before publication.
+        </p>
 
-                    </div>
+        <a href="subscription.html"
+           class="marketplace-primary-button">
+            View Subscription Plans
+        </a>
 
+    </div>
 
-                    <div class="marketplace-core-grid">
+</section>
 
 
-                        <a href="#buy"
-                           class="marketplace-core-card marketplace-buy">
+<!-- JOB CATEGORIES -->
 
-                            <div class="marketplace-core-icon">
-                                🛒
-                            </div>
+<section class="dashboard-section"
+         id="jobs-details">
+
+    <div class="dashboard-section-header">
+
+        <h2>
+            JOB CATEGORIES
+        </h2>
+
+        <span class="dashboard-section-link">
+            Browse Approved Jobs
+        </span>
+
+    </div>
+
+
+    <div class="marketplace-category-grid">
+
+        <a href="#jobs"
+           data-job-category="construction"
+           class="marketplace-category">
+            <strong>🏗️ Construction</strong>
+            <span>Construction opportunities</span>
+        </a>
+
+        <a href="#jobs"
+           data-job-category="technology"
+           class="marketplace-category">
+            <strong>💻 Technology / IT</strong>
+            <span>Technology and digital roles</span>
+        </a>
+
+        <a href="#jobs"
+           data-job-category="business-finance"
+           class="marketplace-category">
+            <strong>💼 Business &amp; Finance</strong>
+            <span>Business and finance roles</span>
+        </a>
+
+        <a href="#jobs"
+           data-job-category="sales-marketing"
+           class="marketplace-category">
+            <strong>📣 Sales &amp; Marketing</strong>
+            <span>Sales and marketing roles</span>
+        </a>
+
+        <a href="#jobs"
+           data-job-category="transport"
+           class="marketplace-category">
+            <strong>🚚 Transport</strong>
+            <span>Transport opportunities</span>
+        </a>
+
+        <a href="#jobs"
+           data-job-category="hospitality"
+           class="marketplace-category">
+            <strong>🍽️ Hospitality</strong>
+            <span>Hospitality opportunities</span>
+        </a>
+
+        <a href="#jobs"
+           data-job-category="security"
+           class="marketplace-category">
+            <strong>🛡️ Security</strong>
+            <span>Security roles</span>
+        </a>
+
+        <a href="#jobs"
+           data-job-category="skilled-trades"
+           class="marketplace-category">
+            <strong>🔧 Skilled Trades</strong>
+            <span>Skilled technical work</span>
+        </a>
+
+        <a href="#jobs"
+           data-job-category="agriculture"
+           class="marketplace-category">
+            <strong>🌱 Agriculture</strong>
+            <span>Agriculture opportunities</span>
+        </a>
+
+        <a href="#jobs"
+           data-job-category="healthcare"
+           class="marketplace-category">
+            <strong>🏥 Healthcare</strong>
+            <span>Healthcare opportunities</span>
+        </a>
+
+        <a href="#jobs"
+           data-job-category="education"
+           class="marketplace-category">
+            <strong>🎓 Education</strong>
+            <span>Education opportunities</span>
+        </a>
+
+        <a href="#jobs"
+           data-job-category="other"
+           class="marketplace-category">
+            <strong>📦 Other</strong>
+            <span>Other approved job categories</span>
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- ACTIVITY -->
+
+<section class="dashboard-section">
+
+    <div class="dashboard-section-header">
+
+        <h2>
+            My Marketplace Activity
+        </h2>
+
+    </div>
+
+
+    <div class="dashboard-stats">
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-icon">
+                📋
+            </div>
+
+            <div>
+
+                <strong class="stat-number"
+                        data-my-listings-count>
+                    0
+                </strong>
+
+                <div class="stat-title">
+                    My Listings
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-icon">
+                ❤️
+            </div>
+
+            <div>
+
+                <strong class="stat-number"
+                        data-saved-items-count>
+                    0
+                </strong>
+
+                <div class="stat-title">
+                    Saved Items
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-icon">
+                📩
+            </div>
+
+            <div>
+
+                <strong class="stat-number">
+                    0
+                </strong>
+
+                <div class="stat-title">
+                    My Requests
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-stat-card">
+
+            <div class="stat-icon">
+                💬
+            </div>
+
+            <div>
+
+                <strong class="stat-number">
+                    —
+                </strong>
+
+                <div class="stat-title">
+                    TIPECO Chat
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- SAVED ITEMS -->
+
+<section class="dashboard-section"
+         id="saved">
+
+    <div class="dashboard-section-header">
+
+        <h2>
+            ❤️ Saved Items
+        </h2>
+
+        <span class="dashboard-section-link"
+              data-saved-items-count>
+            0
+        </span>
+
+    </div>
+
+
+    <div id="savedItemsContainer"
+         class="marketplace-empty">
+
+        <div class="marketplace-empty-icon">
+            ❤️
+        </div>
+
+        <h3>
+            Saved Items
+        </h3>
+
+        <p>
+            Items you save in the Marketplace
+            will appear here.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- QUICK ACTIONS -->
+
+<section class="dashboard-section">
+
+    <div class="dashboard-section-header">
+
+        <h2>
+            Quick Actions
+        </h2>
+
+    </div>
+
+
+    <div class="quick-actions">
+
+        <a href="marketplace.html"
+           class="quick-action">
+
+            <div class="quick-action-icon">
+                🔎
+            </div>
+
+            <h3>
+                Browse Marketplace
+            </h3>
+
+            <p>
+                Explore approved listings
+                and marketplace content.
+            </p>
+
+        </a>
+
+
+        <a href="subscription.html"
+           class="quick-action">
+
+            <div class="quick-action-icon">
+                💳
+            </div>
+
+            <h3>
+                Get Subscription
+            </h3>
+
+            <p>
+                Choose a plan, make payment
+                and submit your payment
+                screenshot for Owner review.
+            </p>
+
+        </a>
+
+
+        <a href="#rent"
+           class="quick-action">
+
+            <div class="quick-action-icon">
+                🏠
+            </div>
+
+            <h3>
+                Find Rentals
+            </h3>
+
+            <p>
+                Explore houses, vehicles,
+                equipment and more.
+            </p>
+
+        </a>
+
+
+        <a href="#jobs"
+           class="quick-action">
+
+            <div class="quick-action-icon">
+                💼
+            </div>
+
+            <h3>
+                Find a Job
+            </h3>
+
+            <p>
+                Explore approved job
+                opportunities.
+            </p>
+
+        </a>
+
+
+        <a href="#jobs"
+           class="quick-action">
+
+            <div class="quick-action-icon">
+                👥
+            </div>
+
+            <h3>
+                Find an Employee
+            </h3>
+
+            <p>
+                Discover employees by skills,
+                experience and location.
+            </p>
+
+        </a>
+
+
+        <a href="#chat"
+           class="quick-action">
+
+            <div class="quick-action-icon">
+                💬
+            </div>
+
+            <h3>
+                TIPECO Chat
+            </h3>
+
+            <p>
+                Protected communication service.
+                Backend connection coming later.
+            </p>
+
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- SUBSCRIPTION -->
+
+<section class="dashboard-section"
+         id="subscription">
+
+    <div class="marketplace-info-card marketplace-subscription-card">
+
+        <span class="marketplace-subscription-status"
+              id="subscriptionStatusBadge">
+            💳 CHECKING SUBSCRIPTION
+        </span>
+
+
+        <h3>
+            TIPECO Marketplace Subscription
+        </h3>
+
+
+        <p id="subscriptionStatusText">
+            Checking your current subscription status...
+        </p>
+
+
+        <div class="subscription-plan-summary"
+             id="subscriptionPlanSummary">
+
+            <strong id="subscriptionPlanName">
+                Subscription
+            </strong>
+
+            <br><br>
+
+            <span id="subscriptionPlanDetails">
+            </span>
+
+        </div>
+
+
+        <p>
+            <strong>
+                Subscription does not equal approval.
+            </strong>
+
+            Payment only starts the subscription
+            verification workflow. Owner verification
+            remains required.
+        </p>
+
+
+        <a href="subscription.html"
+           class="marketplace-primary-button">
+            View Subscription Plans
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- CHAT -->
+
+<section class="dashboard-section"
+         id="chat">
+
+    <div class="marketplace-info-card marketplace-chat-card">
+
+        <h3>
+            💬 TIPECO Chat
+        </h3>
+
+        <p>
+            TIPECO Chat will provide protected
+            communication between approved users.
+        </p>
+
+        <p>
+            Personal phone numbers, WhatsApp numbers,
+            Telegram handles and other direct contact
+            information should not be published inside
+            marketplace listings.
+        </p>
+
+        <p>
+            <strong>
+                Chat backend is not active yet.
+            </strong>
+            This section does not use fake alerts
+            or fake messaging functionality.
+        </p>
+
+        <span class="marketplace-secondary-button">
+            Chat Backend — Coming Soon
+        </span>
+
+    </div>
+
+</section>
+
+
+<!-- PROTECTION -->
+
+<section class="dashboard-section">
+
+    <div class="marketplace-info-card marketplace-protection-card">
+
+        <h3>
+            🛡️ TIPECO GROUP Protected Marketplace
+        </h3>
+
+        <p>
+            TIPECO GROUP is designed as a controlled
+            marketplace. Listings and selected
+            marketplace activities may be reviewed
+            and verified before publication.
+        </p>
+
+        <ul class="marketplace-protection-list">
+
+            <li>
+                Approved listings are required before
+                public publication.
+            </li>
+
+            <li>
+                Subscription does not guarantee approval.
+            </li>
+
+            <li>
+                Payment confirmation is required before
+                a subscription becomes active.
+            </li>
+
+            <li>
+                Use TIPECO Chat instead of publishing
+                personal contact information.
+            </li>
+
+            <li>
+                Suspicious or abusive content can be
+                reported for TIPECO review.
+            </li>
+
+        </ul>
+
+    </div>
+
+</section>
+
+
+<!-- PROFILE -->
+
+<section class="dashboard-section"
+         id="profile">
+
+    <div class="profile-card">
+
+        <div class="profile-card-top">
+
+            <div class="dashboard-avatar">
+                👤
+            </div>
+
+            <div>
+
+                <h3 data-user-name>
+                    Loading...
+                </h3>
+
+                <p data-user-email>
+                    Loading...
+                </p>
+
+                <p data-user-role>
+                    TIPECO User
+                </p>
+
+            </div>
+
+        </div>
+
+        <a href="#settings"
+           class="profile-card-link">
+            Edit Profile
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- REQUESTS -->
+
+<section class="dashboard-section"
+         id="requests">
+
+    <div class="dashboard-section-header">
+
+        <h2>
+            My Requests
+        </h2>
+
+    </div>
+
+    <div class="dashboard-empty">
+
+        <div class="dashboard-empty-icon">
+            📩
+        </div>
+
+        <h3>
+            Requests Backend Not Connected
+        </h3>
+
+        <p>
+            This section remains inactive until
+            the real Firebase Requests service
+            is implemented.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- VIEWINGS -->
+
+<section class="dashboard-section"
+         id="viewings">
+
+    <div class="dashboard-section-header">
+
+        <h2>
+            Viewing Requests
+        </h2>
+
+    </div>
+
+    <div class="dashboard-empty">
+
+        <div class="dashboard-empty-icon">
+            👁️
+        </div>
+
+        <h3>
+            Viewing Backend Not Connected
+        </h3>
+
+        <p>
+            Property and vehicle viewing requests
+            will be activated when the real Firebase
+            Viewing service is implemented.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- NOTIFICATIONS -->
+
+<section class="dashboard-section"
+         id="notifications">
+
+    <div class="dashboard-section-header">
+
+        <h2>
+            Notifications
+        </h2>
+
+    </div>
+
+    <div class="dashboard-empty">
+
+        <div class="dashboard-empty-icon">
+            🔔
+        </div>
+
+        <h3>
+            Notifications Backend Not Connected
+        </h3>
+
+        <p>
+            Notifications will appear here after
+            the real Firebase notification service
+            is implemented.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- SETTINGS -->
+
+<section class="dashboard-section"
+         id="settings">
+
+    <div class="marketplace-info-card">
+
+        <h3>
+            ⚙️ Account Settings
+        </h3>
+
+        <p>
+            Account profile and security settings
+            will be managed here as the corresponding
+            Firebase features are connected.
+        </p>
+
+        <a href="#profile"
+           class="marketplace-secondary-button">
+            View Profile
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- RECENT ACTIVITY -->
+
+<section class="dashboard-section">
+
+    <div class="dashboard-section-header">
+
+        <h2>
+            Recent Activity
+        </h2>
+
+        <span class="dashboard-section-link">
+            Firebase Activity
+        </span>
+
+    </div>
+
+
+    <div id="recentActivity"
+         class="activity-card">
+
+        <div class="activity-item">
+
+            <span class="activity-icon">
+                🔄
+            </span>
+
+            <div class="activity-content">
+
+                <h4>
+                    Loading activity
+                </h4>
+
+                <p>
+                    Reading your real account activity...
+                </p>
+
+            </div>
+
+            <span class="activity-time">
+                ...
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="dashboard-section">
+
+    <div class="dashboard-empty">
+
+        <div class="dashboard-empty-icon">
+            🚀
+        </div>
+
+        <h3>
+            More Marketplace Features Coming Soon
+        </h3>
+
+        <p>
+            TIPECO GROUP is continuously building
+            secure tools for buying, selling,
+            renting, employment and protected
+            communication.
+        </p>
+
+    </div>
+
+</section>
+
+
+</section>
+
+</div>
+
+</main>
+
+
+<footer class="dashboard-footer">
+
+    <strong>
+        TIPECO GROUP
+    </strong>
+
+    <p>
+        Innovation • Business • Technology
+    </p>
+
+    <p>
+        © 2026 TIPECO GROUP. All Rights Reserved.
+    </p>
+
+</footer>
+
+
+<!-- =====================================================
+     FIREBASE DASHBOARD ENGINE
+====================================================== -->
+
+<script type="module">
+
+import {
+    auth
+} from "../assets/js/firebase-config.js";
+
+import {
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+import {
+    getFirestore,
+    doc,
+    getDoc,
+    collection,
+    getDocs,
+    addDoc,
+    query,
+    where,
+    orderBy,
+    limit,
+    Timestamp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+import {
+    getApp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+
+import {
+    getStorage,
+    ref,
+    uploadBytes,
+    getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
+
+
+/* =====================================================
+   FIREBASE
+====================================================== */
+
+const app = getApp();
+
+const db = getFirestore(app);
+
+const storage = getStorage(app);
+
+
+/* =====================================================
+   GLOBAL USER
+====================================================== */
+
+let currentUser = null;
+
+let currentProfile = null;
+
+
+/* =====================================================
+   DOM
+====================================================== */
+
+const userNameElements =
+    document.querySelectorAll(
+        "[data-user-name]"
+    );
+
+const userEmailElements =
+    document.querySelectorAll(
+        "[data-user-email]"
+    );
+
+const userRoleElements =
+    document.querySelectorAll(
+        "[data-user-role]"
+    );
+
+const logoutButton =
+    document.querySelector(
+        '[data-action="logout"]'
+    );
+
+
+/* =====================================================
+   USER DISPLAY
+====================================================== */
+
+function setUserName(name) {
+
+    const safeName =
+        name &&
+        typeof name === "string" &&
+        name.trim()
+            ? name.trim()
+            : "TIPECO User";
+
+    userNameElements.forEach(
+        element => {
+            element.textContent =
+                safeName;
+        }
+    );
+}
+
+
+function setUserEmail(email) {
+
+    const safeEmail =
+        email &&
+        typeof email === "string"
+            ? email.trim()
+            : "";
+
+    userEmailElements.forEach(
+        element => {
+            element.textContent =
+                safeEmail;
+        }
+    );
+}
+
+
+function setUserRole(role) {
+
+    let label = "TIPECO User";
+
+    if (role === "owner") {
+        label = "TIPECO Owner";
+    }
+
+    else if (role === "agent") {
+        label = "TIPECO Agent";
+    }
+
+    userRoleElements.forEach(
+        element => {
+            element.textContent =
+                label;
+        }
+    );
+}
+
+
+/* =====================================================
+   PROFILE
+====================================================== */
+
+async function loadUserProfile(user) {
+
+    try {
+
+        const userRef =
+            doc(
+                db,
+                "users",
+                user.uid
+            );
+
+        const snapshot =
+            await getDoc(userRef);
+
+        let profile = {};
+
+        if (snapshot.exists()) {
+            profile = snapshot.data();
+        }
+
+        currentProfile = profile;
+
+        const displayName =
+            profile.fullName ||
+            profile.name ||
+            profile.displayName ||
+            user.displayName ||
+            "TIPECO User";
+
+        const role =
+            profile.role ||
+            profile.accountType ||
+            profile.userRole ||
+            "user";
+
+        setUserName(displayName);
+
+        setUserEmail(
+            user.email || ""
+        );
+
+        setUserRole(role);
+
+        await loadSubscriptionStatus(
+            user.uid
+        );
+
+        await loadMarketplaceData(
+            user.uid
+        );
+
+        await loadSavedItems();
+
+        await loadRecentActivity(
+            user.uid,
+            profile
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "TIPECO profile error:",
+            error
+        );
+
+        setUserName(
+            user.displayName ||
+            "TIPECO User"
+        );
+
+        setUserEmail(
+            user.email || ""
+        );
+
+        setUserRole("user");
+
+    }
+
+}
+
+
+/* =====================================================
+   AUTH
+====================================================== */
+
+onAuthStateChanged(
+    auth,
+    async user => {
+
+        if (!user) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+
+        }
+
+        if (!user.emailVerified) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+
+        }
+
+        currentUser = user;
+
+        await loadUserProfile(user);
+
+    }
+);
+
+
+/* =====================================================
+   LOGOUT
+====================================================== */
+
+if (logoutButton) {
+
+    logoutButton.addEventListener(
+        "click",
+        async event => {
+
+            event.preventDefault();
+
+            try {
+
+                await signOut(auth);
+
+                window.location.href =
+                    "../index.html";
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Logout error:",
+                    error
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   SEARCH
+====================================================== */
+
+const searchForm =
+    document.getElementById(
+        "marketplaceSearchForm"
+    );
+
+if (searchForm) {
+
+    searchForm.addEventListener(
+        "submit",
+        event => {
+
+            event.preventDefault();
+
+            const search =
+                document
+                    .getElementById(
+                        "marketplaceSearch"
+                    )
+                    ?.value
+                    .trim() || "";
+
+            const category =
+                document
+                    .getElementById(
+                        "marketplaceCategory"
+                    )
+                    ?.value || "";
+
+            const type =
+                document
+                    .getElementById(
+                        "marketplaceType"
+                    )
+                    ?.value || "";
+
+            const params =
+                new URLSearchParams();
+
+            if (search) {
+                params.set(
+                    "search",
+                    search
+                );
+            }
+
+            if (category) {
+                params.set(
+                    "category",
+                    category
+                );
+            }
+
+            if (type) {
+                params.set(
+                    "type",
+                    type
+                );
+            }
+
+            const queryString =
+                params.toString();
+
+            window.location.href =
+                "marketplace.html" +
+                (
+                    queryString
+                        ? "?" + queryString
+                        : ""
+                );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   LATEST LISTINGS
+====================================================== */
+
+async function loadLatestListings() {
+
+    const container =
+        document.getElementById(
+            "latestListings"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    try {
+
+        const listingsRef =
+            collection(
+                db,
+                "listings"
+            );
+
+        const approvedQuery =
+            query(
+                listingsRef,
+                where(
+                    "status",
+                    "==",
+                    "approved"
+                ),
+                orderBy(
+                    "createdAt",
+                    "desc"
+                ),
+                limit(6)
+            );
+
+        const snapshot =
+            await getDocs(
+                approvedQuery
+            );
+
+        if (snapshot.empty) {
+
+            container.innerHTML = `
+                <div class="marketplace-empty-icon">
+                    🛍️
+                </div>
+
+                <h3>
+                    No Approved Listings Yet
+                </h3>
+
+                <p>
+                    Approved public listings will
+                    appear here.
+                </p>
+            `;
+
+            return;
+
+        }
+
+        container.className =
+            "marketplace-job-list";
+
+        container.innerHTML = "";
+
+        snapshot.forEach(
+            itemSnapshot => {
+
+                const item =
+                    itemSnapshot.data();
+
+                const id =
+                    itemSnapshot.id;
+
+                const title =
+                    escapeHtml(
+                        item.title ||
+                        item.name ||
+                        "Marketplace Listing"
+                    );
+
+                const category =
+                    escapeHtml(
+                        item.category ||
+                        "Other"
+                    );
+
+                const location =
+                    escapeHtml(
+                        item.location ||
+                        ""
+                    );
+
+                const price =
+                    escapeHtml(
+                        item.price ||
+                        ""
+                    );
+
+                const link =
+                    `marketplace.html?listing=${encodeURIComponent(id)}`;
+
+                const element =
+                    document.createElement(
+                        "div"
+                    );
+
+                element.className =
+                    "real-job-card";
+
+                element.innerHTML = `
+
+                    <div class="real-job-card-header">
+
+                        <div>
 
                             <h3>
-                                BUY
+                                ${title}
                             </h3>
 
-                            <p>
-                                Browse approved products,
-                                properties, vehicles,
-                                services and more.
-                            </p>
+                            <div class="real-job-meta">
 
-                            <span class="marketplace-core-arrow">
-                                →
-                            </span>
+                                <span>
+                                    ${category}
+                                </span>
 
-                        </a>
+                                ${
+                                    location
+                                        ? `<span>${location}</span>`
+                                        : ""
+                                }
 
+                                ${
+                                    price
+                                        ? `<span>${price}</span>`
+                                        : ""
+                                }
 
-                        <a href="#sell"
-                           class="marketplace-core-card marketplace-sell">
-
-                            <div class="marketplace-core-icon">
-                                🏷️
                             </div>
-
-                            <h3>
-                                SELL
-                            </h3>
-
-                            <p>
-                                Promote your products or
-                                services through TIPECO.
-                                Subscription is required
-                                to publish.
-                            </p>
-
-                            <span class="marketplace-core-arrow">
-                                →
-                            </span>
-
-                        </a>
-
-
-                        <a href="#rent"
-                           class="marketplace-core-card marketplace-rent">
-
-                            <div class="marketplace-core-icon">
-                                🏠
-                            </div>
-
-                            <h3>
-                                RENT
-                            </h3>
-
-                            <p>
-                                Find houses, apartments,
-                                vehicles, equipment and
-                                other rental opportunities.
-                            </p>
-
-                            <span class="marketplace-core-arrow">
-                                →
-                            </span>
-
-                        </a>
-
-
-                        <a href="#jobs"
-                           class="marketplace-core-card marketplace-jobs">
-
-                            <div class="marketplace-core-icon">
-                                💼
-                            </div>
-
-                            <h3>
-                                JOBS
-                            </h3>
-
-                            <p>
-                                Find a job or discover
-                                employees by skills,
-                                experience and location.
-                            </p>
-
-                            <span class="marketplace-core-arrow">
-                                →
-                            </span>
-
-                        </a>
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     SEARCH
-                ================================================== -->
-
-                <section
-                    class="marketplace-search-box"
-                    id="search">
-
-                    <h2>
-                        Search Marketplace
-                    </h2>
-
-                    <form
-                        class="marketplace-search-form"
-                        id="marketplaceSearchForm">
-
-                        <input
-                            type="search"
-                            id="marketplaceSearch"
-                            name="search"
-                            placeholder="Search products, properties, vehicles, services, jobs..."
-                            autocomplete="off">
-
-
-                        <select
-                            id="marketplaceCategory"
-                            name="category">
-
-                            <option value="">
-                                All Categories
-                            </option>
-
-                            <option value="vehicles">
-                                Vehicles
-                            </option>
-
-                            <option value="real-estate">
-                                Real Estate
-                            </option>
-
-                            <option value="electronics">
-                                Electronics
-                            </option>
-
-                            <option value="home-furniture">
-                                Home &amp; Furniture
-                            </option>
-
-                            <option value="construction-products">
-                                Construction Products
-                            </option>
-
-                            <option value="paint-construction">
-                                Paint &amp; Construction
-                            </option>
-
-                            <option value="services">
-                                Services
-                            </option>
-
-                            <option value="jobs">
-                                Jobs
-                            </option>
-
-                            <option value="other">
-                                Other
-                            </option>
-
-                        </select>
-
-
-                        <select
-                            id="marketplaceType"
-                            name="type">
-
-                            <option value="">
-                                All Types
-                            </option>
-
-                            <option value="buy">
-                                Buy
-                            </option>
-
-                            <option value="sell">
-                                Sell
-                            </option>
-
-                            <option value="rent">
-                                Rent
-                            </option>
-
-                            <option value="job">
-                                Job
-                            </option>
-
-                        </select>
-
-
-                        <button
-                            type="submit"
-                            class="marketplace-search-button">
-
-                            Search
-
-                        </button>
-
-                    </form>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     CATEGORIES
-                ================================================== -->
-
-                <section
-                    class="dashboard-section"
-                    id="buy">
-
-                    <div class="dashboard-section-header">
-
-                        <h2>
-                            Marketplace Categories
-                        </h2>
-
-                        <a href="marketplace.html"
-                           class="dashboard-section-link">
-
-                            Browse Marketplace
-
-                        </a>
-
-                    </div>
-
-
-                    <div class="marketplace-category-grid">
-
-
-                        <a href="marketplace.html?category=vehicles"
-                           class="marketplace-category">
-
-                            <strong>
-                                🚗 Vehicles
-                            </strong>
-
-                            <span>
-                                Cars, motorcycles and more
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?category=real-estate"
-                           class="marketplace-category">
-
-                            <strong>
-                                🏠 Real Estate
-                            </strong>
-
-                            <span>
-                                Houses, land and properties
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?category=electronics"
-                           class="marketplace-category">
-
-                            <strong>
-                                📱 Electronics
-                            </strong>
-
-                            <span>
-                                Devices and electronics
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?category=home-furniture"
-                           class="marketplace-category">
-
-                            <strong>
-                                🛋️ Home &amp; Furniture
-                            </strong>
-
-                            <span>
-                                Furniture and household items
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?category=construction-products"
-                           class="marketplace-category">
-
-                            <strong>
-                                🧱 Construction Products
-                            </strong>
-
-                            <span>
-                                Building materials and products
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?category=paint-construction"
-                           class="marketplace-category">
-
-                            <strong>
-                                🎨 Paint &amp; Construction
-                            </strong>
-
-                            <span>
-                                Paint and construction solutions
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?category=services"
-                           class="marketplace-category">
-
-                            <strong>
-                                🛠️ Services
-                            </strong>
-
-                            <span>
-                                Professional and local services
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?category=other"
-                           class="marketplace-category">
-
-                            <strong>
-                                📦 Other
-                            </strong>
-
-                            <span>
-                                Other approved marketplace items
-                            </span>
-
-                        </a>
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     MARKETPLACE CONTENT
-                ================================================== -->
-
-                <section
-                    class="marketplace-content-grid"
-                    id="marketplace-content">
-
-
-                    <div class="marketplace-panel">
-
-                        <div class="marketplace-panel-header">
-
-                            <h2>
-                                Latest Approved Listings
-                            </h2>
-
-                            <a href="marketplace.html"
-                               class="marketplace-panel-link">
-
-                                View All
-
-                            </a>
 
                         </div>
 
-
-                        <div
-                            class="marketplace-empty"
-                            id="latestListings">
-
-                            <div class="marketplace-empty-icon">
-                                🛍️
-                            </div>
-
-                            <h3>
-                                Marketplace Listings
-                            </h3>
-
-                            <p>
-                                Approved public listings will
-                                appear here. Browsing and
-                                searching Marketplace is free.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <!-- JOBS PREVIEW -->
-
-                    <div
-                        class="marketplace-panel"
-                        id="jobs">
-
-                        <div class="marketplace-panel-header">
-
-                            <h2>
-                                Latest Jobs
-                            </h2>
-
-                            <a href="#jobs-details"
-                               class="marketplace-panel-link">
-
-                                Explore
-
-                            </a>
-
-                        </div>
-
-
-                        <div class="marketplace-job-list">
-
-                            <div class="marketplace-job-item">
-
-                                <div>
-
-                                    <h3>
-                                        Find a Job
-                                    </h3>
-
-                                    <p>
-                                        Browse approved job
-                                        opportunities.
-                                    </p>
-
-                                </div>
-
-                                <a href="#jobs-details"
-                                   class="marketplace-job-button">
-
-                                    Browse
-
-                                </a>
-
-                            </div>
-
-
-                            <div class="marketplace-job-item">
-
-                                <div>
-
-                                    <h3>
-                                        Find an Employee
-                                    </h3>
-
-                                    <p>
-                                        Search employees by
-                                        skills and experience.
-                                    </p>
-
-                                </div>
-
-                                <a href="#jobs-details"
-                                   class="marketplace-job-button">
-
-                                    Explore
-
-                                </a>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     RENT
-                ================================================== -->
-
-                <section
-                    class="dashboard-section"
-                    id="rent">
-
-                    <div class="dashboard-section-header">
-
-                        <h2>
-                            RENT
-                        </h2>
-
-                        <span class="dashboard-section-link">
-                            Rental Marketplace
-                        </span>
-
-                    </div>
-
-
-                    <div class="marketplace-category-grid">
-
-                        <a href="marketplace.html?type=rent&category=houses"
-                           class="marketplace-category">
-
-                            <strong>
-                                🏡 Houses
-                            </strong>
-
-                            <span>
-                                Rental houses
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=rent&category=apartments"
-                           class="marketplace-category">
-
-                            <strong>
-                                🏢 Apartments
-                            </strong>
-
-                            <span>
-                                Rental apartments
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=rent&category=commercial"
-                           class="marketplace-category">
-
-                            <strong>
-                                🏬 Commercial Property
-                            </strong>
-
-                            <span>
-                                Offices and commercial spaces
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=rent&category=vehicles"
-                           class="marketplace-category">
-
-                            <strong>
-                                🚙 Vehicles
-                            </strong>
-
-                            <span>
-                                Vehicles available for rent
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=rent&category=equipment"
-                           class="marketplace-category">
-
-                            <strong>
-                                🏗️ Equipment
-                            </strong>
-
-                            <span>
-                                Equipment available for rent
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=rent&category=furniture"
-                           class="marketplace-category">
-
-                            <strong>
-                                🪑 Furniture
-                            </strong>
-
-                            <span>
-                                Furniture available for rent
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=rent&category=other"
-                           class="marketplace-category">
-
-                            <strong>
-                                📦 Other
-                            </strong>
-
-                            <span>
-                                Other rental opportunities
-                            </span>
-
+                        <a
+                            href="${link}"
+                            class="marketplace-job-button">
+                            View
                         </a>
 
                     </div>
 
-                </section>
+                `;
+
+                container.appendChild(
+                    element
+                );
+
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Latest listings error:",
+            error
+        );
+
+        container.innerHTML = `
+
+            <div class="marketplace-empty-icon">
+                ⚠️
+            </div>
+
+            <h3>
+                Listings Temporarily Unavailable
+            </h3>
+
+            <p>
+                The dashboard could not load
+                approved listings from Firestore.
+            </p>
+
+        `;
+
+    }
+
+}
 
 
+/* =====================================================
+   MY LISTINGS
+====================================================== */
 
-                <!-- =================================================
-                     SELL
-                ================================================== -->
+async function loadMyListings(uid) {
 
-                <section
-                    class="dashboard-section"
-                    id="sell">
+    const counter =
+        document.querySelector(
+            "[data-my-listings-count]"
+        );
 
-                    <div class="marketplace-info-card">
+    if (!counter) {
+        return 0;
+    }
+
+    try {
+
+        const listingsRef =
+            collection(
+                db,
+                "listings"
+            );
+
+        const queries = [
+
+            query(
+                listingsRef,
+                where(
+                    "ownerId",
+                    "==",
+                    uid
+                )
+            ),
+
+            query(
+                listingsRef,
+                where(
+                    "userId",
+                    "==",
+                    uid
+                )
+            ),
+
+            query(
+                listingsRef,
+                where(
+                    "createdBy",
+                    "==",
+                    uid
+                )
+            )
+
+        ];
+
+        const ids =
+            new Set();
+
+        for (
+            const listingQuery
+            of queries
+        ) {
+
+            try {
+
+                const snapshot =
+                    await getDocs(
+                        listingQuery
+                    );
+
+                snapshot.forEach(
+                    item => {
+                        ids.add(
+                            item.id
+                        );
+                    }
+                );
+
+            }
+
+            catch (queryError) {
+
+                console.warn(
+                    "Listing query skipped:",
+                    queryError
+                );
+
+            }
+
+        }
+
+        counter.textContent =
+            ids.size;
+
+        return ids.size;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "My listings error:",
+            error
+        );
+
+        counter.textContent =
+            "0";
+
+        return 0;
+
+    }
+
+}
+
+
+/* =====================================================
+   SAVED ITEMS
+====================================================== */
+
+function getSavedItems() {
+
+    const possibleKeys = [
+        "tipecoFavorites",
+        "tipecoFavoritesV1",
+        "favorites",
+        "tipecoSavedItems"
+    ];
+
+    for (
+        const key
+        of possibleKeys
+    ) {
+
+        try {
+
+            const raw =
+                localStorage.getItem(
+                    key
+                );
+
+            if (!raw) {
+                continue;
+            }
+
+            const parsed =
+                JSON.parse(raw);
+
+            if (Array.isArray(parsed)) {
+                return parsed;
+            }
+
+            if (
+                parsed &&
+                typeof parsed === "object"
+            ) {
+
+                return Object.keys(
+                    parsed
+                ).map(
+                    id => ({
+                        id,
+                        ...(
+                            parsed[id] || {}
+                        )
+                    })
+                );
+
+            }
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "Saved items parse error:",
+                error
+            );
+
+        }
+
+    }
+
+    return [];
+
+}
+
+
+async function loadSavedItems() {
+
+    const saved =
+        getSavedItems();
+
+    const counters =
+        document.querySelectorAll(
+            "[data-saved-items-count]"
+        );
+
+    counters.forEach(
+        counter => {
+            counter.textContent =
+                saved.length;
+        }
+    );
+
+    const container =
+        document.getElementById(
+            "savedItemsContainer"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    if (!saved.length) {
+
+        container.innerHTML = `
+
+            <div class="marketplace-empty-icon">
+                ❤️
+            </div>
+
+            <h3>
+                No Saved Items
+            </h3>
+
+            <p>
+                Items saved from Marketplace
+                will appear here.
+            </p>
+
+        `;
+
+        return;
+
+    }
+
+    container.className =
+        "marketplace-job-list";
+
+    container.innerHTML = "";
+
+    saved.slice(
+        0,
+        20
+    ).forEach(
+        item => {
+
+            const id =
+                typeof item === "string"
+                    ? item
+                    : (
+                        item.id ||
+                        item.listingId ||
+                        ""
+                    );
+
+            const title =
+                typeof item === "object"
+                    ? (
+                        item.title ||
+                        item.name ||
+                        "Saved Listing"
+                    )
+                    : "Saved Listing";
+
+            const element =
+                document.createElement(
+                    "div"
+                );
+
+            element.className =
+                "real-job-card";
+
+            element.innerHTML = `
+
+                <div class="real-job-card-header">
+
+                    <div>
 
                         <h3>
-                            🏷️ Sell on TIPECO Marketplace
+                            ${escapeHtml(title)}
                         </h3>
 
-                        <p>
-                            Promote your products, properties,
-                            vehicles, services and other approved
-                            marketplace items. A subscription is
-                            required to submit content for
-                            publication.
+                        <div class="real-job-meta">
+                            <span>
+                                Saved
+                            </span>
+                        </div>
+
+                    </div>
+
+                    ${
+                        id
+                            ? `
+                                <a
+                                    href="marketplace.html?listing=${encodeURIComponent(id)}"
+                                    class="marketplace-job-button">
+                                    View
+                                </a>
+                              `
+                            : ""
+                    }
+
+                </div>
+
+            `;
+
+            container.appendChild(
+                element
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   SUBSCRIPTION
+====================================================== */
+
+async function loadSubscriptionStatus(uid) {
+
+    const badge =
+        document.getElementById(
+            "subscriptionStatusBadge"
+        );
+
+    const text =
+        document.getElementById(
+            "subscriptionStatusText"
+        );
+
+    const summary =
+        document.getElementById(
+            "subscriptionPlanSummary"
+        );
+
+    const planName =
+        document.getElementById(
+            "subscriptionPlanName"
+        );
+
+    const planDetails =
+        document.getElementById(
+            "subscriptionPlanDetails"
+        );
+
+    if (!badge || !text) {
+        return;
+    }
+
+    try {
+
+        const subscriptionRef =
+            collection(
+                db,
+                "subscriptions"
+            );
+
+        const queries = [
+
+            query(
+                subscriptionRef,
+                where(
+                    "userId",
+                    "==",
+                    uid
+                ),
+                limit(20)
+            ),
+
+            query(
+                subscriptionRef,
+                where(
+                    "uid",
+                    "==",
+                    uid
+                ),
+                limit(20)
+            )
+
+        ];
+
+        const subscriptions = [];
+
+        for (
+            const q
+            of queries
+        ) {
+
+            try {
+
+                const snapshot =
+                    await getDocs(q);
+
+                snapshot.forEach(
+                    item => {
+
+                        subscriptions.push({
+                            id: item.id,
+                            ...item.data()
+                        });
+
+                    }
+                );
+
+            }
+
+            catch (error) {
+
+                console.warn(
+                    "Subscription query skipped:",
+                    error
+                );
+
+            }
+
+        }
+
+        if (!subscriptions.length) {
+
+            badge.textContent =
+                "💳 NO ACTIVE SUBSCRIPTION";
+
+            text.textContent =
+                "You currently have no confirmed active subscription.";
+
+            if (summary) {
+                summary.classList.remove(
+                    "active"
+                );
+            }
+
+            return;
+
+        }
+
+        const unique =
+            Array.from(
+                new Map(
+                    subscriptions.map(
+                        item => [
+                            item.id,
+                            item
+                        ]
+                    )
+                ).values()
+            );
+
+        const active =
+            unique.find(
+                item =>
+                    String(
+                        item.status ||
+                        ""
+                    ).toLowerCase() ===
+                    "active"
+            );
+
+        const pending =
+            unique.find(
+                item =>
+                    [
+                        "pending",
+                        "pending_verification",
+                        "submitted",
+                        "payment_submitted"
+                    ].includes(
+                        String(
+                            item.status ||
+                            ""
+                        ).toLowerCase()
+                    )
+            );
+
+        const selected =
+            active ||
+            pending ||
+            unique[0];
+
+        const status =
+            String(
+                selected.status ||
+                "unknown"
+            ).toLowerCase();
+
+        if (active) {
+
+            badge.textContent =
+                "✅ ACTIVE SUBSCRIPTION";
+
+            text.textContent =
+                "Your subscription is active. Listing and application actions remain subject to TIPECO approval rules.";
+
+        }
+
+        else if (pending) {
+
+            badge.textContent =
+                "⏳ PAYMENT VERIFICATION PENDING";
+
+            text.textContent =
+                "Your subscription/payment is still awaiting Owner verification.";
+
+        }
+
+        else {
+
+            badge.textContent =
+                "💳 SUBSCRIPTION NOT ACTIVE";
+
+            text.textContent =
+                "Your subscription is not currently active.";
+
+        }
+
+        const plan =
+            selected.planName ||
+            selected.plan ||
+            selected.planId ||
+            "";
+
+        const amount =
+            selected.amount ||
+            selected.price ||
+            "";
+
+        const posts =
+            selected.activePostLimit ||
+            selected.postLimit ||
+            selected.maxActivePosts ||
+            "";
+
+        const duration =
+            selected.durationDays ||
+            selected.duration ||
+            "";
+
+        if (
+            plan ||
+            amount ||
+            posts ||
+            duration
+        ) {
+
+            summary.classList.add(
+                "active"
+            );
+
+            planName.textContent =
+                plan ||
+                "TIPECO Subscription";
+
+            const details = [];
+
+            if (amount) {
+                details.push(
+                    `Amount: ${amount}`
+                );
+            }
+
+            if (posts) {
+                details.push(
+                    `Active posts: ${posts}`
+                );
+            }
+
+            if (duration) {
+                details.push(
+                    `Duration: ${duration}`
+                );
+            }
+
+            planDetails.textContent =
+                details.join(
+                    " • "
+                );
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Subscription status error:",
+            error
+        );
+
+        badge.textContent =
+            "💳 SUBSCRIPTION STATUS";
+
+        text.textContent =
+            "Subscription status could not be loaded.";
+
+    }
+
+}
+
+
+/* =====================================================
+   JOBS
+====================================================== */
+
+async function loadApprovedJobs(
+    targetId = "latestJobs",
+    category = ""
+) {
+
+    const container =
+        document.getElementById(
+            targetId
+        );
+
+    if (!container) {
+        return [];
+    }
+
+    container.innerHTML = `
+        <div class="loading-small">
+            Loading approved jobs...
+        </div>
+    `;
+
+    try {
+
+        const jobsRef =
+            collection(
+                db,
+                "jobs"
+            );
+
+        const results = [];
+
+        /*
+         * We intentionally use separate queries for the
+         * three approval fields so existing project data
+         * can be read without assuming only one field.
+         */
+
+        const approvalFields = [
+            "status",
+            "verificationStatus",
+            "approvalStatus"
+        ];
+
+        for (
+            const field
+            of approvalFields
+        ) {
+
+            try {
+
+                const q =
+                    query(
+                        jobsRef,
+                        where(
+                            field,
+                            "==",
+                            "approved"
+                        ),
+                        limit(50)
+                    );
+
+                const snapshot =
+                    await getDocs(q);
+
+                snapshot.forEach(
+                    item => {
+
+                        results.push({
+                            id: item.id,
+                            ...item.data()
+                        });
+
+                    }
+                );
+
+            }
+
+            catch (error) {
+
+                console.warn(
+                    `Jobs query ${field} skipped:`,
+                    error
+                );
+
+            }
+
+        }
+
+        const unique =
+            Array.from(
+                new Map(
+                    results.map(
+                        job => [
+                            job.id,
+                            job
+                        ]
+                    )
+                ).values()
+            );
+
+        let jobs =
+            unique.filter(
+                job => {
+
+                    const type =
+                        String(
+                            job.type ||
+                            job.listingType ||
+                            ""
+                        ).toLowerCase();
+
+                    return (
+                        type === "job" ||
+                        type === "jobs" ||
+                        !type
+                    );
+
+                }
+            );
+
+        if (category) {
+
+            jobs =
+                jobs.filter(
+                    job =>
+                        String(
+                            job.category ||
+                            ""
+                        ).toLowerCase() ===
+                        String(
+                            category
+                        ).toLowerCase()
+                );
+
+        }
+
+        jobs.sort(
+            (a, b) => {
+
+                const aTime =
+                    getTimestampValue(
+                        a.createdAt
+                    );
+
+                const bTime =
+                    getTimestampValue(
+                        b.createdAt
+                    );
+
+                return bTime - aTime;
+
+            }
+        );
+
+        jobs =
+            jobs.slice(
+                0,
+                20
+            );
+
+        if (!jobs.length) {
+
+            container.innerHTML = `
+
+                <div class="marketplace-empty">
+
+                    <div class="marketplace-empty-icon">
+                        💼
+                    </div>
+
+                    <h3>
+                        No Approved Jobs Yet
+                    </h3>
+
+                    <p>
+                        Jobs approved by TIPECO Owner
+                        will appear here.
+                    </p>
+
+                </div>
+
+            `;
+
+            return [];
+
+        }
+
+        container.innerHTML = "";
+
+        jobs.forEach(
+            job => {
+
+                renderJobCard(
+                    container,
+                    job
+                );
+
+            }
+        );
+
+        return jobs;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Approved jobs error:",
+            error
+        );
+
+        container.innerHTML = `
+
+            <div class="marketplace-empty">
+
+                <div class="marketplace-empty-icon">
+                    ⚠️
+                </div>
+
+                <h3>
+                    Jobs Temporarily Unavailable
+                </h3>
+
+                <p>
+                    The dashboard could not read
+                    approved jobs from Firestore.
+                </p>
+
+            </div>
+
+        `;
+
+        return [];
+
+    }
+
+}
+
+
+function renderJobCard(
+    container,
+    job
+) {
+
+    const title =
+        escapeHtml(
+            job.title ||
+            job.jobTitle ||
+            "Job Opportunity"
+        );
+
+    const company =
+        escapeHtml(
+            job.company ||
+            job.companyName ||
+            job.employer ||
+            "Employer"
+        );
+
+    const location =
+        escapeHtml(
+            job.location ||
+            "Location not specified"
+        );
+
+    const category =
+        escapeHtml(
+            job.category ||
+            "Other"
+        );
+
+    const salary =
+        escapeHtml(
+            job.salary ||
+            job.expectedSalary ||
+            ""
+        );
+
+    const description =
+        escapeHtml(
+            job.description ||
+            job.jobDescription ||
+            ""
+        );
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+    element.className =
+        "real-job-card";
+
+    element.innerHTML = `
+
+        <div class="real-job-card-header">
+
+            <div>
+
+                <h3>
+                    ${title}
+                </h3>
+
+                <div class="real-job-meta">
+
+                    <span>
+                        ${company}
+                    </span>
+
+                    <span>
+                        ${category}
+                    </span>
+
+                    <span>
+                        ${location}
+                    </span>
+
+                    ${
+                        salary
+                            ? `<span>${salary}</span>`
+                            : ""
+                    }
+
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                class="marketplace-job-button"
+                data-view-job="${escapeHtml(job.id)}">
+
+                View
+
+            </button>
+
+        </div>
+
+        ${
+            description
+                ? `
+                    <p class="real-job-description">
+                        ${truncate(
+                            description,
+                            180
+                        )}
+                    </p>
+                  `
+                : ""
+        }
+
+    `;
+
+    container.appendChild(
+        element
+    );
+
+}
+
+
+/* =====================================================
+   JOB DETAIL
+====================================================== */
+
+document.addEventListener(
+    "click",
+    event => {
+
+        const button =
+            event.target.closest(
+                "[data-view-job]"
+            );
+
+        if (!button) {
+            return;
+        }
+
+        const jobId =
+            button.getAttribute(
+                "data-view-job"
+            );
+
+        openJobDetail(
+            jobId
+        );
+
+    }
+);
+
+
+async function openJobDetail(
+    jobId
+) {
+
+    const panel =
+        document.getElementById(
+            "jobDetailPanel"
+        );
+
+    const content =
+        document.getElementById(
+            "jobDetailContent"
+        );
+
+    if (!panel || !content) {
+        return;
+    }
+
+    panel.classList.add(
+        "active"
+    );
+
+    content.innerHTML = `
+        <div class="loading-small">
+            Loading job details...
+        </div>
+    `;
+
+    panel.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+    try {
+
+        const jobSnapshot =
+            await getDoc(
+                doc(
+                    db,
+                    "jobs",
+                    jobId
+                )
+            );
+
+        if (!jobSnapshot.exists()) {
+
+            content.innerHTML = `
+                <h3>
+                    Job Not Found
+                </h3>
+
+                <p>
+                    This job is no longer available.
+                </p>
+            `;
+
+            return;
+
+        }
+
+        const job =
+            jobSnapshot.data();
+
+        const title =
+            escapeHtml(
+                job.title ||
+                job.jobTitle ||
+                "Job Opportunity"
+            );
+
+        const company =
+            escapeHtml(
+                job.company ||
+                job.companyName ||
+                job.employer ||
+                "Employer"
+            );
+
+        const location =
+            escapeHtml(
+                job.location ||
+                "Not specified"
+            );
+
+        const education =
+            escapeHtml(
+                job.education ||
+                job.educationRequired ||
+                "Not specified"
+            );
+
+        const skills =
+            escapeHtml(
+                job.skills ||
+                job.skillsRequired ||
+                "Not specified"
+            );
+
+        const experience =
+            escapeHtml(
+                job.experience ||
+                job.experienceRequired ||
+                "Not specified"
+            );
+
+        const salary =
+            escapeHtml(
+                job.salary ||
+                "Not specified"
+            );
+
+        const description =
+            escapeHtml(
+                job.description ||
+                job.jobDescription ||
+                "No description provided."
+            );
+
+        const responsibilities =
+            escapeHtml(
+                job.responsibilities ||
+                "Not specified"
+            );
+
+        content.innerHTML = `
+
+            <h3>
+                ${title}
+            </h3>
+
+            <p>
+                <strong>
+                    ${company}
+                </strong>
+            </p>
+
+
+            <div class="job-detail-grid">
+
+                <div class="job-detail-item">
+                    <strong>
+                        Location
+                    </strong>
+                    <span>
+                        ${location}
+                    </span>
+                </div>
+
+                <div class="job-detail-item">
+                    <strong>
+                        Education
+                    </strong>
+                    <span>
+                        ${education}
+                    </span>
+                </div>
+
+                <div class="job-detail-item">
+                    <strong>
+                        Skills
+                    </strong>
+                    <span>
+                        ${skills}
+                    </span>
+                </div>
+
+                <div class="job-detail-item">
+                    <strong>
+                        Experience
+                    </strong>
+                    <span>
+                        ${experience}
+                    </span>
+                </div>
+
+                <div class="job-detail-item">
+                    <strong>
+                        Salary
+                    </strong>
+                    <span>
+                        ${salary}
+                    </span>
+                </div>
+
+            </div>
+
+
+            <h4>
+                Job Description
+            </h4>
+
+            <p>
+                ${description}
+            </p>
+
+
+            <h4>
+                Responsibilities
+            </h4>
+
+            <p>
+                ${responsibilities}
+            </p>
+
+
+            <div class="job-form-actions">
+
+                <button
+                    type="button"
+                    class="marketplace-primary-button"
+                    data-apply-job="${escapeHtml(jobId)}">
+
+                    Apply for this Job
+
+                </button>
+
+                <button
+                    type="button"
+                    class="marketplace-secondary-button"
+                    data-close-job-detail>
+
+                    Close
+
+                </button>
+
+            </div>
+
+            <div
+                id="applicationStatus"
+                class="job-status-message">
+            </div>
+
+        `;
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Job detail error:",
+            error
+        );
+
+        content.innerHTML = `
+            <h3>
+                Unable to Load Job
+            </h3>
+
+            <p>
+                Please try again.
+            </p>
+        `;
+
+    }
+
+}
+
+
+/* =====================================================
+   APPLY BUTTON
+====================================================== */
+
+document.addEventListener(
+    "click",
+    event => {
+
+        const button =
+            event.target.closest(
+                "[data-apply-job]"
+            );
+
+        if (!button) {
+            return;
+        }
+
+        const jobId =
+            button.getAttribute(
+                "data-apply-job"
+            );
+
+        showApplicationForm(
+            jobId
+        );
+
+    }
+);
+
+
+function showApplicationForm(
+    jobId
+) {
+
+    const content =
+        document.getElementById(
+            "jobDetailContent"
+        );
+
+    if (!content) {
+        return;
+    }
+
+    const fullName =
+        currentProfile?.fullName ||
+        currentProfile?.name ||
+        currentProfile?.displayName ||
+        currentUser?.displayName ||
+        "";
+
+    const email =
+        currentUser?.email ||
+        "";
+
+    const phone =
+        currentProfile?.phone ||
+        currentProfile?.phoneNumber ||
+        "";
+
+    content.innerHTML += `
+
+        <div
+            id="applicationFormWrapper"
+            class="job-form-container active">
+
+            <h3>
+                Apply for this Job
+            </h3>
+
+            <form
+                id="jobApplicationForm"
+                data-job-id="${escapeHtml(jobId)}">
+
+                <div class="job-form-grid">
+
+                    <div class="job-form-field">
+
+                        <label>
+                            Full Name *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="applicationFullName"
+                            value="${escapeHtml(fullName)}"
+                            required>
+
+                    </div>
+
+
+                    <div class="job-form-field">
+
+                        <label>
+                            Email *
+                        </label>
+
+                        <input
+                            type="email"
+                            id="applicationEmail"
+                            value="${escapeHtml(email)}"
+                            required>
+
+                    </div>
+
+
+                    <div class="job-form-field">
+
+                        <label>
+                            Phone
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="applicationPhone"
+                            value="${escapeHtml(phone)}">
+
+                    </div>
+
+
+                    <div class="job-form-field">
+
+                        <label>
+                            Location
+                        </label>
+
+                        <input
+                            type="text"
+                            id="applicationLocation">
+
+                    </div>
+
+
+                    <div class="job-form-field">
+
+                        <label>
+                            Education
+                        </label>
+
+                        <input
+                            type="text"
+                            id="applicationEducation">
+
+                    </div>
+
+
+                    <div class="job-form-field">
+
+                        <label>
+                            Skills
+                        </label>
+
+                        <input
+                            type="text"
+                            id="applicationSkills"
+                            placeholder="Separate skills with commas">
+
+                    </div>
+
+
+                    <div class="job-form-field">
+
+                        <label>
+                            Experience
+                        </label>
+
+                        <input
+                            type="text"
+                            id="applicationExperience">
+
+                    </div>
+
+
+                    <div class="job-form-field">
+
+                        <label>
+                            Expected Salary
+                        </label>
+
+                        <input
+                            type="text"
+                            id="applicationSalary">
+
+                    </div>
+
+
+                    <div class="job-form-field full">
+
+                        <label>
+                            Cover Letter
+                        </label>
+
+                        <textarea
+                            id="applicationCoverLetter"></textarea>
+
+                    </div>
+
+
+                    <div class="job-form-field full">
+
+                        <label>
+                            Upload CV as Image *
+                        </label>
+
+                        <input
+                            type="file"
+                            id="applicationCv"
+                            accept="image/*"
+                            required>
+
+                        <span class="job-form-help">
+                            Upload a clear photo/image of your CV.
+                            The file will be stored in Firebase Storage.
+                        </span>
+
+                        <div
+                            class="cv-preview"
+                            id="cvPreview">
+
+                            <img
+                                id="cvPreviewImage"
+                                alt="CV preview">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="job-form-actions">
+
+                    <button
+                        type="submit"
+                        class="marketplace-primary-button">
+
+                        Submit Application
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="applicationFormStatus"
+                    class="job-status-message">
+                </div>
+
+            </form>
+
+        </div>
+
+    `;
+
+    setupCvPreview();
+
+    const form =
+        document.getElementById(
+            "jobApplicationForm"
+        );
+
+    if (form) {
+
+        form.addEventListener(
+            "submit",
+            submitJobApplication
+        );
+
+    }
+
+}
+
+
+function setupCvPreview() {
+
+    const input =
+        document.getElementById(
+            "applicationCv"
+        );
+
+    const preview =
+        document.getElementById(
+            "cvPreview"
+        );
+
+    const image =
+        document.getElementById(
+            "cvPreviewImage"
+        );
+
+    if (
+        !input ||
+        !preview ||
+        !image
+    ) {
+        return;
+    }
+
+    input.addEventListener(
+        "change",
+        () => {
+
+            const file =
+                input.files?.[0];
+
+            if (!file) {
+
+                preview.style.display =
+                    "none";
+
+                return;
+
+            }
+
+            if (
+                !file.type.startsWith(
+                    "image/"
+                )
+            ) {
+
+                preview.style.display =
+                    "none";
+
+                return;
+
+            }
+
+            const reader =
+                new FileReader();
+
+            reader.onload =
+                event => {
+
+                    image.src =
+                        event.target.result;
+
+                    preview.style.display =
+                        "block";
+
+                };
+
+            reader.readAsDataURL(
+                file
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   SUBMIT APPLICATION
+====================================================== */
+
+async function submitJobApplication(
+    event
+) {
+
+    event.preventDefault();
+
+    if (!currentUser) {
+        return;
+    }
+
+    const form =
+        event.currentTarget;
+
+    const jobId =
+        form.getAttribute(
+            "data-job-id"
+        );
+
+    const status =
+        document.getElementById(
+            "applicationFormStatus"
+        );
+
+    const cvInput =
+        document.getElementById(
+            "applicationCv"
+        );
+
+    const cvFile =
+        cvInput?.files?.[0];
+
+    if (!cvFile) {
+
+        showStatus(
+            status,
+            "Please upload your CV as an image.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    if (
+        !cvFile.type.startsWith(
+            "image/"
+        )
+    ) {
+
+        showStatus(
+            status,
+            "CV must be an image file.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    /*
+     * We create the application first.
+     * It is NOT automatically approved.
+     *
+     * If the user has no active subscription,
+     * the application remains subscription_required
+     * and the user is directed to the real
+     * subscription page.
+     */
+
+    showStatus(
+        status,
+        "Uploading CV and submitting application...",
+        "info"
+    );
+
+    try {
+
+        const safeFileName =
+            cvFile.name
+                .replace(
+                    /[^a-zA-Z0-9._-]/g,
+                    "_"
+                );
+
+        const storagePath =
+            `applications/${currentUser.uid}/${Date.now()}_${safeFileName}`;
+
+        const storageRef =
+            ref(
+                storage,
+                storagePath
+            );
+
+        await uploadBytes(
+            storageRef,
+            cvFile
+        );
+
+        const cvUrl =
+            await getDownloadURL(
+                storageRef
+            );
+
+        const applicationData = {
+
+            jobId,
+
+            applicantId:
+                currentUser.uid,
+
+            applicantEmail:
+                currentUser.email || "",
+
+            fullName:
+                getValue(
+                    "applicationFullName"
+                ),
+
+            phone:
+                getValue(
+                    "applicationPhone"
+                ),
+
+            location:
+                getValue(
+                    "applicationLocation"
+                ),
+
+            education:
+                getValue(
+                    "applicationEducation"
+                ),
+
+            skills:
+                getValue(
+                    "applicationSkills"
+                ),
+
+            experience:
+                getValue(
+                    "applicationExperience"
+                ),
+
+            expectedSalary:
+                getValue(
+                    "applicationSalary"
+                ),
+
+            coverLetter:
+                getValue(
+                    "applicationCoverLetter"
+                ),
+
+            cvUrl,
+
+            cvStoragePath:
+                storagePath,
+
+            status:
+                "subscription_required",
+
+            approvalStatus:
+                "pending",
+
+            createdAt:
+                Timestamp.now(),
+
+            updatedAt:
+                Timestamp.now()
+
+        };
+
+        const applicationRef =
+            await addDoc(
+                collection(
+                    db,
+                    "jobApplications"
+                ),
+                applicationData
+            );
+
+        showStatus(
+            status,
+            "Application submitted. Subscription verification is required before the application can continue.",
+            "success"
+        );
+
+        /*
+         * Preserve application ID so subscription.html
+         * can later connect the payment workflow to
+         * this application if that page supports it.
+         */
+
+        setTimeout(
+            () => {
+
+                const params =
+                    new URLSearchParams();
+
+                params.set(
+                    "purpose",
+                    "job_application"
+                );
+
+                params.set(
+                    "applicationId",
+                    applicationRef.id
+                );
+
+                params.set(
+                    "jobId",
+                    jobId
+                );
+
+                window.location.href =
+                    "subscription.html?" +
+                    params.toString();
+
+            },
+            1200
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Job application error:",
+            error
+        );
+
+        showStatus(
+            status,
+            "The application could not be submitted. Please check Firebase Storage/Firestore permissions and try again.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   POST JOB
+====================================================== */
+
+const postJobForm =
+    document.getElementById(
+        "postJobForm"
+    );
+
+if (postJobForm) {
+
+    postJobForm.addEventListener(
+        "submit",
+        submitJob
+    );
+
+}
+
+
+async function submitJob(
+    event
+) {
+
+    event.preventDefault();
+
+    if (!currentUser) {
+        return;
+    }
+
+    const status =
+        document.getElementById(
+            "postJobStatus"
+        );
+
+    showStatus(
+        status,
+        "Submitting job for subscription/Owner review...",
+        "info"
+    );
+
+    try {
+
+        const jobData = {
+
+            type:
+                "job",
+
+            company:
+                getValue(
+                    "jobCompany"
+                ),
+
+            companyName:
+                getValue(
+                    "jobCompany"
+                ),
+
+            title:
+                getValue(
+                    "jobTitle"
+                ),
+
+            jobTitle:
+                getValue(
+                    "jobTitle"
+                ),
+
+            category:
+                getValue(
+                    "jobCategory"
+                ),
+
+            location:
+                getValue(
+                    "jobLocation"
+                ),
+
+            educationRequired:
+                getValue(
+                    "jobEducation"
+                ),
+
+            skillsRequired:
+                getValue(
+                    "jobSkills"
+                ),
+
+            experienceRequired:
+                getValue(
+                    "jobExperience"
+                ),
+
+            salary:
+                getValue(
+                    "jobSalary"
+                ),
+
+            description:
+                getValue(
+                    "jobDescription"
+                ),
+
+            responsibilities:
+                getValue(
+                    "jobResponsibilities"
+                ),
+
+            deadline:
+                getValue(
+                    "jobDeadline"
+                ),
+
+            numberOfWorkers:
+                Number(
+                    getValue(
+                        "jobWorkers"
+                    ) || 1
+                ),
+
+            ownerId:
+                currentUser.uid,
+
+            userId:
+                currentUser.uid,
+
+            createdBy:
+                currentUser.uid,
+
+            /*
+             * IMPORTANT:
+             * Never publish immediately.
+             */
+
+            status:
+                "subscription_required",
+
+            approvalStatus:
+                "pending",
+
+            verificationStatus:
+                "pending",
+
+            visibility:
+                "private",
+
+            createdAt:
+                Timestamp.now(),
+
+            updatedAt:
+                Timestamp.now()
+
+        };
+
+
+        const jobRef =
+            await addDoc(
+                collection(
+                    db,
+                    "jobs"
+                ),
+                jobData
+            );
+
+
+        showStatus(
+            status,
+            "Job submitted. Subscription/payment verification is required before Owner review and public publication.",
+            "success"
+        );
+
+
+        setTimeout(
+            () => {
+
+                const params =
+                    new URLSearchParams();
+
+                params.set(
+                    "purpose",
+                    "job_posting"
+                );
+
+                params.set(
+                    "jobId",
+                    jobRef.id
+                );
+
+                window.location.href =
+                    "subscription.html?" +
+                    params.toString();
+
+            },
+            1200
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Post job error:",
+            error
+        );
+
+        showStatus(
+            status,
+            "The job could not be submitted. Please check Firestore permissions and try again.",
+            "error"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   JOB ACTION BUTTONS
+====================================================== */
+
+document.querySelectorAll(
+    "[data-job-action]"
+).forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            async () => {
+
+                const action =
+                    button.getAttribute(
+                        "data-job-action"
+                    );
+
+                closeJobPanels();
+
+                if (
+                    action ===
+                    "find-job"
+                ) {
+
+                    const panel =
+                        document.getElementById(
+                            "findJobPanel"
+                        );
+
+                    panel.classList.add(
+                        "active"
+                    );
+
+                    await loadApprovedJobs(
+                        "jobResults"
+                    );
+
+                }
+
+                else if (
+                    action ===
+                    "find-employee"
+                ) {
+
+                    document
+                        .getElementById(
+                            "findEmployeePanel"
+                        )
+                        .classList.add(
+                            "active"
+                        );
+
+                }
+
+                else if (
+                    action ===
+                    "post-job"
+                ) {
+
+                    document
+                        .getElementById(
+                            "postJobPanel"
+                        )
+                        .classList.add(
+                            "active"
+                        );
+
+                }
+
+            }
+        );
+
+    }
+);
+
+
+/* =====================================================
+   CLOSE JOB PANELS
+====================================================== */
+
+document.querySelectorAll(
+    "[data-close-job-panels]"
+).forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            closeJobPanels
+        );
+
+    }
+);
+
+
+function closeJobPanels() {
+
+    document.querySelectorAll(
+        ".job-form-container"
+    ).forEach(
+        panel => {
+            panel.classList.remove(
+                "active"
+            );
+        }
+    );
+
+}
+
+
+/* =====================================================
+   CLOSE JOB DETAIL
+====================================================== */
+
+document.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target.closest(
+                "[data-close-job-detail]"
+            )
+        ) {
+
+            const panel =
+                document.getElementById(
+                    "jobDetailPanel"
+                );
+
+            if (panel) {
+                panel.classList.remove(
+                    "active"
+                );
+            }
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   EMPLOYEE SEARCH
+====================================================== */
+
+const employeeSearchButton =
+    document.getElementById(
+        "searchEmployeesButton"
+    );
+
+if (employeeSearchButton) {
+
+    employeeSearchButton.addEventListener(
+        "click",
+        searchEmployees
+    );
+
+}
+
+
+async function searchEmployees() {
+
+    const container =
+        document.getElementById(
+            "employeeResults"
+        );
+
+    const skill =
+        getValue(
+            "employeeSkillSearch"
+        ).toLowerCase();
+
+    const location =
+        getValue(
+            "employeeLocationSearch"
+        ).toLowerCase();
+
+    if (!container) {
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="loading-small">
+            Searching approved employee profiles...
+        </div>
+    `;
+
+    try {
+
+        const usersRef =
+            collection(
+                db,
+                "users"
+            );
+
+        const snapshot =
+            await getDocs(
+                query(
+                    usersRef,
+                    limit(100)
+                )
+            );
+
+        const employees = [];
+
+        snapshot.forEach(
+            item => {
+
+                const user =
+                    item.data();
+
+                const searchable =
+                    [
+                        user.skills,
+                        user.experience,
+                        user.location,
+                        user.education,
+                        user.fullName,
+                        user.name
+                    ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+                if (
+                    skill &&
+                    !searchable.includes(
+                        skill
+                    )
+                ) {
+                    return;
+                }
+
+                if (
+                    location &&
+                    !String(
+                        user.location ||
+                        ""
+                    )
+                    .toLowerCase()
+                    .includes(
+                        location
+                    )
+                ) {
+                    return;
+                }
+
+                /*
+                 * Do not expose phone/email publicly
+                 * in employee search results.
+                 */
+
+                employees.push({
+                    id: item.id,
+                    ...user
+                });
+
+            }
+        );
+
+        if (!employees.length) {
+
+            container.innerHTML = `
+
+                <div class="marketplace-empty">
+
+                    <div class="marketplace-empty-icon">
+                        👥
+                    </div>
+
+                    <h3>
+                        No Matching Employees
+                    </h3>
+
+                    <p>
+                        No employee profile matched
+                        your search.
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+        container.innerHTML = "";
+
+        employees
+            .slice(0, 20)
+            .forEach(
+                employee => {
+
+                    const name =
+                        escapeHtml(
+                            employee.fullName ||
+                            employee.name ||
+                            employee.displayName ||
+                            "TIPECO User"
+                        );
+
+                    const skills =
+                        escapeHtml(
+                            employee.skills ||
+                            "Skills not specified"
+                        );
+
+                    const experience =
+                        escapeHtml(
+                            employee.experience ||
+                            employee.experienceYears ||
+                            "Experience not specified"
+                        );
+
+                    const locationValue =
+                        escapeHtml(
+                            employee.location ||
+                            "Location not specified"
+                        );
+
+                    const card =
+                        document.createElement(
+                            "div"
+                        );
+
+                    card.className =
+                        "real-job-card";
+
+                    card.innerHTML = `
+
+                        <div
+                            class="real-job-card-header">
+
+                            <div>
+
+                                <h3>
+                                    ${name}
+                                </h3>
+
+                                <div
+                                    class="real-job-meta">
+
+                                    <span>
+                                        ${locationValue}
+                                    </span>
+
+                                    <span>
+                                        ${experience}
+                                    </span>
+
+                                </div>
+
+                                <p
+                                    class="real-job-description">
+
+                                    Skills:
+                                    ${skills}
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <p
+                            class="job-form-help">
+
+                            Direct contact information
+                            remains protected by TIPECO.
+
                         </p>
 
-                        <p>
-                            <strong>
-                                Important:
-                            </strong>
+                    `;
 
-                            Subscription does not automatically
-                            approve a listing. TIPECO GROUP review
-                            and approval remain required before
-                            publication.
+                    container.appendChild(
+                        card
+                    );
+
+                }
+            );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Employee search error:",
+            error
+        );
+
+        container.innerHTML = `
+
+            <div class="marketplace-empty">
+
+                <div class="marketplace-empty-icon">
+                    ⚠️
+                </div>
+
+                <h3>
+                    Search Unavailable
+                </h3>
+
+                <p>
+                    Employee profiles could not
+                    be loaded from Firestore.
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =====================================================
+   JOB CATEGORY FILTERS
+====================================================== */
+
+document.querySelectorAll(
+    "[data-job-category]"
+).forEach(
+    link => {
+
+        link.addEventListener(
+            "click",
+            async event => {
+
+                event.preventDefault();
+
+                const category =
+                    link.getAttribute(
+                        "data-job-category"
+                    );
+
+                const panel =
+                    document.getElementById(
+                        "findJobPanel"
+                    );
+
+                panel.classList.add(
+                    "active"
+                );
+
+                await loadApprovedJobs(
+                    "jobResults",
+                    category
+                );
+
+                panel.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+            }
+        );
+
+    }
+);
+
+
+/* =====================================================
+   DASHBOARD DATA
+====================================================== */
+
+async function loadMarketplaceData(
+    uid
+) {
+
+    await Promise.allSettled([
+
+        loadLatestListings(),
+
+        loadApprovedJobs(
+            "latestJobs"
+        ),
+
+        loadMyListings(
+            uid
+        )
+
+    ]);
+
+}
+
+
+/* =====================================================
+   RECENT ACTIVITY
+====================================================== */
+
+async function loadRecentActivity(
+    uid,
+    profile
+) {
+
+    const container =
+        document.getElementById(
+            "recentActivity"
+        );
+
+    if (!container) {
+        return;
+    }
+
+    const activities = [];
+
+    const createdAt =
+        profile.createdAt ||
+        profile.accountCreatedAt;
+
+    if (createdAt) {
+
+        activities.push({
+            icon: "👋",
+            title: "TIPECO account created",
+            description:
+                "Your TIPECO GROUP account was created.",
+            time:
+                formatDate(
+                    createdAt
+                )
+        });
+
+    }
+
+    try {
+
+        const listingCount =
+            await getMyListingActivity(
+                uid
+            );
+
+        if (listingCount > 0) {
+
+            activities.push({
+                icon: "📋",
+                title:
+                    "Marketplace listings found",
+                description:
+                    `${listingCount} listing(s) belong to your account.`,
+                time:
+                    "Current"
+            });
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "Activity listing read failed:",
+            error
+        );
+
+    }
+
+    if (!activities.length) {
+
+        activities.push({
+            icon: "🏠",
+            title:
+                "Marketplace Dashboard ready",
+            description:
+                "Your real Firebase marketplace activity will appear here.",
+            time:
+                "Current"
+        });
+
+    }
+
+    container.innerHTML = "";
+
+    activities
+        .slice(0, 5)
+        .forEach(
+            activity => {
+
+                const item =
+                    document.createElement(
+                        "div"
+                    );
+
+                item.className =
+                    "activity-item";
+
+                item.innerHTML = `
+
+                    <span class="activity-icon">
+                        ${activity.icon}
+                    </span>
+
+                    <div class="activity-content">
+
+                        <h4>
+                            ${escapeHtml(
+                                activity.title
+                            )}
+                        </h4>
+
+                        <p>
+                            ${escapeHtml(
+                                activity.description
+                            )}
                         </p>
 
-
-                        <!-- REAL SUBSCRIPTION PAGE -->
-
-                        <a href="subscription.html"
-                           class="marketplace-primary-button">
-
-                            View Subscription Plans
-
-                        </a>
-
                     </div>
 
-                </section>
+                    <span class="activity-time">
+                        ${escapeHtml(
+                            activity.time
+                        )}
+                    </span>
 
+                `;
 
+                container.appendChild(
+                    item
+                );
 
-                <!-- =================================================
-                     JOBS DETAILS
-                ================================================== -->
+            }
+        );
 
-                <section
-                    class="dashboard-section"
-                    id="jobs-details">
+}
 
-                    <div class="dashboard-section-header">
 
-                        <h2>
-                            JOBS
-                        </h2>
+async function getMyListingActivity(
+    uid
+) {
 
-                    </div>
+    const listingsRef =
+        collection(
+            db,
+            "listings"
+        );
 
+    const ids =
+        new Set();
 
-                    <div class="marketplace-category-grid">
+    const fields = [
+        "ownerId",
+        "userId",
+        "createdBy"
+    ];
 
-                        <a href="marketplace.html?type=job&category=construction"
-                           class="marketplace-category">
+    for (
+        const field
+        of fields
+    ) {
+
+        try {
+
+            const snapshot =
+                await getDocs(
+                    query(
+                        listingsRef,
+                        where(
+                            field,
+                            "==",
+                            uid
+                        )
+                    )
+                );
+
+            snapshot.forEach(
+                item => {
+                    ids.add(
+                        item.id
+                    );
+                }
+            );
+
+        }
+
+        catch (error) {
+
+            console.warn(
+                "Activity query skipped:",
+                error
+            );
+
+        }
+
+    }
+
+    return ids.size;
+
+}
+
+
+/* =====================================================
+   HELPERS
+====================================================== */
+
+function getValue(
+    id
+) {
+
+    const element =
+        document.getElementById(
+            id
+        );
+
+    return element
+        ? element.value.trim()
+        : "";
+
+}
+
 
-                            <strong>
-                                🏗️ Construction
-                            </strong>
-
-                            <span>
-                                Construction opportunities
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=job&category=technology"
-                           class="marketplace-category">
-
-                            <strong>
-                                💻 Technology / IT
-                            </strong>
-
-                            <span>
-                                Technology and digital roles
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=job&category=business-finance"
-                           class="marketplace-category">
-
-                            <strong>
-                                💼 Business &amp; Finance
-                            </strong>
-
-                            <span>
-                                Business and finance roles
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=job&category=sales-marketing"
-                           class="marketplace-category">
-
-                            <strong>
-                                📣 Sales &amp; Marketing
-                            </strong>
-
-                            <span>
-                                Sales and marketing roles
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=job&category=transport"
-                           class="marketplace-category">
-
-                            <strong>
-                                🚚 Transport
-                            </strong>
-
-                            <span>
-                                Transport opportunities
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=job&category=hospitality"
-                           class="marketplace-category">
-
-                            <strong>
-                                🍽️ Hospitality
-                            </strong>
-
-                            <span>
-                                Hospitality opportunities
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=job&category=security"
-                           class="marketplace-category">
-
-                            <strong>
-                                🛡️ Security
-                            </strong>
-
-                            <span>
-                                Security roles
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=job&category=skilled-trades"
-                           class="marketplace-category">
-
-                            <strong>
-                                🔧 Skilled Trades
-                            </strong>
-
-                            <span>
-                                Skilled technical work
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=job&category=agriculture"
-                           class="marketplace-category">
-
-                            <strong>
-                                🌱 Agriculture
-                            </strong>
-
-                            <span>
-                                Agriculture opportunities
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=job&category=healthcare"
-                           class="marketplace-category">
-
-                            <strong>
-                                🏥 Healthcare
-                            </strong>
-
-                            <span>
-                                Healthcare opportunities
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=job&category=education"
-                           class="marketplace-category">
-
-                            <strong>
-                                🎓 Education
-                            </strong>
-
-                            <span>
-                                Education opportunities
-                            </span>
-
-                        </a>
-
-
-                        <a href="marketplace.html?type=job&category=other"
-                           class="marketplace-category">
-
-                            <strong>
-                                📦 Other
-                            </strong>
-
-                            <span>
-                                Other approved job categories
-                            </span>
-
-                        </a>
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     ACTIVITY
-                ================================================== -->
-
-                <section class="dashboard-section">
-
-                    <div class="dashboard-section-header">
-
-                        <h2>
-                            My Marketplace Activity
-                        </h2>
-
-                    </div>
-
-
-                    <div class="dashboard-stats">
-
-                        <div class="dashboard-stat-card">
-
-                            <div class="stat-icon">
-                                📋
-                            </div>
-
-                            <div>
-
-                                <strong class="stat-number">
-                                    0
-                                </strong>
-
-                                <div class="stat-title">
-                                    My Listings
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="dashboard-stat-card">
-
-                            <div class="stat-icon">
-                                ❤️
-                            </div>
-
-                            <div>
-
-                                <strong class="stat-number">
-                                    0
-                                </strong>
-
-                                <div class="stat-title">
-                                    Saved Items
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="dashboard-stat-card">
-
-                            <div class="stat-icon">
-                                📩
-                            </div>
-
-                            <div>
-
-                                <strong class="stat-number">
-                                    0
-                                </strong>
-
-                                <div class="stat-title">
-                                    My Requests
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="dashboard-stat-card">
-
-                            <div class="stat-icon">
-                                💬
-                            </div>
-
-                            <div>
-
-                                <strong class="stat-number">
-                                    0
-                                </strong>
-
-                                <div class="stat-title">
-                                    TIPECO Chat
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-
-                <!-- =================================================
-                     QUICK ACTIONS
-                ================================================== -->
-
-                <section class="dashboard-section">
-
-                    <div class="dashboard-section-header">
-
-                        <h2>
-                            Quick Actions
-                        </h2>
-
-                    </div>
-
-
-                    <div class="quick-actions">
-
-                        <a href="marketplace.html"
-                           class="quick-action">
-
-                            <div class="quick-action-icon">
-                                🔎
-                            </div>
-
-                            <h3>
-                                Browse Marketplace
-                            </h3>
-
-                            <p>
-                                Explore approved listings
-                                and marketplace content.
-                            </p>
-
-                        </a>
-
-
-                        <!-- REAL SUBSCRIPTION FLOW -->
-
-                        <a href="subscription.html"
-                           class="quick-action">
-
-                            <div class="quick-action-icon">
-                                💳
-                            </div>
-
-                            <h3>
-                                Get Subscription
-                            </h3>
-
-                            <p>
-                                Choose a plan, make payment
-                                and submit your payment
-                                screenshot for Owner review.
-                            </p>
-
-                        </a>
-
-
-                        <a href="#rent"
-                           class="quick
+function showStatus(
+    element,
+    message,
+    type
+) {
+
+    if (!element) {
+        return;
+    }
+
+    element.textContent =
+        message;
+
+    element.className =
+        "job-status-message show " +
+        type;
+
+}
+
+
+function escapeHtml(
+    value
+) {
+
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+function truncate(
+    value,
+    max
+) {
+
+    const text =
+        String(
+            value || ""
+        );
+
+    if (
+        text.length <= max
+    ) {
+        return text;
+    }
+
+    return (
+        text.substring(
+            0,
+            max
+        ) +
+        "..."
+    );
+
+}
+
+
+function getTimestampValue(
+    value
+) {
+
+    if (!value) {
+        return 0;
+    }
+
+    if (
+        typeof value.toMillis ===
+        "function"
+    ) {
+        return value.toMillis();
+    }
+
+    if (
+        value.seconds
+    ) {
+        return (
+            value.seconds *
+            1000
+        );
+    }
+
+    if (
+        typeof value ===
+        "string"
+    ) {
+
+        const time =
+            Date.parse(value);
+
+        return Number.isNaN(
+            time
+        )
+            ? 0
+            : time;
+
+    }
+
+    return 0;
+
+}
+
+
+function formatDate(
+    value
+) {
+
+    const timestamp =
+        getTimestampValue(
+            value
+        );
+
+    if (!timestamp) {
+        return "Current";
+    }
+
+    try {
+
+        return new Intl.DateTimeFormat(
+            "en",
+            {
+                year: "numeric",
+                month: "short",
+                day: "numeric"
+            }
+        ).format(
+            new Date(timestamp)
+        );
+
+    }
+
+    catch {
+
+        return "Current";
+
+    }
+
+}
+
+
+</script>
+
+</body>
+</html>
