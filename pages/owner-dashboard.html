@@ -202,6 +202,8 @@
                  aria-label="Owner Dashboard Navigation">
 
 
+                <!-- DASHBOARD -->
+
                 <button type="button"
                         class="owner-nav-item active"
                         data-section-target="dashboard">
@@ -212,6 +214,8 @@
 
                 </button>
 
+
+                <!-- USERS -->
 
                 <button type="button"
                         class="owner-nav-item"
@@ -224,6 +228,8 @@
                 </button>
 
 
+                <!-- LISTINGS -->
+
                 <button type="button"
                         class="owner-nav-item"
                         data-section-target="listings">
@@ -234,6 +240,8 @@
 
                 </button>
 
+
+                <!-- AGENTS -->
 
                 <button type="button"
                         class="owner-nav-item"
@@ -246,6 +254,8 @@
                 </button>
 
 
+                <!-- VERIFICATION -->
+
                 <button type="button"
                         class="owner-nav-item"
                         data-section-target="verification">
@@ -256,6 +266,23 @@
 
                 </button>
 
+
+                <!-- =================================================
+                     SUBSCRIPTIONS - NEW
+                ================================================== -->
+
+                <button type="button"
+                        class="owner-nav-item"
+                        data-section-target="subscriptions">
+
+                    <span>💳</span>
+
+                    <span>Subscriptions</span>
+
+                </button>
+
+
+                <!-- REPORTS -->
 
                 <button type="button"
                         class="owner-nav-item"
@@ -268,6 +295,8 @@
                 </button>
 
 
+                <!-- ACTIVITY -->
+
                 <button type="button"
                         class="owner-nav-item"
                         data-section-target="activity">
@@ -278,6 +307,8 @@
 
                 </button>
 
+
+                <!-- SETTINGS -->
 
                 <button type="button"
                         class="owner-nav-item"
@@ -1192,6 +1223,386 @@
                                 Open Queue
 
                             </button>
+
+                        </div>
+
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- =================================================
+                     SUBSCRIPTIONS MANAGEMENT
+                     NEW - OWNER CONTROLLED
+                ================================================== -->
+
+                <section id="subscriptions"
+                         class="owner-section">
+
+
+                    <div class="owner-section-header">
+
+                        <div>
+
+                            <h2>Subscriptions Management</h2>
+
+                            <p>
+                                Review subscription payments, confirm approved
+                                plans and manage subscription history.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         SUBSCRIPTION OVERVIEW
+                    ================================================== -->
+
+                    <div class="owner-stats-grid">
+
+
+                        <!-- PENDING PAYMENTS -->
+
+                        <div class="owner-stat-card">
+
+                            <div class="owner-stat-icon">
+                                ⏳
+                            </div>
+
+                            <div>
+
+                                <span>Pending Payments</span>
+
+                                <strong id="pendingSubscriptionPayments">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- ACTIVE SUBSCRIPTIONS -->
+
+                        <div class="owner-stat-card">
+
+                            <div class="owner-stat-icon">
+                                💳
+                            </div>
+
+                            <div>
+
+                                <span>Active Subscriptions</span>
+
+                                <strong id="activeSubscriptions">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- SUBSCRIPTION HISTORY -->
+
+                        <div class="owner-stat-card">
+
+                            <div class="owner-stat-icon">
+                                🧾
+                            </div>
+
+                            <div>
+
+                                <span>Subscription History</span>
+
+                                <strong id="subscriptionHistoryCount">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- SUBSCRIPTION REVENUE -->
+
+                        <div class="owner-stat-card">
+
+                            <div class="owner-stat-icon">
+                                💰
+                            </div>
+
+                            <div>
+
+                                <span>Confirmed Revenue</span>
+
+                                <strong id="confirmedSubscriptionRevenue">
+                                    0 RWF
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         PENDING PAYMENTS
+                    ================================================== -->
+
+                    <div class="owner-card">
+
+
+                        <div class="owner-card-header">
+
+                            <div>
+
+                                <h3>Pending Payments</h3>
+
+                                <p>
+                                    Subscription payments waiting for Owner confirmation.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="owner-filter-bar">
+
+
+                            <input type="search"
+                                   id="ownerSubscriptionSearch"
+                                   placeholder="Search seller or reference...">
+
+
+
+                            <select id="ownerSubscriptionPlanFilter">
+
+                                <option value="all">
+                                    All Plans
+                                </option>
+
+                                <option value="2000">
+                                    2,000 RWF - 30 Posts
+                                </option>
+
+                                <option value="5000">
+                                    5,000 RWF - 90 Posts
+                                </option>
+
+                                <option value="10000">
+                                    10,000 RWF - 200 Posts
+                                </option>
+
+                            </select>
+
+
+                        </div>
+
+
+
+                        <div class="owner-table-container">
+
+                            <table class="owner-table">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>Seller</th>
+
+                                        <th>Plan</th>
+
+                                        <th>Amount</th>
+
+                                        <th>Reference</th>
+
+                                        <th>Payment Screenshot</th>
+
+                                        <th>Status</th>
+
+                                        <th>Actions</th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody id="ownerPendingSubscriptionsTableBody">
+
+                                    <tr>
+
+                                        <td colspan="7">
+
+                                            Loading pending payments...
+
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         ACTIVE SUBSCRIPTIONS
+                    ================================================== -->
+
+                    <div class="owner-card">
+
+
+                        <div class="owner-card-header">
+
+                            <div>
+
+                                <h3>Active Subscriptions</h3>
+
+                                <p>
+                                    Currently active seller subscriptions.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="owner-table-container">
+
+                            <table class="owner-table">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>Seller</th>
+
+                                        <th>Plan</th>
+
+                                        <th>Amount</th>
+
+                                        <th>Posts Limit</th>
+
+                                        <th>Started</th>
+
+                                        <th>Expires</th>
+
+                                        <th>Status</th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody id="ownerActiveSubscriptionsTableBody">
+
+                                    <tr>
+
+                                        <td colspan="7">
+
+                                            Loading active subscriptions...
+
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         SUBSCRIPTION HISTORY
+                    ================================================== -->
+
+                    <div class="owner-card">
+
+
+                        <div class="owner-card-header">
+
+                            <div>
+
+                                <h3>Subscription History</h3>
+
+                                <p>
+                                    Complete record of submitted and processed subscription payments.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="owner-table-container">
+
+                            <table class="owner-table">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>Seller</th>
+
+                                        <th>Plan</th>
+
+                                        <th>Amount</th>
+
+                                        <th>Reference</th>
+
+                                        <th>Date</th>
+
+                                        <th>Status</th>
+
+                                        <th>Owner Action</th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody id="ownerSubscriptionHistoryTableBody">
+
+                                    <tr>
+
+                                        <td colspan="7">
+
+                                            Loading subscription history...
+
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
 
                         </div>
 
