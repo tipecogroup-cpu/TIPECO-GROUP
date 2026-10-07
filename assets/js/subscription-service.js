@@ -474,13 +474,18 @@ export async function attachPaymentScreenshot({
         paymentSnapshot.data();
 
 
+    /*
+       Screenshot can only be attached while
+       the payment is still pending.
+    */
+
     if (
-        payment.paymentStatus ===
-        PAYMENT_STATUS.CONFIRMED
+        payment.paymentStatus !==
+        PAYMENT_STATUS.PENDING
     ) {
 
         throw new Error(
-            "This payment has already been confirmed."
+            "This payment is no longer pending and cannot accept a new screenshot."
         );
     }
 
@@ -846,13 +851,17 @@ export async function confirmPayment({
         paymentSnapshot.data();
 
 
+    /*
+       Only pending payments can be confirmed.
+    */
+
     if (
-        payment.paymentStatus ===
-        PAYMENT_STATUS.CONFIRMED
+        payment.paymentStatus !==
+        PAYMENT_STATUS.PENDING
     ) {
 
         throw new Error(
-            "This payment is already confirmed."
+            "Only pending payments can be confirmed."
         );
     }
 
@@ -1009,6 +1018,22 @@ export async function activateSubscription({
 
             throw new Error(
                 "Payment seller does not match subscription seller."
+            );
+        }
+
+
+        /*
+           Subscription can only be activated after
+           Owner has confirmed the payment.
+        */
+
+        if (
+            payment.paymentStatus !==
+            PAYMENT_STATUS.CONFIRMED
+        ) {
+
+            throw new Error(
+                "Payment must be confirmed by Owner before the subscription can be activated."
             );
         }
     }
