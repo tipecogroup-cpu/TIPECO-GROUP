@@ -60,7 +60,7 @@ const paymentScreenshot =
     document.getElementById("paymentScreenshot");
 
 const submitPaymentBtn =
-    document.getElementById("submitPaymentBtn");
+    document.getElementById("paymentSubmitButton");
 
 const paymentStatus =
     document.getElementById("paymentStatus");
@@ -137,7 +137,7 @@ function showStatus(message, type = "error") {
         message;
 
     paymentStatus.className =
-        `payment-status visible ${type}`;
+        `payment-status show ${type}`;
 }
 
 
