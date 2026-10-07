@@ -2,7 +2,7 @@
    TIPECO GROUP
    TIPECO CHAT SERVICE
    REAL PROJECT
-   VERSION 1.0
+   VERSION 1.1
 ========================================================= */
 
 import {
@@ -17,6 +17,7 @@ import {
     addDoc,
     setDoc,
     updateDoc,
+    writeBatch,
     serverTimestamp
 } from "firebase/firestore";
 
@@ -34,17 +35,13 @@ import {
     CHAT_REQUEST_STATUS,
     CHAT_BLOCK_STATUS,
     CHAT_REPORT_STATUS,
-    CHAT_REPORT_REASON,
     CHAT_MODERATION_ACTION,
 
     CHAT_MESSAGE_RULES,
-    CHAT_PRIVACY_RULES,
     CHAT_RULES,
     CHAT_FIELD_LIMITS,
 
     isValidChatConversationType,
-    isValidChatConversationStatus,
-    isValidChatMessageStatus,
     isValidChatReportReason
 } from "./chat-config.js";
 
@@ -117,6 +114,28 @@ function requireText(text) {
 }
 
 
+function requireReportDescription(description) {
+
+    if (description == null) {
+        return "";
+    }
+
+    if (typeof description !== "string") {
+        throw new Error("Invalid report description.");
+    }
+
+    const value = description.trim();
+
+    if (value.length > CHAT_FIELD_LIMITS.maxReportLength) {
+        throw new Error(
+            `Report description cannot exceed ${CHAT_FIELD_LIMITS.maxReportLength} characters.`
+        );
+    }
+
+    return value;
+}
+
+
 function normalizeId(value) {
 
     return String(value || "").trim();
@@ -126,12 +145,17 @@ function normalizeId(value) {
 function ensureDifferentUsers(userId, otherUserId) {
 
     if (userId === otherUserId) {
-        throw new Error("A user cannot start a chat with themselves.");
+        throw new Error(
+            "A user cannot start a chat with themselves."
+        );
     }
 }
 
 
-function ensureConversationParticipant(conversation, userId) {
+function ensureConversationParticipant(
+    conversation,
+    userId
+) {
 
     if (!conversation) {
         throw new Error("Conversation not found.");
@@ -141,14 +165,22 @@ function ensureConversationParticipant(conversation, userId) {
         conversation.participantOneId !== userId &&
         conversation.participantTwoId !== userId
     ) {
-        throw new Error("You are not authorized to access this conversation.");
+        throw new Error(
+            "You are not authorized to access this conversation."
+        );
     }
 }
 
 
-function getOtherParticipantId(conversation, userId) {
+function getOtherParticipantId(
+    conversation,
+    userId
+) {
 
-    ensureConversationParticipant(conversation, userId);
+    ensureConversationParticipant(
+        conversation,
+        userId
+    );
 
     return conversation.participantOneId === userId
         ? conversation.participantTwoId
@@ -157,17 +189,61 @@ function getOtherParticipantId(conversation, userId) {
 
 
 /* =========================================================
+   OWNER AUTHORIZATION
+========================================================= */
+
+async function requireOwner() {
+
+    const currentUser =
+        requireAuthenticatedUser();
+
+    const ownerRef = doc(
+        db,
+        "users",
+        currentUser.uid
+    );
+
+    const ownerSnap =
+        await getDoc(ownerRef);
+
+    if (!ownerSnap.exists()) {
+        throw new Error(
+            "Owner authorization failed."
+        );
+    }
+
+    const profile =
+        ownerSnap.data();
+
+    if (profile.role !== "owner") {
+        throw new Error(
+            "Owner authorization required."
+        );
+    }
+
+    return currentUser;
+}
+
+
+/* =========================================================
    BLOCK CHECK
 ========================================================= */
 
-export async function isUserBlocked(userId, otherUserId) {
+export async function isUserBlocked(
+    userId,
+    otherUserId
+) {
 
     userId = requireUserId(userId);
     otherUserId = requireUserId(otherUserId);
 
-    ensureDifferentUsers(userId, otherUserId);
+    ensureDifferentUsers(
+        userId,
+        otherUserId
+    );
 
-    const blockId = `${userId}_${otherUserId}`;
+    const blockId =
+        `${userId}_${otherUserId}`;
 
     const blockRef = doc(
         db,
@@ -175,15 +251,21 @@ export async function isUserBlocked(userId, otherUserId) {
         blockId
     );
 
-    const blockSnap = await getDoc(blockRef);
+    const blockSnap =
+        await getDoc(blockRef);
 
     if (!blockSnap.exists()) {
         return false;
     }
 
-    const block = blockSnap.data();
+    const block =
+        blockSnap.data();
 
-    return block.status === CHAT_BLOCK_STATUS.ACTIVE;
+    return (
+        block.blockerId === userId &&
+        block.blockedUserId === otherUserId &&
+        block.status === CHAT_BLOCK_STATUS.ACTIVE
+    );
 }
 
 
@@ -198,46 +280,81 @@ export async function createConversation({
     contextTitle = null
 }) {
 
-    const currentUser = requireAuthenticatedUser();
+    const currentUser =
+        requireAuthenticatedUser();
 
-    const userId = currentUser.uid;
+    const userId =
+        currentUser.uid;
 
-    otherUserId = requireUserId(otherUserId);
+    otherUserId =
+        requireUserId(otherUserId);
 
-    ensureDifferentUsers(userId, otherUserId);
+    ensureDifferentUsers(
+        userId,
+        otherUserId
+    );
 
-    if (!isValidChatConversationType(conversationType)) {
-        throw new Error("Invalid chat conversation type.");
+    if (
+        !isValidChatConversationType(
+            conversationType
+        )
+    ) {
+        throw new Error(
+            "Invalid chat conversation type."
+        );
     }
 
-    contextId = normalizeId(contextId);
+    contextId =
+        normalizeId(contextId);
 
     if (!contextId) {
-        throw new Error("A listing or job context ID is required.");
+        throw new Error(
+            "A listing or job context ID is required."
+        );
     }
 
     if (
-        conversationType === CHAT_CONVERSATION_TYPE.LISTING &&
+        conversationType ===
+            CHAT_CONVERSATION_TYPE.LISTING
+        &&
         !CHAT_RULES.listingChatEnabled
     ) {
-        throw new Error("Listing chat is currently disabled.");
+        throw new Error(
+            "Listing chat is currently disabled."
+        );
     }
 
     if (
-        conversationType === CHAT_CONVERSATION_TYPE.JOB &&
+        conversationType ===
+            CHAT_CONVERSATION_TYPE.JOB
+        &&
         !CHAT_RULES.jobChatEnabled
     ) {
-        throw new Error("Job chat is currently disabled.");
+        throw new Error(
+            "Job chat is currently disabled."
+        );
     }
 
     if (
-        await isUserBlocked(userId, otherUserId) ||
-        await isUserBlocked(otherUserId, userId)
+        await isUserBlocked(
+            userId,
+            otherUserId
+        )
+        ||
+        await isUserBlocked(
+            otherUserId,
+            userId
+        )
     ) {
-        throw new Error("Chat is unavailable between these users.");
+        throw new Error(
+            "Chat is unavailable between these users."
+        );
     }
 
-    const participantIds = [userId, otherUserId].sort();
+    const participantIds = [
+        userId,
+        otherUserId
+    ].sort();
 
     const conversationKey = [
         conversationType,
@@ -246,26 +363,39 @@ export async function createConversation({
         participantIds[1]
     ].join("_");
 
-    const conversationRef = doc(
-        db,
-        CHAT_COLLECTION,
-        conversationKey
-    );
+    const conversationRef =
+        doc(
+            db,
+            CHAT_COLLECTION,
+            conversationKey
+        );
 
-    const existingConversation = await getDoc(conversationRef);
+    const existingConversation =
+        await getDoc(conversationRef);
 
     if (existingConversation.exists()) {
+
+        const existingData =
+            existingConversation.data();
+
+        ensureConversationParticipant(
+            existingData,
+            userId
+        );
+
         return {
             id: existingConversation.id,
-            ...existingConversation.data()
+            ...existingData
         };
     }
 
     const conversationData = {
 
-        participantOneId: participantIds[0],
+        participantOneId:
+            participantIds[0],
 
-        participantTwoId: participantIds[1],
+        participantTwoId:
+            participantIds[1],
 
         participantIds,
 
@@ -275,25 +405,35 @@ export async function createConversation({
 
         contextTitle,
 
-        status: CHAT_CONVERSATION_STATUS.ACTIVE,
+        status:
+            CHAT_CONVERSATION_STATUS.ACTIVE,
 
-        requestStatus: CHAT_REQUEST_STATUS.PENDING,
+        requestStatus:
+            CHAT_REQUEST_STATUS.PENDING,
 
-        createdBy: userId,
+        createdBy:
+            userId,
 
-        createdAt: serverTimestamp(),
+        createdAt:
+            serverTimestamp(),
 
-        updatedAt: serverTimestamp(),
+        updatedAt:
+            serverTimestamp(),
 
-        lastMessageAt: null,
+        lastMessageAt:
+            null,
 
-        lastMessageText: null,
+        lastMessageText:
+            null,
 
-        moderationStatus: null,
+        moderationStatus:
+            null,
 
-        moderatedBy: null,
+        moderatedBy:
+            null,
 
-        moderatedAt: null
+        moderatedAt:
+            null
     };
 
     await setDoc(
@@ -312,21 +452,29 @@ export async function createConversation({
    GET CONVERSATION
 ========================================================= */
 
-export async function getConversation(conversationId) {
+export async function getConversation(
+    conversationId
+) {
 
-    const currentUser = requireAuthenticatedUser();
+    const currentUser =
+        requireAuthenticatedUser();
 
-    conversationId = requireConversationId(conversationId);
+    conversationId =
+        requireConversationId(
+            conversationId
+        );
 
-    const conversationRef = doc(
-        db,
-        CHAT_COLLECTION,
-        conversationId
-    );
+    const conversationRef =
+        doc(
+            db,
+            CHAT_COLLECTION,
+            conversationId
+        );
 
-    const conversationSnap = await getDoc(
-        conversationRef
-    );
+    const conversationSnap =
+        await getDoc(
+            conversationRef
+        );
 
     if (!conversationSnap.exists()) {
         return null;
@@ -354,17 +502,23 @@ export async function getUserConversations({
     maxResults = 50
 } = {}) {
 
-    const currentUser = requireAuthenticatedUser();
+    const currentUser =
+        requireAuthenticatedUser();
 
-    const safeLimit = Math.min(
-        Math.max(Number(maxResults) || 50, 1),
-        100
-    );
+    const safeLimit =
+        Math.min(
+            Math.max(
+                Number(maxResults) || 50,
+                1
+            ),
+            100
+        );
 
-    const conversationsRef = collection(
-        db,
-        CHAT_COLLECTION
-    );
+    const conversationsRef =
+        collection(
+            db,
+            CHAT_COLLECTION
+        );
 
     const q = query(
         conversationsRef,
@@ -380,12 +534,240 @@ export async function getUserConversations({
         limit(safeLimit)
     );
 
-    const snapshot = await getDocs(q);
+    const snapshot =
+        await getDocs(q);
 
-    return snapshot.docs.map((item) => ({
-        id: item.id,
-        ...item.data()
-    }));
+    return snapshot.docs.map(
+        (item) => ({
+            id: item.id,
+            ...item.data()
+        })
+    );
+}
+
+
+/* =========================================================
+   ACCEPT CHAT REQUEST
+========================================================= */
+
+export async function acceptChatRequest(
+    conversationId
+) {
+
+    const currentUser =
+        requireAuthenticatedUser();
+
+    conversationId =
+        requireConversationId(
+            conversationId
+        );
+
+    const conversationRef =
+        doc(
+            db,
+            CHAT_COLLECTION,
+            conversationId
+        );
+
+    const conversationSnap =
+        await getDoc(
+            conversationRef
+        );
+
+    if (!conversationSnap.exists()) {
+        throw new Error(
+            "Conversation not found."
+        );
+    }
+
+    const conversation =
+        conversationSnap.data();
+
+    ensureConversationParticipant(
+        conversation,
+        currentUser.uid
+    );
+
+    if (
+        conversation.requestStatus !==
+        CHAT_REQUEST_STATUS.PENDING
+    ) {
+        throw new Error(
+            "This chat request is no longer pending."
+        );
+    }
+
+    if (
+        conversation.createdBy ===
+        currentUser.uid
+    ) {
+        throw new Error(
+            "The requester cannot accept their own request."
+        );
+    }
+
+    await updateDoc(
+        conversationRef,
+        {
+            requestStatus:
+                CHAT_REQUEST_STATUS.ACCEPTED,
+
+            updatedAt:
+                serverTimestamp()
+        }
+    );
+
+    return true;
+}
+
+
+/* =========================================================
+   DECLINE CHAT REQUEST
+========================================================= */
+
+export async function declineChatRequest(
+    conversationId
+) {
+
+    const currentUser =
+        requireAuthenticatedUser();
+
+    conversationId =
+        requireConversationId(
+            conversationId
+        );
+
+    const conversationRef =
+        doc(
+            db,
+            CHAT_COLLECTION,
+            conversationId
+        );
+
+    const conversationSnap =
+        await getDoc(
+            conversationRef
+        );
+
+    if (!conversationSnap.exists()) {
+        throw new Error(
+            "Conversation not found."
+        );
+    }
+
+    const conversation =
+        conversationSnap.data();
+
+    ensureConversationParticipant(
+        conversation,
+        currentUser.uid
+    );
+
+    if (
+        conversation.requestStatus !==
+        CHAT_REQUEST_STATUS.PENDING
+    ) {
+        throw new Error(
+            "This chat request is no longer pending."
+        );
+    }
+
+    if (
+        conversation.createdBy ===
+        currentUser.uid
+    ) {
+        throw new Error(
+            "The requester cannot decline their own request."
+        );
+    }
+
+    await updateDoc(
+        conversationRef,
+        {
+            requestStatus:
+                CHAT_REQUEST_STATUS.DECLINED,
+
+            updatedAt:
+                serverTimestamp()
+        }
+    );
+
+    return true;
+}
+
+
+/* =========================================================
+   CANCEL CHAT REQUEST
+========================================================= */
+
+export async function cancelChatRequest(
+    conversationId
+) {
+
+    const currentUser =
+        requireAuthenticatedUser();
+
+    conversationId =
+        requireConversationId(
+            conversationId
+        );
+
+    const conversationRef =
+        doc(
+            db,
+            CHAT_COLLECTION,
+            conversationId
+        );
+
+    const conversationSnap =
+        await getDoc(
+            conversationRef
+        );
+
+    if (!conversationSnap.exists()) {
+        throw new Error(
+            "Conversation not found."
+        );
+    }
+
+    const conversation =
+        conversationSnap.data();
+
+    ensureConversationParticipant(
+        conversation,
+        currentUser.uid
+    );
+
+    if (
+        conversation.createdBy !==
+        currentUser.uid
+    ) {
+        throw new Error(
+            "Only the requester can cancel the request."
+        );
+    }
+
+    if (
+        conversation.requestStatus !==
+        CHAT_REQUEST_STATUS.PENDING
+    ) {
+        throw new Error(
+            "This chat request is no longer pending."
+        );
+    }
+
+    await updateDoc(
+        conversationRef,
+        {
+            requestStatus:
+                CHAT_REQUEST_STATUS.CANCELLED,
+
+            updatedAt:
+                serverTimestamp()
+        }
+    );
+
+    return true;
 }
 
 
@@ -398,27 +780,37 @@ export async function sendMessage({
     text
 }) {
 
-    const currentUser = requireAuthenticatedUser();
+    const currentUser =
+        requireAuthenticatedUser();
 
-    conversationId = requireConversationId(conversationId);
+    conversationId =
+        requireConversationId(
+            conversationId
+        );
 
-    text = requireText(text);
+    text =
+        requireText(text);
 
-    const conversationRef = doc(
-        db,
-        CHAT_COLLECTION,
-        conversationId
-    );
+    const conversationRef =
+        doc(
+            db,
+            CHAT_COLLECTION,
+            conversationId
+        );
 
-    const conversationSnap = await getDoc(
-        conversationRef
-    );
+    const conversationSnap =
+        await getDoc(
+            conversationRef
+        );
 
     if (!conversationSnap.exists()) {
-        throw new Error("Conversation not found.");
+        throw new Error(
+            "Conversation not found."
+        );
     }
 
-    const conversation = conversationSnap.data();
+    const conversation =
+        conversationSnap.data();
 
     ensureConversationParticipant(
         conversation,
@@ -429,74 +821,117 @@ export async function sendMessage({
         conversation.status !==
         CHAT_CONVERSATION_STATUS.ACTIVE
     ) {
-        throw new Error("This conversation is not active.");
+        throw new Error(
+            "This conversation is not active."
+        );
     }
 
-    const otherUserId = getOtherParticipantId(
-        conversation,
-        currentUser.uid
-    );
+    if (
+        conversation.requestStatus !==
+        CHAT_REQUEST_STATUS.ACCEPTED
+    ) {
+        throw new Error(
+            "This chat request has not been accepted."
+        );
+    }
+
+    const otherUserId =
+        getOtherParticipantId(
+            conversation,
+            currentUser.uid
+        );
 
     if (
         await isUserBlocked(
             currentUser.uid,
             otherUserId
-        ) ||
+        )
+        ||
         await isUserBlocked(
             otherUserId,
             currentUser.uid
         )
     ) {
-        throw new Error("Chat is unavailable between these users.");
+        throw new Error(
+            "Chat is unavailable between these users."
+        );
     }
 
-    const messagesRef = collection(
-        db,
-        CHAT_COLLECTION,
-        conversationId,
-        CHAT_MESSAGES_COLLECTION
-    );
+    const messagesRef =
+        collection(
+            db,
+            CHAT_COLLECTION,
+            conversationId,
+            CHAT_MESSAGES_COLLECTION
+        );
+
+    const messageRef =
+        doc(messagesRef);
 
     const messageData = {
 
-        senderId: currentUser.uid,
+        senderId:
+            currentUser.uid,
 
-        receiverId: otherUserId,
+        receiverId:
+            otherUserId,
 
         text,
 
-        status: CHAT_MESSAGE_STATUS.ACTIVE,
+        status:
+            CHAT_MESSAGE_STATUS.ACTIVE,
 
-        createdAt: serverTimestamp(),
+        createdAt:
+            serverTimestamp(),
 
-        updatedAt: serverTimestamp(),
+        updatedAt:
+            serverTimestamp(),
 
-        editedAt: null,
+        editedAt:
+            null,
 
-        deletedForSelfBy: [],
+        deletedForSelfBy:
+            [],
 
-        removedByOwner: false,
+        removedByOwner:
+            false,
 
-        removedAt: null,
+        removedAt:
+            null,
 
-        moderationAction: null
+        moderationAction:
+            null,
+
+        moderatedBy:
+            null,
+
+        moderationReason:
+            null
     };
 
-    const messageRef = await addDoc(
-        messagesRef,
+    const batch =
+        writeBatch(db);
+
+    batch.set(
+        messageRef,
         messageData
     );
 
-    await updateDoc(
+    batch.update(
         conversationRef,
         {
-            lastMessageAt: serverTimestamp(),
+            lastMessageAt:
+                serverTimestamp(),
 
-            lastMessageText: text,
+            lastMessageText:
+                text,
 
-            updatedAt: serverTimestamp()
+            updatedAt:
+                serverTimestamp()
         }
     );
+
+    await batch.commit();
 
     return {
         id: messageRef.id,
@@ -514,26 +949,36 @@ export async function getMessages(
     maxResults = 100
 ) {
 
-    const currentUser = requireAuthenticatedUser();
+    const currentUser =
+        requireAuthenticatedUser();
 
     const conversation =
-        await getConversation(conversationId);
+        await getConversation(
+            conversationId
+        );
 
     if (!conversation) {
-        throw new Error("Conversation not found.");
+        throw new Error(
+            "Conversation not found."
+        );
     }
 
-    const safeLimit = Math.min(
-        Math.max(Number(maxResults) || 100, 1),
-        200
-    );
+    const safeLimit =
+        Math.min(
+            Math.max(
+                Number(maxResults) || 100,
+                1
+            ),
+            200
+        );
 
-    const messagesRef = collection(
-        db,
-        CHAT_COLLECTION,
-        conversationId,
-        CHAT_MESSAGES_COLLECTION
-    );
+    const messagesRef =
+        collection(
+            db,
+            CHAT_COLLECTION,
+            conversationId,
+            CHAT_MESSAGES_COLLECTION
+        );
 
     const q = query(
         messagesRef,
@@ -544,27 +989,34 @@ export async function getMessages(
         limit(safeLimit)
     );
 
-    const snapshot = await getDocs(q);
+    const snapshot =
+        await getDocs(q);
 
     return snapshot.docs
-        .map((item) => ({
-            id: item.id,
-            ...item.data()
-        }))
-        .filter((message) => {
+        .map(
+            (item) => ({
+                id: item.id,
+                ...item.data()
+            })
+        )
+        .filter(
+            (message) => {
 
-            if (
-                message.deletedForSelfBy &&
-                Array.isArray(message.deletedForSelfBy) &&
-                message.deletedForSelfBy.includes(
-                    currentUser.uid
-                )
-            ) {
-                return false;
+                if (
+                    message.deletedForSelfBy &&
+                    Array.isArray(
+                        message.deletedForSelfBy
+                    ) &&
+                    message.deletedForSelfBy.includes(
+                        currentUser.uid
+                    )
+                ) {
+                    return false;
+                }
+
+                return true;
             }
-
-            return true;
-        });
+        );
 }
 
 
@@ -578,39 +1030,67 @@ export async function editMessage({
     text
 }) {
 
-    const currentUser = requireAuthenticatedUser();
+    const currentUser =
+        requireAuthenticatedUser();
 
-    conversationId = requireConversationId(
-        conversationId
-    );
+    conversationId =
+        requireConversationId(
+            conversationId
+        );
 
-    messageId = requireMessageId(
-        messageId
-    );
+    messageId =
+        requireMessageId(
+            messageId
+        );
 
-    text = requireText(text);
+    text =
+        requireText(text);
 
-    await getConversation(conversationId);
+    const conversation =
+        await getConversation(
+            conversationId
+        );
 
-    const messageRef = doc(
-        db,
-        CHAT_COLLECTION,
-        conversationId,
-        CHAT_MESSAGES_COLLECTION,
-        messageId
-    );
-
-    const messageSnap = await getDoc(
-        messageRef
-    );
-
-    if (!messageSnap.exists()) {
-        throw new Error("Message not found.");
+    if (!conversation) {
+        throw new Error(
+            "Conversation not found."
+        );
     }
 
-    const message = messageSnap.data();
+    if (
+        conversation.status !==
+        CHAT_CONVERSATION_STATUS.ACTIVE
+    ) {
+        throw new Error(
+            "This conversation is not active."
+        );
+    }
 
-    if (message.senderId !== currentUser.uid) {
+    const messageRef =
+        doc(
+            db,
+            CHAT_COLLECTION,
+            conversationId,
+            CHAT_MESSAGES_COLLECTION,
+            messageId
+        );
+
+    const messageSnap =
+        await getDoc(messageRef);
+
+    if (!messageSnap.exists()) {
+        throw new Error(
+            "Message not found."
+        );
+    }
+
+    const message =
+        messageSnap.data();
+
+    if (
+        message.senderId !==
+        currentUser.uid
+    ) {
         throw new Error(
             "You can only edit your own messages."
         );
@@ -637,7 +1117,10 @@ export async function editMessage({
             : new Date(message.createdAt);
 
     const elapsedMinutes =
-        (Date.now() - createdTime.getTime()) /
+        (
+            Date.now() -
+            createdTime.getTime()
+        ) /
         (1000 * 60);
 
     if (
@@ -654,18 +1137,24 @@ export async function editMessage({
         {
             text,
 
-            status: CHAT_MESSAGE_STATUS.EDITED,
+            status:
+                CHAT_MESSAGE_STATUS.EDITED,
 
-            editedAt: serverTimestamp(),
+            editedAt:
+                serverTimestamp(),
 
-            updatedAt: serverTimestamp()
+            updatedAt:
+                serverTimestamp()
         }
     );
 
     return {
         id: messageId,
+
         text,
-        status: CHAT_MESSAGE_STATUS.EDITED
+
+        status:
+            CHAT_MESSAGE_STATUS.EDITED
     };
 }
 
@@ -679,49 +1168,73 @@ export async function deleteMessageForSelf({
     messageId
 }) {
 
-    const currentUser = requireAuthenticatedUser();
+    const currentUser =
+        requireAuthenticatedUser();
 
-    conversationId = requireConversationId(
+    conversationId =
+        requireConversationId(
+            conversationId
+        );
+
+    messageId =
+        requireMessageId(
+            messageId
+        );
+
+    await getConversation(
         conversationId
     );
 
-    messageId = requireMessageId(
-        messageId
-    );
+    const messageRef =
+        doc(
+            db,
+            CHAT_COLLECTION,
+            conversationId,
+            CHAT_MESSAGES_COLLECTION,
+            messageId
+        );
 
-    await getConversation(conversationId);
-
-    const messageRef = doc(
-        db,
-        CHAT_COLLECTION,
-        conversationId,
-        CHAT_MESSAGES_COLLECTION,
-        messageId
-    );
-
-    const messageSnap = await getDoc(
-        messageRef
-    );
+    const messageSnap =
+        await getDoc(messageRef);
 
     if (!messageSnap.exists()) {
-        throw new Error("Message not found.");
+        throw new Error(
+            "Message not found."
+        );
     }
 
-    const message = messageSnap.data();
+    const message =
+        messageSnap.data();
 
-    if (message.senderId !== currentUser.uid) {
+    if (
+        message.senderId !==
+        currentUser.uid
+    ) {
         throw new Error(
             "You can only delete your own messages for yourself."
         );
     }
 
+    if (
+        message.status ===
+        CHAT_MESSAGE_STATUS.REMOVED_BY_OWNER
+    ) {
+        throw new Error(
+            "A moderated message cannot be deleted for self."
+        );
+    }
+
     const existingDeletedBy =
-        Array.isArray(message.deletedForSelfBy)
+        Array.isArray(
+            message.deletedForSelfBy
+        )
             ? message.deletedForSelfBy
             : [];
 
     const updatedDeletedBy =
-        existingDeletedBy.includes(currentUser.uid)
+        existingDeletedBy.includes(
+            currentUser.uid
+        )
             ? existingDeletedBy
             : [
                 ...existingDeletedBy,
@@ -731,12 +1244,14 @@ export async function deleteMessageForSelf({
     await updateDoc(
         messageRef,
         {
-            deletedForSelfBy: updatedDeletedBy,
+            deletedForSelfBy:
+                updatedDeletedBy,
 
             status:
                 CHAT_MESSAGE_STATUS.DELETED_FOR_SELF,
 
-            updatedAt: serverTimestamp()
+            updatedAt:
+                serverTimestamp()
         }
     );
 
@@ -748,13 +1263,20 @@ export async function deleteMessageForSelf({
    BLOCK USER
 ========================================================= */
 
-export async function blockUser(otherUserId) {
+export async function blockUser(
+    otherUserId
+) {
 
-    const currentUser = requireAuthenticatedUser();
+    const currentUser =
+        requireAuthenticatedUser();
 
-    const userId = currentUser.uid;
+    const userId =
+        currentUser.uid;
 
-    otherUserId = requireUserId(otherUserId);
+    otherUserId =
+        requireUserId(
+            otherUserId
+        );
 
     ensureDifferentUsers(
         userId,
@@ -762,29 +1284,44 @@ export async function blockUser(otherUserId) {
     );
 
     if (!CHAT_RULES.blockingEnabled) {
-        throw new Error("Blocking is disabled.");
+        throw new Error(
+            "Blocking is disabled."
+        );
     }
 
-    const blockId = `${userId}_${otherUserId}`;
+    const blockId =
+        `${userId}_${otherUserId}`;
 
-    const blockRef = doc(
-        db,
-        CHAT_BLOCKS_COLLECTION,
-        blockId
-    );
+    const blockRef =
+        doc(
+            db,
+            CHAT_BLOCKS_COLLECTION,
+            blockId
+        );
 
     await setDoc(
         blockRef,
         {
-            blockerId: userId,
+            blockerId:
+                userId,
 
-            blockedUserId: otherUserId,
+            blockedUserId:
+                otherUserId,
 
-            status: CHAT_BLOCK_STATUS.ACTIVE,
+            status:
+                CHAT_BLOCK_STATUS.ACTIVE,
 
-            createdAt: serverTimestamp(),
+            createdAt:
+                serverTimestamp(),
 
-            updatedAt: serverTimestamp()
+            updatedAt:
+                serverTimestamp(),
+
+            ownerModerated:
+                false,
+
+            moderatedBy:
+                null
         },
         {
             merge: true
@@ -799,36 +1336,50 @@ export async function blockUser(otherUserId) {
    UNBLOCK USER
 ========================================================= */
 
-export async function unblockUser(otherUserId) {
+export async function unblockUser(
+    otherUserId
+) {
 
-    const currentUser = requireAuthenticatedUser();
+    const currentUser =
+        requireAuthenticatedUser();
 
-    const userId = currentUser.uid;
+    const userId =
+        currentUser.uid;
 
-    otherUserId = requireUserId(otherUserId);
+    otherUserId =
+        requireUserId(
+            otherUserId
+        );
 
     ensureDifferentUsers(
         userId,
         otherUserId
     );
 
-    const blockId = `${userId}_${otherUserId}`;
+    const blockId =
+        `${userId}_${otherUserId}`;
 
-    const blockRef = doc(
-        db,
-        CHAT_BLOCKS_COLLECTION,
-        blockId
-    );
+    const blockRef =
+        doc(
+            db,
+            CHAT_BLOCKS_COLLECTION,
+            blockId
+        );
 
-    const blockSnap = await getDoc(blockRef);
+    const blockSnap =
+        await getDoc(blockRef);
 
     if (!blockSnap.exists()) {
         return true;
     }
 
-    const block = blockSnap.data();
+    const block =
+        blockSnap.data();
 
-    if (block.blockerId !== userId) {
+    if (
+        block.blockerId !==
+        userId
+    ) {
         throw new Error(
             "You can only remove your own block."
         );
@@ -837,9 +1388,11 @@ export async function unblockUser(otherUserId) {
     await updateDoc(
         blockRef,
         {
-            status: CHAT_BLOCK_STATUS.REMOVED,
+            status:
+                CHAT_BLOCK_STATUS.REMOVED,
 
-            updatedAt: serverTimestamp()
+            updatedAt:
+                serverTimestamp()
         }
     );
 
@@ -857,30 +1410,33 @@ export async function reportConversation({
     description = ""
 }) {
 
-    const currentUser = requireAuthenticatedUser();
+    const currentUser =
+        requireAuthenticatedUser();
 
-    conversationId = requireConversationId(
-        conversationId
-    );
+    conversationId =
+        requireConversationId(
+            conversationId
+        );
 
-    if (!isValidChatReportReason(reason)) {
+    if (
+        !isValidChatReportReason(
+            reason
+        )
+    ) {
         throw new Error(
             "Invalid report reason."
         );
     }
 
-    if (
-        description &&
-        description.length >
-        CHAT_FIELD_LIMITS.maxReportLength
-    ) {
-        throw new Error(
-            `Report description cannot exceed ${CHAT_FIELD_LIMITS.maxReportLength} characters.`
+    const safeDescription =
+        requireReportDescription(
+            description
         );
-    }
 
     const conversation =
-        await getConversation(conversationId);
+        await getConversation(
+            conversationId
+        );
 
     if (!conversation) {
         throw new Error(
@@ -888,16 +1444,18 @@ export async function reportConversation({
         );
     }
 
-    const reportsRef = collection(
-        db,
-        CHAT_REPORTS_COLLECTION
-    );
+    const reportsRef =
+        collection(
+            db,
+            CHAT_REPORTS_COLLECTION
+        );
 
     const reportData = {
 
         conversationId,
 
-        reporterId: currentUser.uid,
+        reporterId:
+            currentUser.uid,
 
         reportedUserId:
             getOtherParticipantId(
@@ -907,28 +1465,36 @@ export async function reportConversation({
 
         reason,
 
-        description: description.trim(),
+        description:
+            safeDescription,
 
         status:
             CHAT_REPORT_STATUS.PENDING,
 
-        createdAt: serverTimestamp(),
+        createdAt:
+            serverTimestamp(),
 
-        updatedAt: serverTimestamp(),
+        updatedAt:
+            serverTimestamp(),
 
-        reviewedBy: null,
+        reviewedBy:
+            null,
 
-        reviewedAt: null,
+        reviewedAt:
+            null,
 
-        moderationAction: null,
+        moderationAction:
+            null,
 
-        resolutionNote: null
+        resolutionNote:
+            null
     };
 
-    const reportRef = await addDoc(
-        reportsRef,
-        reportData
-    );
+    const reportRef =
+        await addDoc(
+            reportsRef,
+            reportData
+        );
 
     return {
         id: reportRef.id,
@@ -943,16 +1509,17 @@ export async function reportConversation({
 
 export async function moderateConversation({
     conversationId,
-    ownerId,
     action,
     resolutionNote = ""
 }) {
 
-    conversationId = requireConversationId(
-        conversationId
-    );
+    const owner =
+        await requireOwner();
 
-    ownerId = requireUserId(ownerId);
+    conversationId =
+        requireConversationId(
+            conversationId
+        );
 
     if (!action) {
         throw new Error(
@@ -960,15 +1527,22 @@ export async function moderateConversation({
         );
     }
 
-    const conversationRef = doc(
-        db,
-        CHAT_COLLECTION,
-        conversationId
-    );
+    const safeResolutionNote =
+        typeof resolutionNote === "string"
+            ? resolutionNote.trim()
+            : "";
 
-    const conversationSnap = await getDoc(
-        conversationRef
-    );
+    const conversationRef =
+        doc(
+            db,
+            CHAT_COLLECTION,
+            conversationId
+        );
+
+    const conversationSnap =
+        await getDoc(
+            conversationRef
+        );
 
     if (!conversationSnap.exists()) {
         throw new Error(
@@ -993,19 +1567,23 @@ export async function moderateConversation({
                 moderationStatus:
                     CHAT_MODERATION_ACTION.CLOSE_CONVERSATION,
 
-                moderatedBy: ownerId,
+                moderatedBy:
+                    owner.uid,
 
-                moderatedAt: serverTimestamp(),
+                moderatedAt:
+                    serverTimestamp(),
 
                 moderationNote:
-                    resolutionNote.trim(),
+                    safeResolutionNote,
 
-                updatedAt: serverTimestamp()
+                updatedAt:
+                    serverTimestamp()
             }
         );
 
         return true;
     }
+
 
     if (
         action ===
@@ -1013,71 +1591,108 @@ export async function moderateConversation({
     ) {
 
         const participantIds =
-            Array.isArray(conversation.participantIds)
+            Array.isArray(
+                conversation.participantIds
+            )
                 ? conversation.participantIds
                 : [];
 
-        if (participantIds.length !== 2) {
+        if (
+            participantIds.length !== 2
+        ) {
             throw new Error(
                 "Invalid conversation participants."
             );
         }
 
-        const blockOperations =
-            participantIds.map(
-                async (blockedUserId) => {
+        const firstUser =
+            participantIds[0];
 
-                    const otherUserId =
-                        participantIds.find(
-                            (id) =>
-                                id !== blockedUserId
-                        );
+        const secondUser =
+            participantIds[1];
 
-                    const blockId =
-                        `${blockedUserId}_${otherUserId}`;
+        const firstBlockId =
+            `${firstUser}_${secondUser}`;
 
-                    const blockRef =
-                        doc(
-                            db,
-                            CHAT_BLOCKS_COLLECTION,
-                            blockId
-                        );
+        const secondBlockId =
+            `${secondUser}_${firstUser}`;
 
-                    return setDoc(
-                        blockRef,
-                        {
-                            blockerId:
-                                blockedUserId,
-
-                            blockedUserId:
-                                otherUserId,
-
-                            status:
-                                CHAT_BLOCK_STATUS.ACTIVE,
-
-                            createdAt:
-                                serverTimestamp(),
-
-                            updatedAt:
-                                serverTimestamp(),
-
-                            ownerModerated: true,
-
-                            moderatedBy:
-                                ownerId
-                        },
-                        {
-                            merge: true
-                        }
-                    );
-                }
+        const firstBlockRef =
+            doc(
+                db,
+                CHAT_BLOCKS_COLLECTION,
+                firstBlockId
             );
 
-        await Promise.all(
-            blockOperations
+        const secondBlockRef =
+            doc(
+                db,
+                CHAT_BLOCKS_COLLECTION,
+                secondBlockId
+            );
+
+        const batch =
+            writeBatch(db);
+
+        batch.set(
+            firstBlockRef,
+            {
+                blockerId:
+                    firstUser,
+
+                blockedUserId:
+                    secondUser,
+
+                status:
+                    CHAT_BLOCK_STATUS.ACTIVE,
+
+                createdAt:
+                    serverTimestamp(),
+
+                updatedAt:
+                    serverTimestamp(),
+
+                ownerModerated:
+                    true,
+
+                moderatedBy:
+                    owner.uid
+            },
+            {
+                merge: true
+            }
         );
 
-        await updateDoc(
+        batch.set(
+            secondBlockRef,
+            {
+                blockerId:
+                    secondUser,
+
+                blockedUserId:
+                    firstUser,
+
+                status:
+                    CHAT_BLOCK_STATUS.ACTIVE,
+
+                createdAt:
+                    serverTimestamp(),
+
+                updatedAt:
+                    serverTimestamp(),
+
+                ownerModerated:
+                    true,
+
+                moderatedBy:
+                    owner.uid
+            },
+            {
+                merge: true
+            }
+        );
+
+        batch.update(
             conversationRef,
             {
                 status:
@@ -1086,18 +1701,21 @@ export async function moderateConversation({
                 moderationStatus:
                     CHAT_MODERATION_ACTION.BLOCK_USER,
 
-                moderatedBy: ownerId,
+                moderatedBy:
+                    owner.uid,
 
                 moderatedAt:
                     serverTimestamp(),
 
                 moderationNote:
-                    resolutionNote.trim(),
+                    safeResolutionNote,
 
                 updatedAt:
                     serverTimestamp()
             }
         );
+
+        await batch.commit();
 
         return true;
     }
@@ -1115,31 +1733,38 @@ export async function moderateConversation({
 export async function removeMessageByOwner({
     conversationId,
     messageId,
-    ownerId,
     reason = ""
 }) {
 
-    conversationId = requireConversationId(
-        conversationId
-    );
+    const owner =
+        await requireOwner();
 
-    messageId = requireMessageId(
-        messageId
-    );
+    conversationId =
+        requireConversationId(
+            conversationId
+        );
 
-    ownerId = requireUserId(ownerId);
+    messageId =
+        requireMessageId(
+            messageId
+        );
 
-    const messageRef = doc(
-        db,
-        CHAT_COLLECTION,
-        conversationId,
-        CHAT_MESSAGES_COLLECTION,
-        messageId
-    );
+    const safeReason =
+        typeof reason === "string"
+            ? reason.trim()
+            : "";
 
-    const messageSnap = await getDoc(
-        messageRef
-    );
+    const messageRef =
+        doc(
+            db,
+            CHAT_COLLECTION,
+            conversationId,
+            CHAT_MESSAGES_COLLECTION,
+            messageId
+        );
+
+    const messageSnap =
+        await getDoc(messageRef);
 
     if (!messageSnap.exists()) {
         throw new Error(
@@ -1153,7 +1778,8 @@ export async function removeMessageByOwner({
             status:
                 CHAT_MESSAGE_STATUS.REMOVED_BY_OWNER,
 
-            removedByOwner: true,
+            removedByOwner:
+                true,
 
             removedAt:
                 serverTimestamp(),
@@ -1161,10 +1787,11 @@ export async function removeMessageByOwner({
             moderationAction:
                 CHAT_MODERATION_ACTION.REMOVE_MESSAGE,
 
-            moderatedBy: ownerId,
+            moderatedBy:
+                owner.uid,
 
             moderationReason:
-                reason.trim(),
+                safeReason,
 
             updatedAt:
                 serverTimestamp()
