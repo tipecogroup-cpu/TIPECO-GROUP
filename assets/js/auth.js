@@ -1,7 +1,7 @@
 /* =====================================================
    TIPECO GROUP - FIREBASE AUTHENTICATION
    REAL PROJECT
-   Version: 9.2
+   Version: 9.3
 
    GENERAL ACCOUNT ARCHITECTURE
 
@@ -24,13 +24,16 @@
    - Owner role is never created from public registration.
    - Phone number is NOT treated as a verified authentication factor.
 
-   VERSION 9.2 FIXES
+   OWNER SECURITY
 
-   - Login errors are now always visible.
-   - hidden attribute is correctly controlled.
-   - Wrong email/password shows a clear error.
-   - Firebase invalid-credential is handled.
-   - Login status/message IDs are both supported.
+   - Exactly ONE authorized Owner account.
+   - Owner is identified by Firebase Auth UID.
+   - Owner email must also match the registered Owner email.
+   - Firestore profile UID must match the Firebase Auth UID.
+   - Firestore profile email must match the Owner email.
+   - Firestore role must be "owner".
+   - Public registration can NEVER create an Owner account.
+   - A different user with role="owner" is NOT accepted as Owner.
 ===================================================== */
 
 
@@ -79,11 +82,35 @@ import {
 const OWNER_ROLE = "owner";
 const GENERAL_USER_ROLE = "user";
 
-const OWNER_DASHBOARD = "owner-dashboard.html";
-const DEFAULT_HOME = "../index.html";
-const LOGIN_PAGE = "login.html";
+const OWNER_DASHBOARD =
+    "owner-dashboard.html";
 
-const PUBLIC_OWNER_FORBIDDEN = true;
+const DEFAULT_HOME =
+    "../index.html";
+
+const LOGIN_PAGE =
+    "login.html";
+
+const PUBLIC_OWNER_FORBIDDEN =
+    true;
+
+
+/* =====================================================
+   SINGLE AUTHORIZED OWNER
+
+   IMPORTANT:
+   This is the ONLY Firebase Auth account that
+   can ever be authorized as TIPECO Owner.
+
+   Firebase Auth UID is the primary identity.
+   Email is an additional identity check.
+===================================================== */
+
+const OWNER_UID =
+    "hEWkmGpb5jbSzvftRztzHekTU3v1";
+
+const OWNER_EMAIL =
+    "makemoney83683@gmail.com";
 
 
 /* =====================================================
@@ -116,14 +143,6 @@ function showMessage(
     if (!element) {
         return;
     }
-
-    /*
-       IMPORTANT:
-       If the HTML element contains the hidden
-       attribute, display:block alone is not enough.
-
-       We explicitly remove hidden here.
-    */
 
     element.hidden = false;
 
@@ -319,14 +338,57 @@ async function getUserProfile(
 
 /* =====================================================
    OWNER CHECK
+
+   OWNER MUST MATCH ALL OF THESE:
+
+   1. Firebase Auth UID
+   2. Firebase Auth email
+   3. Firestore profile UID
+   4. Firestore profile email
+   5. Firestore role = owner
+
+   Therefore another user cannot become Owner simply
+   by having role="owner" in Firestore.
 ===================================================== */
 
 function isTipecoOwner(
+    user,
     profile
 ) {
 
+    if (!user || !profile) {
+        return false;
+    }
+
+
+    const authEmail =
+        String(
+            user.email || ""
+        )
+            .trim()
+            .toLowerCase();
+
+
+    const profileEmail =
+        String(
+            profile.email || ""
+        )
+            .trim()
+            .toLowerCase();
+
+
+    const profileUid =
+        String(
+            profile.uid || ""
+        )
+            .trim();
+
+
     return (
-        profile &&
+        user.uid === OWNER_UID &&
+        authEmail === OWNER_EMAIL &&
+        profileUid === OWNER_UID &&
+        profileEmail === OWNER_EMAIL &&
         profile.role === OWNER_ROLE
     );
 }
@@ -818,12 +880,6 @@ function getFirebaseErrorMessage(
             );
 
 
-        /*
-           Firebase may intentionally return
-           invalid-credential instead of telling us
-           whether the email or password was wrong.
-        */
-
         case "auth/invalid-credential":
 
             return (
@@ -1004,6 +1060,13 @@ async function createRegistrationAccount(
     const user =
         credential.user;
 
+
+    /*
+       PUBLIC REGISTRATION CAN ONLY CREATE
+       A GENERAL USER ACCOUNT.
+
+       OWNER IS NEVER CREATED HERE.
+    */
 
     const profileData = {
 
@@ -1602,6 +1665,10 @@ async function handleLogin(
         }
 
 
+        /* ---------------------------------------------
+           EMAIL VERIFICATION REQUIRED
+        --------------------------------------------- */
+
         if (
             currentUser.emailVerified !== true
         ) {
@@ -1680,6 +1747,100 @@ async function handleLogin(
         }
 
 
+        /* ---------------------------------------------
+           OWNER CHECK
+
+           ONLY THE SINGLE AUTHORIZED OWNER CAN
+           ENTER OWNER DASHBOARD.
+        --------------------------------------------- */
+
+        if (
+            isTipecoOwner(
+                currentUser,
+                profile
+            )
+        ) {
+
+            /*
+               Owner profile may be normalized to active
+               after Firebase email verification.
+            */
+
+            if (
+                profile.emailVerified !== true ||
+                profile.accountStatus !== "active"
+            ) {
+
+                await updateUserProfile(
+                    currentUser.uid,
+                    {
+
+                        emailVerified:
+                            true,
+
+                        accountStatus:
+                            "active",
+
+                        updatedAt:
+                            serverTimestamp()
+                    }
+                );
+
+                profile.emailVerified =
+                    true;
+
+                profile.accountStatus =
+                    "active";
+            }
+
+
+            saveTipecoSession(
+                currentUser,
+                profile
+            );
+
+
+            window.location.href =
+                OWNER_DASHBOARD;
+
+            return;
+        }
+
+
+        /* ---------------------------------------------
+           NON-OWNER USERS
+
+           Even if somebody somehow has
+           role="owner" in Firestore, they are NOT
+           authorized for Owner Dashboard.
+        --------------------------------------------- */
+
+        if (
+            profile.role === OWNER_ROLE
+        ) {
+
+            await signOut(
+                auth
+            );
+
+            clearTipecoSession();
+
+
+            showMessage(
+                statusElement,
+                "This account is not authorized to access the TIPECO GROUP Owner Dashboard.",
+                "error"
+            );
+
+
+            return;
+        }
+
+
+        /* ---------------------------------------------
+           GENERAL USER
+        --------------------------------------------- */
+
         if (
             profile.emailVerified !== true ||
             profile.accountStatus !== "active"
@@ -1713,19 +1874,6 @@ async function handleLogin(
             currentUser,
             profile
         );
-
-
-        if (
-            isTipecoOwner(
-                profile
-            )
-        ) {
-
-            window.location.href =
-                OWNER_DASHBOARD;
-
-            return;
-        }
 
 
         window.location.href =
@@ -1846,6 +1994,10 @@ async function () {
                             }
 
 
+                            /* ---------------------------------
+                               EMAIL VERIFICATION
+                            --------------------------------- */
+
                             if (
                                 currentUser.emailVerified !==
                                 true
@@ -1903,36 +2055,48 @@ async function () {
                             }
 
 
+                            /* ---------------------------------
+                               STRICT OWNER AUTHORIZATION
+
+                               NO role-only authorization.
+                            --------------------------------- */
+
                             if (
                                 !isTipecoOwner(
+                                    currentUser,
                                     profile
                                 )
                             ) {
+
+                                await signOut(
+                                    auth
+                                );
+
+                                unsubscribe();
+
+                                clearTipecoSession();
+
 
                                 if (
                                     PUBLIC_OWNER_FORBIDDEN
                                 ) {
 
-                                    await signOut(
-                                        auth
-                                    );
-
-                                    unsubscribe();
-
-                                    clearTipecoSession();
-
-
                                     window.location.href =
                                         DEFAULT_HOME;
 
+                                } else {
 
-                                    finish(
-                                        false
-                                    );
-
-
-                                    return;
+                                    window.location.href =
+                                        LOGIN_PAGE;
                                 }
+
+
+                                finish(
+                                    false
+                                );
+
+
+                                return;
                             }
 
 
@@ -1968,6 +2132,10 @@ async function () {
                                 return;
                             }
 
+
+                            /* ---------------------------------
+                               OWNER PROFILE NORMALIZATION
+                            --------------------------------- */
 
                             if (
                                 profile.emailVerified !==
@@ -2181,13 +2349,28 @@ async function () {
     }
 
 
+    await reload(
+        user
+    );
+
+
+    const currentUser =
+        auth.currentUser;
+
+
+    if (!currentUser) {
+        return false;
+    }
+
+
     const profile =
         await getUserProfile(
-            user.uid
+            currentUser.uid
         );
 
 
     return isTipecoOwner(
+        currentUser,
         profile
     );
 };
@@ -2358,7 +2541,13 @@ onAuthStateChanged(
                         profile.accountStatus,
 
                     role:
-                        profile.role
+                        profile.role,
+
+                    isAuthorizedOwner:
+                        isTipecoOwner(
+                            user,
+                            profile
+                        )
                 }
             );
 
@@ -2379,5 +2568,5 @@ onAuthStateChanged(
 ===================================================== */
 
 console.log(
-    "TIPECO GROUP auth.js v9.2 loaded successfully."
+    "TIPECO GROUP auth.js v9.3 loaded successfully."
 );
