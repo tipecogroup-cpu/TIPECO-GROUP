@@ -6,7 +6,7 @@
     <!-- =====================================================
          TIPECO GROUP - MARKETPLACE
          REAL FIREBASE PROJECT
-         Marketplace Version 3.1
+         Marketplace Version 3.2
     ====================================================== -->
 
     <meta charset="UTF-8">
@@ -1456,6 +1456,8 @@
         import {
             getFirestore,
             collection,
+            query,
+            where,
             getDocs,
             doc,
             getDoc
@@ -1663,8 +1665,6 @@
 
         let allListings = [];
 
-        let currentUser = null;
-
 
         const SAVED_LISTINGS_KEY =
             "tipecoSavedListings";
@@ -1682,13 +1682,32 @@
                     .toLowerCase();
 
 
-            if (type === "jobs") {
+            if (
+                type === "jobs"
+            ) {
+
                 return "job";
+
             }
 
 
-            if (type === "rentals") {
+            if (
+                type === "rentals" ||
+                type === "rental"
+            ) {
+
                 return "rent";
+
+            }
+
+
+            if (
+                type === "sale" ||
+                type === "sales"
+            ) {
+
+                return "sell";
+
             }
 
 
@@ -2041,10 +2060,6 @@
 
                     return;
                 }
-
-
-                currentUser =
-                    user;
 
 
                 await loadUserProfile(
@@ -2484,6 +2499,38 @@
                             }
 
 
+                            /*
+                             * Preserve JOB state when
+                             * changing marketplace category.
+                             */
+
+                            if (
+                                activeType ===
+                                "job"
+                            ) {
+
+                                if (jobAction) {
+
+                                    nextParams.set(
+                                        "jobAction",
+                                        jobAction
+                                    );
+
+                                }
+
+
+                                if (jobCategory) {
+
+                                    nextParams.set(
+                                        "jobCategory",
+                                        jobCategory
+                                    );
+
+                                }
+
+                            }
+
+
                             window.history
                                 .replaceState(
                                     {},
@@ -2566,6 +2613,39 @@
                             }
 
 
+                            /*
+                             * Preserve JOB action/category
+                             * when entering or switching
+                             * within the JOB marketplace.
+                             */
+
+                            if (
+                                nextType ===
+                                "job"
+                            ) {
+
+                                if (jobAction) {
+
+                                    nextParams.set(
+                                        "jobAction",
+                                        jobAction
+                                    );
+
+                                }
+
+
+                                if (jobCategory) {
+
+                                    nextParams.set(
+                                        "jobCategory",
+                                        jobCategory
+                                    );
+
+                                }
+
+                            }
+
+
                             window.location.href =
                                 "marketplace.html?" +
                                 nextParams.toString();
@@ -2598,12 +2678,34 @@
 
             try {
 
-                const snapshot =
-                    await getDocs(
+                /*
+                 * IMPORTANT:
+                 * Firestore rules only allow public
+                 * marketplace reads for:
+                 *
+                 * status == "approved"
+                 *
+                 * Therefore the query must enforce
+                 * that condition at Firestore level.
+                 */
+
+                const listingsQuery =
+                    query(
                         collection(
                             db,
                             "listings"
+                        ),
+                        where(
+                            "status",
+                            "==",
+                            "approved"
                         )
+                    );
+
+
+                const snapshot =
+                    await getDocs(
+                        listingsQuery
                     );
 
 
@@ -2688,72 +2790,25 @@
 
         function isPubliclyApprovedListing(data) {
 
-            const status =
-                String(
-                    data.status ||
-                    data.approvalStatus ||
-                    data.listingStatus ||
-                    ""
-                )
-                .trim()
-                .toLowerCase();
-
-
-            const approval =
-                data.approved === true ||
-                data.isApproved === true ||
-                String(
-                    data.approval || ""
-                ).toLowerCase() ===
-                "approved";
-
-
-            const publication =
-                data.published === true ||
-                data.isPublished === true ||
-                String(
-                    data.visibility || ""
-                ).toLowerCase() ===
-                "public";
-
-
             /*
-             * Owner approval remains mandatory.
+             * Public marketplace visibility is controlled
+             * by the Firestore listing status.
+             *
+             * Only:
+             *
+             * status === "approved"
+             *
+             * is accepted here.
              */
 
-            if (
-                status === "approved"
-            ) {
-
-                return true;
-
-            }
-
-
-            if (
-                status === "active" &&
-                (
-                    approval ||
-                    publication
+            return (
+                String(
+                    data.status || ""
                 )
-            ) {
-
-                return true;
-
-            }
-
-
-            if (
-                approval &&
-                publication
-            ) {
-
-                return true;
-
-            }
-
-
-            return false;
+                .trim()
+                .toLowerCase() ===
+                "approved"
+            );
         }
 
 
@@ -2787,7 +2842,8 @@
 
             if (
                 raw === "rent" ||
-                raw === "rental"
+                raw === "rental" ||
+                raw === "rentals"
             ) {
 
                 return "rent";
@@ -2796,7 +2852,9 @@
 
 
             if (
-                raw === "sell"
+                raw === "sell" ||
+                raw === "sale" ||
+                raw === "sales"
             ) {
 
                 return "sell";
@@ -2813,7 +2871,13 @@
             }
 
 
-            return "buy";
+            /*
+             * Unknown type must NOT silently become BUY.
+             * This prevents an incomplete or malformed
+             * listing from appearing in the BUY section.
+             */
+
+            return "";
         }
 
 
@@ -3880,21 +3944,31 @@
 
             if (detailModal) {
 
-                detailModal.addEventListener(
-                    "click",
-                    function(event) {
+                const detailOverlay =
+                    detailModal.querySelector(
+                        ".tipeco-detail-overlay"
+                    );
 
-                        if (
-                            event.target ===
-                            detailModal
-                        ) {
 
-                            closeListingDetails();
+                if (detailOverlay) {
+
+                    detailOverlay.addEventListener(
+                        "click",
+                        function(event) {
+
+                            if (
+                                event.target ===
+                                detailOverlay
+                            ) {
+
+                                closeListingDetails();
+
+                            }
 
                         }
+                    );
 
-                    }
-                );
+                }
 
             }
 
