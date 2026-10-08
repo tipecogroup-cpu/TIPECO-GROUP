@@ -1,5 +1,5 @@
 /* =========================================================
-   TIPECO GROUP — LISTING ENGINE v4.1
+   TIPECO GROUP — LISTING.JS v4.1
    Firebase Auth + Firestore + Firebase Storage
    Subscription Entitlement + Owner Approval
    ========================================================= */
@@ -22,7 +22,7 @@ import {
     getDocs,
     doc,
     getDoc,
-    addDoc,
+    setDoc,
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
@@ -176,15 +176,11 @@ async function getListingEntitlement(uid) {
    COUNT CURRENT LISTINGS
    =========================================================
 
-   We count listings that are still part of the user's
-   current publishing/review workload.
+   Current publishing/review workload:
 
-   pending + approved + needs_changes are counted.
+   pending + approved + needs_changes
 
    rejected/inactive/expired are not counted.
-
-   This prevents a user from creating unlimited pending
-   listings while waiting for Owner review.
    ========================================================= */
 
 async function countCurrentListings(uid) {
@@ -202,7 +198,8 @@ async function countCurrentListings(uid) {
     snapshot.forEach((listingDoc) => {
         const data = listingDoc.data();
 
-        const status = String(data.status || "").toLowerCase();
+        const status =
+            String(data.status || "").toLowerCase();
 
         if (
             status === "pending" ||
@@ -439,6 +436,7 @@ async function handleSubmit(event) {
     }
 
     try {
+
         /* -------------------------------------------------
            1. AUTH
            ------------------------------------------------- */
@@ -530,6 +528,12 @@ async function handleSubmit(event) {
             $("#description")?.value.trim() ||
             "";
 
+        /*
+         * Phone is intentionally read only for validation.
+         * It is NOT stored inside the public listing document.
+         * Owner can use sellerId to access the user's controlled
+         * profile/contact information.
+         */
         const contactPhone =
             $("#phone")?.value.trim() ||
             $("#contactPhone")?.value.trim() ||
@@ -673,6 +677,11 @@ async function handleSubmit(event) {
 
         /* -------------------------------------------------
            12. CREATE LISTING ID
+           -------------------------------------------------
+
+           IMPORTANT:
+           The same document reference is used for both
+           the Firestore document ID and listingData.id.
            ------------------------------------------------- */
 
         const listingRef =
@@ -725,11 +734,6 @@ async function handleSubmit(event) {
             user.email ||
             "";
 
-        const sellerPhone =
-            profile.phone ||
-            contactPhone ||
-            "";
-
 
         const listingData = {
 
@@ -738,11 +742,11 @@ async function handleSubmit(event) {
             sellerId: user.uid,
 
             /* Seller information
-               Stored for Owner/contact workflow.
-               Marketplace must not expose phone publicly. */
+               Phone/contact is intentionally NOT stored
+               in the public listings document. */
+
             sellerName,
             sellerEmail,
-            sellerPhone,
 
             /* Listing */
             title,
@@ -751,7 +755,6 @@ async function handleSubmit(event) {
             description,
             price,
             location,
-            contactPhone,
 
             /* Media */
             images: imageUrls,
@@ -775,8 +778,14 @@ async function handleSubmit(event) {
         };
 
 
-        await addDoc(
-            collection(db, LISTINGS_COLLECTION),
+        /*
+         * Use setDoc(listingRef) instead of addDoc().
+         * This guarantees:
+         *
+         * listingData.id === Firestore document ID
+         */
+        await setDoc(
+            listingRef,
             listingData
         );
 
