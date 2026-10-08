@@ -1665,33 +1665,6 @@ async function handleLogin(
         }
 
 
-        /* ---------------------------------------------
-           EMAIL VERIFICATION REQUIRED
-        --------------------------------------------- */
-
-        if (
-            currentUser.emailVerified !== true
-        ) {
-
-            showMessage(
-                statusElement,
-                "Please verify your email before logging in.",
-                "error"
-            );
-
-
-            await signOut(
-                auth
-            );
-
-
-            clearTipecoSession();
-
-
-            return;
-        }
-
-
         const profile =
             await getUserProfile(
                 currentUser.uid
@@ -1752,6 +1725,9 @@ async function handleLogin(
 
            ONLY THE SINGLE AUTHORIZED OWNER CAN
            ENTER OWNER DASHBOARD.
+
+           IMPORTANT:
+           OWNER DOES NOT REQUIRE EMAIL VERIFICATION.
         --------------------------------------------- */
 
         if (
@@ -1761,36 +1737,25 @@ async function handleLogin(
             )
         ) {
 
-            /*
-               Owner profile may be normalized to active
-               after Firebase email verification.
-            */
-
             if (
-                profile.emailVerified !== true ||
                 profile.accountStatus !== "active"
             ) {
 
-                await updateUserProfile(
-                    currentUser.uid,
-                    {
-
-                        emailVerified:
-                            true,
-
-                        accountStatus:
-                            "active",
-
-                        updatedAt:
-                            serverTimestamp()
-                    }
+                await signOut(
+                    auth
                 );
 
-                profile.emailVerified =
-                    true;
+                clearTipecoSession();
 
-                profile.accountStatus =
-                    "active";
+
+                showMessage(
+                    statusElement,
+                    "The TIPECO GROUP Owner account is not active.",
+                    "error"
+                );
+
+
+                return;
             }
 
 
@@ -1839,7 +1804,32 @@ async function handleLogin(
 
         /* ---------------------------------------------
            GENERAL USER
+
+           GENERAL USERS MUST VERIFY EMAIL.
         --------------------------------------------- */
+
+        if (
+            currentUser.emailVerified !== true
+        ) {
+
+            showMessage(
+                statusElement,
+                "Please verify your email before logging in.",
+                "error"
+            );
+
+
+            await signOut(
+                auth
+            );
+
+
+            clearTipecoSession();
+
+
+            return;
+        }
+
 
         if (
             profile.emailVerified !== true ||
@@ -1994,37 +1984,6 @@ async function () {
                             }
 
 
-                            /* ---------------------------------
-                               EMAIL VERIFICATION
-                            --------------------------------- */
-
-                            if (
-                                currentUser.emailVerified !==
-                                true
-                            ) {
-
-                                await signOut(
-                                    auth
-                                );
-
-                                unsubscribe();
-
-                                clearTipecoSession();
-
-
-                                window.location.href =
-                                    LOGIN_PAGE;
-
-
-                                finish(
-                                    false
-                                );
-
-
-                                return;
-                            }
-
-
                             const profile =
                                 await getUserProfile(
                                     currentUser.uid
@@ -2059,6 +2018,9 @@ async function () {
                                STRICT OWNER AUTHORIZATION
 
                                NO role-only authorization.
+
+                               OWNER DOES NOT REQUIRE
+                               EMAIL VERIFICATION.
                             --------------------------------- */
 
                             if (
@@ -2134,37 +2096,32 @@ async function () {
 
 
                             /* ---------------------------------
-                               OWNER PROFILE NORMALIZATION
+                               OWNER MUST BE ACTIVE
                             --------------------------------- */
 
                             if (
-                                profile.emailVerified !==
-                                    true ||
-                                profile.accountStatus !==
-                                    "active"
+                                status !== "active"
                             ) {
 
-                                await updateUserProfile(
-                                    currentUser.uid,
-                                    {
+                                await signOut(
+                                    auth
+                                );
 
-                                        emailVerified:
-                                            true,
+                                unsubscribe();
 
-                                        accountStatus:
-                                            "active",
+                                clearTipecoSession();
 
-                                        updatedAt:
-                                            serverTimestamp()
-                                    }
+
+                                window.location.href =
+                                    LOGIN_PAGE;
+
+
+                                finish(
+                                    false
                                 );
 
 
-                                profile.emailVerified =
-                                    true;
-
-                                profile.accountStatus =
-                                    "active";
+                                return;
                             }
 
 
