@@ -1,10 +1,11 @@
 /* =====================================================
    TIPECO GROUP - OWNER DASHBOARD
-   Version: 6.2
+   Version: 6.3
    Firebase Owner Dashboard
    Firestore Listing Review + Verification Engine
    Firebase Storage Media URLs
    Users Management
+   Jobs Role Compatibility
 
    IMPORTANT ARCHITECTURE:
 
@@ -21,6 +22,11 @@
 
    NO IndexedDB listing source
    NO storage.js dependency
+
+   IMPORTANT:
+   Jobs was added later to the TIPECO architecture.
+   This file recognizes Jobs-related roles but DOES NOT
+   invent a Jobs collection or Firestore schema.
 ===================================================== */
 
 
@@ -53,7 +59,7 @@ import {
    CONFIGURATION
 ===================================================== */
 
-const DASHBOARD_VERSION = "6.2";
+const DASHBOARD_VERSION = "6.3";
 
 const USERS_COLLECTION = "users";
 const LISTINGS_COLLECTION = "listings";
@@ -71,6 +77,21 @@ const PUBLIC_ACCOUNT_TYPES = [
 const CONTROLLED_ROLES = [
     "owner",
     "agent"
+];
+
+/*
+ * Jobs was added later.
+ *
+ * These values are only role aliases.
+ * No Jobs Firestore collection is assumed here.
+ */
+const JOBS_ROLES = [
+    "job",
+    "jobs",
+    "job-seeker",
+    "job_seeker",
+    "jobseeker",
+    "employer"
 ];
 
 
@@ -91,6 +112,12 @@ let dashboardState = {
     buyers: [],
 
     agents: [],
+
+    jobsUsers: [],
+
+    jobSeekers: [],
+
+    employers: [],
 
     pendingListings: [],
 
@@ -259,26 +286,24 @@ async function getOwnerFirestoreProfile() {
             );
 
 
-        for (
-            const document
-            of usersSnapshot.docs
-        ) {
+        const ownerDocument =
+            usersSnapshot.docs.find(
+                document =>
+                    document.id ===
+                    currentUser.uid
+            );
 
-            if (
-                document.id ===
-                currentUser.uid
-            ) {
 
-                return {
+        if (ownerDocument) {
 
-                    id:
-                        document.id,
+            return {
 
-                    ...document.data()
+                id:
+                    ownerDocument.id,
 
-                };
+                ...ownerDocument.data()
 
-            }
+            };
 
         }
 
@@ -445,8 +470,36 @@ async function loadOwnerProfile() {
         );
 
 
+    const email =
+        safeText(
+
+            profile?.email ||
+
+            currentUser.email,
+
+            "—"
+
+        );
+
+
+    const status =
+        safeText(
+
+            profile?.status ||
+
+            profile?.accountStatus,
+
+            "active"
+
+        );
+
+
     const ownerName =
         getElement("ownerName");
+
+
+    const ownerEmail =
+        getElement("ownerEmail");
 
 
     const welcomeOwnerName =
@@ -457,10 +510,30 @@ async function loadOwnerProfile() {
         getElement("ownerAvatar");
 
 
+    const settingsOwnerName =
+        getElement("settingsOwnerName");
+
+
+    const settingsOwnerEmail =
+        getElement("settingsOwnerEmail");
+
+
+    const settingsOwnerStatus =
+        getElement("settingsOwnerStatus");
+
+
     if (ownerName) {
 
         ownerName.textContent =
             name;
+
+    }
+
+
+    if (ownerEmail) {
+
+        ownerEmail.textContent =
+            email;
 
     }
 
@@ -479,6 +552,30 @@ async function loadOwnerProfile() {
             name
                 .charAt(0)
                 .toUpperCase();
+
+    }
+
+
+    if (settingsOwnerName) {
+
+        settingsOwnerName.textContent =
+            name;
+
+    }
+
+
+    if (settingsOwnerEmail) {
+
+        settingsOwnerEmail.textContent =
+            email;
+
+    }
+
+
+    if (settingsOwnerStatus) {
+
+        settingsOwnerStatus.textContent =
+            formatUserStatus(status);
 
     }
 
@@ -673,7 +770,88 @@ function getUserRole(user) {
     }
 
 
+    if (
+        JOBS_ROLES.includes(role)
+    ) {
+
+        return role;
+
+    }
+
+
     return "";
+
+}
+
+
+/* =====================================================
+   JOBS ROLE HELPERS
+===================================================== */
+
+function isJobsRole(user) {
+
+    const role =
+        getUserRole(user);
+
+
+    return JOBS_ROLES.includes(role);
+
+}
+
+
+function isJobSeeker(user) {
+
+    const role =
+        normalize(
+
+            user?.jobRole ||
+
+            user?.jobsRole ||
+
+            user?.userRole ||
+
+            user?.role ||
+
+            user?.accountType ||
+
+            user?.type
+
+        );
+
+
+    return [
+
+        "job-seeker",
+        "job_seeker",
+        "jobseeker",
+        "job-seeker-user"
+
+    ].includes(role);
+
+}
+
+
+function isEmployer(user) {
+
+    const role =
+        normalize(
+
+            user?.jobRole ||
+
+            user?.jobsRole ||
+
+            user?.userRole ||
+
+            user?.role ||
+
+            user?.accountType ||
+
+            user?.type
+
+        );
+
+
+    return role === "employer";
 
 }
 
@@ -879,11 +1057,11 @@ function convertDate(value) {
 
         if (
             typeof value === "object" &&
-            value.seconds
+            value.seconds !== undefined
         ) {
 
             return new Date(
-                value.seconds * 1000
+                Number(value.seconds) * 1000
             );
 
         }
@@ -1080,6 +1258,24 @@ function loadDashboardStatistics() {
         );
 
 
+    dashboardState.jobsUsers =
+        users.filter(
+            isJobsRole
+        );
+
+
+    dashboardState.jobSeekers =
+        users.filter(
+            isJobSeeker
+        );
+
+
+    dashboardState.employers =
+        users.filter(
+            isEmployer
+        );
+
+
     dashboardState.pendingListings =
         listings.filter(
             isPendingListing
@@ -1140,6 +1336,46 @@ function loadDashboardStatistics() {
         );
 
 
+    /*
+     * Jobs statistics are optional.
+     *
+     * They update only when matching HTML
+     * elements exist.
+     */
+
+    const jobsStats = {
+
+        totalJobsUsers:
+            dashboardState.jobsUsers.length,
+
+        totalJobSeekers:
+            dashboardState.jobSeekers.length,
+
+        totalEmployers:
+            dashboardState.employers.length
+
+    };
+
+
+    Object.entries(jobsStats)
+        .forEach(
+            ([id, value]) => {
+
+                const element =
+                    getElement(id);
+
+
+                if (element) {
+
+                    element.textContent =
+                        value;
+
+                }
+
+            }
+        );
+
+
     updateNotificationCount(
 
         dashboardState.pendingListings.length +
@@ -1157,6 +1393,9 @@ function loadDashboardStatistics() {
 function updateNotificationCount(count) {
 
     const element =
+        getElement(
+            "ownerNotificationCount"
+        ) ||
         getElement(
             "notificationCount"
         );
@@ -1252,7 +1491,7 @@ function renderRecentUsers() {
 
                     <td>
                         ${escapeHTML(
-                            user.email
+                            user?.email
                         )}
                     </td>
 
@@ -1264,14 +1503,18 @@ function renderRecentUsers() {
 
                     <td>
                         ${escapeHTML(
-                            getUserRole(user),
-                            "user"
+                            formatUserRole(
+                                getUserRole(user)
+                            ),
+                            "User"
                         )}
                     </td>
 
                     <td>
                         ${escapeHTML(
-                            getUserStatus(user)
+                            formatUserStatus(
+                                getUserStatus(user)
+                            )
                         )}
                     </td>
 
@@ -1367,13 +1610,15 @@ function renderRecentListings() {
 
                         <td>
                             ${escapeHTML(
-                                listing.price
+                                listing?.price
                             )}
                         </td>
 
                         <td>
                             ${escapeHTML(
-                                status
+                                formatListingStatus(
+                                    status
+                                )
                             )}
                         </td>
 
@@ -1411,12 +1656,8 @@ function renderRecentListings() {
                     "click",
                     () => {
 
-                        const listingId =
-                            button.dataset.listingId;
-
-
                         openListingReview(
-                            listingId
+                            button.dataset.listingId
                         );
 
                     }
@@ -1424,6 +1665,19 @@ function renderRecentListings() {
 
             }
         );
+
+}
+
+
+/* =====================================================
+   LISTING STATUS FORMAT
+===================================================== */
+
+function formatListingStatus(status) {
+
+    return formatUserStatus(
+        status
+    );
 
 }
 
@@ -1560,8 +1814,53 @@ function formatUserRole(role) {
     }
 
 
+    const roleLabels = {
+
+        buyer:
+            "Buyer",
+
+        seller:
+            "Seller",
+
+        agent:
+            "Agent",
+
+        owner:
+            "Owner",
+
+        jobs:
+            "Jobs",
+
+        job:
+            "Jobs",
+
+        "job-seeker":
+            "Job Seeker",
+
+        "job_seeker":
+            "Job Seeker",
+
+        jobseeker:
+            "Job Seeker",
+
+        employer:
+            "Employer"
+
+    };
+
+
+    if (
+        roleLabels[value]
+    ) {
+
+        return roleLabels[value];
+
+    }
+
+
     return value
         .replace(/_/g, " ")
+        .replace(/-/g, " ")
         .replace(
             /\b\w/g,
             letter =>
@@ -1586,6 +1885,7 @@ function formatUserStatus(status) {
 
     return value
         .replace(/_/g, " ")
+        .replace(/-/g, " ")
         .replace(
             /\b\w/g,
             letter =>
@@ -1597,7 +1897,23 @@ function formatUserStatus(status) {
 
 function renderOwnerUsersManagement() {
 
+    /*
+     * Current HTML uses:
+     *
+     * #ownerUsersTableBody
+     *
+     * Older versions used:
+     *
+     * #ownerUsersTable
+     *
+     * Support both so the existing architecture
+     * does not break.
+     */
+
     const container =
+        getElement(
+            "ownerUsersTableBody"
+        ) ||
         getElement(
             "ownerUsersTable"
         );
@@ -1855,330 +2171,110 @@ function ensureUserDetailsModal() {
     style.textContent = `
 
         #tipecoOwnerUserDetailsModal {
-
             position: fixed;
             inset: 0;
             z-index: 99998;
             display: none;
-
         }
-
 
         #tipecoOwnerUserDetailsModal.is-open {
-
             display: block;
-
         }
-
 
         .tipeco-user-modal-overlay {
-
             position: absolute;
             inset: 0;
-
-            background:
-                rgba(0,0,0,.72);
-
+            background: rgba(0,0,0,.72);
             display: flex;
-
             align-items: center;
-
             justify-content: center;
-
             padding: 20px;
-
             overflow-y: auto;
-
         }
-
 
         .tipeco-user-modal {
-
-            width:
-                min(650px, 100%);
-
-            max-height:
-                92vh;
-
+            width: min(650px, 100%);
+            max-height: 92vh;
             overflow-y: auto;
-
-            background:
-                #fff;
-
-            border-radius:
-                16px;
-
-            box-shadow:
-                0 25px 80px
-                rgba(0,0,0,.3);
-
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 25px 80px rgba(0,0,0,.3);
         }
-
 
         .tipeco-user-modal-header {
-
             display: flex;
-
-            justify-content:
-                space-between;
-
-            align-items:
-                flex-start;
-
+            justify-content: space-between;
+            align-items: flex-start;
             gap: 20px;
-
-            padding:
-                22px;
-
-            border-bottom:
-                1px solid #e5e7eb;
-
+            padding: 22px;
+            border-bottom: 1px solid #e5e7eb;
         }
-
 
         .tipeco-user-modal-header h2 {
-
-            margin:
-                0 0 6px;
-
+            margin: 0 0 6px;
         }
-
 
         .tipeco-user-modal-header p {
-
-            margin:
-                0;
-
-            opacity:
-                .7;
-
+            margin: 0;
+            opacity: .7;
         }
-
 
         #tipecoUserDetailsClose {
-
-            border:
-                0;
-
-            background:
-                transparent;
-
-            font-size:
-                32px;
-
-            line-height:
-                1;
-
-            cursor:
-                pointer;
-
+            border: 0;
+            background: transparent;
+            font-size: 32px;
+            line-height: 1;
+            cursor: pointer;
         }
-
 
         .tipeco-user-modal-body {
-
-            padding:
-                22px;
-
+            padding: 22px;
         }
-
 
         .tipeco-user-detail {
-
-            padding:
-                13px 0;
-
-            border-bottom:
-                1px solid #eeeeee;
-
+            padding: 13px 0;
+            border-bottom: 1px solid #eeeeee;
         }
-
 
         .tipeco-user-detail:last-child {
-
-            border-bottom:
-                0;
-
+            border-bottom: 0;
         }
-
 
         .tipeco-user-detail strong {
-
-            display:
-                block;
-
-            margin-bottom:
-                4px;
-
+            display: block;
+            margin-bottom: 4px;
         }
-
 
         .tipeco-user-modal-actions {
-
-            padding:
-                16px 22px;
-
-            border-top:
-                1px solid #e5e7eb;
-
-            display:
-                flex;
-
-            justify-content:
-                flex-end;
-
+            padding: 16px 22px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
         }
-
 
         .tipeco-user-close-btn {
-
-            border:
-                0;
-
-            border-radius:
-                9px;
-
-            padding:
-                10px 18px;
-
-            cursor:
-                pointer;
-
-            font-weight:
-                600;
-
-            background:
-                #e5e7eb;
-
+            border: 0;
+            border-radius: 9px;
+            padding: 10px 18px;
+            cursor: pointer;
+            font-weight: 600;
+            background: #e5e7eb;
         }
-
-
-        .tipeco-users-toolbar {
-
-            display:
-                flex;
-
-            gap:
-                12px;
-
-            justify-content:
-                space-between;
-
-            align-items:
-                center;
-
-            flex-wrap:
-                wrap;
-
-            margin-bottom:
-                18px;
-
-        }
-
-
-        .tipeco-users-search {
-
-            flex:
-                1 1 280px;
-
-        }
-
-
-        .tipeco-users-search input {
-
-            width:
-                100%;
-
-            box-sizing:
-                border-box;
-
-            padding:
-                12px 14px;
-
-            border:
-                1px solid #d1d5db;
-
-            border-radius:
-                9px;
-
-            font-size:
-                14px;
-
-        }
-
-
-        .tipeco-users-filter {
-
-            display:
-                flex;
-
-            gap:
-                10px;
-
-            flex-wrap:
-                wrap;
-
-        }
-
-
-        .tipeco-users-filter select {
-
-            padding:
-                12px 14px;
-
-            border:
-                1px solid #d1d5db;
-
-            border-radius:
-                9px;
-
-            background:
-                #fff;
-
-        }
-
 
         .tipeco-view-user {
-
-            border:
-                0;
-
-            border-radius:
-                8px;
-
-            padding:
-                8px 12px;
-
-            cursor:
-                pointer;
-
-            font-weight:
-                600;
-
-            background:
-                #0D47A1;
-
-            color:
-                #fff;
-
+            border: 0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 600;
+            background: #0D47A1;
+            color: #fff;
         }
-
 
         @media (max-width: 700px) {
 
-            .tipeco-users-filter {
-
-                width:
-                    100%;
-
-            }
-
-
-            .tipeco-users-filter select {
-
-                flex:
-                    1;
-
+            .tipeco-user-modal-overlay {
+                padding: 10px;
             }
 
         }
@@ -2312,56 +2408,34 @@ function openOwnerUserDetails(
     body.innerHTML = `
 
         <div class="tipeco-user-detail">
-
-            <strong>
-                Full Name
-            </strong>
-
+            <strong>Full Name</strong>
             <div>
                 ${escapeHTML(
                     getUserName(user)
                 )}
             </div>
-
         </div>
 
-
         <div class="tipeco-user-detail">
-
-            <strong>
-                Email
-            </strong>
-
+            <strong>Email</strong>
             <div>
                 ${escapeHTML(
-                    user.email
+                    user?.email
                 )}
             </div>
-
         </div>
 
-
         <div class="tipeco-user-detail">
-
-            <strong>
-                Phone
-            </strong>
-
+            <strong>Phone</strong>
             <div>
                 ${escapeHTML(
-                    user.phone
+                    user?.phone
                 )}
             </div>
-
         </div>
 
-
         <div class="tipeco-user-detail">
-
-            <strong>
-                Role
-            </strong>
-
+            <strong>Role</strong>
             <div>
                 ${escapeHTML(
                     formatUserRole(
@@ -2369,16 +2443,10 @@ function openOwnerUserDetails(
                     )
                 )}
             </div>
-
         </div>
 
-
         <div class="tipeco-user-detail">
-
-            <strong>
-                Account Status
-            </strong>
-
+            <strong>Account Status</strong>
             <div>
                 ${escapeHTML(
                     formatUserStatus(
@@ -2386,16 +2454,10 @@ function openOwnerUserDetails(
                     )
                 )}
             </div>
-
         </div>
 
-
         <div class="tipeco-user-detail">
-
-            <strong>
-                Joined
-            </strong>
-
+            <strong>Joined</strong>
             <div>
                 ${formatDate(
                     getUserJoinedDate(
@@ -2403,40 +2465,27 @@ function openOwnerUserDetails(
                     )
                 )}
             </div>
-
         </div>
 
-
         <div class="tipeco-user-detail">
-
-            <strong>
-                Email Verified
-            </strong>
-
+            <strong>Email Verified</strong>
             <div>
                 ${
-                    user.emailVerified === true
+                    user?.emailVerified === true
                         ? "Yes"
                         : "No"
                 }
             </div>
-
         </div>
 
-
         <div class="tipeco-user-detail">
-
-            <strong>
-                User ID
-            </strong>
-
+            <strong>User ID</strong>
             <div>
                 ${escapeHTML(
-                    user.uid ||
-                    user.id
+                    user?.uid ||
+                    user?.id
                 )}
             </div>
-
         </div>
 
     `;
@@ -2452,6 +2501,10 @@ function openOwnerUserDetails(
 
 }
 
+
+/* =====================================================
+   CLOSE USER DETAILS
+===================================================== */
 
 function closeOwnerUserDetails() {
 
@@ -2473,8 +2526,50 @@ function closeOwnerUserDetails() {
     );
 
 
-    document.body.style.overflow =
-        "";
+    restoreBodyOverflow();
+
+}
+
+
+/* =====================================================
+   BODY SCROLL CONTROL
+===================================================== */
+
+function restoreBodyOverflow() {
+
+    const reviewModal =
+        getElement(
+            "tipecoOwnerListingReviewModal"
+        );
+
+
+    const userModal =
+        getElement(
+            "tipecoOwnerUserDetailsModal"
+        );
+
+
+    const reviewOpen =
+        reviewModal?.classList.contains(
+            "is-open"
+        );
+
+
+    const userOpen =
+        userModal?.classList.contains(
+            "is-open"
+        );
+
+
+    if (
+        !reviewOpen &&
+        !userOpen
+    ) {
+
+        document.body.style.overflow =
+            "";
+
+    }
 
 }
 
@@ -2569,6 +2664,9 @@ function initUsersManagement() {
 function renderActivity() {
 
     const container =
+        getElement(
+            "ownerActivityList"
+        ) ||
         getElement(
             "activityList"
         ) ||
@@ -2717,7 +2815,7 @@ function renderActivity() {
 
 
 /* =====================================================
-   LISTING MEDIA FROM FIREBASE STORAGE
+   LISTING MEDIA
 ===================================================== */
 
 function getListingImages(listing) {
@@ -2998,381 +3096,180 @@ function ensureReviewModal() {
     style.textContent = `
 
         #tipecoOwnerListingReviewModal {
-
             position: fixed;
             inset: 0;
             z-index: 99999;
             display: none;
-
         }
-
 
         #tipecoOwnerListingReviewModal.is-open {
-
             display: block;
-
         }
-
 
         .tipeco-review-overlay {
-
             position: absolute;
             inset: 0;
-
-            background:
-                rgba(0,0,0,.72);
-
+            background: rgba(0,0,0,.72);
             display: flex;
-
             align-items: center;
-
             justify-content: center;
-
             padding: 20px;
-
             overflow-y: auto;
-
         }
-
 
         .tipeco-review-modal {
-
-            width:
-                min(1050px, 100%);
-
-            max-height:
-                92vh;
-
+            width: min(1050px, 100%);
+            max-height: 92vh;
             overflow-y: auto;
-
-            background:
-                #fff;
-
-            border-radius:
-                16px;
-
-            box-shadow:
-                0 25px 80px
-                rgba(0,0,0,.3);
-
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 25px 80px rgba(0,0,0,.3);
         }
-
 
         .tipeco-review-header {
-
             display: flex;
-
-            justify-content:
-                space-between;
-
-            align-items:
-                flex-start;
-
-            gap:
-                20px;
-
-            padding:
-                22px;
-
-            border-bottom:
-                1px solid #e5e7eb;
-
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 22px;
+            border-bottom: 1px solid #e5e7eb;
         }
-
 
         .tipeco-review-header h2 {
-
-            margin:
-                0 0 6px;
-
+            margin: 0 0 6px;
         }
-
 
         .tipeco-review-header p {
-
-            margin:
-                0;
-
-            text-transform:
-                capitalize;
-
+            margin: 0;
+            text-transform: capitalize;
         }
-
 
         #tipecoReviewClose {
-
-            border:
-                0;
-
-            background:
-                transparent;
-
-            font-size:
-                32px;
-
-            line-height:
-                1;
-
-            cursor:
-                pointer;
-
+            border: 0;
+            background: transparent;
+            font-size: 32px;
+            line-height: 1;
+            cursor: pointer;
         }
-
 
         .tipeco-review-body {
-
-            padding:
-                22px;
-
+            padding: 22px;
         }
 
-
         .tipeco-review-grid {
-
             display: grid;
-
             grid-template-columns:
                 minmax(0, 1.4fr)
                 minmax(280px, 1fr);
-
-            gap:
-                24px;
-
+            gap: 24px;
         }
-
 
         .tipeco-review-section {
-
-            border:
-                1px solid #e5e7eb;
-
-            border-radius:
-                12px;
-
-            padding:
-                18px;
-
-            margin-bottom:
-                18px;
-
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
         }
-
 
         .tipeco-review-section h3 {
-
-            margin-top:
-                0;
-
+            margin-top: 0;
         }
-
 
         .tipeco-review-field {
-
-            margin-bottom:
-                12px;
-
+            margin-bottom: 12px;
         }
-
 
         .tipeco-review-field strong {
-
-            display:
-                block;
-
-            margin-bottom:
-                3px;
-
+            display: block;
+            margin-bottom: 3px;
         }
-
 
         .tipeco-review-description {
-
-            white-space:
-                pre-wrap;
-
-            line-height:
-                1.6;
-
+            white-space: pre-wrap;
+            line-height: 1.6;
         }
 
-
         .tipeco-media-grid {
-
-            display:
-                grid;
-
+            display: grid;
             grid-template-columns:
                 repeat(
                     auto-fill,
                     minmax(130px, 1fr)
                 );
-
-            gap:
-                10px;
-
+            gap: 10px;
         }
-
 
         .tipeco-media-link {
-
-            display:
-                block;
-
+            display: block;
         }
-
 
         .tipeco-media-grid img {
-
-            width:
-                100%;
-
-            aspect-ratio:
-                1 / 1;
-
-            object-fit:
-                cover;
-
-            border-radius:
-                10px;
-
-            display:
-                block;
-
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 10px;
+            display: block;
         }
-
 
         .tipeco-video {
-
-            width:
-                100%;
-
-            max-height:
-                420px;
-
-            border-radius:
-                10px;
-
+            width: 100%;
+            max-height: 420px;
+            border-radius: 10px;
         }
-
 
         .tipeco-review-actions {
-
-            display:
-                flex;
-
-            flex-wrap:
-                wrap;
-
-            gap:
-                10px;
-
-            padding:
-                18px 22px;
-
-            border-top:
-                1px solid #e5e7eb;
-
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 18px 22px;
+            border-top: 1px solid #e5e7eb;
         }
-
 
         .tipeco-review-action {
-
-            border:
-                0;
-
-            border-radius:
-                9px;
-
-            padding:
-                11px 17px;
-
-            cursor:
-                pointer;
-
-            font-weight:
-                600;
-
+            border: 0;
+            border-radius: 9px;
+            padding: 11px 17px;
+            cursor: pointer;
+            font-weight: 600;
         }
-
 
         .tipeco-review-approve {
-
-            background:
-                #198754;
-
-            color:
-                #fff;
-
+            background: #198754;
+            color: #fff;
         }
-
 
         .tipeco-review-reject {
-
-            background:
-                #dc3545;
-
-            color:
-                #fff;
-
+            background: #dc3545;
+            color: #fff;
         }
-
 
         .tipeco-review-changes {
-
-            background:
-                #ffc107;
-
-            color:
-                #111;
-
+            background: #ffc107;
+            color: #111;
         }
-
 
         .tipeco-review-cancel {
-
-            background:
-                #e5e7eb;
-
-            color:
-                #111;
-
+            background: #e5e7eb;
+            color: #111;
         }
-
 
         .tipeco-review-loading {
-
-            padding:
-                40px 10px;
-
-            text-align:
-                center;
-
+            padding: 40px 10px;
+            text-align: center;
         }
-
 
         @media (max-width: 750px) {
 
             .tipeco-review-grid {
-
-                grid-template-columns:
-                    1fr;
-
+                grid-template-columns: 1fr;
             }
-
 
             .tipeco-review-overlay {
-
-                padding:
-                    10px;
-
+                padding: 10px;
             }
 
-
             .tipeco-review-modal {
-
-                max-height:
-                    96vh;
-
+                max-height: 96vh;
             }
 
         }
@@ -3494,8 +3391,10 @@ async function openListingReview(
     if (status) {
 
         status.textContent =
-            getListingStatus(
-                listing
+            formatListingStatus(
+                getListingStatus(
+                    listing
+                )
             );
 
     }
@@ -3601,7 +3500,7 @@ async function openListingReview(
 
                             <div>
                                 ${escapeHTML(
-                                    listing.type
+                                    listing?.type
                                 )}
                             </div>
 
@@ -3618,7 +3517,7 @@ async function openListingReview(
 
                             <div>
                                 ${escapeHTML(
-                                    listing.price
+                                    listing?.price
                                 )}
                             </div>
 
@@ -3635,7 +3534,7 @@ async function openListingReview(
 
                             <div>
                                 ${escapeHTML(
-                                    listing.location
+                                    listing?.location
                                 )}
                             </div>
 
@@ -3652,8 +3551,8 @@ async function openListingReview(
 
                             <div>
                                 ${formatDate(
-                                    listing.submittedAt ||
-                                    listing.createdAt
+                                    listing?.submittedAt ||
+                                    listing?.createdAt
                                 )}
                             </div>
 
@@ -3670,8 +3569,10 @@ async function openListingReview(
 
                             <div>
                                 ${escapeHTML(
-                                    getListingStatus(
-                                        listing
+                                    formatListingStatus(
+                                        getListingStatus(
+                                            listing
+                                        )
                                     )
                                 )}
                             </div>
@@ -3694,7 +3595,7 @@ async function openListingReview(
                         >
 
                             ${escapeHTML(
-                                listing.description,
+                                listing?.description,
                                 "No description provided."
                             )}
 
@@ -4061,6 +3962,14 @@ async function updateListingInFirestore(
 
     }
 
+    else if (
+        decision === "needs_changes"
+    ) {
+
+        updateData.rejectionReason =
+            null;
+
+    }
 
     else {
 
@@ -4222,12 +4131,6 @@ async function processListingDecision(
         );
 
 
-        /*
-         * Refresh from Firestore after the action.
-         * This guarantees dashboardState returns
-         * to Firestore source-of-truth.
-         */
-
         await refreshOwnerDashboard();
 
 
@@ -4252,7 +4155,6 @@ async function processListingDecision(
                 "TIPECO GROUP Owner does not have permission to update this listing.";
 
         }
-
 
         else if (
             error?.code ===
@@ -4298,10 +4200,6 @@ function closeListingReview() {
     );
 
 
-    document.body.style.overflow =
-        "";
-
-
     const body =
         getElement(
             "tipecoReviewBody"
@@ -4329,6 +4227,124 @@ function closeListingReview() {
 
     }
 
+
+    restoreBodyOverflow();
+
+}
+
+
+/* =====================================================
+   SECTION NAVIGATION
+===================================================== */
+
+function showOwnerSection(
+    sectionId,
+    updateHash = true
+) {
+
+    if (!sectionId) {
+
+        return;
+
+    }
+
+
+    const target =
+        getElement(
+            sectionId
+        );
+
+
+    if (!target) {
+
+        console.warn(
+            `TIPECO Owner section not found: ${sectionId}`
+        );
+
+        return;
+
+    }
+
+
+    const sectionLinks =
+        document.querySelectorAll(
+            "[data-section-target], [data-section]"
+        );
+
+
+    sectionLinks.forEach(
+        link => {
+
+            const linkTarget =
+                link.dataset.sectionTarget ||
+                link.dataset.section;
+
+
+            link.classList.toggle(
+                "active",
+                linkTarget === sectionId
+            );
+
+        }
+    );
+
+
+    /*
+     * Do not force navigation through a full page
+     * reload. Existing dashboard sections remain
+     * the source of the visible interface.
+     */
+
+    target.scrollIntoView({
+
+        behavior:
+            "smooth",
+
+        block:
+            "start"
+
+    });
+
+
+    if (updateHash) {
+
+        try {
+
+            history.replaceState(
+                null,
+                "",
+                `#${sectionId}`
+            );
+
+        } catch (error) {
+
+            console.warn(
+                "Unable to update dashboard hash.",
+                error
+            );
+
+        }
+
+    }
+
+
+    const sidebar =
+        getElement(
+            "ownerSidebar"
+        );
+
+
+    if (
+        sidebar &&
+        window.innerWidth <= 900
+    ) {
+
+        sidebar.classList.remove(
+            "active"
+        );
+
+    }
+
 }
 
 
@@ -4344,7 +4360,20 @@ function initSidebar() {
         );
 
 
+    /*
+     * Current HTML:
+     * #ownerSidebarToggle
+     *
+     * Older JS:
+     * #sidebarToggle
+     *
+     * Support both.
+     */
+
     const toggle =
+        getElement(
+            "ownerSidebarToggle"
+        ) ||
         getElement(
             "sidebarToggle"
         );
@@ -4371,7 +4400,7 @@ function initSidebar() {
 
     const sectionLinks =
         document.querySelectorAll(
-            "[data-section]"
+            "[data-section-target], [data-section]"
         );
 
 
@@ -4385,56 +4414,107 @@ function initSidebar() {
                     event.preventDefault();
 
 
-                    sectionLinks.forEach(
-                        item =>
-                            item.classList.remove(
-                                "active"
-                            )
-                    );
-
-
-                    link.classList.add(
-                        "active"
-                    );
-
-
                     const sectionId =
+                        link.dataset.sectionTarget ||
                         link.dataset.section;
 
 
-                    const target =
-                        getElement(
-                            sectionId
-                        );
-
-
-                    if (target) {
-
-                        target.scrollIntoView({
-
-                            behavior:
-                                "smooth",
-
-                            block:
-                                "start"
-
-                        });
-
-                    }
-
-
-                    if (
-                        sidebar &&
-                        window.innerWidth <= 900
-                    ) {
-
-                        sidebar.classList.remove(
-                            "active"
-                        );
-
-                    }
+                    showOwnerSection(
+                        sectionId
+                    );
 
                 }
+            );
+
+        }
+    );
+
+
+    /*
+     * Open the section requested by URL hash,
+     * but do not force it when no hash exists.
+     */
+
+    const hash =
+        window.location.hash
+            .replace("#", "")
+            .trim();
+
+
+    if (
+        hash &&
+        getElement(hash)
+    ) {
+
+        setTimeout(
+            () => {
+
+                showOwnerSection(
+                    hash,
+                    false
+                );
+
+            },
+            0
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   VERIFICATION QUEUE
+===================================================== */
+
+function initVerificationQueue() {
+
+    const button =
+        getElement(
+            "openVerificationQueueBtn"
+        );
+
+
+    if (!button) {
+
+        return;
+
+    }
+
+
+    button.addEventListener(
+        "click",
+        event => {
+
+            event.preventDefault();
+
+
+            showOwnerSection(
+                "listings"
+            );
+
+
+            const pending =
+                dashboardState.pendingListings;
+
+
+            if (!pending.length) {
+
+                alert(
+                    "There are no pending listings awaiting verification."
+                );
+
+                return;
+
+            }
+
+
+            const firstPending =
+                pending[0];
+
+
+            openListingReview(
+                firstPending.id
             );
 
         }
@@ -4510,12 +4590,159 @@ function initLogout() {
 
 
 /* =====================================================
+   FOOTER YEAR
+===================================================== */
+
+function initFooterYear() {
+
+    const year =
+        getElement(
+            "ownerFooterYear"
+        );
+
+
+    if (year) {
+
+        year.textContent =
+            new Date().getFullYear();
+
+    }
+
+}
+
+
+/* =====================================================
+   OPTIONAL OWNER SETTINGS DISPLAY
+===================================================== */
+
+function initOwnerSettingsDisplay() {
+
+    const marketplaceActive =
+        getElement(
+            "marketplaceActive"
+        );
+
+
+    const listingVerificationRequired =
+        getElement(
+            "listingVerificationRequired"
+        );
+
+
+    const agentApprovalRequired =
+        getElement(
+            "agentApprovalRequired"
+        );
+
+
+    /*
+     * These controls are intentionally NOT changed
+     * here.
+     *
+     * Owner settings remain controlled by the existing
+     * HTML / Firestore settings architecture.
+     *
+     * This function only avoids JavaScript errors if
+     * those elements exist.
+     */
+
+    [
+        marketplaceActive,
+        listingVerificationRequired,
+        agentApprovalRequired
+    ].forEach(
+        element => {
+
+            if (!element) {
+
+                return;
+
+            }
+
+            /*
+             * No automatic value is assigned.
+             * Existing Owner settings remain untouched.
+             */
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   ESC KEY
+===================================================== */
+
+function initKeyboardControls() {
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key !==
+                "Escape"
+            ) {
+
+                return;
+
+            }
+
+
+            const reviewModal =
+                getElement(
+                    "tipecoOwnerListingReviewModal"
+                );
+
+
+            if (
+                reviewModal?.classList.contains(
+                    "is-open"
+                )
+            ) {
+
+                closeListingReview();
+
+                return;
+
+            }
+
+
+            const userModal =
+                getElement(
+                    "tipecoOwnerUserDetailsModal"
+                );
+
+
+            if (
+                userModal?.classList.contains(
+                    "is-open"
+                )
+            ) {
+
+                closeOwnerUserDetails();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =====================================================
    REFRESH DASHBOARD
 ===================================================== */
 
 async function refreshOwnerDashboard() {
 
     try {
+
+        /*
+         * Always read from Firestore.
+         * No localStorage / IndexedDB listing source.
+         */
 
         await Promise.all([
 
@@ -4588,6 +4815,38 @@ function initAutoRefresh() {
             }
 
 
+            /*
+             * Re-check Owner access before each
+             * automatic refresh.
+             */
+
+            const profile =
+                await getOwnerFirestoreProfile();
+
+
+            const role =
+                normalize(
+
+                    profile?.role ||
+
+                    profile?.userRole ||
+
+                    profile?.accountType ||
+
+                    profile?.type
+
+                );
+
+
+            if (
+                role !== OWNER_ROLE
+            ) {
+
+                return;
+
+            }
+
+
             await refreshOwnerDashboard();
 
         },
@@ -4654,6 +4913,10 @@ window.tipecoOpenOwnerUserDetails =
     openOwnerUserDetails;
 
 
+window.tipecoShowOwnerSection =
+    showOwnerSection;
+
+
 /* =====================================================
    INITIALIZATION
 ===================================================== */
@@ -4688,6 +4951,18 @@ async function initializeOwnerDashboard() {
 
 
     initUsersManagement();
+
+
+    initVerificationQueue();
+
+
+    initFooterYear();
+
+
+    initOwnerSettingsDisplay();
+
+
+    initKeyboardControls();
 
 
     showOwnerDashboard();
