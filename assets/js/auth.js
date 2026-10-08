@@ -1,7 +1,7 @@
 /* =====================================================
    TIPECO GROUP - FIREBASE AUTHENTICATION
    REAL PROJECT
-   Version: 9.1
+   Version: 9.2
 
    GENERAL ACCOUNT ARCHITECTURE
 
@@ -16,20 +16,6 @@
    - NO Phone reCAPTCHA
    - NO phoneVerified requirement
 
-   ACCOUNT LIFECYCLE
-
-   Register
-      ↓
-   Firebase Auth Account
-      ↓
-   Firestore User Profile
-      ↓
-   Email Verification Required
-      ↓
-   Email Verified
-      ↓
-   Account ACTIVE
-
    SECURITY PRINCIPLE
 
    - Firebase Auth + Firestore are the source of truth.
@@ -37,6 +23,14 @@
    - Subscription != Approval.
    - Owner role is never created from public registration.
    - Phone number is NOT treated as a verified authentication factor.
+
+   VERSION 9.2 FIXES
+
+   - Login errors are now always visible.
+   - hidden attribute is correctly controlled.
+   - Wrong email/password shows a clear error.
+   - Firebase invalid-credential is handled.
+   - Login status/message IDs are both supported.
 ===================================================== */
 
 
@@ -123,6 +117,18 @@ function showMessage(
         return;
     }
 
+    /*
+       IMPORTANT:
+       If the HTML element contains the hidden
+       attribute, display:block alone is not enough.
+
+       We explicitly remove hidden here.
+    */
+
+    element.hidden = false;
+
+    element.removeAttribute("hidden");
+
     element.textContent =
         message;
 
@@ -131,6 +137,11 @@ function showMessage(
 
     element.style.display =
         "block";
+
+    element.setAttribute(
+        "aria-hidden",
+        "false"
+    );
 }
 
 
@@ -145,17 +156,40 @@ function hideMessage(
     element.textContent =
         "";
 
+    element.dataset.type =
+        "";
+
     element.style.display =
         "none";
+
+    element.hidden = true;
+
+    element.setAttribute(
+        "aria-hidden",
+        "true"
+    );
 }
 
 
 /* =====================================================
-   GET STATUS ELEMENT
+   LOGIN STATUS ELEMENT
+===================================================== */
 
-   Different pages may use different IDs.
-   This helper prevents verification messages
-   from disappearing because of an ID mismatch.
+function getLoginMessageElement() {
+
+    return (
+        document.getElementById(
+            "loginStatus"
+        ) ||
+        document.getElementById(
+            "loginMessage"
+        )
+    );
+}
+
+
+/* =====================================================
+   REGISTRATION MESSAGE ELEMENT
 ===================================================== */
 
 function getRegistrationMessageElement() {
@@ -170,6 +204,10 @@ function getRegistrationMessageElement() {
     );
 }
 
+
+/* =====================================================
+   VERIFICATION MESSAGE ELEMENT
+===================================================== */
 
 function getVerificationMessageElement() {
 
@@ -344,11 +382,6 @@ async function updateUserProfile(
 
 /* =====================================================
    COUNTRY CALLING CODES
-
-   Used only when the user enters a local phone
-   number without +country-code.
-
-   This does NOT verify the phone number.
 ===================================================== */
 
 const COUNTRY_CALLING_CODES = {
@@ -391,8 +424,8 @@ const COUNTRY_CALLING_CODES = {
     China: "+86",
     Colombia: "+57",
     Comoros: "+269",
-    Congo: "+242",
     "Congo, Democratic Republic": "+243",
+    Congo: "+242",
     CostaRica: "+506",
     Croatia: "+385",
     Cuba: "+53",
@@ -575,13 +608,6 @@ const COUNTRY_CALLING_CODES = {
 
 /* =====================================================
    FIND COUNTRY CALLING CODE
-
-   Supports:
-   - Exact country names
-   - Country values using spaces
-   - Country values using hyphens
-   - Country values using underscores
-   - Country values already containing +code
 ===================================================== */
 
 function getCountryCallingCode(
@@ -627,46 +653,39 @@ function getCountryCallingCode(
         ];
     }
 
-    /* ---------------------------------------------
-       Common country-name variations
-    --------------------------------------------- */
-
     const aliases = {
 
-        "UnitedStatesofAmerica":
+        UnitedStatesofAmerica:
             "+1",
 
-        "USA":
+        USA:
             "+1",
 
-        "UK":
+        UK:
             "+44",
 
-        "UnitedKingdomofGreatBritainandNorthernIreland":
+        UnitedKingdomofGreatBritainandNorthernIreland:
             "+44",
 
-        "DemocraticRepublicoftheCongo":
+        DemocraticRepublicoftheCongo:
             "+243",
 
-        "DRC":
+        DRC:
             "+243",
 
-        "RepublicoftheCongo":
+        RepublicoftheCongo:
             "+242",
 
-        "IvoryCoast":
+        IvoryCoast:
             "+225",
 
-        "CotedIvoire":
+        CotedIvoire:
             "+225",
 
-        "Czechia":
+        Czechia:
             "+420",
 
-        "Eswatini":
-            "+268",
-
-        "Swaziland":
+        Swaziland:
             "+268"
     };
 
@@ -681,13 +700,6 @@ function getCountryCallingCode(
 
 /* =====================================================
    PHONE NORMALIZATION
-
-   Phone is OPTIONAL.
-
-   This function only converts a phone number into
-   international format.
-
-   It does NOT verify ownership of the number.
 ===================================================== */
 
 function normalizePhoneNumber(
@@ -711,22 +723,12 @@ function normalizePhoneNumber(
         return "";
     }
 
-
-    /* ---------------------------------------------
-       Already international
-    --------------------------------------------- */
-
     if (
         cleaned.startsWith("+")
     ) {
 
         return cleaned;
     }
-
-
-    /* ---------------------------------------------
-       International format using 00
-    --------------------------------------------- */
 
     if (
         cleaned.startsWith("00")
@@ -738,45 +740,24 @@ function normalizePhoneNumber(
         );
     }
 
-
-    /* ---------------------------------------------
-       Remove local trunk zero(s)
-    --------------------------------------------- */
-
     cleaned =
         cleaned.replace(
             /^0+/,
             ""
         );
 
-
     if (!cleaned) {
         return "";
     }
-
-
-    /* ---------------------------------------------
-       Get country calling code
-    --------------------------------------------- */
 
     const countryCode =
         getCountryCallingCode(
             country
         );
 
-
-    /*
-       If country code is unknown, do not invent one.
-
-       The user can instead enter an international
-       number beginning with +.
-    */
-
     if (!countryCode) {
-
         return cleaned;
     }
-
 
     return (
         countryCode +
@@ -787,10 +768,6 @@ function normalizePhoneNumber(
 
 /* =====================================================
    OPTIONAL PHONE VALIDATION
-
-   This validates format only.
-
-   It does NOT mean the phone is verified.
 ===================================================== */
 
 function validateE164Phone(
@@ -821,57 +798,128 @@ function getFirebaseErrorMessage(
     switch (code) {
 
         case "auth/invalid-email":
-            return "The email address is invalid.";
 
-        case "auth/email-already-in-use":
-            return "This email address is already registered.";
+            return (
+                "The email address is invalid. Please enter a valid email address."
+            );
 
-        case "auth/weak-password":
-            return "Password is too weak.";
-
-        case "auth/wrong-password":
-            return "Incorrect password.";
 
         case "auth/user-not-found":
-            return "Account not found.";
 
-        case "auth/user-disabled":
-            return "This account has been disabled.";
+            return (
+                "No TIPECO GROUP account was found with this email address."
+            );
+
+
+        case "auth/wrong-password":
+
+            return (
+                "Incorrect password. Please check your password and try again."
+            );
+
+
+        /*
+           Firebase may intentionally return
+           invalid-credential instead of telling us
+           whether the email or password was wrong.
+        */
 
         case "auth/invalid-credential":
-            return "Invalid email or password.";
+
+            return (
+                "Invalid email or password. Please check your credentials and try again."
+            );
+
+
+        case "auth/email-already-in-use":
+
+            return (
+                "This email address is already registered."
+            );
+
+
+        case "auth/weak-password":
+
+            return (
+                "Password is too weak."
+            );
+
+
+        case "auth/user-disabled":
+
+            return (
+                "This account has been disabled."
+            );
+
 
         case "auth/too-many-requests":
-            return "Too many requests. Please wait and try again later.";
+
+            return (
+                "Too many login attempts. Please wait and try again later."
+            );
+
 
         case "auth/network-request-failed":
-            return "Network error. Please check your internet connection.";
+
+            return (
+                "Network error. Please check your internet connection and try again."
+            );
+
 
         case "auth/operation-not-allowed":
-            return "This authentication method is not enabled in Firebase.";
+
+            return (
+                "This authentication method is not enabled in Firebase."
+            );
+
 
         case "auth/requires-recent-login":
-            return "Please log in again and retry.";
+
+            return (
+                "Please log in again and retry."
+            );
+
 
         case "auth/expired-action-code":
-            return "This verification or reset link has expired.";
+
+            return (
+                "This verification or reset link has expired."
+            );
+
 
         case "auth/invalid-action-code":
-            return "This verification or reset link is invalid or has already been used.";
+
+            return (
+                "This verification or reset link is invalid or has already been used."
+            );
+
 
         case "auth/user-token-expired":
-            return "Your session has expired. Please log in again.";
+
+            return (
+                "Your session has expired. Please log in again."
+            );
+
 
         case "auth/invalid-verification-code":
-            return "The verification code is invalid.";
+
+            return (
+                "The verification code is invalid."
+            );
+
 
         case "auth/invalid-verification-id":
-            return "The verification request is invalid.";
+
+            return (
+                "The verification request is invalid."
+            );
+
 
         default:
+
             return (
                 error?.message ||
-                "An unexpected authentication error occurred."
+                "An unexpected authentication error occurred. Please try again."
             );
     }
 }
@@ -893,10 +941,6 @@ async function createRegistrationAccount(
         password
     } = registrationData;
 
-
-    /* =================================================
-       BASIC VALIDATION
-    ================================================= */
 
     if (!fullName) {
 
@@ -927,13 +971,6 @@ async function createRegistrationAccount(
     }
 
 
-    /* =================================================
-       OPTIONAL PHONE
-
-       IMPORTANT:
-       Normalize exactly ONCE here.
-    ================================================= */
-
     let normalizedPhone = "";
 
     if (phone) {
@@ -957,10 +994,6 @@ async function createRegistrationAccount(
     }
 
 
-    /* =================================================
-       CREATE FIREBASE AUTH USER
-    ================================================= */
-
     const credential =
         await createUserWithEmailAndPassword(
             auth,
@@ -971,16 +1004,6 @@ async function createRegistrationAccount(
     const user =
         credential.user;
 
-
-    /* =================================================
-       CREATE FIRESTORE PROFILE
-
-       IMPORTANT:
-       Public registration can ONLY create
-       the GENERAL USER role.
-
-       It can NEVER create owner.
-    ================================================= */
 
     const profileData = {
 
@@ -1016,15 +1039,6 @@ async function createRegistrationAccount(
             serverTimestamp()
     };
 
-
-    /* =================================================
-       CREATE FIRESTORE PROFILE
-
-       If Firestore fails immediately after account
-       creation, attempt to remove the newly-created
-       Auth account so we do not intentionally leave
-       an orphan account behind.
-    ================================================= */
 
     try {
 
@@ -1092,10 +1106,6 @@ async function handleRegistration(
     }
 
 
-    /* =================================================
-       INPUTS
-    ================================================= */
-
     const fullName =
         document.getElementById(
             "fullName"
@@ -1146,10 +1156,6 @@ async function handleRegistration(
     const statusElement =
         getRegistrationMessageElement();
 
-
-    /* =================================================
-       VALIDATION
-    ================================================= */
 
     if (!fullName) {
 
@@ -1229,18 +1235,6 @@ async function handleRegistration(
     }
 
 
-    /* =================================================
-       OPTIONAL PHONE VALIDATION
-
-       Normalize ONCE here so the user gets an early
-       validation message.
-
-       createRegistrationAccount receives the RAW
-       phone and normalizes it again internally.
-       This is intentional validation consistency,
-       not double-storage normalization.
-    ================================================= */
-
     if (phoneRaw) {
 
         const normalizedPhoneForValidation =
@@ -1248,7 +1242,6 @@ async function handleRegistration(
                 country,
                 phoneRaw
             );
-
 
         if (
             !validateE164Phone(
@@ -1267,10 +1260,6 @@ async function handleRegistration(
     }
 
 
-    /* =================================================
-       REGISTRATION
-    ================================================= */
-
     const registerButton =
         document.getElementById(
             "registerButton"
@@ -1283,9 +1272,7 @@ async function handleRegistration(
     try {
 
         if (registerButton) {
-
-            registerButton.disabled =
-                true;
+            registerButton.disabled = true;
         }
 
 
@@ -1295,10 +1282,6 @@ async function handleRegistration(
             "info"
         );
 
-
-        /* =============================================
-           CREATE FIREBASE ACCOUNT + PROFILE
-        ============================================= */
 
         const user =
             await createRegistrationAccount(
@@ -1313,10 +1296,6 @@ async function handleRegistration(
             );
 
 
-        /* =============================================
-           EMAIL VERIFICATION
-        ============================================= */
-
         try {
 
             await sendEmailVerification(
@@ -1330,13 +1309,6 @@ async function handleRegistration(
                 verificationError
             );
 
-            /*
-               Keep the account/profile because the user
-               may retry sending verification later.
-
-               The account remains pending_verification.
-            */
-
             showMessage(
                 statusElement,
                 "Your account was created, but the verification email could not be sent. Please try again later.",
@@ -1348,13 +1320,6 @@ async function handleRegistration(
             return;
         }
 
-
-        /* =============================================
-           KEEP PROFILE PENDING
-
-           The account must remain pending until Firebase
-           confirms emailVerified === true.
-        ============================================= */
 
         await updateUserProfile(
             user.uid,
@@ -1371,10 +1336,6 @@ async function handleRegistration(
             }
         );
 
-
-        /* =============================================
-           SUCCESS
-        ============================================= */
 
         showMessage(
             statusElement,
@@ -1421,9 +1382,7 @@ async function handleRegistration(
     } finally {
 
         if (registerButton) {
-
-            registerButton.disabled =
-                false;
+            registerButton.disabled = false;
         }
     }
 }
@@ -1457,10 +1416,6 @@ async function verifyEmailAddress() {
         }
 
 
-        /* =============================================
-           REFRESH FIREBASE AUTH STATE
-        ============================================= */
-
         await reload(
             user
         );
@@ -1482,12 +1437,6 @@ async function verifyEmailAddress() {
         }
 
 
-        /* =============================================
-           EMAIL CHECK ONLY
-
-           Phone verification is NOT required.
-        ============================================= */
-
         if (
             currentUser.emailVerified !== true
         ) {
@@ -1501,13 +1450,6 @@ async function verifyEmailAddress() {
             return false;
         }
 
-
-        /* =============================================
-           UPDATE FIRESTORE
-
-           Email verification is complete.
-           Account becomes ACTIVE.
-        ============================================= */
 
         await updateUserProfile(
             currentUser.uid,
@@ -1604,12 +1546,7 @@ async function handleLogin(
 
 
     const statusElement =
-        document.getElementById(
-            "loginStatus"
-        ) ||
-        document.getElementById(
-            "loginMessage"
-        );
+        getLoginMessageElement();
 
 
     if (
@@ -1635,10 +1572,6 @@ async function handleLogin(
             "info"
         );
 
-
-        /* =============================================
-           FIREBASE LOGIN
-        ============================================= */
 
         const credential =
             await signInWithEmailAndPassword(
@@ -1669,10 +1602,6 @@ async function handleLogin(
         }
 
 
-        /* =============================================
-           EMAIL VERIFICATION REQUIRED
-        ============================================= */
-
         if (
             currentUser.emailVerified !== true
         ) {
@@ -1695,10 +1624,6 @@ async function handleLogin(
             return;
         }
 
-
-        /* =============================================
-           FIRESTORE PROFILE
-        ============================================= */
 
         const profile =
             await getUserProfile(
@@ -1725,10 +1650,6 @@ async function handleLogin(
             return;
         }
 
-
-        /* =============================================
-           BLOCKED / SUSPENDED
-        ============================================= */
 
         const status =
             getAccountStatus(
@@ -1759,12 +1680,6 @@ async function handleLogin(
         }
 
 
-        /* =============================================
-           EMAIL VERIFIED = ACTIVE
-
-           No phone verification required.
-        ============================================= */
-
         if (
             profile.emailVerified !== true ||
             profile.accountStatus !== "active"
@@ -1794,19 +1709,11 @@ async function handleLogin(
         }
 
 
-        /* =============================================
-           SAVE SESSION CONVENIENCE DATA
-        ============================================= */
-
         saveTipecoSession(
             currentUser,
             profile
         );
 
-
-        /* =============================================
-           OWNER DASHBOARD
-        ============================================= */
 
         if (
             isTipecoOwner(
@@ -1820,10 +1727,6 @@ async function handleLogin(
             return;
         }
 
-
-        /* =============================================
-           GENERAL USERS
-        ============================================= */
 
         window.location.href =
             DEFAULT_HOME;
@@ -1874,10 +1777,8 @@ async function () {
                         return;
                     }
 
-
                     completed =
                         true;
-
 
                     resolve(
                         result
@@ -1893,10 +1794,6 @@ async function () {
                 onAuthStateChanged(
                     auth,
                     async (user) => {
-
-                        /* =================================
-                           NO USER
-                        ================================= */
 
                         if (!user) {
 
@@ -1919,10 +1816,6 @@ async function () {
 
 
                         try {
-
-                            /* =============================
-                               REFRESH AUTH STATE
-                            ============================= */
 
                             await reload(
                                 user
@@ -1953,10 +1846,6 @@ async function () {
                             }
 
 
-                            /* =============================
-                               EMAIL VERIFICATION
-                            ============================= */
-
                             if (
                                 currentUser.emailVerified !==
                                 true
@@ -1983,10 +1872,6 @@ async function () {
                                 return;
                             }
 
-
-                            /* =============================
-                               FIRESTORE PROFILE
-                            ============================= */
 
                             const profile =
                                 await getUserProfile(
@@ -2017,10 +1902,6 @@ async function () {
                                 return;
                             }
 
-
-                            /* =============================
-                               OWNER ROLE
-                            ============================= */
 
                             if (
                                 !isTipecoOwner(
@@ -2055,10 +1936,6 @@ async function () {
                             }
 
 
-                            /* =============================
-                               ACCOUNT STATUS
-                            ============================= */
-
                             const status =
                                 getAccountStatus(
                                     profile
@@ -2092,13 +1969,6 @@ async function () {
                             }
 
 
-                            /* =============================
-                               OWNER ACCOUNT ACTIVE
-
-                               Email verification only.
-                               No phone verification.
-                            ============================= */
-
                             if (
                                 profile.emailVerified !==
                                     true ||
@@ -2129,10 +1999,6 @@ async function () {
                                     "active";
                             }
 
-
-                            /* =============================
-                               SESSION
-                            ============================= */
 
                             saveTipecoSession(
                                 currentUser,
@@ -2233,8 +2099,6 @@ async function () {
 
 /* =====================================================
    RESET PASSWORD
-
-   EMAIL ONLY
 ===================================================== */
 
 window.tipecoResetPassword =
@@ -2378,10 +2242,6 @@ document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-        /* =============================================
-           REGISTER FORM
-        ============================================= */
-
         const registerForm =
             document.getElementById(
                 "registerForm"
@@ -2397,10 +2257,6 @@ document.addEventListener(
         }
 
 
-        /* =============================================
-           LOGIN FORM
-        ============================================= */
-
         const loginForm =
             document.getElementById(
                 "loginForm"
@@ -2415,16 +2271,6 @@ document.addEventListener(
             );
         }
 
-
-        /* =============================================
-           EMAIL VERIFICATION BUTTON
-
-           If register.html already has inline
-           onclick="window.tipecoVerifyEmail()",
-           do NOT attach a second listener.
-
-           This prevents double verification calls.
-        ============================================= */
 
         const verifyEmailButton =
             document.getElementById(
@@ -2456,7 +2302,6 @@ document.addEventListener(
    AUTH STATE INFORMATION
 
    Informational only.
-
    It does NOT grant authentication authority.
 ===================================================== */
 
@@ -2534,5 +2379,5 @@ onAuthStateChanged(
 ===================================================== */
 
 console.log(
-    "TIPECO GROUP auth.js v9.1 loaded successfully."
+    "TIPECO GROUP auth.js v9.2 loaded successfully."
 );
