@@ -74,8 +74,7 @@
 
             <div class="auth-card">
 
-                <form
-    id="loginForm">
+                <form id="loginForm">
 
 
                     <!-- EMAIL / PHONE -->
@@ -83,9 +82,7 @@
                     <div class="form-group">
 
                         <label for="login">
-
                             Email or Phone Number
-
                         </label>
 
 
@@ -106,9 +103,7 @@
                     <div class="form-group">
 
                         <label for="password">
-
                             Password
-
                         </label>
 
 
@@ -120,6 +115,28 @@
                             autocomplete="current-password"
                             required>
 
+                    </div>
+
+
+
+                    <!-- =================================================
+                         AUTH MESSAGE / ERROR AREA
+                    ================================================== -->
+
+                    <div
+                        id="loginMessage"
+                        role="alert"
+                        aria-live="polite"
+                        hidden>
+                    </div>
+
+                    <!-- Compatibility with auth.js -->
+
+                    <div
+                        id="loginStatus"
+                        role="status"
+                        aria-live="polite"
+                        hidden>
                     </div>
 
 
@@ -184,20 +201,13 @@
                         type="button"
                         class="google-btn">
 
-
                         <span class="google-icon">
-
                             G
-
                         </span>
-
 
                         <span>
-
                             Continue with Google
-
                         </span>
-
 
                     </button>
 
@@ -217,9 +227,7 @@
                         Don't have an account?
 
                         <a href="register.html">
-
                             Sign Up
-
                         </a>
 
                     </p>
@@ -238,9 +246,7 @@
             <div class="back-home">
 
                 <a href="../index.html">
-
                     ← Back to TIPECO GROUP
-
                 </a>
 
             </div>
@@ -256,8 +262,8 @@
          TIPECO GROUP AUTH JAVASCRIPT
     ====================================================== -->
 
-    
-<script type="module" src="../assets/js/auth.js"></script>
+    <script type="module"
+            src="../assets/js/auth.js"></script>
 
 </body>
 
